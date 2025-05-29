@@ -3,67 +3,176 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>EmberFrame - Register</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            margin: 0; 
-            padding: 0; 
-            height: 100vh; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .register-container { 
-            background: rgba(255,255,255,0.95); 
-            padding: 40px; 
-            border-radius: 15px; 
+        .register-container {
+            background: rgba(255,255,255,0.95);
+            padding: 40px;
+            border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             min-width: 400px;
             text-align: center;
+            backdrop-filter: blur(10px);
         }
-        .logo { font-size: 48px; margin-bottom: 20px; }
-        .title { font-size: 28px; color: #333; margin-bottom: 30px; }
-        .form-group { margin-bottom: 20px; text-align: left; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input { 
-            width: 100%; 
-            padding: 12px; 
-            border: 2px solid #ddd; 
-            border-radius: 8px; 
-            font-size: 16px; 
-        }
-        .form-group input:focus { outline: none; border-color: #f5576c; }
-        .register-button { 
-            width: 100%; 
-            padding: 15px; 
-            background: linear-gradient(45deg, #f093fb, #f5576c); 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            font-size: 18px; 
-            cursor: pointer; 
+        .logo {
+            font-size: 64px;
             margin-bottom: 20px;
+            animation: pulse 2s infinite;
         }
-        .register-button:hover { transform: translateY(-2px); }
-        .login-link { color: #f5576c; text-decoration: none; }
-        .error-message { 
-            background: #ffebee; 
-            color: #c62828; 
-            padding: 10px; 
-            border-radius: 5px; 
-            margin-bottom: 15px; 
-            display: none; 
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
-        .success-message { 
-            background: #e8f5e8; 
-            color: #2e7d32; 
-            padding: 10px; 
-            border-radius: 5px; 
-            margin-bottom: 15px; 
-            display: none; 
+        .title {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #f5576c;
+            box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
+        }
+        .register-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .register-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+        .register-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .login-link {
+            color: #f5576c;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .login-link:hover {
+            text-decoration: underline;
+        }
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: 500;
+        }
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+        .loading {
+            display: none;
+            margin-top: 10px;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #f5576c;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .demo-info {
+            background: #fff3e0;
+            color: #e65100;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border: 1px solid #ffcc02;
+        }
+        .demo-info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .password-requirements {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            text-align: left;
+        }
+        .password-strength {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        .password-strength-bar {
+            height: 100%;
+            transition: all 0.3s ease;
+            width: 0%;
+        }
+        .password-strength.weak .password-strength-bar {
+            background: #f44336;
+            width: 33%;
+        }
+        .password-strength.medium .password-strength-bar {
+            background: #ff9800;
+            width: 66%;
+        }
+        .password-strength.strong .password-strength-bar {
+            background: #4caf50;
+            width: 100%;
         }
     </style>
 </head>
@@ -72,80 +181,215 @@
         <div class="logo">🔥</div>
         <h1 class="title">Join EmberFrame</h1>
 
-        <div class="error-message" id="error-message"></div>
-        <div class="success-message" id="success-message"></div>
+        <div class="demo-info">
+            <strong>Registration Requirements:</strong>
+            Username: 3+ characters, Password: 6+ characters
+        </div>
+
+        <div class="message error-message" id="error-message"></div>
+        <div class="message success-message" id="success-message"></div>
 
         <form id="register-form">
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" required minlength="3">
+                <input type="text" id="username" name="username" required minlength="3" placeholder="Enter username (3+ chars)">
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required minlength="6">
+                <input type="password" id="password" name="password" required minlength="6" placeholder="Enter password (6+ chars)">
+                <div class="password-strength" id="password-strength">
+                    <div class="password-strength-bar"></div>
+                </div>
+                <div class="password-requirements">
+                    Password must be at least 6 characters long
+                </div>
             </div>
 
             <div class="form-group">
                 <label for="confirm-password">Confirm Password</label>
-                <input type="password" id="confirm-password" name="confirm-password" required>
+                <input type="password" id="confirm-password" name="confirm-password" required placeholder="Confirm your password">
             </div>
 
-            <button type="submit" class="register-button">Create Account</button>
+            <button type="submit" class="register-button" id="register-btn">
+                <span id="register-text">Create Account</span>
+                <div class="loading" id="register-loading">
+                    <div class="spinner"></div>
+                </div>
+            </button>
         </form>
 
         <p>Already have an account? <a href="/login" class="login-link">Sign in here</a></p>
     </div>
 
     <script>
-        document.getElementById('register-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        console.log('🔥 EmberFrame Registration Page Loaded');
 
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-            const errorMessage = document.getElementById('error-message');
-            const successMessage = document.getElementById('success-message');
+        function showMessage(text, type = 'error') {
+            const errorMsg = document.getElementById('error-message');
+            const successMsg = document.getElementById('success-message');
 
-            // Hide messages
-            errorMessage.style.display = 'none';
-            successMessage.style.display = 'none';
+            // Hide all messages first
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
 
-            // Validate passwords match
-            if (password !== confirmPassword) {
-                errorMessage.textContent = 'Passwords do not match';
-                errorMessage.style.display = 'block';
+            // Show appropriate message
+            if (type === 'error') {
+                errorMsg.textContent = text;
+                errorMsg.style.display = 'block';
+            } else if (type === 'success') {
+                successMsg.textContent = text;
+                successMsg.style.display = 'block';
+            }
+        }
+
+        function setLoading(loading) {
+            const registerBtn = document.getElementById('register-btn');
+            const registerText = document.getElementById('register-text');
+            const registerLoading = document.getElementById('register-loading');
+
+            if (loading) {
+                registerBtn.disabled = true;
+                registerText.style.display = 'none';
+                registerLoading.style.display = 'inline-block';
+            } else {
+                registerBtn.disabled = false;
+                registerText.style.display = 'inline';
+                registerLoading.style.display = 'none';
+            }
+        }
+
+        function updatePasswordStrength(password) {
+            const strengthIndicator = document.getElementById('password-strength');
+
+            // Remove existing classes
+            strengthIndicator.classList.remove('weak', 'medium', 'strong');
+
+            if (password.length === 0) {
                 return;
             }
 
+            let strength = 0;
+
+            // Length check
+            if (password.length >= 6) strength++;
+            if (password.length >= 8) strength++;
+
+            // Character variety
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+            // Determine strength level
+            if (strength <= 2) {
+                strengthIndicator.classList.add('weak');
+            } else if (strength <= 4) {
+                strengthIndicator.classList.add('medium');
+            } else {
+                strengthIndicator.classList.add('strong');
+            }
+        }
+
+        // Password strength indicator
+        document.getElementById('password').addEventListener('input', (e) => {
+            updatePasswordStrength(e.target.value);
+        });
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const confirmPassword = document.getElementById('confirm-password').value.trim();
+
+            console.log('📝 Registration attempt:', username);
+
+            // Client-side validation
+            if (!username) {
+                showMessage('Please enter a username', 'error');
+                return;
+            }
+
+            if (!password) {
+                showMessage('Please enter a password', 'error');
+                return;
+            }
+
+            if (!confirmPassword) {
+                showMessage('Please confirm your password', 'error');
+                return;
+            }
+
+            if (username.length < 3) {
+                showMessage('Username must be at least 3 characters', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage('Password must be at least 6 characters', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showMessage('Passwords do not match', 'error');
+                return;
+            }
+
+            setLoading(true);
+
             try {
+                console.log('📡 Sending registration request...');
+
                 const response = await fetch('/register', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ username, password })
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
                 });
 
+                console.log('📡 Response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
                 const result = await response.json();
+                console.log('📡 Response data:', result);
 
                 if (result.success) {
-                    successMessage.textContent = result.message + ' You can now sign in.';
-                    successMessage.style.display = 'block';
+                    showMessage('Registration successful! Redirecting to login...', 'success');
+                    console.log('✅ Registration successful, redirecting...');
 
                     // Clear form
                     document.getElementById('register-form').reset();
+                    updatePasswordStrength('');
 
                     // Redirect to login after 2 seconds
                     setTimeout(() => {
                         window.location.href = '/login';
                     }, 2000);
                 } else {
-                    errorMessage.textContent = result.message;
-                    errorMessage.style.display = 'block';
+                    showMessage(result.message || 'Registration failed', 'error');
+                    console.log('❌ Registration failed:', result.message);
                 }
+
             } catch (error) {
-                errorMessage.textContent = 'Connection error. Please try again.';
-                errorMessage.style.display = 'block';
+                console.error('❌ Registration error:', error);
+                showMessage(`Connection error: ${error.message}`, 'error');
+            } finally {
+                setLoading(false);
             }
+        });
+
+        // Focus the username field on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('username').focus();
         });
     </script>
 </body>
