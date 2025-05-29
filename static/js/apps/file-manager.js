@@ -403,19 +403,25 @@ class FileManager {
         if (type === 'folder') {
             await this.navigateToFolder(filename);
         } else {
-            // Open file in appropriate application
+            // Only open text editor for certain file types
             const ext = filename.split('.').pop().toLowerCase();
             const textExtensions = ['txt', 'md', 'js', 'html', 'css', 'json', 'py', 'xml'];
 
             if (textExtensions.includes(ext)) {
+                // Check if this is in a read-only directory
+                if (!this.isWritable && !confirm(`Open "${filename}" in read-only mode?`)) {
+                    return;
+                }
+
                 // Open in text editor
                 if (window.WindowManager && window.TextEditor) {
-                    const textEditor = window.WindowManager.openApp('text-editor');
-                    // TODO: Load file content into text editor
-                    const fullPath = this.currentPath ? `${this.currentPath}/${filename}` : filename;
+                    const textEditorWindow = window.WindowManager.openApp('text-editor');
+
+                    // Load file content after a delay
                     setTimeout(() => {
+                        const fullPath = this.currentPath ? `${this.currentPath}/${filename}` : filename;
                         window.TextEditor.loadFile(fullPath);
-                    }, 100);
+                    }, 200);
                 }
             } else {
                 Notification.info(`Cannot open ${filename}. No associated application.`);

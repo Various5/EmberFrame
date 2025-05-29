@@ -141,23 +141,40 @@ def create_app():
 
         username = session['username']
 
-        # Determine if it's user directory or public directory
-        if filepath.startswith('public/') or filepath.startswith('public'):
-            if filepath.startswith('public/'):
-                relative_path = filepath[7:]  # Remove 'public/' prefix
-            else:
-                relative_path = filepath[6:] if len(filepath) > 6 else ''  # Remove 'public' prefix
+        # Debug logging
+        print(f"DEBUG: Original filepath: '{filepath}'")
+
+        # Handle public directory paths
+        if filepath == 'public' or filepath == 'public/':
+            # Root public directory
+            base_path = app.config['PUBLIC_FOLDER']
+            relative_path = ''
+            writable = False
+            clean_filepath = 'public/'
+        elif filepath.startswith('public/'):
+            # Subdirectory in public
+            relative_path = filepath[7:]  # Remove 'public/' prefix
             base_path = app.config['PUBLIC_FOLDER']
             writable = False
+            clean_filepath = filepath
         else:
+            # User directory
             base_path = get_user_directory(username)
             relative_path = filepath
             writable = True
+            clean_filepath = filepath
 
-        full_path = os.path.join(base_path, relative_path) if relative_path else base_path
+        # Construct full path
+        if relative_path:
+            full_path = os.path.join(base_path, relative_path)
+        else:
+            full_path = base_path
+
+        print(f"DEBUG: base_path='{base_path}', relative_path='{relative_path}', full_path='{full_path}'")
 
         if not os.path.exists(full_path):
-            return jsonify({'error': 'Path not found'}), 404
+            print(f"DEBUG: Path not found: {full_path}")
+            return jsonify({'error': f'Path not found: {filepath}'}), 404
 
         if not os.path.isdir(full_path):
             return jsonify({'error': 'Not a directory'}), 400
@@ -176,17 +193,15 @@ def create_app():
                         'icon': get_file_icon(item)
                     })
                 except (OSError, IOError):
-                    # Skip files we can't stat
                     continue
         except PermissionError:
             return jsonify({'error': 'Permission denied'}), 403
 
         return jsonify({
             'files': sorted(files, key=lambda x: (x['type'] != 'folder', x['name'].lower())),
-            'path': filepath,
+            'path': clean_filepath,
             'writable': writable
         })
-
     @app.route('/api/files/<path:filepath>', methods=['POST'])
     def create_file_or_folder(filepath):
         if 'username' not in session:
@@ -265,14 +280,24 @@ def create_app():
 
         username = session['username']
 
+        # Fix public folder path handling
         if filepath.startswith('public/'):
             base_path = app.config['PUBLIC_FOLDER']
-            relative_path = filepath[7:]
+            relative_path = filepath[7:]  # Remove 'public/' prefix
+        elif filepath.startswith('public'):
+            base_path = app.config['PUBLIC_FOLDER']
+            relative_path = filepath[6:] if len(filepath) > 6 else ''  # Remove 'public' prefix
         else:
             base_path = get_user_directory(username)
             relative_path = filepath
 
-        full_path = os.path.join(base_path, relative_path)
+        # Fix path construction - avoid double slashes
+        if relative_path:
+            full_path = os.path.join(base_path, relative_path)
+        else:
+            full_path = base_path
+
+        print(f"Debug: filepath={filepath}, relative_path={relative_path}, full_path={full_path}")
 
         try:
             with open(full_path, 'r', encoding='utf-8') as f:
@@ -288,7 +313,6 @@ def create_app():
                 return jsonify({'error': 'Cannot read file: ' + str(e)}), 500
         except Exception as e:
             return jsonify({'error': str(e)}), 500
-
     # ===================
     # FILE UPLOAD ROUTES
     # ===================

@@ -19,7 +19,7 @@ class WindowManager {
         if (appName === 'public-folder') {
             // Open file manager with public directory
             if (window.FileManager) {
-                const windowData = window.FileManager.createWindow('public/');
+                const windowData = window.FileManager.createWindow('public/'); // Make sure this is 'public/'
                 this.createWindow('file-manager-public', windowData);
             }
             return;

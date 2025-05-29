@@ -486,37 +486,70 @@ class TextEditor {
         };
     }
 
-    static init(windowElement) {
-        this.currentWindow = windowElement;
-        this.currentFile = null;
-        this.currentFilePath = null;
-        this.isModified = false;
-        this.undoStack = [];
-        this.redoStack = [];
-        this.currentTheme = 'light';
-        this.wordWrap = true;
-        this.fontSize = 14;
-        this.fontFamily = "'Segoe UI', sans-serif";
+static init(windowElement) {
+    // Add comprehensive null checking
+    if (!windowElement) {
+        console.error('TextEditor: windowElement is null in init');
+        return;
+    }
 
-        this.textarea = windowElement.querySelector('#text-editor-textarea');
-        this.statusElement = windowElement.querySelector('#editor-status');
-        this.filePathElement = windowElement.querySelector('#file-path');
-        this.wordCountElement = windowElement.querySelector('#word-count');
-        this.cursorPositionElement = windowElement.querySelector('#cursor-position');
-        this.lineNumbers = windowElement.querySelector('#line-numbers');
+    this.currentWindow = windowElement;
+    console.log('TextEditor: currentWindow set to:', this.currentWindow);
 
+    // Initialize other properties
+    this.currentFile = null;
+    this.currentFilePath = null;
+    this.isModified = false;
+    this.undoStack = [];
+    this.redoStack = [];
+
+    // Find elements
+    this.textarea = windowElement.querySelector('#text-editor-textarea');
+    this.statusElement = windowElement.querySelector('#editor-status');
+    this.filePathElement = windowElement.querySelector('#file-path');
+    this.wordCountElement = windowElement.querySelector('#word-count');
+    this.cursorPositionElement = windowElement.querySelector('#cursor-position');
+    this.lineNumbers = windowElement.querySelector('#line-numbers');
+
+    if (!this.textarea) {
+        console.error('TextEditor: Required elements not found');
+        return;
+    }
+
+    // Setup with delay to ensure DOM is ready
+    setTimeout(() => {
         this.setupEventListeners();
         this.updateLineNumbers();
         this.updateStatus();
         this.updateWordCount();
         this.updateCursorPosition();
-
-        // Focus textarea
         this.textarea.focus();
+    }, 50);
+}
+
+static setupEventListeners() {
+    // Multiple safety checks
+    if (!this.currentWindow) {
+        console.error('TextEditor: currentWindow is null in setupEventListeners');
+        return;
     }
 
-    static setupEventListeners() {
-        // Text change events
+    if (!this.textarea) {
+        console.error('TextEditor: textarea is null in setupEventListeners');
+        return;
+    }
+
+    console.log('TextEditor: Setting up event listeners');
+
+        this.textarea = this.currentWindow.querySelector('#text-editor-textarea');
+        if (!this.textarea) {
+            console.error('TextEditor: textarea not found');
+            return;
+        }
+
+        this.textarea.addEventListener('input', () => {
+            this.handleTextChange();
+        });
         this.textarea.addEventListener('input', () => {
             this.handleTextChange();
         });
@@ -540,11 +573,23 @@ class TextEditor {
 
         // Close dropdown menus when clicking outside
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.menu-group')) {
+            if (!e.target.closest('.menu-group') && this.currentWindow) {
                 this.closeAllMenus();
             }
         });
-    }
+            setTimeout(() => {
+            this.setupEventListeners();
+            this.updateLineNumbers();
+            this.updateStatus();
+            this.updateWordCount();
+            this.updateCursorPosition();
+
+            // Focus textarea
+            if (this.textarea) {
+                this.textarea.focus();
+            }
+        }, 100);
+        }
 
     static handleKeyboardShortcuts(e) {
         if (e.ctrlKey || e.metaKey) {
@@ -696,20 +741,23 @@ class TextEditor {
 
     static async loadFile(filePath) {
         try {
-            const response = await fetch(`/api/file-content/${filePath}`);
+            // Clean up the file path to avoid double slashes
+            const cleanPath = filePath.replace(/\/+/g, '/'); // Replace multiple slashes with single slash
+
+            const response = await fetch(`/api/file-content/${cleanPath}`);
             const data = await response.json();
 
             if (response.ok) {
                 this.textarea.value = data.content;
-                this.currentFile = filePath.split('/').pop();
-                this.currentFilePath = filePath;
+                this.currentFile = cleanPath.split('/').pop();
+                this.currentFilePath = cleanPath;
                 this.isModified = false;
 
                 this.updateTitle();
                 this.updateStatus(`Loaded ${this.currentFile}`);
                 this.updateWordCount();
                 this.updateLineNumbers();
-                this.filePathElement.textContent = filePath;
+                this.filePathElement.textContent = cleanPath;
 
                 // Clear undo/redo stacks
                 this.undoStack = [];
@@ -912,6 +960,12 @@ class TextEditor {
     }
 
     static closeAllMenus() {
+        // Add null check
+        if (!this.currentWindow) {
+            console.warn('TextEditor: currentWindow is null, skipping closeAllMenus');
+            return;
+        }
+
         this.currentWindow.querySelectorAll('.dropdown-menu').forEach(menu => {
             menu.classList.remove('active');
         });
