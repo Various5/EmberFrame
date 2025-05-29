@@ -1,10 +1,11 @@
-// Window Manager
+// Enhanced Window Manager with Resizable Windows
 class WindowManager {
     constructor() {
         this.windows = new Map();
         this.activeWindow = null;
         this.windowZIndex = 1000;
         this.draggedWindow = null;
+        this.resizeData = null;
         this.dragOffset = { x: 0, y: 0 };
         this.taskbarApps = document.getElementById('taskbar-apps');
         this.windowsContainer = document.getElementById('windows-container');
@@ -14,6 +15,16 @@ class WindowManager {
 
     // Open an application
     openApp(appName) {
+        // Handle special cases
+        if (appName === 'public-folder') {
+            // Open file manager with public directory
+            if (window.FileManager) {
+                const windowData = window.FileManager.createWindow('public/');
+                this.createWindow('file-manager-public', windowData);
+            }
+            return;
+        }
+
         // Check if window already exists
         if (this.windows.has(appName)) {
             const window = this.windows.get(appName);
@@ -49,29 +60,35 @@ class WindowManager {
         const windowElement = document.createElement('div');
         windowElement.className = 'window active';
         windowElement.dataset.app = appName;
+
+        // Create window structure
         windowElement.innerHTML = `
             <div class="window-header">
                 <div class="window-title">${windowData.title}</div>
                 <div class="window-controls">
-                    <div class="window-control minimize"></div>
-                    <div class="window-control maximize"></div>
-                    <div class="window-control close"></div>
+                    <div class="window-control minimize" title="Minimize"></div>
+                    <div class="window-control maximize" title="Maximize"></div>
+                    <div class="window-control close" title="Close"></div>
                 </div>
             </div>
             <div class="window-content">
                 ${windowData.content}
             </div>
+            ${this.createResizeHandles()}
         `;
 
-        // Position window
-        const offset = this.windows.size * 30;
-        windowElement.style.left = (100 + offset) + 'px';
-        windowElement.style.top = (100 + offset) + 'px';
-        windowElement.style.zIndex = ++this.windowZIndex;
+        // Auto-size window based on content if specified
+        if (windowData.autoSize) {
+            this.autoSizeWindow(windowElement, windowData);
+        } else {
+            // Set manual size if specified
+            if (windowData.width) windowElement.style.width = windowData.width;
+            if (windowData.height) windowElement.style.height = windowData.height;
+        }
 
-        // Set size if specified
-        if (windowData.width) windowElement.style.width = windowData.width;
-        if (windowData.height) windowElement.style.height = windowData.height;
+        // Position window
+        this.positionWindow(windowElement);
+        windowElement.style.zIndex = ++this.windowZIndex;
 
         // Add to DOM
         this.windowsContainer.appendChild(windowElement);
@@ -90,21 +107,90 @@ class WindowManager {
         if (windowData.onInit) {
             windowData.onInit(windowElement);
         }
+
+        // Auto-focus first input or textarea
+        this.autoFocusInput(windowElement);
+    }
+
+    // Create resize handles
+    createResizeHandles() {
+        return `
+            <div class="window-resize-handle window-resize-n" data-resize="n"></div>
+            <div class="window-resize-handle window-resize-s" data-resize="s"></div>
+            <div class="window-resize-handle window-resize-e" data-resize="e"></div>
+            <div class="window-resize-handle window-resize-w" data-resize="w"></div>
+            <div class="window-resize-handle window-resize-ne" data-resize="ne"></div>
+            <div class="window-resize-handle window-resize-nw" data-resize="nw"></div>
+            <div class="window-resize-handle window-resize-se" data-resize="se"></div>
+            <div class="window-resize-handle window-resize-sw" data-resize="sw"></div>
+        `;
+    }
+
+    // Auto-size window based on content
+    autoSizeWindow(windowElement, windowData) {
+        // Temporarily show window to measure content
+        windowElement.style.visibility = 'hidden';
+        windowElement.style.display = 'block';
+        windowElement.style.width = 'auto';
+        windowElement.style.height = 'auto';
+
+        const content = windowElement.querySelector('.window-content');
+        const contentWidth = content.scrollWidth;
+        const contentHeight = content.scrollHeight;
+
+        // Calculate optimal window size
+        const padding = 40; // 20px padding on each side
+        const headerHeight = 48;
+        const maxWidth = window.innerWidth - 100;
+        const maxHeight = window.innerHeight - 160; // Account for taskbar
+
+        let optimalWidth = Math.min(contentWidth + padding, maxWidth);
+        let optimalHeight = Math.min(contentHeight + headerHeight + padding, maxHeight);
+
+        // Apply minimum sizes
+        optimalWidth = Math.max(optimalWidth, windowData.minWidth || 300);
+        optimalHeight = Math.max(optimalHeight, windowData.minHeight || 200);
+
+        windowElement.style.width = optimalWidth + 'px';
+        windowElement.style.height = optimalHeight + 'px';
+        windowElement.style.visibility = 'visible';
+    }
+
+    // Position window on screen
+    positionWindow(windowElement) {
+        const offset = this.windows.size * 30;
+        const maxOffset = 200;
+        const actualOffset = offset % maxOffset;
+
+        const x = Math.max(50, Math.min(window.innerWidth - 400, 100 + actualOffset));
+        const y = Math.max(50, Math.min(window.innerHeight - 300, 100 + actualOffset));
+
+        windowElement.style.left = x + 'px';
+        windowElement.style.top = y + 'px';
+    }
+
+    // Auto-focus first input element
+    autoFocusInput(windowElement) {
+        setTimeout(() => {
+            const input = windowElement.querySelector('input[type="text"], textarea');
+            if (input && input.offsetParent !== null) {
+                input.focus();
+            }
+        }, 100);
     }
 
     // Setup window event listeners
     setupWindowEvents(windowElement) {
         const header = windowElement.querySelector('.window-header');
         const controls = windowElement.querySelectorAll('.window-control');
+        const resizeHandles = windowElement.querySelectorAll('.window-resize-handle');
 
         // Make window draggable
         header.addEventListener('mousedown', (e) => {
             if (e.target.classList.contains('window-control')) return;
+            if (e.target.closest('.window-resize-handle')) return;
 
-            this.draggedWindow = windowElement;
-            this.dragOffset.x = e.clientX - windowElement.offsetLeft;
-            this.dragOffset.y = e.clientY - windowElement.offsetTop;
-            this.focusWindow(windowElement);
+            this.startDrag(windowElement, e);
         });
 
         // Window controls
@@ -112,24 +198,158 @@ class WindowManager {
         controls[1].addEventListener('click', () => this.maximizeWindow(windowElement));
         controls[2].addEventListener('click', () => this.closeWindow(windowElement));
 
+        // Resize handles
+        resizeHandles.forEach(handle => {
+            handle.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+                this.startResize(windowElement, e, handle.dataset.resize);
+            });
+        });
+
         // Focus window on click
         windowElement.addEventListener('mousedown', () => {
             this.focusWindow(windowElement);
         });
+
+        // Prevent text selection during drag
+        windowElement.addEventListener('selectstart', (e) => {
+            if (this.draggedWindow || this.resizeData) {
+                e.preventDefault();
+            }
+        });
     }
 
-    // Mouse events for dragging
+    // Start dragging window
+    startDrag(windowElement, e) {
+        this.draggedWindow = windowElement;
+        this.dragOffset.x = e.clientX - windowElement.offsetLeft;
+        this.dragOffset.y = e.clientY - windowElement.offsetTop;
+        this.focusWindow(windowElement);
+
+        document.body.style.cursor = 'move';
+        e.preventDefault();
+    }
+
+    // Start resizing window
+    startResize(windowElement, e, direction) {
+        this.resizeData = {
+            window: windowElement,
+            direction: direction,
+            startX: e.clientX,
+            startY: e.clientY,
+            startWidth: windowElement.offsetWidth,
+            startHeight: windowElement.offsetHeight,
+            startLeft: windowElement.offsetLeft,
+            startTop: windowElement.offsetTop
+        };
+
+        this.focusWindow(windowElement);
+        e.preventDefault();
+    }
+
+    // Mouse events for dragging and resizing
     setupMouseEvents() {
         document.addEventListener('mousemove', (e) => {
             if (this.draggedWindow) {
-                this.draggedWindow.style.left = (e.clientX - this.dragOffset.x) + 'px';
-                this.draggedWindow.style.top = (e.clientY - this.dragOffset.y) + 'px';
+                this.handleDrag(e);
+            } else if (this.resizeData) {
+                this.handleResize(e);
             }
         });
 
         document.addEventListener('mouseup', () => {
-            this.draggedWindow = null;
+            this.endDrag();
+            this.endResize();
         });
+
+        // Prevent context menu during drag/resize
+        document.addEventListener('contextmenu', (e) => {
+            if (this.draggedWindow || this.resizeData) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    }
+
+    // Handle window dragging
+    handleDrag(e) {
+        if (!this.draggedWindow) return;
+
+        const newX = e.clientX - this.dragOffset.x;
+        const newY = e.clientY - this.dragOffset.y;
+
+        // Keep window within screen bounds
+        const maxX = window.innerWidth - this.draggedWindow.offsetWidth;
+        const maxY = window.innerHeight - this.draggedWindow.offsetHeight - 60; // Account for taskbar
+
+        const constrainedX = Math.max(0, Math.min(newX, maxX));
+        const constrainedY = Math.max(0, Math.min(newY, maxY));
+
+        this.draggedWindow.style.left = constrainedX + 'px';
+        this.draggedWindow.style.top = constrainedY + 'px';
+    }
+
+    // Handle window resizing
+    handleResize(e) {
+        if (!this.resizeData) return;
+
+        const { window: win, direction, startX, startY, startWidth, startHeight, startLeft, startTop } = this.resizeData;
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+
+        let newWidth = startWidth;
+        let newHeight = startHeight;
+        let newLeft = startLeft;
+        let newTop = startTop;
+
+        // Handle different resize directions
+        if (direction.includes('e')) {
+            newWidth = Math.max(200, startWidth + deltaX);
+        }
+        if (direction.includes('w')) {
+            newWidth = Math.max(200, startWidth - deltaX);
+            newLeft = startLeft + (startWidth - newWidth);
+        }
+        if (direction.includes('s')) {
+            newHeight = Math.max(150, startHeight + deltaY);
+        }
+        if (direction.includes('n')) {
+            newHeight = Math.max(150, startHeight - deltaY);
+            newTop = startTop + (startHeight - newHeight);
+        }
+
+        // Keep window within screen bounds
+        if (newLeft < 0) {
+            newWidth += newLeft;
+            newLeft = 0;
+        }
+        if (newTop < 0) {
+            newHeight += newTop;
+            newTop = 0;
+        }
+
+        const maxWidth = window.innerWidth - newLeft;
+        const maxHeight = window.innerHeight - newTop - 60;
+
+        newWidth = Math.min(newWidth, maxWidth);
+        newHeight = Math.min(newHeight, maxHeight);
+
+        // Apply new dimensions
+        win.style.width = newWidth + 'px';
+        win.style.height = newHeight + 'px';
+        win.style.left = newLeft + 'px';
+        win.style.top = newTop + 'px';
+    }
+
+    // End dragging
+    endDrag() {
+        this.draggedWindow = null;
+        document.body.style.cursor = '';
+    }
+
+    // End resizing
+    endResize() {
+        this.resizeData = null;
     }
 
     // Window operations
@@ -152,18 +372,30 @@ class WindowManager {
     }
 
     maximizeWindow(windowElement) {
-        if (windowElement.style.width === '100vw') {
+        if (windowElement.dataset.maximized === 'true') {
             // Restore
-            windowElement.style.width = '';
-            windowElement.style.height = '';
-            windowElement.style.left = '';
-            windowElement.style.top = '';
+            const restore = JSON.parse(windowElement.dataset.restoreData || '{}');
+            windowElement.style.width = restore.width || '';
+            windowElement.style.height = restore.height || '';
+            windowElement.style.left = restore.left || '';
+            windowElement.style.top = restore.top || '';
+            windowElement.dataset.maximized = 'false';
         } else {
+            // Store current position/size for restore
+            const restoreData = {
+                width: windowElement.style.width,
+                height: windowElement.style.height,
+                left: windowElement.style.left,
+                top: windowElement.style.top
+            };
+            windowElement.dataset.restoreData = JSON.stringify(restoreData);
+
             // Maximize
             windowElement.style.width = '100vw';
             windowElement.style.height = 'calc(100vh - 60px)';
             windowElement.style.left = '0';
             windowElement.style.top = '0';
+            windowElement.dataset.maximized = 'true';
         }
     }
 
@@ -171,8 +403,10 @@ class WindowManager {
         const appName = windowElement.dataset.app;
 
         // Call app cleanup if available
-        if (window[this.getAppClassName(appName)]?.onClose) {
-            window[this.getAppClassName(appName)].onClose(windowElement);
+        const appClassName = this.getAppClassName(appName);
+        if (window[appClassName]?.onClose) {
+            const shouldClose = window[appClassName].onClose(windowElement);
+            if (shouldClose === false) return; // App prevented closing
         }
 
         // Remove from DOM and map
@@ -219,6 +453,20 @@ class WindowManager {
         return appName.split('-').map(part =>
             part.charAt(0).toUpperCase() + part.slice(1)
         ).join('');
+    }
+
+    // Public method to get window by app name
+    getWindow(appName) {
+        return this.windows.get(appName);
+    }
+
+    // Public method to close all windows
+    closeAllWindows() {
+        const windowsToClose = Array.from(this.windows.keys());
+        windowsToClose.forEach(appName => {
+            const windowElement = this.windows.get(appName);
+            this.closeWindow(windowElement);
+        });
     }
 }
 

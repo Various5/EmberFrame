@@ -1,27 +1,41 @@
-// File Manager Application
+// Enhanced File Manager with Real File System
 class FileManager {
-    static createWindow() {
+    static createWindow(startPath = '') {
         return {
-            title: 'File Manager',
-            width: '600px',
-            height: '450px',
+            title: startPath.startsWith('public/') ? 'File Manager - Public' : 'File Manager',
+            width: '700px',
+            height: '500px',
+            autoSize: false,
             content: `
                 <div class="file-manager">
                     <div class="file-manager-toolbar">
-                        <button onclick="FileManager.goBack()" id="back-btn" disabled>← Back</button>
-                        <button onclick="FileManager.goHome()">🏠 Home</button>
-                        <span class="file-path" id="current-path">/home</span>
-                        <button onclick="FileManager.createFolder()" style="margin-left: auto;">📁 New Folder</button>
+                        <button onclick="FileManager.goBack()" id="fm-back-btn" disabled>← Back</button>
+                        <button onclick="FileManager.goHome()" id="fm-home-btn">🏠 Home</button>
+                        <button onclick="FileManager.goPublic()" id="fm-public-btn">🌐 Public</button>
+                        <span class="file-path" id="fm-current-path">/</span>
+                        <div class="toolbar-actions">
+                            <button onclick="FileManager.createFolder()" id="fm-new-folder-btn" title="New Folder">📁+</button>
+                            <button onclick="FileManager.uploadFile()" id="fm-upload-btn" title="Upload File">⬆️</button>
+                            <button onclick="FileManager.refresh()" title="Refresh">🔄</button>
+                        </div>
                     </div>
                     <div class="file-manager-content">
-                        <div class="file-list" id="file-list">
-                            <!-- Files will be loaded here -->
+                        <div class="file-list" id="fm-file-list">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                Loading files...
+                            </div>
                         </div>
                     </div>
                     <div class="file-manager-status">
-                        <span id="file-count">0 items</span>
+                        <span id="fm-file-count">0 items</span>
+                        <span id="fm-selection-info"></span>
                     </div>
                 </div>
+                
+                <!-- Hidden file input for uploads -->
+                <input type="file" id="fm-file-input" multiple style="display: none;">
+                
                 <style>
                     .file-manager {
                         height: 100%;
@@ -31,194 +45,595 @@ class FileManager {
                     .file-manager-toolbar {
                         display: flex;
                         align-items: center;
-                        gap: 10px;
-                        padding: 10px 0;
+                        gap: 8px;
+                        padding: 12px;
                         border-bottom: 1px solid #ddd;
-                        margin-bottom: 10px;
+                        background: #f8f9fa;
                     }
                     .file-path {
                         flex: 1;
-                        padding: 5px 10px;
-                        background: #f5f5f5;
+                        padding: 6px 10px;
+                        background: white;
+                        border: 1px solid #ddd;
                         border-radius: 4px;
                         font-family: monospace;
+                        font-size: 12px;
+                        margin: 0 10px;
+                    }
+                    .toolbar-actions {
+                        display: flex;
+                        gap: 5px;
+                    }
+                    .toolbar-actions button {
+                        padding: 6px 10px;
+                        font-size: 12px;
+                        border-radius: 4px;
                     }
                     .file-manager-content {
                         flex: 1;
-                        overflow-y: auto;
+                        overflow: hidden;
+                        position: relative;
                     }
                     .file-list {
+                        height: 100%;
+                        overflow-y: auto;
+                        padding: 15px;
                         display: grid;
                         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-                        gap: 10px;
-                        padding: 10px 0;
+                        gap: 15px;
+                        align-content: start;
                     }
                     .file-item {
                         display: flex;
                         flex-direction: column;
                         align-items: center;
-                        padding: 10px;
+                        padding: 12px 8px;
                         border-radius: 8px;
                         cursor: pointer;
-                        transition: background-color 0.2s;
+                        transition: all 0.2s;
+                        border: 2px solid transparent;
+                        position: relative;
                     }
                     .file-item:hover {
-                        background-color: #f0f0f0;
+                        background-color: #f0f8ff;
                     }
                     .file-item.selected {
                         background-color: #e3f2fd;
+                        border-color: #2196f3;
+                    }
+                    .file-item.dragging {
+                        opacity: 0.5;
+                        transform: rotate(5deg);
                     }
                     .file-icon {
-                        font-size: 32px;
-                        margin-bottom: 5px;
+                        font-size: 36px;
+                        margin-bottom: 8px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 48px;
+                        height: 48px;
                     }
                     .file-name {
                         font-size: 12px;
                         text-align: center;
                         word-break: break-word;
+                        line-height: 1.3;
+                        max-width: 100%;
+                        font-weight: 500;
+                    }
+                    .file-size {
+                        font-size: 10px;
+                        color: #666;
+                        margin-top: 2px;
                     }
                     .file-manager-status {
                         border-top: 1px solid #ddd;
-                        padding: 8px 0;
+                        padding: 8px 15px;
+                        background: #f8f9fa;
                         font-size: 12px;
                         color: #666;
+                        display: flex;
+                        justify-content: space-between;
+                    }
+                    .drop-zone {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(33, 150, 243, 0.1);
+                        border: 2px dashed #2196f3;
+                        display: none;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 18px;
+                        color: #2196f3;
+                        z-index: 10;
+                    }
+                    .drop-zone.active {
+                        display: flex;
+                    }
+                    .context-menu-file {
+                        position: fixed;
+                        background: white;
+                        border: 1px solid #ccc;
+                        border-radius: 6px;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                        padding: 5px 0;
+                        min-width: 150px;
+                        display: none;
+                        z-index: 1000;
+                    }
+                    .context-menu-file .menu-item {
+                        padding: 8px 15px;
+                        cursor: pointer;
+                        font-size: 13px;
+                        transition: background-color 0.2s;
+                    }
+                    .context-menu-file .menu-item:hover {
+                        background: #f0f0f0;
+                    }
+                    .context-menu-file .menu-separator {
+                        height: 1px;
+                        background: #eee;
+                        margin: 5px 0;
                     }
                 </style>
             `,
             onInit: (windowElement) => {
-                FileManager.init(windowElement);
+                FileManager.init(windowElement, startPath);
             }
         };
     }
 
-    static init(windowElement) {
-        this.currentPath = '/home';
-        this.pathHistory = ['/home'];
+    static init(windowElement, startPath = '') {
         this.currentWindow = windowElement;
-        this.loadDirectory('/home');
+        this.currentPath = startPath;
+        this.pathHistory = [];
+        this.selectedFiles = new Set();
+        this.isWritable = true;
+
+        this.setupEventListeners();
+        this.loadDirectory(this.currentPath);
     }
 
-    static loadDirectory(path) {
-        this.currentPath = path;
-        document.getElementById('current-path').textContent = path;
+    static setupEventListeners() {
+        const fileList = this.currentWindow.querySelector('#fm-file-list');
+        const fileInput = this.currentWindow.querySelector('#fm-file-input');
 
-        // Simulate file system
-        const files = this.getDirectoryContents(path);
-        this.renderFiles(files);
+        // File selection
+        fileList.addEventListener('click', (e) => {
+            const fileItem = e.target.closest('.file-item');
+            if (fileItem) {
+                this.selectFile(fileItem, e.ctrlKey || e.metaKey);
+            } else {
+                this.clearSelection();
+            }
+        });
 
-        // Update back button
-        const backBtn = document.getElementById('back-btn');
-        backBtn.disabled = this.pathHistory.length <= 1;
+        // Double-click to open
+        fileList.addEventListener('dblclick', (e) => {
+            const fileItem = e.target.closest('.file-item');
+            if (fileItem) {
+                this.openFile(fileItem.dataset.filename, fileItem.dataset.type);
+            }
+        });
 
-        // Update file count
-        document.getElementById('file-count').textContent = `${files.length} items`;
-    }
+        // Context menu
+        fileList.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            const fileItem = e.target.closest('.file-item');
+            this.showContextMenu(e.clientX, e.clientY, fileItem);
+        });
 
-    static getDirectoryContents(path) {
-        // Simulated file system
-        const fileSystem = {
-            '/home': [
-                { name: 'Documents', type: 'folder', icon: '📁' },
-                { name: 'Downloads', type: 'folder', icon: '📁' },
-                { name: 'Pictures', type: 'folder', icon: '📁' },
-                { name: 'Desktop', type: 'folder', icon: '📁' },
-                { name: 'readme.txt', type: 'file', icon: '📄', size: '1.2 KB' },
-                { name: 'notes.md', type: 'file', icon: '📝', size: '856 B' }
-            ],
-            '/home/Documents': [
-                { name: 'Projects', type: 'folder', icon: '📁' },
-                { name: 'Work', type: 'folder', icon: '📁' },
-                { name: 'report.pdf', type: 'file', icon: '📄', size: '2.5 MB' },
-                { name: 'presentation.pptx', type: 'file', icon: '📊', size: '5.1 MB' }
-            ],
-            '/home/Downloads': [
-                { name: 'software.zip', type: 'file', icon: '🗜️', size: '15.2 MB' },
-                { name: 'image.jpg', type: 'file', icon: '🖼️', size: '3.4 MB' }
-            ],
-            '/home/Pictures': [
-                { name: 'vacation.jpg', type: 'file', icon: '🖼️', size: '2.1 MB' },
-                { name: 'family.png', type: 'file', icon: '🖼️', size: '1.8 MB' },
-                { name: 'screenshot.png', type: 'file', icon: '🖼️', size: '456 KB' }
-            ]
-        };
+        // Drag and drop
+        this.setupDragAndDrop();
 
-        return fileSystem[path] || [];
-    }
+        // File upload
+        fileInput.addEventListener('change', (e) => {
+            this.handleFileUpload(e.target.files);
+            e.target.value = ''; // Reset input
+        });
 
-    static renderFiles(files) {
-        const fileList = document.getElementById('file-list');
-        fileList.innerHTML = '';
-
-        files.forEach((file, index) => {
-            const fileItem = document.createElement('div');
-            fileItem.className = 'file-item';
-            fileItem.innerHTML = `
-                <div class="file-icon">${file.icon}</div>
-                <div class="file-name">${file.name}</div>
-                ${file.size ? `<div style="font-size: 10px; color: #888;">${file.size}</div>` : ''}
-            `;
-
-            fileItem.addEventListener('click', () => {
-                this.selectFile(fileItem, file);
-            });
-
-            fileItem.addEventListener('dblclick', () => {
-                this.openFile(file);
-            });
-
-            fileList.appendChild(fileItem);
+        // Keyboard shortcuts
+        this.currentWindow.addEventListener('keydown', (e) => {
+            if (e.key === 'Delete' && this.selectedFiles.size > 0) {
+                this.deleteSelected();
+            } else if (e.key === 'F5') {
+                e.preventDefault();
+                this.refresh();
+            } else if (e.ctrlKey && e.key === 'a') {
+                e.preventDefault();
+                this.selectAll();
+            }
         });
     }
 
-    static selectFile(element, file) {
-        // Clear other selections
-        document.querySelectorAll('.file-item').forEach(item =>
-            item.classList.remove('selected')
-        );
-        // Select this file
-        element.classList.add('selected');
+    static setupDragAndDrop() {
+        const content = this.currentWindow.querySelector('.file-manager-content');
+        const dropZone = document.createElement('div');
+        dropZone.className = 'drop-zone';
+        dropZone.innerHTML = '📁 Drop files here to upload';
+        content.appendChild(dropZone);
+
+        let dragCounter = 0;
+
+        content.addEventListener('dragenter', (e) => {
+            e.preventDefault();
+            dragCounter++;
+            if (this.isWritable) {
+                dropZone.classList.add('active');
+            }
+        });
+
+        content.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dragCounter--;
+            if (dragCounter === 0) {
+                dropZone.classList.remove('active');
+            }
+        });
+
+        content.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        content.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragCounter = 0;
+            dropZone.classList.remove('active');
+
+            if (this.isWritable && e.dataTransfer.files.length > 0) {
+                this.handleFileUpload(e.dataTransfer.files);
+            }
+        });
     }
 
-    static openFile(file) {
-        if (file.type === 'folder') {
-            const newPath = `${this.currentPath}/${file.name}`;
-            this.pathHistory.push(this.currentPath);
-            this.loadDirectory(newPath);
+    static async loadDirectory(path) {
+        this.showLoading();
+
+        try {
+            const response = await fetch(`/api/files/${path}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                this.currentPath = path;
+                this.isWritable = data.writable;
+                this.updateUI();
+                this.renderFiles(data.files);
+                this.updateStatus(data.files.length);
+            } else {
+                this.showError(data.error || 'Failed to load directory');
+                Notification.error(data.error || 'Failed to load directory');
+            }
+        } catch (error) {
+            this.showError('Network error: ' + error.message);
+            Notification.error('Network error: ' + error.message);
+        }
+    }
+
+    static renderFiles(files) {
+        const fileList = this.currentWindow.querySelector('#fm-file-list');
+
+        if (files.length === 0) {
+            fileList.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">This folder is empty</div>';
+            return;
+        }
+
+        fileList.innerHTML = files.map(file => `
+            <div class="file-item" data-filename="${file.name}" data-type="${file.type}" draggable="true">
+                <div class="file-icon">${file.icon}</div>
+                <div class="file-name">${file.name}</div>
+                ${file.size ? `<div class="file-size">${this.formatFileSize(file.size)}</div>` : ''}
+            </div>
+        `).join('');
+
+        this.selectedFiles.clear();
+    }
+
+    static updateUI() {
+        const pathElement = this.currentWindow.querySelector('#fm-current-path');
+        const backBtn = this.currentWindow.querySelector('#fm-back-btn');
+        const newFolderBtn = this.currentWindow.querySelector('#fm-new-folder-btn');
+        const uploadBtn = this.currentWindow.querySelector('#fm-upload-btn');
+
+        pathElement.textContent = '/' + this.currentPath;
+        backBtn.disabled = this.pathHistory.length === 0;
+
+        // Disable write operations for public directory
+        newFolderBtn.disabled = !this.isWritable;
+        uploadBtn.disabled = !this.isWritable;
+
+        // Update window title
+        const title = this.currentWindow.querySelector('.window-title');
+        title.textContent = this.currentPath.startsWith('public/') ?
+            'File Manager - Public' : 'File Manager';
+    }
+
+    static selectFile(fileItem, multiSelect = false) {
+        if (!multiSelect) {
+            this.clearSelection();
+        }
+
+        const filename = fileItem.dataset.filename;
+
+        if (this.selectedFiles.has(filename)) {
+            this.selectedFiles.delete(filename);
+            fileItem.classList.remove('selected');
         } else {
-            // Open file in appropriate app
-            if (file.name.endsWith('.txt') || file.name.endsWith('.md')) {
-                if (window.WindowManager) {
-                    window.WindowManager.openApp('text-editor');
+            this.selectedFiles.add(filename);
+            fileItem.classList.add('selected');
+        }
+
+        this.updateSelectionInfo();
+    }
+
+    static clearSelection() {
+        this.currentWindow.querySelectorAll('.file-item.selected').forEach(item => {
+            item.classList.remove('selected');
+        });
+        this.selectedFiles.clear();
+        this.updateSelectionInfo();
+    }
+
+    static selectAll() {
+        this.currentWindow.querySelectorAll('.file-item').forEach(item => {
+            item.classList.add('selected');
+            this.selectedFiles.add(item.dataset.filename);
+        });
+        this.updateSelectionInfo();
+    }
+
+    static updateSelectionInfo() {
+        const selectionInfo = this.currentWindow.querySelector('#fm-selection-info');
+        if (this.selectedFiles.size > 0) {
+            selectionInfo.textContent = `${this.selectedFiles.size} selected`;
+        } else {
+            selectionInfo.textContent = '';
+        }
+    }
+
+    static updateStatus(fileCount) {
+        const fileCountElement = this.currentWindow.querySelector('#fm-file-count');
+        fileCountElement.textContent = `${fileCount} items`;
+    }
+
+    static async openFile(filename, type) {
+        if (type === 'folder') {
+            await this.navigateToFolder(filename);
+        } else {
+            // Open file in appropriate application
+            const ext = filename.split('.').pop().toLowerCase();
+            const textExtensions = ['txt', 'md', 'js', 'html', 'css', 'json', 'py', 'xml'];
+
+            if (textExtensions.includes(ext)) {
+                // Open in text editor
+                if (window.WindowManager && window.TextEditor) {
+                    const textEditor = window.WindowManager.openApp('text-editor');
+                    // TODO: Load file content into text editor
+                    const fullPath = this.currentPath ? `${this.currentPath}/${filename}` : filename;
+                    setTimeout(() => {
+                        window.TextEditor.loadFile(fullPath);
+                    }, 100);
                 }
+            } else {
+                Notification.info(`Cannot open ${filename}. No associated application.`);
             }
         }
     }
 
-    static goBack() {
-        if (this.pathHistory.length > 1) {
-            this.pathHistory.pop();
-            const previousPath = this.pathHistory[this.pathHistory.length - 1];
-            this.loadDirectory(previousPath);
+    static async navigateToFolder(folderName) {
+        const newPath = this.currentPath ? `${this.currentPath}/${folderName}` : folderName;
+        this.pathHistory.push(this.currentPath);
+        await this.loadDirectory(newPath);
+    }
+
+    static async goBack() {
+        if (this.pathHistory.length > 0) {
+            const previousPath = this.pathHistory.pop();
+            await this.loadDirectory(previousPath);
         }
     }
 
-    static goHome() {
-        this.pathHistory = ['/home'];
-        this.loadDirectory('/home');
+    static async goHome() {
+        this.pathHistory = [];
+        await this.loadDirectory('');
     }
 
-    static createFolder() {
+    static async goPublic() {
+        this.pathHistory = [];
+        await this.loadDirectory('public/');
+    }
+
+    static async refresh() {
+        await this.loadDirectory(this.currentPath);
+        Notification.success('Directory refreshed');
+    }
+
+    static async createFolder() {
+        if (!this.isWritable) {
+            Notification.error('Cannot create folders in read-only directory');
+            return;
+        }
+
         const folderName = prompt('Enter folder name:');
-        if (folderName && folderName.trim()) {
-            // Simulate folder creation
-            alert(`Folder "${folderName}" created successfully!`);
-            // In a real implementation, you would update the file system
+        if (!folderName || !folderName.trim()) return;
+
+        const sanitizedName = folderName.trim().replace(/[^a-zA-Z0-9\-_\s]/g, '');
+        if (!sanitizedName) {
+            Notification.error('Invalid folder name');
+            return;
         }
+
+        try {
+            const fullPath = this.currentPath ? `${this.currentPath}/${sanitizedName}` : sanitizedName;
+            const response = await fetch(`/api/files/${fullPath}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'folder' })
+            });
+
+            if (response.ok) {
+                Notification.success(`Folder "${sanitizedName}" created`);
+                await this.refresh();
+            } else {
+                const data = await response.json();
+                Notification.error(data.error || 'Failed to create folder');
+            }
+        } catch (error) {
+            Notification.error('Network error: ' + error.message);
+        }
+    }
+
+    static uploadFile() {
+        if (!this.isWritable) {
+            Notification.error('Cannot upload files to read-only directory');
+            return;
+        }
+
+        const fileInput = this.currentWindow.querySelector('#fm-file-input');
+        fileInput.click();
+    }
+
+    static async handleFileUpload(files) {
+        if (!this.isWritable) {
+            Notification.error('Cannot upload files to read-only directory');
+            return;
+        }
+
+        const uploadPromises = Array.from(files).map(file => this.uploadSingleFile(file));
+
+        try {
+            await Promise.all(uploadPromises);
+            Notification.success(`${files.length} file(s) uploaded successfully`);
+            await this.refresh();
+        } catch (error) {
+            Notification.error('Some files failed to upload');
+        }
+    }
+
+    static async uploadSingleFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('path', this.currentPath);
+
+        const response = await fetch('/api/upload-file', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to upload ${file.name}`);
+        }
+    }
+
+    static async deleteSelected() {
+        if (this.selectedFiles.size === 0 || !this.isWritable) return;
+
+        const fileList = Array.from(this.selectedFiles);
+        const confirmMessage = fileList.length === 1 ?
+            `Delete "${fileList[0]}"?` :
+            `Delete ${fileList.length} selected items?`;
+
+        if (!confirm(confirmMessage)) return;
+
+        const deletePromises = fileList.map(filename => this.deleteFile(filename));
+
+        try {
+            await Promise.all(deletePromises);
+            Notification.success(`${fileList.length} item(s) deleted`);
+            await this.refresh();
+        } catch (error) {
+            Notification.error('Some items failed to delete');
+        }
+    }
+
+    static async deleteFile(filename) {
+        const fullPath = this.currentPath ? `${this.currentPath}/${filename}` : filename;
+        const response = await fetch(`/api/files/${fullPath}`, { method: 'DELETE' });
+
+        if (!response.ok) {
+            throw new Error(`Failed to delete ${filename}`);
+        }
+    }
+
+    static showContextMenu(x, y, fileItem) {
+        // Remove existing context menu
+        const existingMenu = document.querySelector('.context-menu-file');
+        if (existingMenu) {
+            existingMenu.remove();
+        }
+
+        const menu = document.createElement('div');
+        menu.className = 'context-menu-file';
+        menu.style.left = x + 'px';
+        menu.style.top = y + 'px';
+
+        let menuItems = [];
+
+        if (fileItem) {
+            const filename = fileItem.dataset.filename;
+            const isFolder = fileItem.dataset.type === 'folder';
+
+            menuItems.push(`<div class="menu-item" onclick="FileManager.openFile('${filename}', '${fileItem.dataset.type}')">${isFolder ? 'Open' : 'Edit'}</div>`);
+
+            if (this.isWritable) {
+                menuItems.push('<div class="menu-separator"></div>');
+                menuItems.push(`<div class="menu-item" onclick="FileManager.renameFile('${filename}')">Rename</div>`);
+                menuItems.push(`<div class="menu-item" onclick="FileManager.deleteFile('${filename}'); FileManager.refresh()">Delete</div>`);
+            }
+        } else {
+            if (this.isWritable) {
+                menuItems.push('<div class="menu-item" onclick="FileManager.createFolder()">New Folder</div>');
+                menuItems.push('<div class="menu-item" onclick="FileManager.uploadFile()">Upload File</div>');
+                menuItems.push('<div class="menu-separator"></div>');
+            }
+            menuItems.push('<div class="menu-item" onclick="FileManager.refresh()">Refresh</div>');
+        }
+
+        menu.innerHTML = menuItems.join('');
+        document.body.appendChild(menu);
+        menu.style.display = 'block';
+
+        // Close menu when clicking elsewhere
+        setTimeout(() => {
+            document.addEventListener('click', function closeMenu() {
+                menu.remove();
+                document.removeEventListener('click', closeMenu);
+            });
+        }, 0);
+    }
+
+    static async renameFile(oldName) {
+        const newName = prompt('Enter new name:', oldName);
+        if (!newName || newName === oldName) return;
+
+        // TODO: Implement rename API endpoint
+        Notification.info('Rename functionality coming soon');
+    }
+
+    static formatFileSize(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    static showLoading() {
+        const fileList = this.currentWindow.querySelector('#fm-file-list');
+        fileList.innerHTML = '<div class="loading" style="grid-column: 1/-1;"><div class="spinner"></div>Loading files...</div>';
+    }
+
+    static showError(message) {
+        const fileList = this.currentWindow.querySelector('#fm-file-list');
+        fileList.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #dc3545;">${message}</div>`;
     }
 
     static onClose(windowElement) {
-        // Cleanup when window is closed
         this.currentWindow = null;
+        return true;
     }
 }
 

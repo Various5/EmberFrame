@@ -28,17 +28,48 @@
             <div class="icon-image">⚙️</div>
             <div class="icon-label">Settings</div>
         </div>
+
+        <!-- Public Folder Icon -->
+        <div class="desktop-icon" style="top: 220px; left: 20px;" data-app="public-folder">
+            <div class="icon-image" style="background: #28a745;">🌐</div>
+            <div class="icon-label">Public</div>
+        </div>
     </div>
 
     <!-- Windows Container -->
     <div id="windows-container"></div>
+
+    <!-- File Browser Dialog -->
+    <div class="file-browser-dialog" id="file-browser-dialog">
+        <div class="file-browser-header">
+            <div class="file-browser-title">Choose File</div>
+            <div class="file-browser-controls">
+                <button class="file-browser-close" onclick="FileBrowser.close()">✕</button>
+            </div>
+        </div>
+        <div class="file-browser-content">
+            <div class="file-browser-toolbar">
+                <button onclick="FileBrowser.goBack()" id="fb-back-btn" disabled>← Back</button>
+                <button onclick="FileBrowser.goHome()">🏠 Home</button>
+                <span class="file-path" id="fb-current-path">/</span>
+            </div>
+            <div class="file-browser-list" id="file-browser-list"></div>
+            <div class="file-browser-actions">
+                <input type="text" id="fb-filename" placeholder="File name..." class="file-browser-input">
+                <button id="fb-action-btn" class="primary">Open</button>
+                <button onclick="FileBrowser.close()">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Taskbar -->
     <div class="taskbar">
         <button class="start-button" id="start-button">🔥 Start</button>
         <div class="taskbar-apps" id="taskbar-apps"></div>
         <div class="system-tray">
+            <span class="username">{{ username }}</span>
             <div class="time" id="time"></div>
+            <button class="logout-btn" onclick="logout()">⏻</button>
         </div>
     </div>
 
@@ -65,6 +96,10 @@
                 <div class="start-menu-app-icon">⚙️</div>
                 <div>Settings</div>
             </div>
+            <div class="start-menu-app" data-app="public-folder">
+                <div class="start-menu-app-icon" style="background: #28a745;">🌐</div>
+                <div>Public Folder</div>
+            </div>
         </div>
     </div>
 
@@ -72,17 +107,60 @@
     <div class="context-menu" id="context-menu">
         <div class="context-menu-item" onclick="location.reload()">Refresh Desktop</div>
         <div class="context-menu-item" onclick="createNewFile()">New File</div>
+        <div class="context-menu-item" onclick="createNewFolder()">New Folder</div>
         <div class="context-menu-item" onclick="showProperties()">Properties</div>
     </div>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notification-container"></div>
 
     <!-- Core Scripts -->
     <script src="/static/js/desktop-core.js"></script>
     <script src="/static/js/window-manager.js"></script>
+    <script src="/static/js/file-browser.js"></script>
+    <script src="/static/js/notification.js"></script>
 
     <!-- App Scripts -->
     <script src="/static/js/apps/file-manager.js"></script>
     <script src="/static/js/apps/terminal.js"></script>
     <script src="/static/js/apps/text-editor.js"></script>
     <script src="/static/js/apps/settings.js"></script>
+
+    <script>
+        // Global functions
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/logout';
+            }
+        }
+
+        function createNewFile() {
+            window.WindowManager.openApp('text-editor');
+        }
+
+        function createNewFolder() {
+            window.WindowManager.openApp('file-manager');
+        }
+
+        function showProperties() {
+            window.WindowManager.openApp('settings');
+        }
+
+        // Handle drag and drop on desktop
+        document.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        document.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (e.dataTransfer.files.length > 0) {
+                // Handle file drops
+                Array.from(e.dataTransfer.files).forEach(file => {
+                    console.log('File dropped:', file.name);
+                    // TODO: Implement file upload to user directory
+                });
+            }
+        });
+    </script>
 </body>
 </html>

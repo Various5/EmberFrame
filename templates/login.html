@@ -1,237 +1,422 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmberFrame - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-{% block title %}EmberCore - Neural Login Interface{% endblock %}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
 
-{% block body_class %}login-page{% endblock %}
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            min-width: 400px;
+            animation: slideIn 0.8s ease-out;
+        }
 
-{% block css %}
-<style>
-.login-page {
-    background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 50%, var(--tertiary-bg) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    overflow: auto;
-}
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-.login-container {
-    width: 100%;
-    max-width: 400px;
-    padding: 2rem;
-    margin: 2rem;
-    position: relative;
-}
+        .logo {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
 
-.login-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 20px #ff6b6b;
+            }
+            to {
+                text-shadow: 0 0 30px #ff6b6b, 0 0 40px #ff6b6b;
+            }
+        }
 
-.login-logo {
-    font-size: 3rem;
-    color: var(--ember-red);
-    text-shadow: var(--shadow-ember);
-    animation: pulse-ember 2s infinite alternate;
-    margin-bottom: 1rem;
-}
+        .title {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
 
-.login-title {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--primary-text);
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
 
-.login-subtitle {
-    color: var(--muted-text);
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-}
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
 
-.login-form {
-    margin-bottom: 2rem;
-}
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background: rgba(255, 255, 255, 0.8);
+        }
 
-.form-row {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
 
-.form-check {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 20px;
+        }
 
-.form-check input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--ember-red);
-}
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
 
-.form-check label {
-    font-size: 0.9rem;
-    color: var(--muted-text);
-    cursor: pointer;
-}
+        .login-button:active {
+            transform: translateY(0);
+        }
 
-.login-footer {
-    text-align: center;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border-color);
-}
+        .login-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
 
-.login-link {
-    color: var(--ember-red);
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: all var(--transition-normal);
-}
+        .register-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
 
-.login-link:hover {
-    color: var(--ember-orange);
-    text-shadow: 0 0 10px currentColor;
-}
+        .register-link:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
 
-.bg-effects {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    overflow: hidden;
-}
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ffcdd2;
+            display: none;
+        }
 
-.circuit-lines {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        radial-gradient(circle at 25% 25%, rgba(255, 69, 0, 0.1) 1px, transparent 1px),
-        radial-gradient(circle at 75% 75%, rgba(255, 140, 0, 0.1) 1px, transparent 1px);
-    background-size: 100px 100px;
-    animation: float 10s infinite ease-in-out;
-}
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c8e6c9;
+            display: none;
+        }
 
-@media (max-width: 480px) {
-    .login-container {
-        padding: 1rem;
-        margin: 1rem;
-    }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Boot animation styles */
+        .boot-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .boot-logo {
+            font-size: 48px;
+            margin-bottom: 30px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .boot-text {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .boot-progress {
+            width: 300px;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .boot-progress-bar {
+            height: 100%;
+            background: #00ff00;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-100px) rotate(180deg);
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
     
-    .login-title {
-        font-size: 1.5rem;
-    }
-    
-    .form-row {
-        flex-direction: column;
-        gap: 0;
-    }
-}
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="bg-effects">
-    <div class="circuit-lines"></div>
-</div>
-
-<div class="login-container">
-    <div class="login-header">
-        <div class="login-logo">
-            <i class="fas fa-fire"></i>
+    <div class="login-container">
+        <div class="logo">🔥</div>
+        <h1 class="title">EmberFrame</h1>
+        
+        <div class="error-message" id="error-message"></div>
+        <div class="success-message" id="success-message"></div>
+        
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password">
+            </div>
+            
+            <button type="submit" class="login-button" id="login-button">
+                Sign In
+            </button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>Signing in...</div>
         </div>
-        <h1 class="login-title">Neural Access</h1>
-        <p class="login-subtitle">Initialize Connection to EmberCore</p>
-    </div>
-
-    <form class="ember-form login-form" id="loginForm">
-        <div class="form-group">
-            <label class="form-label" for="username">
-                <i class="fas fa-user"></i> Username
-            </label>
-            <input type="text" class="form-input" id="username" name="username" 
-                   placeholder="Enter your username" required autocomplete="username">
-        </div>
-
-        <div class="form-group">
-            <label class="form-label" for="password">
-                <i class="fas fa-lock"></i> Password
-            </label>
-            <input type="password" class="form-input" id="password" name="password" 
-                   placeholder="Enter your password" required autocomplete="current-password">
-        </div>
-
-        <div class="form-check">
-            <input type="checkbox" id="remember" name="remember" value="1">
-            <label for="remember">Remember this neural pattern</label>
-        </div>
-
-        <button type="submit" class="ember-btn primary" style="width: 100%;">
-            <i class="fas fa-sign-in-alt"></i>
-            Initialize Connection
-        </button>
-    </form>
-
-    <div class="login-footer">
+        
         <p>
-            Need neural implant access? 
-            <a href="{{ url_for('auth.register') }}" class="login-link">
-                Register New Identity
-            </a>
+            Don't have an account? 
+            <a href="/register" class="register-link">Create one here</a>
         </p>
     </div>
-</div>
-{% endblock %}
 
-{% block javascript %}
-<script>
-document.getElementById('loginForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const form = e.target;
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
-    
-    // Show loading
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting...';
-    submitBtn.disabled = true;
-    
-    try {
-        const response = await fetch('{{ url_for("auth.login") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': EmberCore.utils.getCsrfToken()
-            },
-            body: JSON.stringify(data)
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            EmberCore.utils.showNotification('Neural connection established!', 'success');
-            setTimeout(() => {
-                window.location.href = result.redirect;
-            }, 1000);
-        } else {
-            EmberCore.utils.showNotification(result.error || 'Connection failed', 'error');
+    <!-- Boot Screen -->
+    <div class="boot-screen" id="boot-screen">
+        <div class="boot-logo">🔥</div>
+        <div class="boot-text">EmberFrame OS</div>
+        <div class="boot-text" id="boot-message">Initializing system...</div>
+        <div class="boot-progress">
+            <div class="boot-progress-bar" id="boot-progress-bar"></div>
+        </div>
+        <div class="boot-text" id="boot-status">Starting services...</div>
+    </div>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particles = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particles.appendChild(particle);
+            }
         }
-    } catch (error) {
-        console.error('Login error:', error);
-        EmberCore.utils.showNotification('Network error. Please try again.', 'error');
-    } finally {
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-    }
-});
-</script>
-{% endblock %}
+
+        // Login form handling
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginButton = document.getElementById('login-button');
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('error-message');
+            const successMessage = document.getElementById('success-message');
+            
+            // Hide previous messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            
+            // Show loading state
+            loginButton.disabled = true;
+            loading.style.display = 'block';
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password }),
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    successMessage.textContent = result.message;
+                    successMessage.style.display = 'block';
+                    
+                    // Start boot sequence
+                    startBootSequence();
+                } else {
+                    errorMessage.textContent = result.message;
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Connection error. Please try again.';
+                errorMessage.style.display = 'block';
+            } finally {
+                loginButton.disabled = false;
+                loading.style.display = 'none';
+            }
+        });
+
+        // Boot sequence
+        function startBootSequence() {
+            const bootScreen = document.getElementById('boot-screen');
+            const bootMessage = document.getElementById('boot-message');
+            const bootStatus = document.getElementById('boot-status');
+            const progressBar = document.getElementById('boot-progress-bar');
+            
+            bootScreen.style.display = 'flex';
+            
+            const bootMessages = [
+                { message: 'Initializing system...', status: 'Loading kernel modules...', progress: 10 },
+                { message: 'Starting services...', status: 'Loading user profile...', progress: 25 },
+                { message: 'Loading desktop environment...', status: 'Initializing window manager...', progress: 45 },
+                { message: 'Preparing user session...', status: 'Loading applications...', progress: 65 },
+                { message: 'Finalizing startup...', status: 'Starting desktop...', progress: 85 },
+                { message: 'Welcome to EmberFrame!', status: 'Ready', progress: 100 }
+            ];
+            
+            let currentStep = 0;
+            
+            function nextBootStep() {
+                if (currentStep < bootMessages.length) {
+                    const step = bootMessages[currentStep];
+                    bootMessage.textContent = step.message;
+                    bootStatus.textContent = step.status;
+                    progressBar.style.width = step.progress + '%';
+                    
+                    currentStep++;
+                    
+                    if (currentStep < bootMessages.length) {
+                        setTimeout(nextBootStep, 800);
+                    } else {
+                        setTimeout(() => {
+                            window.location.href = '/';
+                        }, 1000);
+                    }
+                }
+            }
+            
+            setTimeout(nextBootStep, 500);
+        }
+
+        // Enter key support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !document.getElementById('login-button').disabled) {
+                document.getElementById('login-form').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // Initialize
+        createParticles();
+        
+        // Focus username field
+        document.getElementById('username').focus();
+    </script>
+</body>
+</html>
