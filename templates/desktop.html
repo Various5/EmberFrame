@@ -4,29 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>EmberFrame - Neural Interface Login</title>
+    <title>EmberFrame Desktop</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
         :root {
+            /* Futuristic Color Palette */
             --primary-bg: #0a0a0f;
-            --secondary-bg: #1a1a2e;
-            --tertiary-bg: #16213e;
-            --accent-bg: #0f3460;
+            --secondary-bg: #141420;
+            --tertiary-bg: #1a1a2e;
+            --accent-bg: #2d2d3a;
 
-            --ember-red: #ff4500;
-            --ember-orange: #ff8c00;
-            --neon-blue: #00ffff;
-            --neon-pink: #ff00ff;
-            --neon-green: #00ff00;
+            --primary-blue: #00d4ff;
+            --secondary-blue: #0099cc;
+            --electric-blue: #007acc;
+            --neon-cyan: #00ffff;
+            --bright-white: #ffffff;
+            --silver: #c0c0c0;
+            --dark-gray: #333344;
 
-            --text-primary: #ffffff;
-            --text-secondary: #8892b0;
-            --text-accent: #ff4500;
+            --success-color: #00ff88;
+            --warning-color: #ffaa00;
+            --error-color: #ff4466;
 
-            --border-glow: #ff450040;
-            --shadow-ember: 0 0 20px #ff450040;
-            --shadow-neon: 0 0 30px #00ffff40;
+            --glow-blue: 0 0 20px rgba(0, 212, 255, 0.5);
+            --glow-cyan: 0 0 20px rgba(0, 255, 255, 0.5);
+            --glow-white: 0 0 15px rgba(255, 255, 255, 0.3);
+
+            --border-gradient: linear-gradient(135deg, var(--primary-blue), var(--neon-cyan));
+            --bg-gradient: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 50%, var(--tertiary-bg) 100%);
         }
 
         * {
@@ -36,221 +43,116 @@
         }
 
         body {
-            font-family: 'Orbitron', monospace;
-            background: var(--primary-bg);
-            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--bg-gradient);
             height: 100vh;
             overflow: hidden;
+            color: var(--bright-white);
             position: relative;
         }
 
-        /* Animated Background */
-        .bg-animation {
+        /* Animated Background Grid */
+        .grid-background {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -2;
-            background: radial-gradient(circle at 20% 80%, #ff450020 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, #00ffff20 0%, transparent 50%),
-                        radial-gradient(circle at 40% 40%, #ff00ff20 0%, transparent 50%);
-            animation: bg-shift 20s ease-in-out infinite;
+            background-image:
+                linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: grid-move 20s linear infinite;
         }
 
-        @keyframes bg-shift {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            50% { transform: scale(1.1) rotate(180deg); }
+        @keyframes grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
         }
 
-        /* Grid overlay */
-        .grid-overlay {
+        /* Floating Particles */
+        .floating-particles {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -1;
-            background-image:
-                linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
-            background-size: 30px 30px;
-            animation: grid-move 15s linear infinite;
-        }
-
-        @keyframes grid-move {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(30px, 30px); }
-        }
-
-        /* Main container */
-        .login-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 450px;
-            padding: 40px;
-            background: rgba(26, 26, 46, 0.9);
-            border: 1px solid var(--border-glow);
-            border-radius: 20px;
-            backdrop-filter: blur(20px);
-            box-shadow: var(--shadow-ember), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-            animation: container-glow 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes container-glow {
-            0% { box-shadow: var(--shadow-ember), inset 0 0 0 1px rgba(255, 255, 255, 0.1); }
-            100% { box-shadow: 0 0 40px #ff450060, inset 0 0 0 1px rgba(255, 255, 255, 0.2); }
-        }
-
-        /* Header */
-        .login-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .logo {
-            font-size: 72px;
-            margin-bottom: 15px;
-            animation: logo-pulse 2s ease-in-out infinite alternate;
-            text-shadow: 0 0 20px var(--ember-red);
-        }
-
-        @keyframes logo-pulse {
-            0% { transform: scale(1); text-shadow: 0 0 20px var(--ember-red); }
-            100% { transform: scale(1.05); text-shadow: 0 0 30px var(--ember-red), 0 0 40px var(--ember-orange); }
-        }
-
-        .title {
-            font-size: 32px;
-            font-weight: 900;
-            color: var(--text-primary);
-            margin-bottom: 10px;
-            letter-spacing: 3px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
-
-        .subtitle {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 14px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-        }
-
-        /* Status indicators */
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 69, 0, 0.3);
-            margin-bottom: 30px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 12px;
-        }
-
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--neon-green);
-            animation: pulse-dot 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        /* Form elements */
-        .form-group {
-            margin-bottom: 25px;
-            position: relative;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text-accent);
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 15px 20px;
-            background: rgba(10, 10, 15, 0.8);
-            border: 1px solid var(--border-glow);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--ember-red);
-            background: rgba(10, 10, 15, 0.9);
-            box-shadow: 0 0 20px rgba(255, 69, 0, 0.3), inset 0 0 20px rgba(255, 69, 0, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .form-input::placeholder {
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
-        /* Input icons */
-        .input-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-secondary);
-            font-size: 18px;
             pointer-events: none;
-            transition: all 0.3s ease;
         }
 
-        .form-input:focus + .input-icon {
-            color: var(--ember-red);
-            text-shadow: 0 0 10px var(--ember-red);
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--primary-blue);
+            border-radius: 50%;
+            animation: float-particle 6s infinite ease-in-out;
         }
 
-        /* Login button */
-        .login-button {
-            width: 100%;
-            padding: 18px 20px;
-            background: linear-gradient(45deg, var(--ember-red), var(--ember-orange));
-            border: none;
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-family: 'Orbitron', monospace;
-            font-size: 16px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        .particle:nth-child(1) { top: 20%; left: 10%; animation-delay: -1s; }
+        .particle:nth-child(2) { top: 60%; left: 80%; animation-delay: -3s; background: var(--neon-cyan); }
+        .particle:nth-child(3) { top: 80%; left: 30%; animation-delay: -5s; background: var(--success-color); }
+        .particle:nth-child(4) { top: 40%; left: 70%; animation-delay: -2s; background: var(--warning-color); }
+
+        @keyframes float-particle {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+            50% { transform: translateY(-30px) rotate(180deg); opacity: 0.3; }
+        }
+
+        /* Desktop Area */
+        .desktop {
+            height: calc(100vh - 70px);
+            position: relative;
+            padding: 20px;
+        }
+
+        /* Desktop Icons */
+        .desktop-icon {
+            position: absolute;
+            width: 90px;
+            text-align: center;
             cursor: pointer;
+            padding: 15px 10px;
+            border-radius: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .desktop-icon:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: rgba(0, 212, 255, 0.5);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: var(--glow-blue);
+        }
+
+        .desktop-icon.selected {
+            background: rgba(0, 255, 255, 0.15);
+            border-color: var(--neon-cyan);
+            box-shadow: var(--glow-cyan);
+        }
+
+        .icon-image {
+            width: 55px;
+            height: 55px;
+            margin: 0 auto 12px;
+            background: var(--border-gradient);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--bright-white);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            transition: all 0.3s ease;
-            margin-bottom: 25px;
         }
 
-        .login-button::before {
+        .icon-image::before {
             content: '';
             position: absolute;
             top: 0;
@@ -261,437 +163,895 @@
             transition: left 0.5s ease;
         }
 
-        .login-button:hover::before {
+        .desktop-icon:hover .icon-image {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+        }
+
+        .desktop-icon:hover .icon-image::before {
             left: 100%;
         }
 
-        .login-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(255, 69, 0, 0.4);
-        }
-
-        .login-button:active {
-            transform: translateY(-1px);
-        }
-
-        .login-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Loading state */
-        .loading {
-            display: none;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-top: 2px solid var(--text-primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Messages */
-        .message {
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
-            font-weight: 500;
-            backdrop-filter: blur(10px);
-            border: 1px solid;
-            animation: message-slide 0.3s ease-out;
-        }
-
-        @keyframes message-slide {
-            from { transform: translateY(-10px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .error-message {
-            background: rgba(255, 0, 64, 0.1);
-            color: #ff0040;
-            border-color: #ff0040;
-            box-shadow: 0 0 20px rgba(255, 0, 64, 0.2);
-        }
-
-        .success-message {
-            background: rgba(0, 255, 0, 0.1);
-            color: var(--neon-green);
-            border-color: var(--neon-green);
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
-        }
-
-        /* Demo info */
-        .demo-info {
-            background: rgba(0, 255, 255, 0.1);
-            color: var(--neon-blue);
-            border: 1px solid var(--neon-blue);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 25px;
-            font-family: 'Share Tech Mono', monospace;
+        .icon-label {
+            color: var(--bright-white);
             font-size: 13px;
-            text-align: center;
+            font-weight: 500;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 0.5px;
         }
 
-        .demo-info strong {
-            display: block;
-            margin-bottom: 5px;
-            color: var(--text-primary);
+        /* Taskbar - Futuristic */
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(20, 20, 32, 0.95);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            border-top: 2px solid;
+            border-image: var(--border-gradient) 1;
+            z-index: 1000;
+            box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5);
         }
 
-        /* Footer links */
-        .login-footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 69, 0, 0.3);
-        }
-
-        .register-link {
-            color: var(--neon-blue);
-            text-decoration: none;
+        .start-button {
+            background: var(--border-gradient);
+            color: var(--bright-white);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
             font-weight: 600;
+            font-size: 15px;
             transition: all 0.3s ease;
+            margin-right: 25px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             position: relative;
+            overflow: hidden;
         }
 
-        .register-link::after {
+        .start-button::before {
             content: '';
             position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--neon-blue);
-            transition: width 0.3s ease;
-        }
-
-        .register-link:hover::after {
+            top: 0;
+            left: -100%;
             width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
         }
 
-        .register-link:hover {
-            text-shadow: 0 0 10px var(--neon-blue);
+        .start-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-blue);
         }
 
-        /* Floating particles */
-        .particles {
+        .start-button:hover::before {
+            left: 100%;
+        }
+
+        .taskbar-apps {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            overflow-x: auto;
+            padding: 0 15px;
+        }
+
+        .taskbar-app {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            color: var(--bright-white);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            backdrop-filter: blur(10px);
+        }
+
+        .taskbar-app:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: rgba(0, 212, 255, 0.6);
+            transform: translateY(-2px);
+            box-shadow: var(--glow-blue);
+        }
+
+        .taskbar-app.active {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: var(--primary-bg);
+            font-weight: 600;
+        }
+
+        .system-tray {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: var(--bright-white);
+            font-size: 14px;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--border-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--bright-white);
+        }
+
+        .time-display {
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            color: var(--neon-cyan);
+            text-shadow: var(--glow-cyan);
+        }
+
+        .logout-btn {
+            background: rgba(255, 68, 102, 0.1);
+            border: 1px solid rgba(255, 68, 102, 0.3);
+            color: var(--error-color);
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 68, 102, 0.2);
+            border-color: rgba(255, 68, 102, 0.6);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(255, 68, 102, 0.4);
+        }
+
+        /* Start Menu - Futuristic */
+        .start-menu {
+            position: fixed;
+            bottom: 80px;
+            left: 25px;
+            width: 380px;
+            max-height: 550px;
+            background: rgba(20, 20, 32, 0.95);
+            border: 2px solid;
+            border-image: var(--border-gradient) 1;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            display: none;
+            flex-direction: column;
+            z-index: 2000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .start-menu.active {
+            display: flex;
+            animation: slideUpGlow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUpGlow {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .start-menu-header {
+            padding: 25px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .start-menu-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .start-menu-search {
+            width: 100%;
+            padding: 12px 20px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--bright-white);
+            font-family: 'Rajdhani', sans-serif;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .start-menu-search:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: var(--glow-blue);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .start-menu-search::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .start-menu-apps {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .start-menu-app {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 8px;
+            border: 1px solid transparent;
+        }
+
+        .start-menu-app:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: rgba(0, 212, 255, 0.3);
+            transform: translateX(5px);
+            box-shadow: var(--glow-blue);
+        }
+
+        .start-menu-app-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--border-gradient);
+            border-radius: 10px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--bright-white);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .start-menu-app-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--bright-white);
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* Windows Container */
+        #windows-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: -1;
+            z-index: 500;
         }
 
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: var(--ember-red);
-            border-radius: 50%;
-            animation: float-particle 6s infinite ease-in-out;
+        #windows-container .window {
+            pointer-events: all;
         }
 
-        .particle:nth-child(1) { top: 20%; left: 10%; animation-delay: -1s; }
-        .particle:nth-child(2) { top: 60%; left: 80%; animation-delay: -3s; background: var(--neon-blue); }
-        .particle:nth-child(3) { top: 80%; left: 30%; animation-delay: -5s; background: var(--neon-pink); }
-
-        @keyframes float-particle {
-            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            50% { transform: translateY(-30px) rotate(180deg); opacity: 0.3; }
+        /* Notification Container */
+        #notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 400px;
         }
 
-        /* Responsive design */
-        @media (max-width: 480px) {
-            .login-container {
-                width: 90%;
+        /* Loading Screen */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--primary-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+
+        #loading-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-container {
+            text-align: center;
+            z-index: 2;
+        }
+
+        .loading-logo {
+            font-size: 80px;
+            margin-bottom: 30px;
+            animation: pulse-glow 2s infinite alternate;
+            color: var(--primary-blue);
+            text-shadow: var(--glow-blue);
+        }
+
+        @keyframes pulse-glow {
+            0% { transform: scale(1); text-shadow: var(--glow-blue); }
+            100% { transform: scale(1.1); text-shadow: 0 0 40px var(--primary-blue); }
+        }
+
+        .loading-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 40px;
+            font-weight: 900;
+            color: var(--bright-white);
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .loading-subtitle {
+            font-size: 18px;
+            color: var(--silver);
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .loading-bar {
+            width: 400px;
+            height: 6px;
+            background: rgba(0, 212, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 0 auto 20px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: var(--border-gradient);
+            background-size: 200% 100%;
+            animation: loading-shine 2s infinite;
+            box-shadow: var(--glow-blue);
+            transition: width 0.3s ease;
+        }
+
+        @keyframes loading-shine {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .loading-text {
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--neon-cyan);
+            font-size: 16px;
+            font-weight: 500;
+            animation: text-pulse 1.5s infinite;
+        }
+
+        @keyframes text-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Welcome Modal */
+        .welcome-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            max-width: 90vw;
+            background: rgba(20, 20, 32, 0.95);
+            border: 2px solid;
+            border-image: var(--border-gradient) 1;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            text-align: center;
+            z-index: 5000;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+            animation: modalFadeIn 0.5s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .welcome-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: var(--primary-blue);
+            text-shadow: var(--glow-blue);
+        }
+
+        .welcome-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--bright-white);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .welcome-subtitle {
+            font-size: 20px;
+            color: var(--primary-blue);
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .welcome-message {
+            color: var(--silver);
+            line-height: 1.6;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .welcome-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .welcome-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .welcome-btn.primary {
+            background: var(--border-gradient);
+            color: var(--bright-white);
+        }
+
+        .welcome-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow-blue);
+        }
+
+        .welcome-btn.secondary {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--primary-blue);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .welcome-btn.secondary:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: rgba(0, 212, 255, 0.6);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .desktop {
+                padding: 15px;
+            }
+
+            .start-menu {
+                width: calc(100vw - 40px);
+                left: 20px;
+            }
+
+            .welcome-modal {
+                width: calc(100vw - 40px);
                 padding: 30px 20px;
             }
 
-            .logo {
-                font-size: 48px;
+            .system-tray {
+                gap: 15px;
             }
 
-            .title {
-                font-size: 24px;
+            .user-info span {
+                display: none;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Background animations -->
-    <div class="bg-animation"></div>
-    <div class="grid-overlay"></div>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="grid-background"></div>
+        <div class="floating-particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+        <div class="loading-container">
+            <div class="loading-logo">🔥</div>
+            <h1 class="loading-title">EmberFrame</h1>
+            <p class="loading-subtitle">Initializing Advanced Desktop Environment</p>
+            <div class="loading-bar">
+                <div class="loading-progress" id="loading-progress"></div>
+            </div>
+            <div class="loading-text" id="loading-text">Loading Core Systems...</div>
+        </div>
+    </div>
 
-    <!-- Floating particles -->
-    <div class="particles">
+    <!-- Background Effects -->
+    <div class="grid-background"></div>
+    <div class="floating-particles">
+        <div class="particle"></div>
         <div class="particle"></div>
         <div class="particle"></div>
         <div class="particle"></div>
     </div>
 
-    <!-- Main login container -->
-    <div class="login-container">
-        <!-- Header -->
-        <div class="login-header">
-            <div class="logo">🔥</div>
-            <h1 class="title">EMBERFRAME</h1>
-            <div class="subtitle">Neural Interface Login</div>
+    <!-- Desktop Area -->
+    <div class="desktop" id="desktop">
+        <!-- Desktop Icons -->
+        <div class="desktop-icon" style="top: 30px; left: 30px;" data-app="file-manager">
+            <div class="icon-image">
+                <i class="fas fa-folder"></i>
+            </div>
+            <div class="icon-label">File Manager</div>
         </div>
 
-        <!-- Status bar -->
-        <div class="status-bar">
-            <div class="status-item">
-                <div class="status-dot"></div>
-                <span>SYSTEM ONLINE</span>
+        <div class="desktop-icon" style="top: 30px; left: 140px;" data-app="terminal">
+            <div class="icon-image">
+                <i class="fas fa-terminal"></i>
             </div>
-            <div class="status-item">
-                <div class="status-dot"></div>
-                <span>CSRF PROTECTED</span>
-            </div>
-            <div class="status-item">
-                <div class="status-dot"></div>
-                <span>SECURE</span>
-            </div>
+            <div class="icon-label">Terminal</div>
         </div>
 
-        <!-- Demo info -->
-        <div class="demo-info">
-            <strong>DEMO ACCESS GRANTED</strong>
-            Use any username (3+ chars) with any password to enter
+        <div class="desktop-icon" style="top: 150px; left: 30px;" data-app="text-editor">
+            <div class="icon-image">
+                <i class="fas fa-edit"></i>
+            </div>
+            <div class="icon-label">Text Editor</div>
         </div>
 
-        <!-- Messages -->
-        <div class="message error-message" id="error-message"></div>
-        <div class="message success-message" id="success-message"></div>
-
-        <!-- Login form -->
-        <form id="login-form">
-            <div class="form-group">
-                <label class="form-label" for="username">USER IDENTIFIER</label>
-                <input type="text"
-                       id="username"
-                       name="username"
-                       class="form-input"
-                       required
-                       minlength="3"
-                       placeholder="Enter neural ID (3+ chars)"
-                       autocomplete="username">
-                <div class="input-icon">👤</div>
+        <div class="desktop-icon" style="top: 150px; left: 140px;" data-app="settings">
+            <div class="icon-image">
+                <i class="fas fa-cog"></i>
             </div>
+            <div class="icon-label">Settings</div>
+        </div>
 
-            <div class="form-group">
-                <label class="form-label" for="password">ACCESS KEY</label>
-                <input type="password"
-                       id="password"
-                       name="password"
-                       class="form-input"
-                       required
-                       placeholder="Enter access sequence"
-                       autocomplete="current-password">
-                <div class="input-icon">🔐</div>
+        <div class="desktop-icon" style="top: 270px; left: 30px;" data-app="public-folder">
+            <div class="icon-image">
+                <i class="fas fa-globe"></i>
             </div>
+            <div class="icon-label">Public Files</div>
+        </div>
+    </div>
 
-            <button type="submit" class="login-button" id="login-btn">
-                <span id="login-text">INITIALIZE CONNECTION</span>
-                <div class="loading" id="login-loading">
-                    <div class="spinner"></div>
-                    <span>CONNECTING...</span>
-                </div>
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <button class="start-button" id="start-button">
+            🔥 Start
+        </button>
+
+        <div class="taskbar-apps" id="taskbar-apps">
+            <!-- Running applications will appear here -->
+        </div>
+
+        <div class="system-tray">
+            <div class="user-info">
+                <div class="user-avatar">{{ username[0].upper() }}</div>
+                <span>{{ username }}</span>
+            </div>
+            <div class="time-display" id="current-time"></div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
             </button>
-        </form>
-
-        <!-- Footer -->
-        <div class="login-footer">
-            <p>New to the matrix? <a href="/register" class="register-link">Create Neural Link</a></p>
         </div>
     </div>
+
+    <!-- Start Menu -->
+    <div class="start-menu" id="start-menu">
+        <div class="start-menu-header">
+            <div class="start-menu-title">Applications</div>
+            <input type="text" class="start-menu-search" placeholder="Search applications..." id="app-search">
+        </div>
+        <div class="start-menu-apps">
+            <div class="start-menu-app" data-app="file-manager">
+                <div class="start-menu-app-icon"><i class="fas fa-folder"></i></div>
+                <div class="start-menu-app-name">File Manager</div>
+            </div>
+            <div class="start-menu-app" data-app="terminal">
+                <div class="start-menu-app-icon"><i class="fas fa-terminal"></i></div>
+                <div class="start-menu-app-name">Terminal</div>
+            </div>
+            <div class="start-menu-app" data-app="text-editor">
+                <div class="start-menu-app-icon"><i class="fas fa-edit"></i></div>
+                <div class="start-menu-app-name">Text Editor</div>
+            </div>
+            <div class="start-menu-app" data-app="settings">
+                <div class="start-menu-app-icon"><i class="fas fa-cog"></i></div>
+                <div class="start-menu-app-name">Settings</div>
+            </div>
+            <div class="start-menu-app" data-app="public-folder">
+                <div class="start-menu-app-icon"><i class="fas fa-globe"></i></div>
+                <div class="start-menu-app-name">Public Files</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Welcome Modal -->
+    <div class="welcome-modal" id="welcome-modal">
+        <div class="welcome-icon">🔥</div>
+        <h1 class="welcome-title">Welcome to EmberFrame</h1>
+        <h2 class="welcome-subtitle">Hello, {{ username }}!</h2>
+        <p class="welcome-message">
+            Your advanced desktop environment is ready. Launch applications by double-clicking desktop icons
+            or using the Start menu. Experience the future of computing with EmberFrame's intuitive interface.
+        </p>
+        <div class="welcome-actions">
+            <button class="welcome-btn primary" onclick="closeWelcome()">Launch Desktop</button>
+            <button class="welcome-btn secondary" onclick="openSettings()">Customize</button>
+        </div>
+    </div>
+
+    <!-- Windows Container -->
+    <div id="windows-container"></div>
+
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <!-- Include all the JavaScript files -->
+    <script src="{{ url_for('static', filename='js/notification.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/window-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/file-browser.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/apps/file-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/apps/terminal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/apps/text-editor.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/apps/settings.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/desktop-core.js') }}"></script>
 
     <script>
-        console.log('🔥 EmberFrame Neural Interface Loaded');
-        console.log('🛡️ CSRF Token:', document.querySelector('meta[name="csrf-token"]')?.content || 'Not found');
+        console.log('🔥 EmberFrame Desktop loading for user: {{ username }}');
 
-        function showMessage(text, type = 'error') {
-            const errorMsg = document.getElementById('error-message');
-            const successMsg = document.getElementById('success-message');
+        // Loading screen management
+        let loadingSteps = [
+            'Initializing Core Systems...',
+            'Loading Desktop Environment...',
+            'Connecting Network Modules...',
+            'Preparing User Interface...',
+            'Finalizing Startup Sequence...'
+        ];
+        let currentStep = 0;
 
-            // Hide all messages first
-            errorMsg.style.display = 'none';
-            successMsg.style.display = 'none';
-
-            // Show appropriate message
-            if (type === 'error') {
-                errorMsg.textContent = text;
-                errorMsg.style.display = 'block';
-            } else if (type === 'success') {
-                successMsg.textContent = text;
-                successMsg.style.display = 'block';
-            }
-        }
-
-        function setLoading(loading) {
-            const loginBtn = document.getElementById('login-btn');
-            const loginText = document.getElementById('login-text');
-            const loginLoading = document.getElementById('login-loading');
-
-            if (loading) {
-                loginBtn.disabled = true;
-                loginText.style.display = 'none';
-                loginLoading.style.display = 'flex';
+        function updateLoading() {
+            if (currentStep < loadingSteps.length) {
+                document.getElementById('loading-text').textContent = loadingSteps[currentStep];
+                document.getElementById('loading-progress').style.width = ((currentStep + 1) / loadingSteps.length * 100) + '%';
+                currentStep++;
+                setTimeout(updateLoading, 800);
             } else {
-                loginBtn.disabled = false;
-                loginText.style.display = 'inline';
-                loginLoading.style.display = 'none';
+                setTimeout(hideLoading, 500);
             }
         }
 
-        // Get CSRF token
-        function getCSRFToken() {
-            const token = document.querySelector('meta[name="csrf-token"]')?.content;
-            if (!token) {
-                console.warn('⚠️ CSRF token not found in meta tag');
-            }
-            return token || '';
+        function hideLoading() {
+            const loadingScreen = document.getElementById('loading-screen');
+            loadingScreen.classList.add('fade-out');
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                initializeDesktop();
+            }, 500);
         }
 
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Desktop initialization
+        function initializeDesktop() {
+            console.log('🚀 Initializing desktop environment');
 
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
+            updateTime();
+            setInterval(updateTime, 1000);
 
-            console.log('🔐 Neural interface login attempt:', username);
+            setupDesktopInteractions();
+            setupStartMenu();
 
-            // Client-side validation
-            if (!username) {
-                showMessage('USER IDENTIFIER REQUIRED', 'error');
-                return;
-            }
+            // Show welcome modal after brief delay
+            setTimeout(() => {
+                showWelcomeModal();
+            }, 1000);
+        }
 
-            if (!password) {
-                showMessage('ACCESS KEY REQUIRED', 'error');
-                return;
-            }
+        // Time display
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+            document.getElementById('current-time').textContent = timeString;
+        }
 
-            if (username.length < 3) {
-                showMessage('USER IDENTIFIER TOO SHORT (MIN 3 CHARS)', 'error');
-                return;
-            }
+        // Desktop icon interactions
+        function setupDesktopInteractions() {
+            let startMenuOpen = false;
 
-            setLoading(true);
+            // Desktop icon clicks
+            document.querySelectorAll('.desktop-icon').forEach(icon => {
+                let clickCount = 0;
 
-            try {
-                console.log('📡 Establishing secure connection...');
+                icon.addEventListener('click', (e) => {
+                    e.stopPropagation();
 
-                // Prepare request with CSRF token
-                const csrfToken = getCSRFToken();
-                const headers = {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                };
+                    // Clear other selections
+                    document.querySelectorAll('.desktop-icon').forEach(i => i.classList.remove('selected'));
+                    icon.classList.add('selected');
 
-                // Add CSRF token if available
-                if (csrfToken) {
-                    headers['X-CSRFToken'] = csrfToken;
-                }
-
-                const response = await fetch('/login', {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify({
-                        username: username,
-                        password: password
-                    })
-                });
-
-                console.log('📡 Response status:', response.status);
-
-                if (!response.ok) {
-                    throw new Error(`CONNECTION FAILED: ${response.status} ${response.statusText}`);
-                }
-
-                const result = await response.json();
-                console.log('📡 Response data:', result);
-
-                if (result.success) {
-                    showMessage('NEURAL LINK ESTABLISHED - ENTERING MATRIX...', 'success');
-                    console.log('✅ Authentication successful, redirecting...');
-
-                    // Add cyberpunk transition effect
-                    document.body.style.transition = 'all 1s ease-out';
-                    document.body.style.filter = 'brightness(0) contrast(200%)';
-
+                    clickCount++;
                     setTimeout(() => {
-                        window.location.href = result.redirect || '/';
-                    }, 1000);
-                } else {
-                    showMessage(`ACCESS DENIED: ${result.message}`, 'error');
-                    console.log('❌ Authentication failed:', result.message);
+                        if (clickCount === 1) {
+                            // Single click - just select
+                        } else if (clickCount === 2) {
+                            // Double click - launch app
+                            const appName = icon.dataset.app;
+                            launchApplication(appName);
+                        }
+                        clickCount = 0;
+                    }, 300);
+                });
+            });
+
+            // Clear desktop selection
+            document.getElementById('desktop').addEventListener('click', () => {
+                document.querySelectorAll('.desktop-icon').forEach(icon => {
+                    icon.classList.remove('selected');
+                });
+            });
+
+            // Start button
+            document.getElementById('start-button').addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleStartMenu();
+            });
+
+            // Close start menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (startMenuOpen && !e.target.closest('.start-menu') && !e.target.closest('.start-button')) {
+                    toggleStartMenu();
                 }
-
-            } catch (error) {
-                console.error('❌ Connection error:', error);
-                showMessage(`SYSTEM ERROR: ${error.message}`, 'error');
-            } finally {
-                setLoading(false);
-            }
-        });
-
-        // Enhanced input effects
-        document.querySelectorAll('.form-input').forEach(input => {
-            input.addEventListener('focus', () => {
-                input.parentElement.style.transform = 'scale(1.02)';
             });
 
-            input.addEventListener('blur', () => {
-                input.parentElement.style.transform = 'scale(1)';
+            function toggleStartMenu() {
+                const startMenu = document.getElementById('start-menu');
+                startMenuOpen = !startMenuOpen;
+
+                if (startMenuOpen) {
+                    startMenu.classList.add('active');
+                    document.getElementById('app-search').focus();
+                } else {
+                    startMenu.classList.remove('active');
+                }
+            }
+        }
+
+        // Start menu setup
+        function setupStartMenu() {
+            // Start menu app clicks
+            document.querySelectorAll('.start-menu-app').forEach(app => {
+                app.addEventListener('click', () => {
+                    const appName = app.dataset.app;
+                    launchApplication(appName);
+                    // Close start menu
+                    document.getElementById('start-menu').classList.remove('active');
+                });
             });
-        });
 
-        // Focus the username field on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('username').focus();
+            // App search functionality
+            document.getElementById('app-search').addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                document.querySelectorAll('.start-menu-app').forEach(app => {
+                    const appName = app.querySelector('.start-menu-app-name').textContent.toLowerCase();
+                    if (appName.includes(searchTerm)) {
+                        app.style.display = 'flex';
+                    } else {
+                        app.style.display = 'none';
+                    }
+                });
+            });
+        }
 
-            // Test CSRF token availability
-            fetch('/test-csrf')
-                .then(r => r.json())
-                .then(data => {
-                    console.log('🛡️ CSRF Test Result:', data);
-                })
-                .catch(e => console.warn('⚠️ CSRF test failed:', e));
-        });
+        // Application launcher - THIS IS THE KEY FUNCTION THAT WAS MISSING
+        function launchApplication(appName) {
+            console.log('🚀 Launching application:', appName);
 
-        // Konami code easter egg
-        let konamiCode = [];
-        const konamiSequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
-
-        document.addEventListener('keydown', (e) => {
-            konamiCode.push(e.code);
-            if (konamiCode.length > konamiSequence.length) {
-                konamiCode.shift();
+            // Show notification
+            if (window.Notification) {
+                window.Notification.info(`Opening ${appName.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}...`);
             }
 
-            if (JSON.stringify(konamiCode) === JSON.stringify(konamiSequence)) {
-                document.body.style.animation = 'bg-shift 1s ease-in-out';
-                showMessage('🎮 CHEAT CODE ACTIVATED - ADMIN ACCESS GRANTED', 'success');
-                document.getElementById('username').value = 'admin';
-                document.getElementById('password').value = 'admin';
+            // Launch the application using WindowManager
+            if (window.WindowManager) {
+                try {
+                    window.WindowManager.openApp(appName);
+                } catch (error) {
+                    console.error('Failed to launch app:', error);
+                    if (window.Notification) {
+                        window.Notification.error(`Failed to open ${appName}`);
+                    }
+                }
+            } else {
+                console.error('WindowManager not available');
+                if (window.Notification) {
+                    window.Notification.error('Window Manager not loaded');
+                }
             }
-        });
+        }
+
+        // Welcome modal functions
+        function showWelcomeModal() {
+            document.getElementById('welcome-modal').style.display = 'block';
+        }
+
+        function closeWelcome() {
+            document.getElementById('welcome-modal').style.display = 'none';
+        }
+
+        function openSettings() {
+            closeWelcome();
+            launchApplication('settings');
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to sign out?')) {
+                window.location.href = '/logout';
+            }
+        }
+
+        // Start loading sequence
+        updateLoading();
+
+        console.log('✅ Desktop script loaded successfully');
     </script>
 </body>
 </html>
