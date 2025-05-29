@@ -3,509 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>EmberFrame - Register</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        body { 
+            font-family: Arial, sans-serif; 
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            margin: 0; 
+            padding: 0; 
+            height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
         }
-
-        .register-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        .register-container { 
+            background: rgba(255,255,255,0.95); 
+            padding: 40px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            min-width: 400px;
             text-align: center;
-            min-width: 450px;
-            max-width: 500px;
-            animation: slideIn 0.8s ease-out;
         }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .logo { font-size: 48px; margin-bottom: 20px; }
+        .title { font-size: 28px; color: #333; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 8px; 
+            font-size: 16px; 
         }
-
-        .logo {
-            font-size: 48px;
-            margin-bottom: 15px;
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 20px #f5576c;
-            }
-            to {
-                text-shadow: 0 0 30px #f5576c, 0 0 40px #f5576c;
-            }
-        }
-
-        .title {
-            font-size: 28px;
-            color: #333;
-            margin-bottom: 10px;
-            font-weight: 300;
-        }
-
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            color: #555;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 15px;
-            transition: border-color 0.3s, box-shadow 0.3s;
-            background: rgba(255, 255, 255, 0.8);
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #f5576c;
-            box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.1);
-        }
-
-        .form-group .input-help {
-            font-size: 12px;
-            color: #888;
-            margin-top: 5px;
-        }
-
-        .password-strength {
-            margin-top: 5px;
-            font-size: 12px;
-        }
-
-        .strength-weak { color: #dc3545; }
-        .strength-medium { color: #ffc107; }
-        .strength-strong { color: #28a745; }
-
-        .register-button {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(45deg, #f093fb, #f5576c);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+        .form-group input:focus { outline: none; border-color: #f5576c; }
+        .register-button { 
+            width: 100%; 
+            padding: 15px; 
+            background: linear-gradient(45deg, #f093fb, #f5576c); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 18px; 
+            cursor: pointer; 
             margin-bottom: 20px;
         }
-
-        .register-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(245, 87, 108, 0.3);
+        .register-button:hover { transform: translateY(-2px); }
+        .login-link { color: #f5576c; text-decoration: none; }
+        .error-message { 
+            background: #ffebee; 
+            color: #c62828; 
+            padding: 10px; 
+            border-radius: 5px; 
+            margin-bottom: 15px; 
+            display: none; 
         }
-
-        .register-button:active {
-            transform: translateY(0);
-        }
-
-        .register-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .login-link {
-            color: #f5576c;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .login-link:hover {
-            color: #f093fb;
-            text-decoration: underline;
-        }
-
-        .error-message {
-            background: #ffebee;
-            color: #c62828;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #ffcdd2;
-            display: none;
-            font-size: 14px;
-        }
-
-        .success-message {
-            background: #e8f5e8;
-            color: #2e7d32;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #c8e6c9;
-            display: none;
-            font-size: 14px;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .spinner {
-            width: 30px;
-            height: 30px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #f5576c;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .terms {
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
-        .terms input[type="checkbox"] {
-            margin-right: 8px;
-        }
-
-        .validation-icon {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 16px;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
-        .particles {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            background: rgba(255, 255, 255, 0.4);
-            border-radius: 50%;
-            animation: float 8s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translateY(0px) rotate(0deg);
-                opacity: 1;
-            }
-            50% {
-                transform: translateY(-120px) rotate(180deg);
-                opacity: 0.3;
-            }
+        .success-message { 
+            background: #e8f5e8; 
+            color: #2e7d32; 
+            padding: 10px; 
+            border-radius: 5px; 
+            margin-bottom: 15px; 
+            display: none; 
         }
     </style>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
-    
     <div class="register-container">
         <div class="logo">🔥</div>
         <h1 class="title">Join EmberFrame</h1>
-        <p class="subtitle">Create your account to get started</p>
-        
+
         <div class="error-message" id="error-message"></div>
         <div class="success-message" id="success-message"></div>
-        
+
         <form id="register-form">
             <div class="form-group">
                 <label for="username">Username</label>
-                <div class="input-wrapper">
-                    <input type="text" id="username" name="username" required autocomplete="username" minlength="3" maxlength="20">
-                    <span class="validation-icon" id="username-icon"></span>
-                </div>
-                <div class="input-help">3-20 characters, letters and numbers only</div>
+                <input type="text" id="username" name="username" required minlength="3">
             </div>
-            
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <div class="input-wrapper">
-                    <input type="email" id="email" name="email" autocomplete="email">
-                    <span class="validation-icon" id="email-icon"></span>
-                </div>
-                <div class="input-help">Optional, for password recovery</div>
-            </div>
-            
+
             <div class="form-group">
                 <label for="password">Password</label>
-                <div class="input-wrapper">
-                    <input type="password" id="password" name="password" required autocomplete="new-password" minlength="6">
-                    <span class="validation-icon" id="password-icon"></span>
-                </div>
-                <div class="password-strength" id="password-strength"></div>
+                <input type="password" id="password" name="password" required minlength="6">
             </div>
-            
+
             <div class="form-group">
                 <label for="confirm-password">Confirm Password</label>
-                <div class="input-wrapper">
-                    <input type="password" id="confirm-password" name="confirm-password" required autocomplete="new-password">
-                    <span class="validation-icon" id="confirm-password-icon"></span>
-                </div>
+                <input type="password" id="confirm-password" name="confirm-password" required>
             </div>
-            
-            <div class="terms">
-                <label>
-                    <input type="checkbox" id="terms" required>
-                    I agree to the Terms of Service and Privacy Policy
-                </label>
-            </div>
-            
-            <button type="submit" class="register-button" id="register-button">
-                Create Account
-            </button>
+
+            <button type="submit" class="register-button">Create Account</button>
         </form>
-        
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <div>Creating your account...</div>
-        </div>
-        
-        <p>
-            Already have an account? 
-            <a href="/" class="login-link">Sign in here</a>
-        </p>
+
+        <p>Already have an account? <a href="/login" class="login-link">Sign in here</a></p>
     </div>
 
     <script>
-        // Create floating particles
-        function createParticles() {
-            const particles = document.getElementById('particles');
-            for (let i = 0; i < 40; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 8 + 's';
-                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
-                particles.appendChild(particle);
-            }
-        }
-
-        // Validation functions
-        function validateUsername(username) {
-            const regex = /^[a-zA-Z0-9]{3,20}$/;
-            return regex.test(username);
-        }
-
-        function validateEmail(email) {
-            if (!email) return true; // Optional field
-            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return regex.test(email);
-        }
-
-        function checkPasswordStrength(password) {
-            let strength = 0;
-            if (password.length >= 8) strength++;
-            if (/[a-z]/.test(password)) strength++;
-            if (/[A-Z]/.test(password)) strength++;
-            if (/[0-9]/.test(password)) strength++;
-            if (/[^A-Za-z0-9]/.test(password)) strength++;
-            
-            return strength;
-        }
-
-        function updateValidationIcon(inputId, isValid) {
-            const icon = document.getElementById(inputId + '-icon');
-            if (isValid === null) {
-                icon.textContent = '';
-            } else if (isValid) {
-                icon.textContent = '✓';
-                icon.style.color = '#28a745';
-            } else {
-                icon.textContent = '✗';
-                icon.style.color = '#dc3545';
-            }
-        }
-
-        // Form validation
-        document.getElementById('username').addEventListener('input', (e) => {
-            const username = e.target.value;
-            if (username.length === 0) {
-                updateValidationIcon('username', null);
-            } else {
-                updateValidationIcon('username', validateUsername(username));
-            }
-        });
-
-        document.getElementById('email').addEventListener('input', (e) => {
-            const email = e.target.value;
-            if (email.length === 0) {
-                updateValidationIcon('email', null);
-            } else {
-                updateValidationIcon('email', validateEmail(email));
-            }
-        });
-
-        document.getElementById('password').addEventListener('input', (e) => {
-            const password = e.target.value;
-            const strength = checkPasswordStrength(password);
-            const strengthElement = document.getElementById('password-strength');
-            
-            if (password.length === 0) {
-                updateValidationIcon('password', null);
-                strengthElement.textContent = '';
-            } else {
-                updateValidationIcon('password', password.length >= 6);
-                
-                if (strength <= 2) {
-                    strengthElement.textContent = 'Weak password';
-                    strengthElement.className = 'password-strength strength-weak';
-                } else if (strength <= 3) {
-                    strengthElement.textContent = 'Medium strength';
-                    strengthElement.className = 'password-strength strength-medium';
-                } else {
-                    strengthElement.textContent = 'Strong password';
-                    strengthElement.className = 'password-strength strength-strong';
-                }
-            }
-            
-            // Also check confirm password if it has a value
-            const confirmPassword = document.getElementById('confirm-password').value;
-            if (confirmPassword) {
-                updateValidationIcon('confirm-password', password === confirmPassword);
-            }
-        });
-
-        document.getElementById('confirm-password').addEventListener('input', (e) => {
-            const confirmPassword = e.target.value;
-            const password = document.getElementById('password').value;
-            
-            if (confirmPassword.length === 0) {
-                updateValidationIcon('confirm-password', null);
-            } else {
-                updateValidationIcon('confirm-password', password === confirmPassword);
-            }
-        });
-
-        // Registration form handling
         document.getElementById('register-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const username = document.getElementById('username').value;
-            const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
-            const terms = document.getElementById('terms').checked;
-            
-            const registerButton = document.getElementById('register-button');
-            const loading = document.getElementById('loading');
             const errorMessage = document.getElementById('error-message');
             const successMessage = document.getElementById('success-message');
-            
-            // Hide previous messages
+
+            // Hide messages
             errorMessage.style.display = 'none';
             successMessage.style.display = 'none';
-            
-            // Validation
-            if (!validateUsername(username)) {
-                errorMessage.textContent = 'Username must be 3-20 characters with letters and numbers only.';
-                errorMessage.style.display = 'block';
-                return;
-            }
-            
-            if (email && !validateEmail(email)) {
-                errorMessage.textContent = 'Please enter a valid email address.';
-                errorMessage.style.display = 'block';
-                return;
-            }
-            
-            if (password.length < 6) {
-                errorMessage.textContent = 'Password must be at least 6 characters long.';
-                errorMessage.style.display = 'block';
-                return;
-            }
-            
+
+            // Validate passwords match
             if (password !== confirmPassword) {
-                errorMessage.textContent = 'Passwords do not match.';
+                errorMessage.textContent = 'Passwords do not match';
                 errorMessage.style.display = 'block';
                 return;
             }
-            
-            if (!terms) {
-                errorMessage.textContent = 'You must agree to the Terms of Service.';
-                errorMessage.style.display = 'block';
-                return;
-            }
-            
-            // Show loading state
-            registerButton.disabled = true;
-            loading.style.display = 'block';
-            
+
             try {
                 const response = await fetch('/register', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ username, email, password }),
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username, password })
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (result.success) {
                     successMessage.textContent = result.message + ' You can now sign in.';
                     successMessage.style.display = 'block';
-                    
+
                     // Clear form
                     document.getElementById('register-form').reset();
-                    
+
                     // Redirect to login after 2 seconds
                     setTimeout(() => {
-                        window.location.href = '/';
+                        window.location.href = '/login';
                     }, 2000);
                 } else {
                     errorMessage.textContent = result.message;
@@ -514,17 +145,8 @@
             } catch (error) {
                 errorMessage.textContent = 'Connection error. Please try again.';
                 errorMessage.style.display = 'block';
-            } finally {
-                registerButton.disabled = false;
-                loading.style.display = 'none';
             }
         });
-
-        // Initialize
-        createParticles();
-        
-        // Focus username field
-        document.getElementById('username').focus();
     </script>
 </body>
 </html>
