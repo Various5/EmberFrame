@@ -8,8 +8,8 @@ def setup_logging(app=None):
     """Set up logging configuration"""
 
     # Create logs directory if it doesn't exist
-    if not os.path.exists('logs'):
-        os.makedirs('logs')
+    logs_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'logs')
+    os.makedirs(logs_dir, exist_ok=True)
 
     # Configure logging
     logging.basicConfig(
@@ -17,7 +17,11 @@ def setup_logging(app=None):
         format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]',
         handlers=[
             logging.StreamHandler(sys.stdout),
-            RotatingFileHandler('logs/emberframe.log', maxBytes=10000000, backupCount=5)
+            RotatingFileHandler(
+                os.path.join(logs_dir, 'emberframe.log'),
+                maxBytes=10000000,
+                backupCount=5
+            )
         ]
     )
 
