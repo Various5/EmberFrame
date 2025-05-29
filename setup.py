@@ -17,7 +17,7 @@ setup(
         "python-socketio>=5.8.0",
         "bcrypt>=4.0.0",
         "python-dotenv>=1.0.0",
-        "redis>=4.5.0",
+        "redis>=6.2.0",
         "Pillow>=10.0.0",
         "python-magic>=0.4.27",
         "colorlog>=6.7.0",

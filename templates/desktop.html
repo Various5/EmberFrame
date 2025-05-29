@@ -2,9 +2,87 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmberFrame Desktop</title>
+    <link rel="stylesheet" href="/static/css/desktop.css">
 </head>
 <body>
+    <div class="desktop" id="desktop">
+        <!-- Desktop Icons -->
+        <div class="desktop-icon" style="top: 20px; left: 20px;" data-app="file-manager">
+            <div class="icon-image">📁</div>
+            <div class="icon-label">File Manager</div>
+        </div>
 
+        <div class="desktop-icon" style="top: 20px; left: 120px;" data-app="terminal">
+            <div class="icon-image">💻</div>
+            <div class="icon-label">Terminal</div>
+        </div>
+
+        <div class="desktop-icon" style="top: 120px; left: 20px;" data-app="text-editor">
+            <div class="icon-image">📝</div>
+            <div class="icon-label">Text Editor</div>
+        </div>
+
+        <div class="desktop-icon" style="top: 120px; left: 120px;" data-app="settings">
+            <div class="icon-image">⚙️</div>
+            <div class="icon-label">Settings</div>
+        </div>
+    </div>
+
+    <!-- Windows Container -->
+    <div id="windows-container"></div>
+
+    <!-- Taskbar -->
+    <div class="taskbar">
+        <button class="start-button" id="start-button">🔥 Start</button>
+        <div class="taskbar-apps" id="taskbar-apps"></div>
+        <div class="system-tray">
+            <div class="time" id="time"></div>
+        </div>
+    </div>
+
+    <!-- Start Menu -->
+    <div class="start-menu" id="start-menu">
+        <div class="start-menu-header">
+            <h3>EmberFrame</h3>
+            <input type="text" class="start-menu-search" placeholder="Search apps..." id="app-search">
+        </div>
+        <div class="start-menu-apps" id="start-menu-apps">
+            <div class="start-menu-app" data-app="file-manager">
+                <div class="start-menu-app-icon">📁</div>
+                <div>File Manager</div>
+            </div>
+            <div class="start-menu-app" data-app="terminal">
+                <div class="start-menu-app-icon">💻</div>
+                <div>Terminal</div>
+            </div>
+            <div class="start-menu-app" data-app="text-editor">
+                <div class="start-menu-app-icon">📝</div>
+                <div>Text Editor</div>
+            </div>
+            <div class="start-menu-app" data-app="settings">
+                <div class="start-menu-app-icon">⚙️</div>
+                <div>Settings</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="context-menu">
+        <div class="context-menu-item" onclick="location.reload()">Refresh Desktop</div>
+        <div class="context-menu-item" onclick="createNewFile()">New File</div>
+        <div class="context-menu-item" onclick="showProperties()">Properties</div>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="/static/js/desktop-core.js"></script>
+    <script src="/static/js/window-manager.js"></script>
+
+    <!-- App Scripts -->
+    <script src="/static/js/apps/file-manager.js"></script>
+    <script src="/static/js/apps/terminal.js"></script>
+    <script src="/static/js/apps/text-editor.js"></script>
+    <script src="/static/js/apps/settings.js"></script>
 </body>
 </html>

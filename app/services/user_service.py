@@ -121,4 +121,4 @@ Explore the desktop environment and discover all the cyberpunk features availabl
 Stay connected to the future!
 
 - The EmberCore Team
-            """)
+""")

@@ -11,12 +11,9 @@ db = SQLAlchemy()
 login_manager = LoginManager()
 socketio = SocketIO(cors_allowed_origins="*")
 
+
 def create_app(config_name=None):
-    """
-Application
-factory
-pattern
-"""
+    """Application factory pattern"""
 
     if config_name is None:
         config_name = os.environ.get('FLASK_CONFIG', 'default')

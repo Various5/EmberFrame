@@ -1,0 +1,347 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    height: 100vh;
+    overflow: hidden;
+    user-select: none;
+}
+
+/* Desktop Area */
+.desktop {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 60px);
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><rect width="60" height="60" fill="none"/><circle cx="30" cy="30" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+}
+
+/* Desktop Icons */
+.desktop-icon {
+    position: absolute;
+    width: 80px;
+    text-align: center;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.desktop-icon:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.desktop-icon.selected {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.icon-image {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 8px;
+    background: #4a90e2;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.icon-label {
+    color: white;
+    font-size: 12px;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    word-wrap: break-word;
+}
+
+/* Windows */
+.window {
+    position: absolute;
+    min-width: 400px;
+    min-height: 300px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    display: none;
+    overflow: hidden;
+    resize: both;
+}
+
+.window.active {
+    display: block;
+    z-index: 1000;
+}
+
+.window-header {
+    background: linear-gradient(to right, #4a90e2, #357abd);
+    color: white;
+    padding: 12px 16px;
+    cursor: move;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.window-title {
+    font-weight: 600;
+}
+
+.window-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.window-control {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.window-control:hover {
+    opacity: 0.8;
+}
+
+.window-control.minimize {
+    background: #ffbd2e;
+}
+
+.window-control.maximize {
+    background: #28ca42;
+}
+
+.window-control.close {
+    background: #ff5f56;
+}
+
+.window-content {
+    padding: 20px;
+    height: calc(100% - 60px);
+    overflow-y: auto;
+}
+
+/* Taskbar */
+.taskbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 2000;
+}
+
+.start-button {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s;
+    margin-right: 20px;
+}
+
+.start-button:hover {
+    transform: scale(1.05);
+}
+
+.taskbar-apps {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+}
+
+.taskbar-app {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.taskbar-app:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.taskbar-app.active {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.system-tray {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: white;
+}
+
+.time {
+    font-weight: 500;
+}
+
+/* Start Menu */
+.start-menu {
+    position: fixed;
+    bottom: 70px;
+    left: 20px;
+    width: 300px;
+    height: 400px;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(20px);
+    border-radius: 12px;
+    display: none;
+    flex-direction: column;
+    z-index: 2001;
+}
+
+.start-menu.active {
+    display: flex;
+}
+
+.start-menu-header {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.start-menu-header h3 {
+    color: white;
+    margin-bottom: 5px;
+}
+
+.start-menu-search {
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    margin-top: 10px;
+}
+
+.start-menu-search::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.start-menu-apps {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.start-menu-app {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: white;
+}
+
+.start-menu-app:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.start-menu-app-icon {
+    width: 32px;
+    height: 32px;
+    background: #4a90e2;
+    border-radius: 6px;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+/* Context Menu */
+.context-menu {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    padding: 8px 0;
+    min-width: 150px;
+    display: none;
+    z-index: 3000;
+}
+
+.context-menu-item {
+    padding: 10px 16px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.context-menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Form Elements */
+input[type="text"], textarea, select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+button {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f5f5f5;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background: #e0e0e0;
+}
+
+button.primary {
+    background: #4a90e2;
+    color: white;
+    border-color: #4a90e2;
+}
+
+button.primary:hover {
+    background: #357abd;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .desktop-icon {
+        width: 70px;
+    }
+
+    .icon-image {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+    }
+
+    .window {
+        min-width: 300px;
+        min-height: 250px;
+    }
+
+    .start-menu {
+        width: 250px;
+        height: 350px;
+    }
+}

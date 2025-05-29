@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-"""
-EmberCore - Multi-User Desktop Application
-Main entry point for the application
-"""
-
 import os
 import sys
 import logging
