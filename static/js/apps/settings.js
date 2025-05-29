@@ -770,10 +770,29 @@ class Settings {
         }
     }
 
-    static saveSettings(newSettings) {
+    static async saveSettings(newSettings) {
+        // Update local preferences
         const settings = this.getSettings();
         Object.assign(settings, newSettings);
+
+        // Save to localStorage for immediate use
         localStorage.setItem('emberframe-settings', JSON.stringify(settings));
+
+        // Save to backend
+        try {
+            const response = await fetch('/api/user/preferences', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ settings: settings })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to save settings to server');
+            }
+        } catch (error) {
+            console.error('Failed to save settings to backend:', error);
+            // Still works with localStorage
+        }
     }
 
     // Wallpaper management
@@ -905,26 +924,33 @@ class Settings {
         }
     }
 
-    static setWallpaper(source, type) {
+    static async setWallpaper(source, type) {
+        // Apply wallpaper immediately
         if (type === 'gradient') {
             document.body.style.background = source;
         } else {
             document.body.style.background = `url('${source}') center/cover`;
         }
 
-        // Update active wallpaper
+        // Update active wallpaper UI
         this.currentWindow.querySelectorAll('.wallpaper-item').forEach(item => {
             item.classList.remove('active');
         });
 
         const selectedItem = this.currentWindow.querySelector(`[data-wallpaper="${source}"]`) ||
-                            this.currentWindow.querySelector(`[onclick*="${source.replace(/'/g, "\\'")}"]`);
+                            this.currentWindow.querySelector(`[onclick*="${source.replace(/'/g, "\\\\'")}"]`);
         if (selectedItem) {
             selectedItem.classList.add('active');
         }
 
-        // Save setting
+        // Save to backend via WindowManager
+        if (window.WindowManager) {
+            await window.WindowManager.saveWallpaper(source, type);
+        }
+
+        // Also save to local preferences
         this.saveSettings({ wallpaper: source, wallpaperType: type });
+
         Notification.success('Wallpaper changed successfully');
     }
 

@@ -1,4 +1,4 @@
-# app/__init__.py - Complete Enhanced Flask Backend
+# Updated app/__init__.py - Complete Enhanced Flask Backend with User Preferences
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_file
 from flask_socketio import SocketIO
 import os
@@ -98,6 +98,7 @@ def create_app():
 
         if authenticate_user(username, password):
             session['username'] = username
+            session.permanent = True  # Make session persistent
             ensure_user_directory(username)
             return jsonify({'success': True, 'message': 'Login successful'})
         else:
@@ -125,8 +126,127 @@ def create_app():
 
     @app.route('/logout')
     def logout():
-        session.pop('username', None)
+        # Save any pending preferences before logout
+        if 'username' in session:
+            username = session['username']
+            print(f"User {username} logging out")
+
+        session.clear()
         return redirect(url_for('index'))
+
+    # ==============================
+    # USER PREFERENCES ROUTES (NEW)
+    # ==============================
+
+    @app.route('/api/user/preferences', methods=['GET'])
+    def get_user_preferences():
+        """Get user preferences"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
+        username = session['username']
+        prefs_file = get_user_preferences_file(username)
+
+        try:
+            if os.path.exists(prefs_file):
+                with open(prefs_file, 'r') as f:
+                    preferences = json.load(f)
+            else:
+                # Return default preferences
+                preferences = get_default_preferences()
+
+            return jsonify(preferences)
+
+        except Exception as e:
+            print(f"Error loading preferences for {username}: {e}")
+            return jsonify(get_default_preferences())
+
+    @app.route('/api/user/preferences', methods=['POST'])
+    def save_user_preferences():
+        """Save user preferences"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
+        username = session['username']
+        preferences = request.get_json()
+
+        if not preferences:
+            return jsonify({'error': 'No preferences data provided'}), 400
+
+        try:
+            # Add metadata
+            preferences['lastUpdated'] = datetime.now().isoformat()
+            preferences['username'] = username
+
+            # Save to file
+            prefs_file = get_user_preferences_file(username)
+            os.makedirs(os.path.dirname(prefs_file), exist_ok=True)
+
+            with open(prefs_file, 'w') as f:
+                json.dump(preferences, f, indent=2)
+
+            return jsonify({'success': True, 'message': 'Preferences saved successfully'})
+
+        except Exception as e:
+            print(f"Error saving preferences for {username}: {e}")
+            return jsonify({'error': 'Failed to save preferences'}), 500
+
+    @app.route('/api/user/wallpaper', methods=['POST'])
+    def save_wallpaper_preference():
+        """Save wallpaper preference"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
+        username = session['username']
+        data = request.get_json()
+
+        if not data or 'wallpaper' not in data:
+            return jsonify({'error': 'Wallpaper data required'}), 400
+
+        try:
+            # Load existing preferences
+            prefs_file = get_user_preferences_file(username)
+            preferences = {}
+
+            if os.path.exists(prefs_file):
+                with open(prefs_file, 'r') as f:
+                    preferences = json.load(f)
+
+            # Update wallpaper
+            preferences['wallpaper'] = data['wallpaper']
+            preferences['lastUpdated'] = datetime.now().isoformat()
+
+            # Save preferences
+            os.makedirs(os.path.dirname(prefs_file), exist_ok=True)
+            with open(prefs_file, 'w') as f:
+                json.dump(preferences, f, indent=2)
+
+            return jsonify({'success': True, 'message': 'Wallpaper preference saved'})
+
+        except Exception as e:
+            print(f"Error saving wallpaper preference for {username}: {e}")
+            return jsonify({'error': 'Failed to save wallpaper preference'}), 500
+
+    @app.route('/api/user/reset-preferences', methods=['POST'])
+    def reset_user_preferences():
+        """Reset user preferences to default"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
+        username = session['username']
+
+        try:
+            prefs_file = get_user_preferences_file(username)
+
+            # Remove existing preferences file
+            if os.path.exists(prefs_file):
+                os.remove(prefs_file)
+
+            return jsonify({'success': True, 'message': 'Preferences reset to default'})
+
+        except Exception as e:
+            print(f"Error resetting preferences for {username}: {e}")
+            return jsonify({'error': 'Failed to reset preferences'}), 500
 
     # ===================
     # FILE SYSTEM ROUTES
@@ -202,6 +322,7 @@ def create_app():
             'path': clean_filepath,
             'writable': writable
         })
+
     @app.route('/api/files/<path:filepath>', methods=['POST'])
     def create_file_or_folder(filepath):
         if 'username' not in session:
@@ -313,6 +434,7 @@ def create_app():
                 return jsonify({'error': 'Cannot read file: ' + str(e)}), 500
         except Exception as e:
             return jsonify({'error': str(e)}), 500
+
     # ===================
     # FILE UPLOAD ROUTES
     # ===================
@@ -498,10 +620,12 @@ def create_user(username, password, email):
         'password': hash_password(password),
         'email': email,
         'created': datetime.now().isoformat(),
-        'last_login': None
+        'last_login': None,
+        'preferences_created': False
     }
     save_users(users)
     ensure_user_directory(username)
+    create_default_user_preferences(username)
     return True
 
 
@@ -544,12 +668,19 @@ def ensure_user_directory(username):
 
 This is your personal home directory where you can store files and folders.
 
+Enhanced Features:
+- Multiple windows support - Open as many apps as you need!
+- Personalized settings - Your preferences are saved automatically
+- Draggable desktop icons - Arrange your desktop your way
+- Window state persistence - Windows remember their size and position
+- Custom wallpapers - Upload and set your own backgrounds
+
 Features available:
 - Create and edit text files
 - Upload and download files
 - Create folders and organize your content
 - Access shared files in the Public folder
-- Customize your desktop with wallpapers
+- Customize your desktop with wallpapers and themes
 
 Directory Structure:
 - Documents/    - Store your documents here
@@ -558,148 +689,388 @@ Directory Structure:
 - Desktop/      - Desktop shortcuts and files
 - wallpapers/   - Your custom wallpaper uploads
 
-Enjoy your EmberFrame desktop experience!
+Keyboard Shortcuts:
+- Alt + Tab: Cycle through open windows
+- Ctrl + Alt + T: Open Terminal
+- Ctrl + Alt + F: Open File Manager
+- Windows Key: Toggle Start Menu
+
+Enjoy your enhanced EmberFrame desktop experience!
 
 Created: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+Last Updated: Multi-window support and user preferences added
 """
 
     readme_path = os.path.join(user_dir, 'README.txt')
-    if not os.path.exists(readme_path):
+    try:
+        with open(readme_path, 'w', encoding='utf-8') as f:
+            f.write(readme_content)
+    except IOError:
+        pass  # Ignore if we can't create the file
+
+
+def get_user_preferences_file(username):
+    """Get the path to user's preferences file"""
+    user_dir = get_user_directory(username)
+    return os.path.join(user_dir, 'preferences.json')
+
+
+def get_default_preferences():
+    """Get default user preferences"""
+    return {
+        'version': '1.0',
+        'windows': {},
+        'settings': {
+            'theme': 'default',
+            'animations': True,
+            'restoreWindows': False,
+            'startupSound': False,
+            'autoLogin': False,
+            'iconSize': 48,
+            'showLabels': True,
+            'taskbarPosition': 'bottom',
+            'transparency': 0
+        },
+        'wallpaper': {
+            'type': 'gradient',
+            'value': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+        },
+        'desktop': {
+            'iconPositions': {
+                'file-manager': {'x': 20, 'y': 20},
+                'terminal': {'x': 120, 'y': 20},
+                'text-editor': {'x': 20, 'y': 120},
+                'settings': {'x': 120, 'y': 120},
+                'public-folder': {'x': 20, 'y': 220}
+            },
+            'gridSnap': True,
+            'autoArrange': False
+        },
+        'savedWindows': [],
+        'createdAt': datetime.now().isoformat(),
+        'lastUpdated': datetime.now().isoformat()
+    }
+
+
+def create_default_user_preferences(username):
+    """Create default preferences file for new user"""
+    prefs_file = get_user_preferences_file(username)
+
+    # Only create if it doesn't exist
+    if not os.path.exists(prefs_file):
+        preferences = get_default_preferences()
+        preferences['username'] = username
+
         try:
-            with open(readme_path, 'w', encoding='utf-8') as f:
-                f.write(readme_content)
-        except IOError:
-            pass  # Ignore if we can't create the file
+            os.makedirs(os.path.dirname(prefs_file), exist_ok=True)
+            with open(prefs_file, 'w') as f:
+                json.dump(preferences, f, indent=2)
+            print(f"Created default preferences for user: {username}")
+        except Exception as e:
+            print(f"Error creating default preferences for {username}: {e}")
 
 
 def create_default_public_files(public_dir):
     """Create default public files"""
     # Create announcements file
-    announcements = f"""SYSTEM ANNOUNCEMENTS
+    announcements = f"""SYSTEM ANNOUNCEMENTS - EmberFrame Multi-Window Desktop
 
-Welcome to EmberFrame Desktop Environment!
+Welcome to the Enhanced EmberFrame Desktop Environment!
+
+🔥 NEW FEATURES:
+✅ Multiple Windows Support - Open as many applications as you want simultaneously!
+✅ User Preferences Storage - Your settings, window positions, and wallpapers are saved
+✅ Draggable Desktop Icons - Arrange your desktop exactly how you like it
+✅ Enhanced Start Menu - Now includes logout and system actions
+✅ Persistent Window States - Windows remember their size and position
+✅ Improved Notifications - Better visual feedback for all actions
 
 This is the public directory where system administrators can share files 
 with all users. Files here are read-only for regular users.
 
 System Information:
-- Version: 1.0.0
+- Version: 2.0.0 (Multi-Window Edition)
 - Last Updated: {datetime.now().strftime('%Y-%m-%d')}
 - Platform: Web-based Desktop Environment
-- Technology: Python Flask + JavaScript
+- Technology: Python Flask + Enhanced JavaScript
 
-Features:
+Enhanced Features:
 ✓ Multi-user support with authentication
 ✓ Real file system integration
+✓ Multiple window support (like Ubuntu/Windows)
 ✓ Drag & drop file uploads
-✓ Resizable and draggable windows
+✓ Resizable and draggable windows with state persistence
 ✓ Terminal with real command execution
 ✓ Full-featured text editor
-✓ Customizable themes and wallpapers
-✓ Notification system
+✓ Customizable themes and wallpapers with user storage
+✓ Enhanced notification system
+✓ Keyboard shortcuts support
+✓ User preference synchronization
 
 Getting Started:
 1. Explore your home directory using the File Manager
-2. Try the Terminal to navigate with commands
-3. Use the Text Editor to create and edit files
-4. Customize your desktop in Settings
-5. Upload your own wallpapers
+2. Try opening multiple applications at once!
+3. Drag windows around and resize them - positions are saved
+4. Use the Terminal to navigate with commands
+5. Customize your desktop in Settings
+6. Upload your own wallpapers
+7. Drag desktop icons to arrange them
+8. Try keyboard shortcuts like Alt+Tab to cycle windows
+
+New Keyboard Shortcuts:
+- Alt + Tab: Cycle through open windows
+- Ctrl + Alt + T: Open Terminal
+- Ctrl + Alt + F: Open File Manager  
+- Windows/Super Key: Toggle Start Menu
 
 Need Help?
 - Type 'help' in the Terminal for available commands
 - Right-click on the desktop for context menu
-- Check the About section in Settings
+- Check the Settings app for personalization options
+- Drag files onto the desktop to upload them
 
-Have a great day!
+Have a great day with your enhanced multi-window experience!
 
 ---
-EmberFrame Team
+EmberFrame Development Team
+Enhanced Multi-Window Edition
 """
 
     announcements_path = os.path.join(public_dir, 'announcements.txt')
-    if not os.path.exists(announcements_path):
-        try:
-            with open(announcements_path, 'w', encoding='utf-8') as f:
-                f.write(announcements)
-        except IOError:
-            pass
+    try:
+        with open(announcements_path, 'w', encoding='utf-8') as f:
+            f.write(announcements)
+    except IOError:
+        pass
 
-    # Create sample documents
-    sample_doc = """# EmberFrame User Guide
+    # Create enhanced sample documents
+    sample_doc = """# EmberFrame Enhanced User Guide
 
-## Getting Started
+## Welcome to Multi-Window Desktop Experience
 
-EmberFrame is a web-based desktop environment that provides a familiar desktop experience in your browser.
+EmberFrame 2.0 brings you a true multi-window desktop environment that works just like Ubuntu, Windows, or macOS - right in your browser!
+
+### 🆕 What's New in Version 2.0
+
+#### Multiple Windows Support
+- Open as many applications as you want simultaneously
+- All windows are visible and can be arranged on your desktop
+- Windows can overlap, be resized, and positioned anywhere
+- Active window highlighting with beautiful effects
+
+#### User Preferences & Persistence
+- Your window positions and sizes are automatically saved
+- Desktop icon positions are remembered
+- Wallpaper preferences sync across sessions
+- All settings are stored per-user
+
+#### Enhanced User Experience
+- Smooth window animations and transitions
+- Improved taskbar with window state indicators
+- Draggable desktop icons
+- Keyboard shortcuts for power users
+- Enhanced start menu with logout options
 
 ### Key Features
 
-- **File Management**: Create, edit, and organize files in your personal directory
-- **Terminal Access**: Use command-line interface with real file system operations
-- **Text Editor**: Full-featured editor with syntax highlighting and themes
-- **Multi-user Support**: Each user has their own secure workspace
-- **Customization**: Themes, wallpapers, and desktop personalization
+#### Window Management
+- **Multiple Windows**: Open several apps at once, just like a real desktop
+- **Window States**: Minimize, maximize, close, drag, and resize
+- **Smart Positioning**: New windows automatically position themselves
+- **State Persistence**: Window positions saved between sessions
+- **Active Window Effects**: Visual feedback for the currently focused window
 
-### File System Structure
+#### File Management
+- **Real File System**: Create, edit, and organize files in your personal directory
+- **Drag & Drop**: Upload files by dragging them onto the desktop
+- **Public Access**: Shared read-only files in the public directory
+- **File Browser Integration**: Seamless file operations within applications
 
-- Your Home Directory: `/user_data/username/`
-- Public Files: `public_data/` (read-only shared files)
-- Wallpapers: Upload custom backgrounds in Settings
+#### Personalization
+- **Custom Wallpapers**: Upload and set your own background images
+- **Gradient Backgrounds**: Choose from beautiful gradient options
+- **Icon Arrangement**: Drag desktop icons to your preferred positions
+- **Theme Options**: Multiple visual themes to choose from
+- **Settings Persistence**: All preferences saved automatically
 
-### Terminal Commands
+#### Terminal & Development
+- **Full Terminal**: Real command-line interface with file system access
+- **Text Editor**: Comprehensive editor with syntax highlighting
+- **File Operations**: Create, edit, delete files and folders
+- **Development Tools**: Perfect for coding and system administration
 
-- `ls` - List files and directories
-- `cd <directory>` - Change directory
-- `pwd` - Show current directory
-- `cat <file>` - Display file contents
-- `mkdir <name>` - Create directory
-- `touch <file>` - Create empty file
-- `rm <file>` - Delete file
-- `help` - Show all available commands
+### Keyboard Shortcuts
 
-### Tips
+#### Window Management
+- `Alt + Tab` - Cycle through open windows
+- `Windows/Super Key` - Toggle Start Menu
 
-- Double-click desktop icons to open applications
-- Right-click for context menus
-- Drag window edges to resize
-- Use Ctrl+S to save in Text Editor
-- Upload files by dragging them to File Manager
+#### Application Shortcuts  
+- `Ctrl + Alt + T` - Open Terminal
+- `Ctrl + Alt + F` - Open File Manager
 
-Enjoy exploring EmberFrame!
+#### General Navigation
+- `Right-click Desktop` - Context menu
+- `Drag Desktop Icons` - Rearrange your desktop
+
+### Getting Started Guide
+
+#### 1. Explore Multi-Window Support
+- Click on the File Manager icon
+- Then click on Terminal - notice both windows are now open!
+- Try opening Text Editor and Settings too
+- Drag windows around, resize them, minimize and restore
+
+#### 2. Customize Your Desktop
+- Right-click desktop for options
+- Drag desktop icons to rearrange them
+- Open Settings to change wallpaper and preferences
+
+#### 3. File Management
+- Use File Manager to browse your files
+- Drag files from your computer onto the desktop to upload
+- Create folders and organize your content
+
+#### 4. Terminal Power User Features
+- Use `ls` to list files
+- Use `cd` to change directories
+- Use `cat filename.txt` to read files
+- Type `help` for all available commands
+
+#### 5. Text Editor
+- Create and edit documents
+- Syntax highlighting for code files
+- Auto-save functionality
+- Multiple themes available
+
+### Tips & Tricks
+
+#### Window Management
+- Windows remember their last position and size
+- Minimized windows appear dimmed in the taskbar
+- Active windows have a special glow effect
+- Double-click window titlebar to maximize/restore
+
+#### Desktop Organization
+- Icons snap to a grid for neat arrangement
+- Desktop icon positions are saved between sessions
+- Drag files onto desktop to quickly upload them
+- Right-click for quick access to common actions
+
+#### File Operations
+- Upload multiple files by selecting them all
+- Use Terminal for advanced file operations
+- Public folder contains shared system files
+- Your personal files are completely private
+
+### Troubleshooting
+
+#### Performance
+- Close unused windows to improve performance
+- Clear browser cache if experiencing slowdowns
+- Use latest browser version for best experience
+
+#### File Issues
+- Refresh File Manager if files don't appear
+- Check file permissions if uploads fail
+- Large files may take time to upload
+
+#### Window Problems
+- If windows seem stuck, try refreshing the page
+- Your window positions will be restored automatically
+- Use Alt+Tab if you lose track of windows
+
+### Support & Feedback
+
+EmberFrame is continuously improved based on user feedback. Enjoy your enhanced desktop experience!
+
+For the complete experience:
+- Drag this window around the screen
+- Try opening multiple applications
+- Experiment with all the new keyboard shortcuts
+- Customize everything in Settings
+
+Welcome to the future of web-based desktop computing!
+
+---
+*EmberFrame 2.0 - Enhanced Multi-Window Edition*
+*Built with modern web technologies for maximum compatibility*
 """
 
-    guide_path = os.path.join(public_dir, 'user-guide.md')
-    if not os.path.exists(guide_path):
-        try:
-            with open(guide_path, 'w', encoding='utf-8') as f:
-                f.write(sample_doc)
-        except IOError:
-            pass
+    guide_path = os.path.join(public_dir, 'enhanced-user-guide.md')
+    try:
+        with open(guide_path, 'w', encoding='utf-8') as f:
+            f.write(sample_doc)
+    except IOError:
+        pass
 
 
 def create_default_wallpapers(wallpaper_dir):
     """Create default wallpaper CSS file"""
-    css_wallpaper = """/* Default Gradient Wallpapers for EmberFrame */
+    css_wallpaper = """/* Enhanced Gradient Wallpapers for EmberFrame */
 
-/* These CSS classes can be used for gradient backgrounds */
-.gradient-blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-.gradient-pink { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-.gradient-cyan { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-.gradient-green { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-.gradient-orange { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-.gradient-purple { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
-.gradient-dark { background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); }
-.gradient-sunset { background: linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%); }
+/* Multi-Window Desktop Compatible Gradients */
+.gradient-blue { 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+    background-attachment: fixed;
+}
+.gradient-pink { 
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); 
+    background-attachment: fixed;
+}
+.gradient-cyan { 
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); 
+    background-attachment: fixed;
+}
+.gradient-green { 
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); 
+    background-attachment: fixed;
+}
+.gradient-orange { 
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); 
+    background-attachment: fixed;
+}
+.gradient-purple { 
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); 
+    background-attachment: fixed;
+}
+.gradient-dark { 
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); 
+    background-attachment: fixed;
+}
+.gradient-sunset { 
+    background: linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%); 
+    background-attachment: fixed;
+}
 
-/* Usage: Apply these classes to body or any element for instant gradients */
+/* New Enhanced Gradients for Multi-Window Support */
+.gradient-ember { 
+    background: linear-gradient(135deg, #ff4500 0%, #ff8c00 40%, #ffa500 100%); 
+    background-attachment: fixed;
+}
+.gradient-ocean { 
+    background: linear-gradient(135deg, #0074D9 0%, #7FDBFF 50%, #39CCCC 100%); 
+    background-attachment: fixed;
+}
+.gradient-forest { 
+    background: linear-gradient(135deg, #2ECC40 0%, #3D9970 50%, #01FF70 100%); 
+    background-attachment: fixed;
+}
+.gradient-royal { 
+    background: linear-gradient(135deg, #B10DC9 0%, #F012BE 50%, #85144b 100%); 
+    background-attachment: fixed;
+}
+
+/* Usage: Apply these classes to body for instant gradient backgrounds */
+/* Compatible with multi-window desktop environment */
 """
 
-    css_path = os.path.join(wallpaper_dir, 'gradients.css')
-    if not os.path.exists(css_path):
-        try:
-            with open(css_path, 'w', encoding='utf-8') as f:
-                f.write(css_wallpaper)
-        except IOError:
-            pass
+    css_path = os.path.join(wallpaper_dir, 'enhanced-gradients.css')
+    try:
+        with open(css_path, 'w', encoding='utf-8') as f:
+            f.write(css_wallpaper)
+    except IOError:
+        pass
 
 
 def get_file_icon(filename):

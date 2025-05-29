@@ -5,33 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EmberFrame Desktop</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/desktop.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
     <div class="desktop" id="desktop">
-        <!-- Desktop Icons -->
-        <div class="desktop-icon" style="top: 20px; left: 20px;" data-app="file-manager">
+        <!-- Desktop Icons with saved positions -->
+        <div class="desktop-icon" style="top: 20px; left: 20px;" data-app="file-manager" id="icon-file-manager">
             <div class="icon-image">📁</div>
             <div class="icon-label">File Manager</div>
         </div>
 
-        <div class="desktop-icon" style="top: 20px; left: 120px;" data-app="terminal">
+        <div class="desktop-icon" style="top: 20px; left: 120px;" data-app="terminal" id="icon-terminal">
             <div class="icon-image">💻</div>
             <div class="icon-label">Terminal</div>
         </div>
 
-        <div class="desktop-icon" style="top: 120px; left: 20px;" data-app="text-editor">
+        <div class="desktop-icon" style="top: 120px; left: 20px;" data-app="text-editor" id="icon-text-editor">
             <div class="icon-image">📝</div>
             <div class="icon-label">Text Editor</div>
         </div>
 
-        <div class="desktop-icon" style="top: 120px; left: 120px;" data-app="settings">
+        <div class="desktop-icon" style="top: 120px; left: 120px;" data-app="settings" id="icon-settings">
             <div class="icon-image">⚙️</div>
             <div class="icon-label">Settings</div>
         </div>
 
         <!-- Public Folder Icon -->
-        <div class="desktop-icon" style="top: 220px; left: 20px;" data-app="public-folder">
-            <div class="icon-image" style="background: #28a745;">🌐</div>
+        <div class="desktop-icon" style="top: 220px; left: 20px;" data-app="public-folder" id="icon-public-folder">
+            <div class="icon-image" style="background: linear-gradient(145deg, #28a745, #20c997);">🌐</div>
             <div class="icon-label">Public</div>
         </div>
     </div>
@@ -69,11 +70,11 @@
         <div class="system-tray">
             <span class="username">{{ username }}</span>
             <div class="time" id="time"></div>
-            <button class="logout-btn" onclick="logout()">⏻</button>
+            <button class="logout-btn" onclick="quickLogout()" title="Quick Logout">⏻</button>
         </div>
     </div>
 
-    <!-- Start Menu -->
+    <!-- Enhanced Start Menu with Logout -->
     <div class="start-menu" id="start-menu">
         <div class="start-menu-header">
             <h3>EmberFrame</h3>
@@ -82,43 +83,58 @@
         <div class="start-menu-apps" id="start-menu-apps">
             <div class="start-menu-app" data-app="file-manager">
                 <div class="start-menu-app-icon">📁</div>
-                <div>File Manager</div>
+                <div class="start-menu-app-label">File Manager</div>
             </div>
             <div class="start-menu-app" data-app="terminal">
                 <div class="start-menu-app-icon">💻</div>
-                <div>Terminal</div>
+                <div class="start-menu-app-label">Terminal</div>
             </div>
             <div class="start-menu-app" data-app="text-editor">
                 <div class="start-menu-app-icon">📝</div>
-                <div>Text Editor</div>
+                <div class="start-menu-app-label">Text Editor</div>
             </div>
             <div class="start-menu-app" data-app="settings">
                 <div class="start-menu-app-icon">⚙️</div>
-                <div>Settings</div>
+                <div class="start-menu-app-label">Settings</div>
             </div>
             <div class="start-menu-app" data-app="public-folder">
-                <div class="start-menu-app-icon" style="background: #28a745;">🌐</div>
-                <div>Public Folder</div>
+                <div class="start-menu-app-icon" style="background: linear-gradient(145deg, #28a745, #20c997);">🌐</div>
+                <div class="start-menu-app-label">Public Folder</div>
             </div>
+        </div>
+
+        <!-- Start Menu Footer with Actions -->
+        <div class="start-menu-footer">
+            <button class="start-menu-action" onclick="openSettings()" title="Open Settings">
+                ⚙️ Settings
+            </button>
+            <button class="start-menu-action" onclick="restartSession()" title="Restart Session">
+                🔄 Restart
+            </button>
+            <button class="start-menu-action logout" onclick="logout()" title="Sign Out">
+                🚪 Logout
+            </button>
         </div>
     </div>
 
-    <!-- Context Menu -->
+    <!-- Enhanced Context Menu -->
     <div class="context-menu" id="context-menu">
-        <div class="context-menu-item" onclick="location.reload()">Refresh Desktop</div>
-        <div class="context-menu-item" onclick="createNewFile()">New File</div>
-        <div class="context-menu-item" onclick="createNewFolder()">New Folder</div>
-        <div class="context-menu-item" onclick="showProperties()">Properties</div>
+        <div class="context-menu-item" data-icon="🔄" onclick="location.reload()">Refresh Desktop</div>
+        <div class="context-menu-item" data-icon="📄" onclick="createNewFile()">New File</div>
+        <div class="context-menu-item" data-icon="📁" onclick="createNewFolder()">New Folder</div>
+        <div class="context-menu-item" data-icon="🎨" onclick="openPersonalization()">Personalization</div>
+        <div class="context-menu-item" data-icon="⚙️" onclick="showProperties()">Properties</div>
     </div>
 
     <!-- Notification Container -->
     <div class="notification-container" id="notification-container"></div>
 
     <!-- Core Scripts -->
-    <script src="{{ url_for('static', filename='js/desktop-core.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/utils/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/window-manager.js') }}"></script>
     <script src="{{ url_for('static', filename='js/file-browser.js') }}"></script>
     <script src="{{ url_for('static', filename='js/notification.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/desktop-core.js') }}"></script>
 
     <!-- App Scripts -->
     <script src="{{ url_for('static', filename='js/apps/file-manager.js') }}"></script>
@@ -127,38 +143,353 @@
     <script src="{{ url_for('static', filename='js/apps/settings.js') }}"></script>
 
     <script>
-        // Global functions
+        // Enhanced global functions with user preferences
         function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                window.location.href = '/logout';
+            if (confirm('Are you sure you want to sign out?')) {
+                // Save current session before logout
+                if (window.WindowManager) {
+                    window.WindowManager.saveCurrentSession();
+                }
+
+                // Show logout animation
+                showLogoutAnimation();
+
+                // Redirect after animation
+                setTimeout(() => {
+                    window.location.href = '/logout';
+                }, 1500);
+            }
+        }
+
+        function quickLogout() {
+            logout(); // Same as above but without start menu
+        }
+
+        function restartSession() {
+            if (confirm('Restart your session? This will close all windows and reload the desktop.')) {
+                // Save preferences
+                if (window.WindowManager) {
+                    window.WindowManager.saveCurrentSession();
+                }
+
+                // Show restart animation
+                showRestartAnimation();
+
+                // Reload after animation
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
+        }
+
+        function openSettings() {
+            if (window.WindowManager) {
+                window.WindowManager.openApp('settings');
+            }
+            // Close start menu
+            document.getElementById('start-menu').classList.remove('active');
+        }
+
+        function openPersonalization() {
+            if (window.WindowManager) {
+                window.WindowManager.openApp('settings');
+                // TODO: Auto-navigate to appearance section
             }
         }
 
         function createNewFile() {
-            window.WindowManager.openApp('text-editor');
+            if (window.WindowManager) {
+                window.WindowManager.openApp('text-editor');
+            }
         }
 
         function createNewFolder() {
-            window.WindowManager.openApp('file-manager');
+            if (window.WindowManager) {
+                window.WindowManager.openApp('file-manager');
+            }
         }
 
         function showProperties() {
-            window.WindowManager.openApp('settings');
+            if (window.WindowManager) {
+                window.WindowManager.openApp('settings');
+            }
         }
 
-        // Handle drag and drop on desktop
+        // Logout animation
+        function showLogoutAnimation() {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, #2c3e50, #34495e);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                color: white;
+                font-family: 'Segoe UI', sans-serif;
+            `;
+
+            overlay.innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 20px; animation: pulse 1s infinite;">🔥</div>
+                <div style="font-size: 24px; margin-bottom: 10px;">Signing out...</div>
+                <div style="font-size: 14px; opacity: 0.8;">See you next time!</div>
+                <div style="width: 200px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin-top: 20px; overflow: hidden;">
+                    <div style="width: 100%; height: 100%; background: #3498db; transform: translateX(-100%); animation: slideIn 1.5s ease-out;"></div>
+                </div>
+            `;
+
+            document.body.appendChild(overlay);
+
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.7; transform: scale(1.1); }
+                }
+                @keyframes slideIn {
+                    0% { transform: translateX(-100%); }
+                    100% { transform: translateX(0); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Restart animation
+        function showRestartAnimation() {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, #e74c3c, #c0392b);
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                color: white;
+                font-family: 'Segoe UI', sans-serif;
+            `;
+
+            overlay.innerHTML = `
+                <div style="font-size: 48px; margin-bottom: 20px; animation: spin 1s linear infinite;">🔄</div>
+                <div style="font-size: 24px;">Restarting Session...</div>
+            `;
+
+            document.body.appendChild(overlay);
+
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Enhanced drag and drop with file upload
         document.addEventListener('dragover', (e) => {
             e.preventDefault();
+            document.body.classList.add('drag-over');
+        });
+
+        document.addEventListener('dragleave', (e) => {
+            if (e.clientX === 0 && e.clientY === 0) {
+                document.body.classList.remove('drag-over');
+            }
         });
 
         document.addEventListener('drop', (e) => {
             e.preventDefault();
+            document.body.classList.remove('drag-over');
+
             if (e.dataTransfer.files.length > 0) {
-                // Handle file drops
-                Array.from(e.dataTransfer.files).forEach(file => {
-                    console.log('File dropped:', file.name);
-                    // TODO: Implement file upload to user directory
+                handleDesktopFileDrop(e.dataTransfer.files, e.clientX, e.clientY);
+            }
+        });
+
+        async function handleDesktopFileDrop(files, x, y) {
+            if (!files.length) return;
+
+            const uploadId = Notification.loading(`Uploading ${files.length} file(s) to desktop...`);
+
+            try {
+                const uploadPromises = Array.from(files).map(file => {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('path', 'Desktop');
+
+                    return fetch('/api/upload-file', {
+                        method: 'POST',
+                        body: formData
+                    });
                 });
+
+                await Promise.all(uploadPromises);
+
+                Notification.update(uploadId, `${files.length} file(s) uploaded successfully!`, 'success');
+                setTimeout(() => Notification.close(uploadId), 3000);
+
+                // Optionally open file manager to show uploaded files
+                if (window.WindowManager) {
+                    setTimeout(() => {
+                        window.WindowManager.openApp('file-manager');
+                    }, 1000);
+                }
+
+            } catch (error) {
+                Notification.update(uploadId, 'Some files failed to upload', 'error');
+                setTimeout(() => Notification.close(uploadId), 4000);
+            }
+        }
+
+        // Desktop icon position saving
+        function makeIconsDraggable() {
+            const icons = document.querySelectorAll('.desktop-icon');
+
+            icons.forEach(icon => {
+                let isDragging = false;
+                let startX, startY, startLeft, startTop;
+
+                icon.addEventListener('mousedown', (e) => {
+                    if (e.detail === 1) { // Single click
+                        isDragging = true;
+                        startX = e.clientX;
+                        startY = e.clientY;
+                        startLeft = parseInt(icon.style.left) || 0;
+                        startTop = parseInt(icon.style.top) || 0;
+
+                        icon.style.zIndex = '1000';
+                        e.preventDefault();
+                    }
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (isDragging) {
+                        const deltaX = e.clientX - startX;
+                        const deltaY = e.clientY - startY;
+
+                        const newLeft = Math.max(0, Math.min(startLeft + deltaX, window.innerWidth - 80));
+                        const newTop = Math.max(0, Math.min(startTop + deltaY, window.innerHeight - 120));
+
+                        icon.style.left = newLeft + 'px';
+                        icon.style.top = newTop + 'px';
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (isDragging) {
+                        isDragging = false;
+                        icon.style.zIndex = '';
+                        saveIconPosition(icon);
+                    }
+                });
+            });
+        }
+
+        async function saveIconPosition(icon) {
+            const appType = icon.dataset.app;
+            const position = {
+                x: parseInt(icon.style.left),
+                y: parseInt(icon.style.top)
+            };
+
+            if (window.WindowManager && window.WindowManager.userPreferences) {
+                if (!window.WindowManager.userPreferences.desktop) {
+                    window.WindowManager.userPreferences.desktop = { iconPositions: {} };
+                }
+
+                window.WindowManager.userPreferences.desktop.iconPositions[appType] = position;
+                await window.WindowManager.saveUserPreferences();
+            }
+        }
+
+        function loadIconPositions() {
+            if (window.WindowManager && window.WindowManager.userPreferences.desktop?.iconPositions) {
+                const positions = window.WindowManager.userPreferences.desktop.iconPositions;
+
+                Object.entries(positions).forEach(([appType, position]) => {
+                    const icon = document.querySelector(`[data-app="${appType}"]`);
+                    if (icon) {
+                        icon.style.left = position.x + 'px';
+                        icon.style.top = position.y + 'px';
+                    }
+                });
+            }
+        }
+
+        // Initialize enhanced desktop
+        document.addEventListener('DOMContentLoaded', () => {
+            // Make icons draggable
+            setTimeout(() => {
+                makeIconsDraggable();
+                loadIconPositions();
+            }, 500);
+
+            // Add drag over effect to body
+            const style = document.createElement('style');
+            style.textContent = `
+                body.drag-over {
+                    background: linear-gradient(135deg, rgba(74, 144, 226, 0.8), rgba(53, 122, 189, 0.8)) !important;
+                }
+                body.drag-over::after {
+                    content: '📤 Drop files here to upload to desktop';
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(0, 0, 0, 0.8);
+                    color: white;
+                    padding: 20px 40px;
+                    border-radius: 10px;
+                    font-size: 18px;
+                    z-index: 9999;
+                    pointer-events: none;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Alt + Tab - Cycle through windows
+            if (e.altKey && e.key === 'Tab') {
+                e.preventDefault();
+                if (window.WindowManager) {
+                    window.WindowManager.cycleWindows();
+                }
+            }
+
+            // Ctrl + Alt + T - Open Terminal
+            if (e.ctrlKey && e.altKey && e.key === 't') {
+                e.preventDefault();
+                if (window.WindowManager) {
+                    window.WindowManager.openApp('terminal');
+                }
+            }
+
+            // Ctrl + Alt + F - Open File Manager
+            if (e.ctrlKey && e.altKey && e.key === 'f') {
+                e.preventDefault();
+                if (window.WindowManager) {
+                    window.WindowManager.openApp('file-manager');
+                }
+            }
+
+            // Windows/Super key - Toggle Start Menu
+            if (e.key === 'Meta' || e.key === 'OS') {
+                e.preventDefault();
+                const startMenu = document.getElementById('start-menu');
+                startMenu.classList.toggle('active');
             }
         });
     </script>

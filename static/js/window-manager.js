@@ -1,4 +1,4 @@
-// Complete Window Manager - Fixed for Multiple Windows
+// Enhanced Window Manager - Multi-Window Support with User Preferences
 class WindowManager {
     constructor() {
         this.windows = new Map();
@@ -10,19 +10,79 @@ class WindowManager {
         this.dragOffset = { x: 0, y: 0 };
         this.taskbarApps = document.getElementById('taskbar-apps');
         this.windowsContainer = document.getElementById('windows-container');
+        this.userPreferences = {};
 
         this.setupMouseEvents();
-        console.log('WindowManager initialized');
+        this.loadUserPreferences();
+        console.log('Enhanced WindowManager initialized with multi-window support');
+    }
+
+    // Load user preferences from backend
+    async loadUserPreferences() {
+        try {
+            const response = await fetch('/api/user/preferences');
+            if (response.ok) {
+                this.userPreferences = await response.json();
+                console.log('User preferences loaded:', this.userPreferences);
+
+                // Apply saved wallpaper if exists
+                if (this.userPreferences.wallpaper) {
+                    this.applyWallpaper(this.userPreferences.wallpaper);
+                }
+
+                // Restore saved windows if preference is enabled
+                if (this.userPreferences.settings?.restoreWindows) {
+                    this.restoreSavedWindows();
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load user preferences:', error);
+            this.userPreferences = { windows: {}, settings: {} };
+        }
+    }
+
+    // Save user preferences to backend
+    async saveUserPreferences() {
+        try {
+            const response = await fetch('/api/user/preferences', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(this.userPreferences)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to save preferences');
+            }
+        } catch (error) {
+            console.error('Failed to save user preferences:', error);
+        }
+    }
+
+    // Apply wallpaper from preferences
+    applyWallpaper(wallpaperData) {
+        if (wallpaperData.type === 'gradient') {
+            document.body.style.background = wallpaperData.value;
+        } else if (wallpaperData.type === 'image') {
+            document.body.style.background = `url('${wallpaperData.value}') center/cover no-repeat`;
+        }
+    }
+
+    // Save wallpaper preference
+    async saveWallpaper(wallpaperValue, wallpaperType) {
+        this.userPreferences.wallpaper = {
+            value: wallpaperValue,
+            type: wallpaperType,
+            timestamp: Date.now()
+        };
+        await this.saveUserPreferences();
     }
 
     // Open an application - allows multiple instances
     openApp(appName) {
         console.log('Opening app:', appName);
 
-        // Create unique window ID for each instance
         const timestamp = Date.now();
         const uniqueId = `${appName}-${timestamp}`;
-
         let windowData = null;
 
         // Handle special cases first
@@ -56,12 +116,12 @@ class WindowManager {
         }
     }
 
-    // Create a new window
+    // Create a new window with multi-window support
     createWindow(windowId, windowData, appType) {
         console.log('Creating window:', windowId, windowData.title);
 
         const windowElement = document.createElement('div');
-        windowElement.className = 'window active';
+        windowElement.className = 'window visible'; // Changed: always visible
         windowElement.dataset.app = windowId;
         windowElement.dataset.appType = appType || windowId.split('-')[0];
 
@@ -81,19 +141,34 @@ class WindowManager {
             ${this.createResizeHandles()}
         `;
 
-        // Set window size
-        if (windowData.autoSize) {
-            this.autoSizeWindow(windowElement, windowData);
+        // Load saved window preferences or use defaults
+        const savedWindowData = this.userPreferences.windows?.[appType];
+
+        if (savedWindowData && !savedWindowData.isMaximized) {
+            // Apply saved size and position
+            windowElement.style.width = savedWindowData.width || windowData.width || '600px';
+            windowElement.style.height = savedWindowData.height || windowData.height || '400px';
+            windowElement.style.left = savedWindowData.left || this.getSmartPosition().x + 'px';
+            windowElement.style.top = savedWindowData.top || this.getSmartPosition().y + 'px';
         } else {
-            if (windowData.width) windowElement.style.width = windowData.width;
-            if (windowData.height) windowElement.style.height = windowData.height;
+            // Use default or specified size
+            if (windowData.autoSize) {
+                this.autoSizeWindow(windowElement, windowData);
+            } else {
+                windowElement.style.width = windowData.width || '600px';
+                windowElement.style.height = windowData.height || '400px';
+            }
+
+            // Smart positioning for new windows
+            const position = this.getSmartPosition();
+            windowElement.style.left = position.x + 'px';
+            windowElement.style.top = position.y + 'px';
         }
 
-        // Position window
-        this.positionWindow(windowElement);
+        // Set z-index
         windowElement.style.zIndex = ++this.windowZIndex;
 
-        // Add to DOM
+        // Add to DOM - window is now visible by default
         this.windowsContainer.appendChild(windowElement);
 
         // Store window reference
@@ -102,8 +177,13 @@ class WindowManager {
             title: windowData.title,
             appType: appType || windowId.split('-')[0],
             isMinimized: false,
-            isMaximized: false
+            isMaximized: savedWindowData?.isMaximized || false
         });
+
+        // Restore maximized state if needed
+        if (savedWindowData?.isMaximized) {
+            this.maximizeWindow(windowElement, false); // false = don't save preferences again
+        }
 
         // Set as active window
         this.setActiveWindow(windowElement);
@@ -129,7 +209,26 @@ class WindowManager {
         console.log('Window created successfully:', windowId);
     }
 
-    // Set active window properly
+    // Smart positioning system
+    getSmartPosition() {
+        const padding = 20;
+        const offset = (this.windowCounter % 8) * 30; // Cycle through 8 positions
+        this.windowCounter++;
+
+        let x = padding + offset;
+        let y = padding + offset;
+
+        // Keep within screen bounds
+        const maxX = Math.max(padding, window.innerWidth - 300);
+        const maxY = Math.max(padding, window.innerHeight - 200 - 60); // Account for taskbar
+
+        x = Math.min(x, maxX);
+        y = Math.min(y, maxY);
+
+        return { x, y };
+    }
+
+    // Set active window - now highlights instead of hiding others
     setActiveWindow(windowElement) {
         // Remove active class from all windows
         document.querySelectorAll('.window').forEach(w => {
@@ -147,37 +246,20 @@ class WindowManager {
         console.log('Active window set to:', windowElement.dataset.app);
     }
 
-    // Focus a window (bring to front)
-    focusWindow(windowElement) {
-        if (!windowElement) return;
-
-        // If window is minimized, restore it first
-        const windowId = windowElement.dataset.app;
-        const windowData = this.windows.get(windowId);
-
-        if (windowData && windowData.isMinimized) {
-            this.restoreWindow(windowElement);
-        }
-
-        // Bring to front and set as active
-        this.setActiveWindow(windowElement);
-
-        console.log('Window focused:', windowId);
-    }
-
-    // Minimize window
+    // Minimize window - now hides completely
     minimizeWindow(windowElement) {
         const windowId = windowElement.dataset.app;
         const windowData = this.windows.get(windowId);
 
         if (windowData) {
-            windowElement.style.display = 'none';
+            windowElement.classList.add('minimized');
             windowElement.classList.remove('active');
             windowData.isMinimized = true;
 
             // Focus next available window
             this.focusNextAvailableWindow();
             this.updateTaskbar();
+            this.saveWindowState(windowElement);
 
             console.log('Window minimized:', windowId);
         }
@@ -189,16 +271,17 @@ class WindowManager {
         const windowData = this.windows.get(windowId);
 
         if (windowData) {
-            windowElement.style.display = 'block';
+            windowElement.classList.remove('minimized');
             windowData.isMinimized = false;
             this.setActiveWindow(windowElement);
+            this.saveWindowState(windowElement);
 
             console.log('Window restored:', windowId);
         }
     }
 
-    // Maximize/restore window
-    maximizeWindow(windowElement) {
+    // Enhanced maximize/restore with preference saving
+    maximizeWindow(windowElement, savePrefs = true) {
         const windowId = windowElement.dataset.app;
         const windowData = this.windows.get(windowId);
 
@@ -212,6 +295,7 @@ class WindowManager {
                 windowElement.style.left = windowData.preMaximizeState.left;
                 windowElement.style.top = windowData.preMaximizeState.top;
             }
+            windowElement.classList.remove('maximized');
             windowData.isMaximized = false;
             console.log('Window restored from maximized:', windowId);
         } else {
@@ -228,12 +312,44 @@ class WindowManager {
             windowElement.style.height = 'calc(100vh - 60px)';
             windowElement.style.left = '0';
             windowElement.style.top = '0';
+            windowElement.classList.add('maximized');
             windowData.isMaximized = true;
             console.log('Window maximized:', windowId);
         }
+
+        if (savePrefs) {
+            this.saveWindowState(windowElement);
+        }
     }
 
-    // Close window
+    // Save window state to user preferences
+    saveWindowState(windowElement) {
+        const windowId = windowElement.dataset.app;
+        const windowData = this.windows.get(windowId);
+        const appType = windowData.appType;
+
+        if (!this.userPreferences.windows) {
+            this.userPreferences.windows = {};
+        }
+
+        this.userPreferences.windows[appType] = {
+            width: windowElement.style.width,
+            height: windowElement.style.height,
+            left: windowElement.style.left,
+            top: windowElement.style.top,
+            isMinimized: windowData.isMinimized,
+            isMaximized: windowData.isMaximized,
+            lastSaved: Date.now()
+        };
+
+        // Debounced save to prevent too many requests
+        clearTimeout(this.saveTimeout);
+        this.saveTimeout = setTimeout(() => {
+            this.saveUserPreferences();
+        }, 1000);
+    }
+
+    // Close window with state cleanup
     closeWindow(windowElement) {
         const windowId = windowElement.dataset.app;
         const windowData = this.windows.get(windowId);
@@ -268,7 +384,7 @@ class WindowManager {
     // Focus the next available window
     focusNextAvailableWindow() {
         const availableWindows = Array.from(this.windows.values())
-            .filter(w => !w.isMinimized && w.element.style.display !== 'none')
+            .filter(w => !w.isMinimized)
             .sort((a, b) => parseInt(b.element.style.zIndex || 0) - parseInt(a.element.style.zIndex || 0));
 
         if (availableWindows.length > 0) {
@@ -278,7 +394,7 @@ class WindowManager {
         }
     }
 
-    // Update taskbar with all windows
+    // Enhanced taskbar with better window management
     updateTaskbar() {
         if (!this.taskbarApps) return;
 
@@ -290,9 +406,12 @@ class WindowManager {
             button.textContent = this.truncateTitle(windowData.title, 15);
             button.title = windowData.title; // Full title on hover
 
-            // Set active state
+            // Set visual state
             if (windowData.element.classList.contains('active') && !windowData.isMinimized) {
                 button.classList.add('active');
+            }
+            if (windowData.isMinimized) {
+                button.classList.add('minimized');
             }
 
             // Add click handler
@@ -325,7 +444,54 @@ class WindowManager {
         }
     }
 
-    // Helper methods
+    // Focus a window (bring to front)
+    focusWindow(windowElement) {
+        if (!windowElement) return;
+
+        const windowId = windowElement.dataset.app;
+        const windowData = this.windows.get(windowId);
+
+        if (windowData && windowData.isMinimized) {
+            this.restoreWindow(windowElement);
+        } else {
+            this.setActiveWindow(windowElement);
+        }
+
+        console.log('Window focused:', windowId);
+    }
+
+    // Restore saved windows on login
+    async restoreSavedWindows() {
+        if (!this.userPreferences.savedWindows) return;
+
+        for (const windowInfo of this.userPreferences.savedWindows) {
+            if (windowInfo.appType && windowInfo.autoRestore) {
+                setTimeout(() => {
+                    this.openApp(windowInfo.appType);
+                }, 500); // Small delay to ensure desktop is ready
+            }
+        }
+    }
+
+    // Enhanced resize handling with state saving
+    endResize() {
+        if (this.resizeData) {
+            const windowElement = this.resizeData.window;
+            this.saveWindowState(windowElement);
+            this.resizeData = null;
+        }
+    }
+
+    // Enhanced drag handling with state saving
+    endDrag() {
+        if (this.draggedWindow) {
+            this.saveWindowState(this.draggedWindow);
+            this.draggedWindow = null;
+            document.body.style.cursor = '';
+        }
+    }
+
+    // Utility methods
     truncateTitle(title, maxLength) {
         return title.length > maxLength ? title.substring(0, maxLength) + '...' : title;
     }
@@ -336,28 +502,7 @@ class WindowManager {
         ).join('');
     }
 
-    // Position new windows with smart offset
-    positionWindow(windowElement) {
-        const offset = (this.windowCounter % 10) * 30;
-        this.windowCounter++;
-
-        let x = 100 + offset;
-        let y = 80 + offset;
-
-        // Keep within screen bounds
-        const maxX = Math.max(50, window.innerWidth - 400);
-        const maxY = Math.max(50, window.innerHeight - 300);
-
-        x = Math.min(x, maxX);
-        y = Math.min(y, maxY);
-
-        windowElement.style.left = x + 'px';
-        windowElement.style.top = y + 'px';
-    }
-
-    // Auto-size window based on content
     autoSizeWindow(windowElement, windowData) {
-        // Temporarily show to measure
         windowElement.style.visibility = 'hidden';
         windowElement.style.display = 'block';
 
@@ -381,7 +526,6 @@ class WindowManager {
         windowElement.style.visibility = 'visible';
     }
 
-    // Auto-focus input elements
     autoFocusInput(windowElement) {
         setTimeout(() => {
             const input = windowElement.querySelector('input[type="text"], textarea');
@@ -391,7 +535,6 @@ class WindowManager {
         }, 100);
     }
 
-    // Create resize handles
     createResizeHandles() {
         return `
             <div class="window-resize-handle window-resize-n" data-resize="n"></div>
@@ -405,7 +548,7 @@ class WindowManager {
         `;
     }
 
-    // Setup window event listeners
+    // Setup window events (same as before but with state saving)
     setupWindowEvents(windowElement) {
         const header = windowElement.querySelector('.window-header');
         const controls = windowElement.querySelectorAll('.window-control');
@@ -415,7 +558,6 @@ class WindowManager {
         header.addEventListener('mousedown', (e) => {
             if (e.target.classList.contains('window-control')) return;
             if (e.target.closest('.window-resize-handle')) return;
-
             this.startDrag(windowElement, e);
         });
 
@@ -447,7 +589,7 @@ class WindowManager {
         });
     }
 
-    // Mouse event handling for drag/resize
+    // Mouse event handling (keeping existing drag/resize logic)
     setupMouseEvents() {
         document.addEventListener('mousemove', (e) => {
             if (this.draggedWindow) {
@@ -463,7 +605,7 @@ class WindowManager {
         });
     }
 
-    // Drag handling
+    // Drag handling (same as before)
     startDrag(windowElement, e) {
         this.draggedWindow = windowElement;
         this.dragOffset.x = e.clientX - windowElement.offsetLeft;
@@ -489,12 +631,7 @@ class WindowManager {
         this.draggedWindow.style.top = constrainedY + 'px';
     }
 
-    endDrag() {
-        this.draggedWindow = null;
-        document.body.style.cursor = '';
-    }
-
-    // Resize handling
+    // Resize handling (same as before)
     startResize(windowElement, e, direction) {
         this.resizeData = {
             window: windowElement,
@@ -558,10 +695,6 @@ class WindowManager {
         win.style.top = newTop + 'px';
     }
 
-    endResize() {
-        this.resizeData = null;
-    }
-
     // Public methods
     getWindow(windowId) {
         const windowData = this.windows.get(windowId);
@@ -577,10 +710,26 @@ class WindowManager {
             }
         });
     }
+
+    // Save current session for restoration
+    saveCurrentSession() {
+        const savedWindows = [];
+        this.windows.forEach((windowData, windowId) => {
+            savedWindows.push({
+                appType: windowData.appType,
+                title: windowData.title,
+                autoRestore: true,
+                timestamp: Date.now()
+            });
+        });
+
+        this.userPreferences.savedWindows = savedWindows;
+        this.saveUserPreferences();
+    }
 }
 
-// Initialize Window Manager when DOM is loaded
+// Initialize Enhanced Window Manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.WindowManager = new WindowManager();
-    console.log('Window Manager ready');
+    console.log('Enhanced Window Manager ready with multi-window support');
 });
