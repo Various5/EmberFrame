@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: embercore
+Version: 1.0.0
+Summary: Multi-User Desktop Application - EmberCore
+Author: EmberCore Team
+Author-email: contact@embercore.com
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.8+
+Requires-Python: >=3.8
+Provides-Extra: dev

@@ -1,0 +1,2 @@
+[console_scripts]
+embercore = run:main
