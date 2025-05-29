@@ -361,6 +361,20 @@ body {
     font-size: 16px;
 }
 
+/* File Manager Context Menu - Make it appear above windows */
+.context-menu-file {
+    position: fixed;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 5px 0;
+    min-width: 150px;
+    display: none;
+    z-index: 10000; /* Higher than windows (1000) */
+}
+
+
 /* Context Menu */
 .context-menu {
     position: fixed;
@@ -370,7 +384,7 @@ body {
     padding: 8px 0;
     min-width: 150px;
     display: none;
-    z-index: 3000;
+    z-index: 10000; /* Higher than windows */
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 

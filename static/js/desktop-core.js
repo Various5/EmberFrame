@@ -61,7 +61,14 @@ class DesktopCore {
             });
         });
     }
+    openApp(appName) {
+        console.log('Opening new instance of:', appName);
 
+        // Always open new instance - don't check for existing windows
+        if (window.WindowManager) {
+            window.WindowManager.openApp(appName);
+        }
+    }
     toggleStartMenu() {
         this.startMenu.classList.toggle('active');
     }

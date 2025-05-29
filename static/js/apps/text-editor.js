@@ -1055,13 +1055,21 @@ static setupEventListeners() {
         }
     }
 
-    static onClose(windowElement) {
-        if (this.isModified) {
-            return confirm('You have unsaved changes. Close anyway?');
+static onClose(windowElement) {
+    if (this.isModified) {
+        const result = confirm('You have unsaved changes. Close anyway?');
+        if (!result) {
+            return false; // Prevent closing
         }
-        this.currentWindow = null;
-        return true;
     }
+
+    // Clean up this specific instance
+    if (this.currentWindow === windowElement) {
+        this.currentWindow = null;
+    }
+
+    return true; // Allow closing
+}
 }
 
 window.TextEditor = TextEditor;

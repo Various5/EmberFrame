@@ -573,6 +573,10 @@ class FileManager {
 
         const menu = document.createElement('div');
         menu.className = 'context-menu-file';
+
+        // Ensure menu appears above everything
+        menu.style.position = 'fixed';
+        menu.style.zIndex = '10001'; // Higher than windows
         menu.style.left = x + 'px';
         menu.style.top = y + 'px';
 
@@ -602,13 +606,6 @@ class FileManager {
         document.body.appendChild(menu);
         menu.style.display = 'block';
 
-        // Close menu when clicking elsewhere
-        setTimeout(() => {
-            document.addEventListener('click', function closeMenu() {
-                menu.remove();
-                document.removeEventListener('click', closeMenu);
-            });
-        }, 0);
     }
 
     static async renameFile(oldName) {

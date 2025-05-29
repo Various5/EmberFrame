@@ -17,10 +17,11 @@ class WindowManager {
     openApp(appName) {
         // Handle special cases
         if (appName === 'public-folder') {
-            // Open file manager with public directory
             if (window.FileManager) {
-                const windowData = window.FileManager.createWindow('public/'); // Make sure this is 'public/'
-                this.createWindow('file-manager-public', windowData);
+                const windowData = window.FileManager.createWindow('public/');
+                // Create unique window ID
+                const uniqueId = `file-manager-public-${++this.windowCounter}`;
+                this.createWindow(uniqueId, windowData);
             }
             return;
         }
@@ -32,28 +33,30 @@ class WindowManager {
             return;
         }
 
-        // Create new window based on app type
-        let windowData = null;
+            // Create unique window ID for each instance
+            const uniqueId = `${appName}-${++this.windowCounter}`;
 
-        switch(appName) {
-            case 'file-manager':
-                windowData = window.FileManager ? window.FileManager.createWindow() : null;
-                break;
-            case 'terminal':
-                windowData = window.Terminal ? window.Terminal.createWindow() : null;
-                break;
-            case 'text-editor':
-                windowData = window.TextEditor ? window.TextEditor.createWindow() : null;
-                break;
-            case 'settings':
-                windowData = window.Settings ? window.Settings.createWindow() : null;
-                break;
-        }
+            let windowData = null;
 
-        if (windowData) {
-            this.createWindow(appName, windowData);
+            switch(appName) {
+                case 'file-manager':
+                    windowData = window.FileManager ? window.FileManager.createWindow() : null;
+                    break;
+                case 'terminal':
+                    windowData = window.Terminal ? window.Terminal.createWindow() : null;
+                    break;
+                case 'text-editor':
+                    windowData = window.TextEditor ? window.TextEditor.createWindow() : null;
+                    break;
+                case 'settings':
+                    windowData = window.Settings ? window.Settings.createWindow() : null;
+                    break;
+            }
+
+            if (windowData) {
+                this.createWindow(uniqueId, windowData);
+            }
         }
-    }
 
     // Create a new window
     createWindow(appName, windowData) {
@@ -158,12 +161,20 @@ class WindowManager {
 
     // Position window on screen
     positionWindow(windowElement) {
-        const offset = this.windows.size * 30;
+        const offset = this.windowCounter * 25; // Smaller offset for better stacking
         const maxOffset = 200;
         const actualOffset = offset % maxOffset;
 
-        const x = Math.max(50, Math.min(window.innerWidth - 400, 100 + actualOffset));
-        const y = Math.max(50, Math.min(window.innerHeight - 300, 100 + actualOffset));
+        // Calculate position avoiding other windows
+        let x = 100 + actualOffset;
+        let y = 80 + actualOffset;
+
+        // Ensure window stays on screen
+        const maxX = window.innerWidth - 400;
+        const maxY = window.innerHeight - 300;
+
+        x = Math.min(x, maxX);
+        y = Math.min(y, maxY);
 
         windowElement.style.left = x + 'px';
         windowElement.style.top = y + 'px';
@@ -354,7 +365,7 @@ class WindowManager {
 
     // Window operations
     focusWindow(windowElement) {
-        // Remove active class from all windows
+        // Remove active class from all windows (but don't minimize them)
         document.querySelectorAll('.window').forEach(w => w.classList.remove('active'));
 
         // Make this window active
@@ -364,6 +375,8 @@ class WindowManager {
 
         this.updateTaskbar();
     }
+
+
 
     minimizeWindow(windowElement) {
         windowElement.style.display = 'none';
@@ -403,27 +416,48 @@ class WindowManager {
         const appName = windowElement.dataset.app;
 
         // Call app cleanup if available
-        const appClassName = this.getAppClassName(appName);
+        const appClassName = this.getAppClassName(appName.split('-')[0]); // Get base app name
         if (window[appClassName]?.onClose) {
             const shouldClose = window[appClassName].onClose(windowElement);
-            if (shouldClose === false) return; // App prevented closing
+            if (shouldClose === false) return;
         }
 
         // Remove from DOM and map
         windowElement.remove();
         this.windows.delete(appName);
 
+        // Focus the next available window instead of minimizing
+        this.focusNextWindow();
         this.updateTaskbar();
     }
 
+    focusNextWindow() {
+        const visibleWindows = Array.from(this.windows.values()).filter(w =>
+            w.style.display !== 'none' && w.classList.contains('window')
+        );
+
+        if (visibleWindows.length > 0) {
+            // Sort by z-index and focus the highest one
+            visibleWindows.sort((a, b) =>
+                parseInt(b.style.zIndex || 0) - parseInt(a.style.zIndex || 0)
+            );
+            this.focusWindow(visibleWindows[0]);
+        } else {
+            this.activeWindow = null;
+        }
+    }
     // Taskbar management
+    // Update taskbar to show all windows properly
     updateTaskbar() {
         this.taskbarApps.innerHTML = '';
 
         this.windows.forEach((windowElement, appName) => {
             const button = document.createElement('button');
             button.className = 'taskbar-app';
-            button.textContent = windowElement.querySelector('.window-title').textContent;
+
+            // Get a readable title
+            const windowTitle = windowElement.querySelector('.window-title').textContent;
+            button.textContent = windowTitle;
 
             if (windowElement.classList.contains('active') && windowElement.style.display !== 'none') {
                 button.classList.add('active');
@@ -436,10 +470,10 @@ class WindowManager {
                     windowElement.classList.add('active');
                     this.focusWindow(windowElement);
                 } else if (windowElement.classList.contains('active')) {
-                    // Minimize window
+                    // Minimize only this window
                     this.minimizeWindow(windowElement);
                 } else {
-                    // Focus window
+                    // Focus this window
                     this.focusWindow(windowElement);
                 }
             });
