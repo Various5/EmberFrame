@@ -1,0 +1,42 @@
+Creating New Apps
+To create a new app, just:
+
+Create a new file: static/js/apps/my-new-app.js
+Add metadata at the top:
+
+/**
+ * APP_METADATA
+ * @name My New App
+ * @icon fas fa-rocket
+ * @description This is my awesome new app
+ * @category Productivity
+ * @version 1.0.0
+ * @author Your Name
+ * @enabled true
+ */
+
+ Create the app class:
+
+ class MyNewApp {
+    static createWindow() {
+        return {
+            title: 'My New App',
+            width: '600px',
+            height: '400px',
+            content: '<div style="padding: 20px;">Hello from my new app!</div>',
+            onInit: (windowElement) => {
+                console.log('My new app initialized!');
+            }
+        };
+    }
+}
+
+window.MyNewApp = MyNewApp;
+
+
+Include the script in templates/desktop.html:
+
+<script src="{{ url_for('static', filename='js/apps/my-new-app.js') }}"></script>
+
+The app will automatically appear in the start menu under the "Productivity" category!
+That's it! Now every app you create will automatically be discovered and shown in the start menu with proper categorization.

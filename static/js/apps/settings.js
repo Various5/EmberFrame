@@ -1,4 +1,14 @@
 // Enhanced Settings Application - Fully Functional with Server Integration
+/**
+ * APP_METADATA
+ * @name Settings
+ * @icon fas fa-cog
+ * @description Customize your EmberFrame experience
+ * @category System
+ * @version 1.3.0
+ * @author EmberFrame Team
+ * @enabled true
+ */
 class Settings {
     static createWindow() {
         return {

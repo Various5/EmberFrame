@@ -1,4 +1,14 @@
 // Admin Panel for Public File Management
+/**
+ * APP_METADATA
+ * @name Admin Panel
+ * @icon fas fa-shield-alt
+ * @description Administrative tools and file management
+ * @category System
+ * @version 1.0.0
+ * @author EmberFrame Team
+ * @enabled true
+ */
 class AdminPanel {
     static createWindow() {
         return {

@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_socketio import SocketIO
 from config import config
+from app.routes.apps import apps_bp
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -66,5 +67,7 @@ def create_app(config_name=None):
 
     logger = logging.getLogger(__name__)
     logger.info("EmberCore application initialized successfully")
+
+    app.register_blueprint(apps_bp)
 
     return app

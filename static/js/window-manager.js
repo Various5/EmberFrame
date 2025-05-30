@@ -367,50 +367,47 @@ class WindowManager {
         const uniqueId = `${appName}-${timestamp}`;
         let windowData = null;
 
-        // Handle special cases first
-        if (appName === 'public-folder') {
-            if (window.FileManager) {
-                windowData = window.FileManager.createWindow('public/');
-                windowData.title = 'File Manager - Public';
+    // Handle special cases first
+    if (appName === 'public-folder') {
+        if (window.FileManager) {
+            windowData = window.FileManager.createWindow('public/');
+            windowData.title = 'File Manager - Public';
+        }
+    } else {
+        // Dynamic app loading - try to find the app class
+        const className = this.getAppClassName(appName);
+        const appClass = window[className];
+
+        if (appClass && typeof appClass.createWindow === 'function') {
+            try {
+                windowData = appClass.createWindow();
+                console.log(`✅ Loaded app dynamically: ${appName} (${className})`);
+            } catch (error) {
+                console.error(`❌ Failed to create window for ${appName}:`, error);
             }
         } else {
-            // Regular apps
-            switch(appName) {
-                case 'file-manager':
-                    windowData = window.FileManager ? window.FileManager.createWindow() : null;
-                    break;
-                case 'terminal':
-                    windowData = window.Terminal ? window.Terminal.createWindow() : null;
-                    break;
-                case 'text-editor':
-                    windowData = window.TextEditor ? window.TextEditor.createWindow() : null;
-                    break;
-                case 'media-player':
-                    windowData = window.MediaPlayer ? window.MediaPlayer.createWindow() : null;
-                    break;
-                case 'settings':
-                    windowData = window.Settings ? window.Settings.createWindow() : null;
-                    break;
-                case 'task-manager':
-                    windowData = window.TaskManager ? window.TaskManager.createWindow() : null;
-                    break;
+            console.error(`❌ App class not found: ${className} for app: ${appName}`);
+            if (window.Notification) {
+                window.Notification.error(`App "${appName}" not available or not loaded`);
             }
+            return;
+        }
+    }
+
+    if (windowData) {
+        // Mobile-specific window adjustments
+        if (this.isMobile) {
+            windowData.width = 'calc(100vw - 20px)';
+            windowData.height = 'calc(100vh - 90px)';
+            windowData.autoSize = false;
         }
 
-        if (windowData) {
-            // Mobile-specific window adjustments
-            if (this.isMobile) {
-                windowData.width = 'calc(100vw - 20px)';
-                windowData.height = 'calc(100vh - 90px)';
-                windowData.autoSize = false;
-            }
-
-            this.createWindow(uniqueId, windowData, appName);
-        } else {
-            console.error('Failed to create window data for:', appName);
-            if (window.Notification) {
-                window.Notification.error(`Failed to open ${appName}`);
-            }
+        this.createWindow(uniqueId, windowData, appName);
+    } else {
+        console.error('Failed to create window data for:', appName);
+        if (window.Notification) {
+            window.Notification.error(`Failed to open ${appName}`);
+        }
         }
     }
 

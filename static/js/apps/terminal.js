@@ -1,4 +1,14 @@
 // Enhanced Terminal Application
+/**
+ * APP_METADATA
+ * @name Terminal
+ * @icon fas fa-terminal
+ * @description Command line interface with Unix-like commands
+ * @category System
+ * @version 1.1.0
+ * @author EmberFrame Team
+ * @enabled true
+ */
 class Terminal {
     static createWindow() {
         return {

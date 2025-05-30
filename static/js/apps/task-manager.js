@@ -1,4 +1,14 @@
 // static/js/apps/task-manager.js
+/**
+ * APP_METADATA
+ * @name Task Manager
+ * @icon fas fa-tasks
+ * @description Monitor and manage running applications
+ * @category System
+ * @version 1.0.0
+ * @author EmberFrame Team
+ * @enabled true
+ */
 
 class TaskManager {
   // internal state

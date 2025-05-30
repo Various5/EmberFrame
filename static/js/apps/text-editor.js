@@ -1,4 +1,14 @@
 // Enhanced Text Editor with File Browser Integration
+/**
+ * APP_METADATA
+ * @name Text Editor
+ * @icon fas fa-file-alt
+ * @description Create and edit text documents
+ * @category Productivity
+ * @version 1.2.0
+ * @author EmberFrame Team
+ * @enabled true
+ */
 class TextEditor {
     static createWindow() {
         return {

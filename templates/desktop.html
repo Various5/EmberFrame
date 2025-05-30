@@ -1069,39 +1069,46 @@
                 }
             }
 
-            static getFallbackApps() {
-                const fallbackApps = [
-                    {
-                        id: 'file-manager',
-                        name: 'File Manager',
-                        icon: 'fas fa-folder',
-                        description: 'Browse and manage your files',
-                        category: 'System'
-                    },
-                    {
-                        id: 'terminal',
-                        name: 'Terminal',
-                        icon: 'fas fa-terminal',
-                        description: 'Command line interface',
-                        category: 'System'
-                    },
-                    {
-                        id: 'settings',
-                        name: 'Settings',
-                        icon: 'fas fa-cog',
-                        description: 'Customize your experience',
-                        category: 'System'
-                    }
-                ];
-
-                window.EmberFrame.availableApps = new Map();
-                fallbackApps.forEach(app => {
-                    window.EmberFrame.availableApps.set(app.id, app);
-                });
-
-                return window.EmberFrame.availableApps;
-            }
+static getFallbackApps() {
+    // Minimal fallback if server discovery fails
+    const fallbackApps = [
+        {
+            id: 'file-manager',
+            name: 'File Manager',
+            icon: 'fas fa-folder',
+            description: 'Browse and manage your files',
+            category: 'System'
+        },
+        {
+            id: 'terminal',
+            name: 'Terminal',
+            icon: 'fas fa-terminal',
+            description: 'Command line interface',
+            category: 'System'
+        },
+        {
+            id: 'settings',
+            name: 'Settings',
+            icon: 'fas fa-cog',
+            description: 'Customize your experience',
+            category: 'System'
+        },
+        {
+            id: 'task-manager',
+            name: 'Task Manager',
+            icon: 'fas fa-tasks',
+            description: 'Monitor running applications',
+            category: 'System'
         }
+    ];
+
+    window.EmberFrame.availableApps = new Map();
+    fallbackApps.forEach(app => {
+        window.EmberFrame.availableApps.set(app.id, app);
+    });
+
+    return window.EmberFrame.availableApps;
+}
 
         // Shortcut Management System
         class ShortcutManager {

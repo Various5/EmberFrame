@@ -1,4 +1,15 @@
 // Enhanced File Manager with Real File System Integration
+/**
+ * APP_METADATA
+ * @name File Manager
+ * @icon fas fa-folder
+ * @description Browse and manage your files and folders
+ * @category System
+ * @version 1.3.0
+ * @author EmberFrame Team
+ * @enabled true
+ */
+
 class FileManager {
     static createWindow(startPath = '') {
         return {
