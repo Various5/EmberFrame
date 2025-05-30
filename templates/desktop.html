@@ -1159,10 +1159,11 @@
             }
         }
 
-        // Context Menu Management
+        // Context Menu Management - FIXED VERSION
         class ContextMenuManager {
             static currentMenu = null;
             static currentContext = null;
+            static isHandlingClick = false; // Prevent multiple rapid clicks
 
             static show(type, x, y, context = {}) {
                 this.hide();
@@ -1178,9 +1179,9 @@
                 menu.style.top = Math.min(y, window.innerHeight - 200) + 'px';
                 menu.style.display = 'block';
 
-                // Setup event listeners
-                menu.addEventListener('click', this.handleClick.bind(this));
-                document.addEventListener('click', this.handleOutsideClick.bind(this));
+                // Setup event listeners - IMPORTANT: Remove any existing listeners first
+                this.removeEventListeners();
+                this.addEventListeners();
 
                 console.log(`📋 Context menu shown: ${type}`, context);
             }
@@ -1188,19 +1189,63 @@
             static hide() {
                 if (this.currentMenu) {
                     this.currentMenu.style.display = 'none';
+                    this.removeEventListeners();
                     this.currentMenu = null;
                     this.currentContext = null;
-                    document.removeEventListener('click', this.handleOutsideClick.bind(this));
                 }
             }
 
+            static addEventListeners() {
+                if (this.currentMenu) {
+                    this.currentMenu.addEventListener('click', this.boundHandleClick);
+                    // Use setTimeout to avoid immediate triggering
+                    setTimeout(() => {
+                        document.addEventListener('click', this.boundHandleOutsideClick);
+                    }, 0);
+                }
+            }
+
+            static removeEventListeners() {
+                if (this.currentMenu) {
+                    this.currentMenu.removeEventListener('click', this.boundHandleClick);
+                }
+                document.removeEventListener('click', this.boundHandleOutsideClick);
+            }
+
+            // Bound methods to maintain context
+            static boundHandleClick = (e) => {
+                this.handleClick(e);
+            }
+
+            static boundHandleOutsideClick = (e) => {
+                this.handleOutsideClick(e);
+            }
+
             static handleClick(e) {
+                // Prevent multiple rapid clicks
+                if (this.isHandlingClick) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+
                 const item = e.target.closest('.context-menu-item');
                 if (!item) return;
 
+                this.isHandlingClick = true;
+
                 const action = item.dataset.action;
-                this.executeAction(action, this.currentContext);
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Hide menu first, then execute action
                 this.hide();
+
+                // Small delay to ensure menu is hidden before action
+                setTimeout(() => {
+                    this.executeAction(action, this.currentContext);
+                    this.isHandlingClick = false;
+                }, 50);
             }
 
             static handleOutsideClick(e) {
@@ -1212,54 +1257,61 @@
             static async executeAction(action, context) {
                 console.log(`🎬 Executing action: ${action}`, context);
 
-                switch (action) {
-                    case 'add-desktop':
-                        if (context.app) {
-                            const x = Math.random() * (window.innerWidth - 200) + 50;
-                            const y = Math.random() * (window.innerHeight - 300) + 50;
-                            await ShortcutManager.addDesktopShortcut(context.app, x, y);
-                        }
-                        break;
+                try {
+                    switch (action) {
+                        case 'add-desktop':
+                            if (context.app) {
+                                const x = Math.random() * (window.innerWidth - 200) + 50;
+                                const y = Math.random() * (window.innerHeight - 300) + 50;
+                                await ShortcutManager.addDesktopShortcut(context.app, x, y);
+                            }
+                            break;
 
-                    case 'add-taskbar':
-                        if (context.app) {
-                            await ShortcutManager.addTaskbarShortcut(context.app);
-                        }
-                        break;
+                        case 'add-taskbar':
+                            if (context.app) {
+                                await ShortcutManager.addTaskbarShortcut(context.app);
+                            }
+                            break;
 
-                    case 'remove':
-                        if (context.app) {
-                            await ShortcutManager.removeDesktopShortcut(context.app);
-                        }
-                        break;
+                        case 'remove':
+                            if (context.app) {
+                                await ShortcutManager.removeDesktopShortcut(context.app);
+                            }
+                            break;
 
-                    case 'unpin':
-                        if (context.app) {
-                            await ShortcutManager.removeTaskbarShortcut(context.app);
-                        }
-                        break;
+                        case 'unpin':
+                            if (context.app) {
+                                await ShortcutManager.removeTaskbarShortcut(context.app);
+                            }
+                            break;
 
-                    case 'open':
-                        if (context.app && window.WindowManager) {
-                            window.WindowManager.openApp(context.app);
-                        }
-                        break;
+                        case 'open':
+                            if (context.app && window.WindowManager) {
+                                window.WindowManager.openApp(context.app);
+                            }
+                            break;
 
-                    case 'refresh':
-                        await this.refreshDesktop();
-                        break;
+                        case 'refresh':
+                            await this.refreshDesktop();
+                            break;
 
-                    case 'settings':
-                        if (window.WindowManager) {
-                            window.WindowManager.openApp('settings');
-                        }
-                        break;
+                        case 'settings':
+                            if (window.WindowManager) {
+                                window.WindowManager.openApp('settings');
+                            }
+                            break;
 
-                    case 'terminal':
-                        if (window.WindowManager) {
-                            window.WindowManager.openApp('terminal');
-                        }
-                        break;
+                        case 'terminal':
+                            if (window.WindowManager) {
+                                window.WindowManager.openApp('terminal');
+                            }
+                            break;
+                    }
+                } catch (error) {
+                    console.error('Error executing action:', action, error);
+                    if (window.Notification) {
+                        window.Notification.error(`Failed to execute ${action}`);
+                    }
                 }
             }
 

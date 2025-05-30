@@ -391,6 +391,9 @@ class WindowManager {
                 case 'settings':
                     windowData = window.Settings ? window.Settings.createWindow() : null;
                     break;
+                      case 'task-manager':
+                          windowData = window.TaskManager ? window.TaskManager.createWindow() : null;
+                          break;
             }
         }
 
