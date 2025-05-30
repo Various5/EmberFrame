@@ -1,8 +1,7 @@
-// Enhanced Window Manager - Mobile Support & Detachable Windows
+// Enhanced Window Manager - Mobile Support (Detach Functionality Removed)
 class WindowManager {
     constructor() {
         this.windows = new Map();
-        this.detachedWindows = new Map();
         this.activeWindow = null;
         this.windowZIndex = 1000;
         this.windowCounter = 0;
@@ -18,7 +17,6 @@ class WindowManager {
 
         this.setupMouseEvents();
         this.setupTouchEvents();
-        this.setupMessageListener();
         this.loadUserPreferences();
 
         console.log('Enhanced WindowManager initialized', {
@@ -43,14 +41,13 @@ class WindowManager {
         windowElement.dataset.app = windowId;
         windowElement.dataset.appType = appType || windowId.split('-')[0];
 
-        // Create window structure with detach button
+        // Create window structure (without detach button)
         windowElement.innerHTML = `
             <div class="window-header">
                 <div class="window-title">${windowData.title}</div>
                 <div class="window-controls">
                     <div class="window-control minimize" title="Minimize"></div>
                     <div class="window-control maximize" title="Maximize"></div>
-                    <div class="window-control detach" title="Detach Window" ${this.isMobile ? 'style="display:none"' : ''}></div>
                     <div class="window-control close" title="Close"></div>
                 </div>
             </div>
@@ -180,247 +177,6 @@ class WindowManager {
         }
     }
 
-    // Detach Window to New Browser Window
-    detachWindow(windowElement) {
-        const windowId = windowElement.dataset.app;
-        const windowData = this.windows.get(windowId);
-
-        if (!windowData || this.isMobile) {
-            console.log('Cannot detach window on mobile or invalid window');
-            return;
-        }
-
-        try {
-            const detachedWindowFeatures = [
-                'width=800',
-                'height=600',
-                'scrollbars=yes',
-                'resizable=yes',
-                'toolbar=no',
-                'menubar=no',
-                'location=no',
-                'status=no'
-            ].join(',');
-
-            // Create detached window
-            const detachedWindow = window.open('', `detached_${windowId}`, detachedWindowFeatures);
-
-            if (!detachedWindow) {
-                throw new Error('Pop-up blocked or failed to open');
-            }
-
-            // Setup detached window content
-            this.setupDetachedWindow(detachedWindow, windowData, windowId);
-
-            // Mark original window as detached
-            windowElement.classList.add('detached-parent');
-            windowElement.style.pointerEvents = 'none';
-
-            // Store detached window reference
-            this.detachedWindows.set(windowId, {
-                window: detachedWindow,
-                originalElement: windowElement,
-                data: windowData
-            });
-
-            console.log('Window detached successfully:', windowId);
-
-            // Show notification
-            if (window.Notification) {
-                window.Notification.success(`${windowData.title} detached to new window`);
-            }
-
-        } catch (error) {
-            console.error('Failed to detach window:', error);
-            if (window.Notification) {
-                window.Notification.error('Failed to detach window - pop-ups may be blocked');
-            }
-        }
-    }
-
-    // Setup Detached Window Content
-    setupDetachedWindow(detachedWindow, windowData, windowId) {
-        const doc = detachedWindow.document;
-
-        doc.open();
-        doc.write(`
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${windowData.title} - EmberFrame</title>
-                <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-                <style>
-                    body {
-                        margin: 0;
-                        padding: 0;
-                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                        background: #f5f5f5;
-                        overflow: auto;
-                    }
-                    .detached-header {
-                        background: linear-gradient(135deg, #1a1a2e, #2d2d3a);
-                        color: white;
-                        padding: 15px 20px;
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                    }
-                    .detached-title {
-                        font-weight: 600;
-                        font-size: 16px;
-                    }
-                    .detached-controls {
-                        display: flex;
-                        gap: 10px;
-                    }
-                    .detached-btn {
-                        background: rgba(255, 255, 255, 0.1);
-                        border: 1px solid rgba(255, 255, 255, 0.2);
-                        color: white;
-                        padding: 6px 12px;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        font-size: 12px;
-                        transition: all 0.2s ease;
-                    }
-                    .detached-btn:hover {
-                        background: rgba(255, 255, 255, 0.2);
-                    }
-                    .detached-content {
-                        padding: 0;
-                        height: calc(100vh - 60px);
-                        overflow: auto;
-                        background: white;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="detached-header">
-                    <div class="detached-title">${windowData.title}</div>
-                    <div class="detached-controls">
-                        <button class="detached-btn" onclick="reattachWindow()">
-                            <i class="fas fa-arrow-left"></i> Reattach
-                        </button>
-                        <button class="detached-btn" onclick="window.close()">
-                            <i class="fas fa-times"></i> Close
-                        </button>
-                    </div>
-                </div>
-                <div class="detached-content">
-                    ${windowData.originalContent}
-                </div>
-                
-                <script>
-                    const parentWindow = window.opener;
-                    const windowId = '${windowId}';
-                    
-                    // Reattach function
-                    function reattachWindow() {
-                        if (parentWindow && !parentWindow.closed) {
-                            parentWindow.postMessage({
-                                type: 'reattach-window',
-                                windowId: windowId
-                            }, '*');
-                            window.close();
-                        }
-                    }
-                    
-                    // Handle window close
-                    window.addEventListener('beforeunload', () => {
-                        if (parentWindow && !parentWindow.closed) {
-                            parentWindow.postMessage({
-                                type: 'detached-window-closed',
-                                windowId: windowId
-                            }, '*');
-                        }
-                    });
-                    
-                    // Initialize app if possible
-                    try {
-                        if (window.${windowData.appType.charAt(0).toUpperCase() + windowData.appType.slice(1)} && 
-                            window.${windowData.appType.charAt(0).toUpperCase() + windowData.appType.slice(1)}.init) {
-                            window.${windowData.appType.charAt(0).toUpperCase() + windowData.appType.slice(1)}.init(
-                                document.querySelector('.detached-content')
-                            );
-                        }
-                    } catch (error) {
-                        console.log('App initialization not available in detached window');
-                    }
-                    
-                    console.log('Detached window initialized for:', windowId);
-                </script>
-            </body>
-            </html>
-        `);
-        doc.close();
-
-        // Setup communication
-        detachedWindow.focus();
-    }
-
-    // Handle Messages from Detached Windows
-    setupMessageListener() {
-        window.addEventListener('message', (event) => {
-            if (event.origin !== window.location.origin) return;
-
-            const { type, windowId } = event.data;
-
-            switch (type) {
-                case 'reattach-window':
-                    this.reattachWindow(windowId);
-                    break;
-                case 'detached-window-closed':
-                    this.handleDetachedWindowClosed(windowId);
-                    break;
-            }
-        });
-    }
-
-    // Reattach Window
-    reattachWindow(windowId) {
-        const detachedData = this.detachedWindows.get(windowId);
-
-        if (detachedData) {
-            const { originalElement } = detachedData;
-
-            // Restore original window
-            originalElement.classList.remove('detached-parent');
-            originalElement.style.pointerEvents = 'all';
-
-            // Remove from detached windows
-            this.detachedWindows.delete(windowId);
-
-            // Focus original window
-            this.setActiveWindow(originalElement);
-
-            console.log('Window reattached:', windowId);
-
-            if (window.Notification) {
-                window.Notification.success('Window reattached successfully');
-            }
-        }
-    }
-
-    // Handle Detached Window Closed
-    handleDetachedWindowClosed(windowId) {
-        const detachedData = this.detachedWindows.get(windowId);
-
-        if (detachedData) {
-            const { originalElement } = detachedData;
-
-            // Close original window too
-            this.closeWindow(originalElement);
-
-            // Remove from detached windows
-            this.detachedWindows.delete(windowId);
-
-            console.log('Detached window closed:', windowId);
-        }
-    }
-
     // Enhanced Window Controls Setup
     setupWindowEvents(windowElement) {
         const header = windowElement.querySelector('.window-header');
@@ -436,7 +192,7 @@ class WindowManager {
             });
         }
 
-        // Window controls
+        // Window controls - Minimize
         controls[0].addEventListener('click', (e) => {
             e.stopPropagation();
             if (this.isMobile) {
@@ -446,26 +202,17 @@ class WindowManager {
             }
         });
 
+        // Window controls - Maximize
         controls[1].addEventListener('click', (e) => {
             e.stopPropagation();
             this.maximizeWindow(windowElement);
         });
 
-        // Detach control (desktop only)
-        if (controls[2] && !this.isMobile) {
-            controls[2].addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.detachWindow(windowElement);
-            });
-        }
-
-        const closeIndex = this.isMobile ? 2 : 3;
-        if (controls[closeIndex]) {
-            controls[closeIndex].addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.closeWindow(windowElement);
-            });
-        }
+        // Window controls - Close
+        controls[2].addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.closeWindow(windowElement);
+        });
 
         // Resize handles (desktop only)
         if (!this.isMobile) {
@@ -638,6 +385,9 @@ class WindowManager {
                 case 'text-editor':
                     windowData = window.TextEditor ? window.TextEditor.createWindow() : null;
                     break;
+                case 'media-player':
+                    windowData = window.MediaPlayer ? window.MediaPlayer.createWindow() : null;
+                    break;
                 case 'settings':
                     windowData = window.Settings ? window.Settings.createWindow() : null;
                     break;
@@ -661,7 +411,7 @@ class WindowManager {
         }
     }
 
-    // Utility Methods (keeping existing functionality)
+    // Utility Methods
     getSmartPosition() {
         const padding = this.isMobile ? 10 : 20;
         const offset = (this.windowCounter % 8) * (this.isMobile ? 15 : 30);
@@ -694,7 +444,7 @@ class WindowManager {
         `;
     }
 
-    // Existing methods (keeping for compatibility)
+    // Window Management Methods
     setActiveWindow(windowElement) {
         document.querySelectorAll('.window').forEach(w => {
             w.classList.remove('active');
@@ -786,15 +536,6 @@ class WindowManager {
 
         windowElement.remove();
         this.windows.delete(windowId);
-
-        // Clean up detached window if exists
-        if (this.detachedWindows.has(windowId)) {
-            const detachedData = this.detachedWindows.get(windowId);
-            if (detachedData.window && !detachedData.window.closed) {
-                detachedData.window.close();
-            }
-            this.detachedWindows.delete(windowId);
-        }
 
         this.focusNextAvailableWindow();
         this.updateTaskbar();
@@ -1016,5 +757,5 @@ class WindowManager {
 // Initialize Enhanced Window Manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.WindowManager = new WindowManager();
-    console.log('Enhanced Window Manager ready with mobile support and detachable windows');
+    console.log('Enhanced Window Manager ready with mobile support (detach functionality removed)');
 });

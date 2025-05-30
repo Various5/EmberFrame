@@ -4,65 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="mobile-web-app-capable" content="yes">
-    <title>EmberFrame Desktop</title>
+    <title>EmberFrame Desktop - {{ username }}</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Include the enhanced CSS -->
+    <!-- Enhanced Desktop CSS -->
     <style>
-        /* Enhanced Mobile-Responsive Desktop CSS */
         :root {
-            /* Futuristic Color Palette */
             --primary-bg: #0a0a0f;
             --secondary-bg: #141420;
             --tertiary-bg: #1a1a2e;
             --accent-bg: #2d2d3a;
-
             --primary-blue: #00d4ff;
-            --secondary-blue: #0099cc;
-            --electric-blue: #007acc;
             --neon-cyan: #00ffff;
             --bright-white: #ffffff;
-            --silver: #c0c0c0;
-            --dark-gray: #333344;
-
             --success-color: #00ff88;
             --warning-color: #ffaa00;
             --error-color: #ff4466;
-
             --glow-blue: 0 0 20px rgba(0, 212, 255, 0.5);
-            --glow-cyan: 0 0 20px rgba(0, 255, 255, 0.5);
-            --glow-white: 0 0 15px rgba(255, 255, 255, 0.3);
-
             --border-gradient: linear-gradient(135deg, var(--primary-blue), var(--neon-cyan));
             --bg-gradient: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 50%, var(--tertiary-bg) 100%);
-
-            /* Responsive Variables */
             --taskbar-height: 70px;
             --icon-size: 55px;
-            --window-min-width: 300px;
-            --window-min-height: 200px;
         }
 
-        /* Mobile-First Responsive Variables */
         @media (max-width: 768px) {
             :root {
                 --taskbar-height: 60px;
                 --icon-size: 45px;
-                --window-min-width: 280px;
-                --window-min-height: 180px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            :root {
-                --taskbar-height: 55px;
-                --icon-size: 38px;
-                --window-min-width: calc(100vw - 20px);
-                --window-min-height: calc(100vh - 120px);
             }
         }
 
@@ -84,7 +53,7 @@
             user-select: none;
         }
 
-        /* Animated Background Grid */
+        /* Animated Background */
         .grid-background {
             position: fixed;
             top: 0;
@@ -104,37 +73,7 @@
             100% { transform: translate(50px, 50px); }
         }
 
-        /* Floating Particles */
-        .floating-particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        .particle {
-            position: absolute;
-            width: 3px;
-            height: 3px;
-            background: var(--primary-blue);
-            border-radius: 50%;
-            animation: float-particle 6s infinite ease-in-out;
-        }
-
-        .particle:nth-child(1) { top: 20%; left: 10%; animation-delay: -1s; }
-        .particle:nth-child(2) { top: 60%; left: 80%; animation-delay: -3s; background: var(--neon-cyan); }
-        .particle:nth-child(3) { top: 80%; left: 30%; animation-delay: -5s; background: var(--success-color); }
-        .particle:nth-child(4) { top: 40%; left: 70%; animation-delay: -2s; background: var(--warning-color); }
-
-        @keyframes float-particle {
-            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
-            50% { transform: translateY(-30px) rotate(180deg); opacity: 0.3; }
-        }
-
-        /* Desktop Area - Responsive */
+        /* Desktop Area */
         .desktop {
             height: calc(100vh - var(--taskbar-height));
             position: relative;
@@ -142,19 +81,7 @@
             overflow: hidden;
         }
 
-        @media (max-width: 768px) {
-            .desktop {
-                padding: 15px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .desktop {
-                padding: 10px;
-            }
-        }
-
-        /* Desktop Icons - Responsive */
+        /* Desktop Icons */
         .desktop-icon {
             position: absolute;
             width: 90px;
@@ -169,34 +96,17 @@
             touch-action: manipulation;
         }
 
-        @media (max-width: 768px) {
-            .desktop-icon {
-                width: 80px;
-                padding: 12px 8px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .desktop-icon {
-                width: 70px;
-                padding: 10px 6px;
-                border-radius: 12px;
-            }
-        }
-
-        .desktop-icon:hover,
-        .desktop-icon:active {
+        .desktop-icon:hover {
             background: rgba(0, 212, 255, 0.1);
             border-color: rgba(0, 212, 255, 0.5);
             transform: translateY(-5px) scale(1.05);
             box-shadow: var(--glow-blue);
         }
 
-        @media (hover: none) {
-            .desktop-icon:active {
-                background: rgba(0, 212, 255, 0.2);
-                transform: scale(0.95);
-            }
+        .desktop-icon.selected {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: rgba(0, 212, 255, 0.8);
+            box-shadow: var(--glow-blue);
         }
 
         .icon-image {
@@ -212,16 +122,6 @@
             color: var(--bright-white);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        @media (max-width: 480px) {
-            .icon-image {
-                font-size: 22px;
-                border-radius: 12px;
-                margin-bottom: 8px;
-            }
         }
 
         .icon-label {
@@ -233,7 +133,7 @@
             letter-spacing: 0.5px;
         }
 
-        /* Taskbar - Enhanced Mobile Support */
+        /* Taskbar */
         .taskbar {
             position: fixed;
             bottom: 0;
@@ -249,21 +149,6 @@
             border-image: var(--border-gradient) 1;
             z-index: 2000;
             box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5);
-            touch-action: manipulation;
-        }
-
-        @media (max-width: 768px) {
-            .taskbar {
-                padding: 0 15px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .taskbar {
-                padding: 0 10px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
         }
 
         .start-button {
@@ -280,27 +165,6 @@
             margin-right: 25px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-            touch-action: manipulation;
-        }
-
-        @media (max-width: 768px) {
-            .start-button {
-                padding: 10px 20px;
-                font-size: 14px;
-                margin-right: 15px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .start-button {
-                padding: 8px 16px;
-                font-size: 12px;
-                margin-right: 10px;
-                order: -1;
-                margin-bottom: 5px;
-            }
         }
 
         .taskbar-apps {
@@ -309,23 +173,6 @@
             flex: 1;
             overflow-x: auto;
             padding: 0 15px;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .taskbar-apps::-webkit-scrollbar {
-            display: none;
-        }
-
-        @media (max-width: 480px) {
-            .taskbar-apps {
-                gap: 6px;
-                padding: 0 5px;
-                flex-wrap: wrap;
-                justify-content: center;
-                max-height: 45px;
-                overflow-y: hidden;
-            }
         }
 
         .taskbar-app {
@@ -337,72 +184,21 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 14px;
-            font-weight: 500;
             white-space: nowrap;
-            backdrop-filter: blur(10px);
             flex-shrink: 0;
-            touch-action: manipulation;
-        }
-
-        @media (max-width: 768px) {
-            .taskbar-app {
-                padding: 8px 16px;
-                font-size: 13px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .taskbar-app {
-                padding: 6px 12px;
-                font-size: 11px;
-                border-radius: 8px;
-            }
-        }
-
-        .taskbar-app:hover,
-        .taskbar-app:active {
-            background: rgba(0, 212, 255, 0.2);
-            border-color: rgba(0, 212, 255, 0.6);
-            transform: translateY(-2px);
-            box-shadow: var(--glow-blue);
-        }
-
-        @media (hover: none) {
-            .taskbar-app:active {
-                transform: scale(0.95);
-            }
         }
 
         .taskbar-app.active {
             background: var(--primary-blue);
-            border-color: var(--primary-blue);
             color: var(--primary-bg);
-            font-weight: 600;
         }
 
         .system-tray {
             display: flex;
             align-items: center;
             gap: 20px;
-            color: var(--bright-white);
-            font-size: 14px;
             font-family: 'Orbitron', monospace;
             flex-shrink: 0;
-        }
-
-        @media (max-width: 768px) {
-            .system-tray {
-                gap: 15px;
-                font-size: 13px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .system-tray {
-                gap: 10px;
-                font-size: 12px;
-                order: 1;
-            }
         }
 
         .user-info {
@@ -413,13 +209,6 @@
             background: rgba(0, 212, 255, 0.1);
             border: 1px solid rgba(0, 212, 255, 0.3);
             border-radius: 10px;
-            backdrop-filter: blur(10px);
-        }
-
-        @media (max-width: 480px) {
-            .user-info .username {
-                display: none;
-            }
         }
 
         .user-avatar {
@@ -430,22 +219,14 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
             font-weight: 700;
             color: var(--bright-white);
         }
 
         .time-display {
             font-weight: 600;
-            font-variant-numeric: tabular-nums;
             color: var(--neon-cyan);
-            text-shadow: var(--glow-cyan);
-        }
-
-        @media (max-width: 480px) {
-            .time-display {
-                font-size: 11px;
-            }
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
         }
 
         .logout-btn {
@@ -456,251 +237,15 @@
             border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 13px;
-            font-weight: 500;
-            backdrop-filter: blur(10px);
-            touch-action: manipulation;
         }
 
-        @media (max-width: 480px) {
-            .logout-btn {
-                padding: 6px 10px;
-                font-size: 11px;
-            }
-        }
-
-        .logout-btn:hover,
-        .logout-btn:active {
-            background: rgba(255, 68, 102, 0.2);
-            border-color: rgba(255, 68, 102, 0.6);
-            transform: translateY(-2px);
-            box-shadow: 0 0 20px rgba(255, 68, 102, 0.4);
-        }
-
-        /* Windows - Enhanced with Mobile Support */
-        .window {
-            position: absolute;
-            min-width: var(--window-min-width);
-            min-height: var(--window-min-height);
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(15px);
-            border-radius: 15px;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
-            display: block;
-            overflow: hidden;
-            border: 2px solid rgba(0, 212, 255, 0.3);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000;
-            touch-action: none;
-        }
-
-        @media (max-width: 480px) {
-            .window {
-                border-radius: 12px;
-                width: calc(100vw - 20px) !important;
-                height: calc(100vh - var(--taskbar-height) - 20px) !important;
-                top: 10px !important;
-                left: 10px !important;
-                min-width: unset;
-                min-height: unset;
-            }
-
-            .window.mobile-minimized {
-                height: 50px !important;
-                top: auto !important;
-                bottom: calc(var(--taskbar-height) + 10px) !important;
-                overflow: hidden;
-            }
-        }
-
-        .window.active {
-            box-shadow: 0 15px 50px rgba(0, 212, 255, 0.4);
-            border-color: rgba(0, 212, 255, 0.6);
-            z-index: 1001;
-        }
-
-        .window.minimized {
-            display: none;
-        }
-
-        .window.maximized {
-            border-radius: 0 !important;
-            width: 100vw !important;
-            height: calc(100vh - var(--taskbar-height)) !important;
-            top: 0 !important;
-            left: 0 !important;
-        }
-
-        /* Window Header - Enhanced with Detach Button */
-        .window-header {
-            background: linear-gradient(135deg, #1a1a2e, #2d2d3a);
-            color: var(--bright-white);
-            padding: 15px 20px;
-            cursor: move;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            user-select: none;
-            border-radius: 15px 15px 0 0;
-            border-bottom: 1px solid rgba(0, 212, 255, 0.3);
-            touch-action: none;
-        }
-
-        @media (max-width: 480px) {
-            .window-header {
-                padding: 12px 15px;
-                cursor: default;
-            }
-        }
-
-        .window-title {
-            font-weight: 600;
-            font-size: 16px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: calc(100% - 140px);
-            font-family: 'Orbitron', monospace;
-            color: var(--primary-blue);
-        }
-
-        @media (max-width: 480px) {
-            .window-title {
-                font-size: 14px;
-                max-width: calc(100% - 120px);
-            }
-        }
-
-        .window-controls {
-            display: flex;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-
-        @media (max-width: 480px) {
-            .window-controls {
-                gap: 8px;
-            }
-        }
-
-        .window-control {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: bold;
-            touch-action: manipulation;
-        }
-
-        @media (max-width: 480px) {
-            .window-control {
-                width: 22px;
-                height: 22px;
-                font-size: 11px;
-            }
-        }
-
-        .window-control:hover,
-        .window-control:active {
-            transform: scale(1.15);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
-
-        .window-control.minimize {
-            background: linear-gradient(135deg, #ffbd2e, #ffa500);
-            color: #333;
-        }
-
-        .window-control.minimize::after {
-            content: '−';
-        }
-
-        .window-control.maximize {
-            background: linear-gradient(135deg, #28ca42, #20a034);
-            color: white;
-        }
-
-        .window-control.maximize::after {
-            content: '▢';
-            font-size: 8px;
-        }
-
-        .window-control.detach {
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            color: white;
-        }
-
-        .window-control.detach::after {
-            content: '↗';
-            font-size: 12px;
-        }
-
-        .window-control.close {
-            background: linear-gradient(135deg, #ff5f56, #ff3b30);
-            color: white;
-        }
-
-        .window-control.close::after {
-            content: '×';
-            font-size: 11px;
-        }
-
-        /* Window Content */
-        .window-content {
-            height: calc(100% - 60px);
-            overflow: auto;
-            background: rgba(255, 255, 255, 0.98);
-            position: relative;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        @media (max-width: 480px) {
-            .window-content {
-                height: calc(100% - 50px);
-            }
-
-            .window.mobile-minimized .window-content {
-                display: none;
-            }
-        }
-
-        /* Mobile Gesture Hints */
-        @media (max-width: 480px) {
-            .mobile-gesture-hint {
-                position: fixed;
-                bottom: calc(var(--taskbar-height) + 10px);
-                left: 50%;
-                transform: translateX(-50%);
-                background: rgba(0, 0, 0, 0.8);
-                color: var(--primary-blue);
-                padding: 8px 16px;
-                border-radius: 20px;
-                font-size: 12px;
-                z-index: 4000;
-                animation: fadeInOut 3s ease-in-out;
-                pointer-events: none;
-            }
-        }
-
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
-
-        /* Start Menu - Mobile Responsive */
+        /* Start Menu */
         .start-menu {
             position: fixed;
             bottom: calc(var(--taskbar-height) + 10px);
             left: 25px;
-            width: 380px;
-            max-height: 550px;
+            width: 420px;
+            max-height: 600px;
             background: rgba(20, 20, 32, 0.95);
             border: 2px solid;
             border-image: var(--border-gradient) 1;
@@ -711,25 +256,6 @@
             z-index: 3000;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
             overflow: hidden;
-            touch-action: manipulation;
-        }
-
-        @media (max-width: 768px) {
-            .start-menu {
-                width: calc(100vw - 40px);
-                left: 20px;
-                max-height: calc(100vh - var(--taskbar-height) - 40px);
-            }
-        }
-
-        @media (max-width: 480px) {
-            .start-menu {
-                width: calc(100vw - 20px);
-                left: 10px;
-                bottom: calc(var(--taskbar-height) + 5px);
-                border-radius: 15px;
-                max-height: calc(100vh - var(--taskbar-height) - 30px);
-            }
         }
 
         .start-menu.active {
@@ -769,29 +295,26 @@
             padding: 12px 20px;
             border: 1px solid rgba(0, 212, 255, 0.3);
             border-radius: 12px;
-            font-size: 14px;
             background: rgba(0, 0, 0, 0.3);
             color: var(--bright-white);
             font-family: 'Rajdhani', sans-serif;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-
-        .start-menu-search:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: var(--glow-blue);
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .start-menu-search::placeholder {
-            color: rgba(255, 255, 255, 0.5);
         }
 
         .start-menu-apps {
             flex: 1;
             padding: 15px;
             overflow-y: auto;
+        }
+
+        .start-menu-category {
+            padding: 10px 20px 5px;
+            font-weight: 600;
+            color: var(--primary-blue);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+            margin-bottom: 5px;
         }
 
         .start-menu-app {
@@ -803,15 +326,12 @@
             transition: all 0.3s ease;
             margin-bottom: 8px;
             border: 1px solid transparent;
-            touch-action: manipulation;
         }
 
-        .start-menu-app:hover,
-        .start-menu-app:active {
+        .start-menu-app:hover {
             background: rgba(0, 212, 255, 0.1);
             border-color: rgba(0, 212, 255, 0.3);
             transform: translateX(5px);
-            box-shadow: var(--glow-blue);
         }
 
         .start-menu-app-icon {
@@ -825,7 +345,10 @@
             justify-content: center;
             font-size: 18px;
             color: var(--bright-white);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .start-menu-app-details {
+            flex: 1;
         }
 
         .start-menu-app-name {
@@ -833,6 +356,210 @@
             font-weight: 500;
             color: var(--bright-white);
             font-family: 'Orbitron', monospace;
+        }
+
+        .start-menu-app-desc {
+            font-size: 11px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        /* Windows */
+        .window {
+            position: absolute;
+            min-width: 300px;
+            min-height: 200px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 15px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            z-index: 1000;
+        }
+
+        .window.active {
+            box-shadow: 0 15px 50px rgba(0, 212, 255, 0.4);
+            border-color: rgba(0, 212, 255, 0.6);
+            z-index: 1001;
+        }
+
+        .window-header {
+            background: linear-gradient(135deg, #1a1a2e, #2d2d3a);
+            color: var(--bright-white);
+            padding: 15px 20px;
+            cursor: move;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .window-title {
+            font-weight: 600;
+            font-size: 16px;
+            font-family: 'Orbitron', monospace;
+            color: var(--primary-blue);
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .window-control {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .window-control.minimize {
+            background: linear-gradient(135deg, #ffbd2e, #ffa500);
+            color: #333;
+        }
+
+        .window-control.maximize {
+            background: linear-gradient(135deg, #28ca42, #20a034);
+            color: white;
+        }
+
+        .window-control.close {
+            background: linear-gradient(135deg, #ff5f56, #ff3b30);
+            color: white;
+        }
+
+        .window-content {
+            height: calc(100% - 60px);
+            overflow: auto;
+            background: rgba(255, 255, 255, 0.98);
+        }
+
+        /* Context Menu */
+        .context-menu-shortcuts {
+            position: fixed;
+            background: rgba(20, 20, 32, 0.95);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            padding: 10px 0;
+            min-width: 220px;
+            display: none;
+            z-index: 5000;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            color: white;
+        }
+
+        .context-menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .context-menu-item:hover {
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        /* Notifications */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 6000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 400px;
+        }
+
+        .notification {
+            background: rgba(20, 20, 32, 0.95);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 15px 20px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .notification.success {
+            border-color: var(--success-color);
+            color: var(--success-color);
+        }
+
+        .notification.error {
+            border-color: var(--error-color);
+            color: var(--error-color);
+        }
+
+        .notification.warning {
+            border-color: var(--warning-color);
+            color: var(--warning-color);
+        }
+
+        .notification.info {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .desktop {
+                padding: 15px;
+            }
+
+            .desktop-icon {
+                width: 80px;
+                padding: 12px 8px;
+            }
+
+            .start-menu {
+                width: calc(100vw - 40px);
+                left: 20px;
+                max-height: calc(100vh - var(--taskbar-height) - 40px);
+            }
+
+            .taskbar {
+                padding: 0 15px;
+            }
+
+            .start-button {
+                padding: 10px 20px;
+                font-size: 14px;
+                margin-right: 15px;
+            }
+
+            .window {
+                width: calc(100vw - 20px) !important;
+                height: calc(100vh - var(--taskbar-height) - 20px) !important;
+                top: 10px !important;
+                left: 10px !important;
+                border-radius: 12px;
+            }
         }
     </style>
 </head>
@@ -842,7 +569,7 @@
         <div style="text-align: center;">
             <div style="font-size: 80px; margin-bottom: 30px; animation: pulse-glow 2s infinite alternate; color: var(--primary-blue); text-shadow: var(--glow-blue);">🔥</div>
             <h1 style="font-family: 'Orbitron', monospace; font-size: 40px; font-weight: 900; color: var(--bright-white); margin-bottom: 20px; letter-spacing: 3px; text-transform: uppercase;">EmberFrame</h1>
-            <p style="font-size: 18px; color: var(--silver); margin-bottom: 40px; font-weight: 300;">Initializing Advanced Desktop Environment</p>
+            <p style="font-size: 18px; color: #c0c0c0; margin-bottom: 40px; font-weight: 300;">Initializing Enhanced Desktop Environment</p>
             <div style="width: 400px; height: 6px; background: rgba(0, 212, 255, 0.2); border-radius: 3px; overflow: hidden; margin: 0 auto 20px;">
                 <div id="loading-progress" style="height: 100%; background: var(--border-gradient); transition: width 0.3s ease; width: 0%;"></div>
             </div>
@@ -852,50 +579,10 @@
 
     <!-- Background Effects -->
     <div class="grid-background"></div>
-    <div class="floating-particles">
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-    </div>
 
     <!-- Desktop Area -->
     <div class="desktop" id="desktop">
-        <!-- Desktop Icons -->
-        <div class="desktop-icon" style="top: 30px; left: 30px;" data-app="file-manager">
-            <div class="icon-image">
-                <i class="fas fa-folder"></i>
-            </div>
-            <div class="icon-label">File Manager</div>
-        </div>
-
-        <div class="desktop-icon" style="top: 30px; left: 140px;" data-app="terminal">
-            <div class="icon-image">
-                <i class="fas fa-terminal"></i>
-            </div>
-            <div class="icon-label">Terminal</div>
-        </div>
-
-        <div class="desktop-icon" style="top: 150px; left: 30px;" data-app="text-editor">
-            <div class="icon-image">
-                <i class="fas fa-edit"></i>
-            </div>
-            <div class="icon-label">Text Editor</div>
-        </div>
-
-        <div class="desktop-icon" style="top: 150px; left: 140px;" data-app="settings">
-            <div class="icon-image">
-                <i class="fas fa-cog"></i>
-            </div>
-            <div class="icon-label">Settings</div>
-        </div>
-
-        <div class="desktop-icon" style="top: 270px; left: 30px;" data-app="public-folder">
-            <div class="icon-image">
-                <i class="fas fa-globe"></i>
-            </div>
-            <div class="icon-label">Public Files</div>
-        </div>
+        <!-- Dynamic desktop icons will be loaded here -->
     </div>
 
     <!-- Taskbar -->
@@ -915,7 +602,7 @@
             </div>
             <div class="time-display" id="current-time"></div>
             <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> <span style="display: inline;">Sign Out</span>
+                <i class="fas fa-sign-out-alt"></i> Sign Out
             </button>
         </div>
     </div>
@@ -926,27 +613,8 @@
             <div class="start-menu-title">Applications</div>
             <input type="text" class="start-menu-search" placeholder="Search applications..." id="app-search">
         </div>
-        <div class="start-menu-apps">
-            <div class="start-menu-app" data-app="file-manager">
-                <div class="start-menu-app-icon"><i class="fas fa-folder"></i></div>
-                <div class="start-menu-app-name">File Manager</div>
-            </div>
-            <div class="start-menu-app" data-app="terminal">
-                <div class="start-menu-app-icon"><i class="fas fa-terminal"></i></div>
-                <div class="start-menu-app-name">Terminal</div>
-            </div>
-            <div class="start-menu-app" data-app="text-editor">
-                <div class="start-menu-app-icon"><i class="fas fa-edit"></i></div>
-                <div class="start-menu-app-name">Text Editor</div>
-            </div>
-            <div class="start-menu-app" data-app="settings">
-                <div class="start-menu-app-icon"><i class="fas fa-cog"></i></div>
-                <div class="start-menu-app-name">Settings</div>
-            </div>
-            <div class="start-menu-app" data-app="public-folder">
-                <div class="start-menu-app-icon"><i class="fas fa-globe"></i></div>
-                <div class="start-menu-app-name">Public Files</div>
-            </div>
+        <div class="start-menu-apps" id="start-menu-apps">
+            <!-- Dynamic app list will be loaded here -->
         </div>
     </div>
 
@@ -954,11 +622,32 @@
     <div id="windows-container"></div>
 
     <!-- Notification Container -->
-    <div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 6000; display: flex; flex-direction: column; gap: 12px; max-width: 400px;"></div>
+    <div class="notification-container" id="notification-container"></div>
 
-    <!-- Include JavaScript -->
+        <div class="desktop-icon" style="top: 270px; left: 30px;" data-app="media-player">
+            <div class="icon-image">
+                <i class="fas fa-play-circle"></i>
+            </div>
+            <div class="icon-label">Media Player</div>
+        </div>
+
+        <div class="desktop-icon" style="top: 270px; left: 140px;" data-app="public-folder">
+            <div class="icon-image">
+                <i class="fas fa-globe"></i>
+            </div>
+            <div class="icon-label">Public Files</div>
+        </div>
+    <!-- JavaScript -->
     <script>
-        console.log('🔥 EmberFrame Desktop loading for user: {{ username }}');
+        console.log('🔥 EmberFrame Enhanced Desktop loading for user: {{ username }}');
+
+        // Global configuration
+        window.EmberFrame = {
+            currentUser: '{{ username }}',
+            isAdmin: false, // Will be loaded from API
+            apps: {},
+            preferences: {}
+        };
 
         // Device detection
         const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -967,9 +656,10 @@
         // Loading screen management
         let loadingSteps = [
             'Initializing Core Systems...',
-            'Loading Desktop Environment...',
-            'Connecting Network Modules...',
-            'Preparing User Interface...',
+            'Loading User Preferences...',
+            'Connecting to File System...',
+            'Preparing Desktop Environment...',
+            'Loading Applications...',
             'Finalizing Startup Sequence...'
         ];
         let currentStep = 0;
@@ -979,7 +669,7 @@
                 document.getElementById('loading-text').textContent = loadingSteps[currentStep];
                 document.getElementById('loading-progress').style.width = ((currentStep + 1) / loadingSteps.length * 100) + '%';
                 currentStep++;
-                setTimeout(updateLoading, 800);
+                setTimeout(updateLoading, 600);
             } else {
                 setTimeout(hideLoading, 500);
             }
@@ -995,20 +685,58 @@
         }
 
         // Desktop initialization
-        function initializeDesktop() {
-            console.log('🚀 Initializing desktop environment');
+        async function initializeDesktop() {
+            console.log('🚀 Initializing enhanced desktop environment');
 
-            updateTime();
-            setInterval(updateTime, 1000);
+            try {
+                // Load user preferences and system info
+                await loadUserData();
 
-            setupDesktopInteractions();
-            setupStartMenu();
+                // Initialize time display
+                updateTime();
+                setInterval(updateTime, 1000);
 
-            // Show mobile-specific welcome message
-            if (isMobile) {
-                setTimeout(() => {
-                    showMobileWelcome();
-                }, 1000);
+                // Setup interactions
+                setupDesktopInteractions();
+                setupStartMenu();
+
+                // Load user shortcuts and apps
+                if (window.WindowManager) {
+                    // Wait for WindowManager to be fully loaded
+                    console.log('✅ WindowManager available, updating interfaces');
+                } else {
+                    console.warn('⚠️ WindowManager not yet available');
+                }
+
+                // Show welcome message
+                showWelcomeMessage();
+
+            } catch (error) {
+                console.error('❌ Desktop initialization failed:', error);
+                showNotification('Desktop initialization failed. Some features may not work.', 'error');
+            }
+        }
+
+        // Load user data from API
+        async function loadUserData() {
+            try {
+                // Load user info
+                const userResponse = await fetch('/api/user/info');
+                if (userResponse.ok) {
+                    const userData = await userResponse.json();
+                    window.EmberFrame.isAdmin = userData.is_admin;
+                    console.log('✅ User data loaded:', userData.username, userData.is_admin ? '(Admin)' : '(User)');
+                }
+
+                // Load user preferences
+                const prefsResponse = await fetch('/api/user/preferences');
+                if (prefsResponse.ok) {
+                    const preferences = await prefsResponse.json();
+                    window.EmberFrame.preferences = preferences;
+                    console.log('✅ User preferences loaded');
+                }
+            } catch (error) {
+                console.error('❌ Failed to load user data:', error);
             }
         }
 
@@ -1018,68 +746,15 @@
             const timeString = now.toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit',
-                second: isMobile ? undefined : '2-digit', // Hide seconds on mobile
+                second: isMobile ? undefined : '2-digit',
                 hour12: false
             });
             document.getElementById('current-time').textContent = timeString;
         }
 
-        // Desktop icon interactions
+        // Desktop interactions
         function setupDesktopInteractions() {
             let startMenuOpen = false;
-
-            // Desktop icon clicks
-            document.querySelectorAll('.desktop-icon').forEach(icon => {
-                let clickCount = 0;
-                let touchStartTime = 0;
-
-                // Mouse events
-                icon.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    handleIconClick(icon);
-                });
-
-                // Touch events for mobile
-                icon.addEventListener('touchstart', (e) => {
-                    touchStartTime = Date.now();
-                    // Clear other selections
-                    document.querySelectorAll('.desktop-icon').forEach(i => i.classList.remove('selected'));
-                    icon.classList.add('selected');
-                });
-
-                icon.addEventListener('touchend', (e) => {
-                    e.preventDefault();
-                    const touchDuration = Date.now() - touchStartTime;
-
-                    if (touchDuration < 500) { // Quick tap
-                        const appName = icon.dataset.app;
-                        launchApplication(appName);
-                    }
-                });
-
-                function handleIconClick(icon) {
-                    document.querySelectorAll('.desktop-icon').forEach(i => i.classList.remove('selected'));
-                    icon.classList.add('selected');
-
-                    clickCount++;
-                    setTimeout(() => {
-                        if (clickCount === 2) {
-                            const appName = icon.dataset.app;
-                            launchApplication(appName);
-                        }
-                        clickCount = 0;
-                    }, 300);
-                }
-            });
-
-            // Clear desktop selection
-            document.getElementById('desktop').addEventListener('click', (e) => {
-                if (e.target === document.getElementById('desktop')) {
-                    document.querySelectorAll('.desktop-icon').forEach(icon => {
-                        icon.classList.remove('selected');
-                    });
-                }
-            });
 
             // Start button
             document.getElementById('start-button').addEventListener(isMobile ? 'touchend' : 'click', (e) => {
@@ -1108,113 +783,53 @@
                     startMenu.classList.remove('active');
                 }
             }
+
+            // Desktop right-click (will be handled by WindowManager)
+            console.log('✅ Desktop interactions setup complete');
         }
 
         // Start menu setup
         function setupStartMenu() {
-            // Start menu app clicks
-            document.querySelectorAll('.start-menu-app').forEach(app => {
-                const eventType = isMobile ? 'touchend' : 'click';
-                app.addEventListener(eventType, (e) => {
-                    e.preventDefault();
-                    const appName = app.dataset.app;
-                    launchApplication(appName);
-                    document.getElementById('start-menu').classList.remove('active');
-                });
-            });
-
             // App search functionality
             document.getElementById('app-search').addEventListener('input', (e) => {
                 const searchTerm = e.target.value.toLowerCase();
                 document.querySelectorAll('.start-menu-app').forEach(app => {
                     const appName = app.querySelector('.start-menu-app-name').textContent.toLowerCase();
-                    if (appName.includes(searchTerm)) {
+                    const appDesc = app.querySelector('.start-menu-app-desc')?.textContent.toLowerCase() || '';
+
+                    if (appName.includes(searchTerm) || appDesc.includes(searchTerm)) {
                         app.style.display = 'flex';
                     } else {
                         app.style.display = 'none';
                     }
                 });
-            });
-        }
 
-        // Application launcher
-        function launchApplication(appName) {
-            console.log('🚀 Launching application:', appName);
+                // Hide/show categories based on visible apps
+                document.querySelectorAll('.start-menu-category').forEach(category => {
+                    const nextSibling = category.nextElementSibling;
+                    let hasVisibleApps = false;
 
-            // Show notification
-            showNotification(`Opening ${appName.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}...`, 'info');
-
-            // Launch the application using WindowManager
-            if (window.WindowManager) {
-                try {
-                    window.WindowManager.openApp(appName);
-
-                    // Show mobile-specific hints
-                    if (isMobile && window.WindowManager.windows.size === 1) {
-                        setTimeout(() => {
-                            showMobileHint('Swipe down on window header to minimize');
-                        }, 2000);
+                    let current = nextSibling;
+                    while (current && !current.classList.contains('start-menu-category')) {
+                        if (current.classList.contains('start-menu-app') && current.style.display !== 'none') {
+                            hasVisibleApps = true;
+                            break;
+                        }
+                        current = current.nextElementSibling;
                     }
-                } catch (error) {
-                    console.error('Failed to launch app:', error);
-                    showNotification(`Failed to open ${appName}`, 'error');
-                }
-            } else {
-                console.error('WindowManager not available');
-                showNotification('Window Manager not loaded', 'error');
-            }
-        }
 
-        // Mobile-specific functions
-        function showMobileWelcome() {
-            if (isMobile) {
-                showNotification('Welcome to EmberFrame Mobile! Tap icons to launch apps.', 'info', 4000);
+                    category.style.display = hasVisibleApps ? 'block' : 'none';
+                });
+            });
 
-                setTimeout(() => {
-                    showMobileHint('Tap the Start button to see all applications');
-                }, 3000);
-            }
-        }
-
-        function showMobileHint(message) {
-            const hint = document.createElement('div');
-            hint.className = 'mobile-gesture-hint';
-            hint.textContent = message;
-            document.body.appendChild(hint);
-
-            setTimeout(() => {
-                if (hint && hint.parentNode) {
-                    hint.parentNode.removeChild(hint);
-                }
-            }, 3000);
+            console.log('✅ Start menu setup complete');
         }
 
         // Notification system
-        function showNotification(message, type = 'info', duration = 3000) {
+        function showNotification(message, type = 'info', duration = 4000) {
             const container = document.getElementById('notification-container');
             const notification = document.createElement('div');
-
-            const colors = {
-                info: 'rgba(0, 212, 255, 0.9)',
-                success: 'rgba(0, 255, 136, 0.9)',
-                error: 'rgba(255, 68, 102, 0.9)',
-                warning: 'rgba(255, 170, 0, 0.9)'
-            };
-
-            notification.style.cssText = `
-                background: ${colors[type] || colors.info};
-                color: white;
-                padding: 12px 16px;
-                border-radius: 12px;
-                margin-bottom: 8px;
-                font-size: 14px;
-                font-weight: 500;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-                animation: slideInRight 0.3s ease-out;
-                cursor: pointer;
-                backdrop-filter: blur(10px);
-            `;
-
+            notification.className = `notification ${type}`;
             notification.textContent = message;
 
             // Add click to dismiss
@@ -1232,45 +847,72 @@
                     }
                 }, duration);
             }
+
+            return notification;
+        }
+
+        // Welcome message
+        function showWelcomeMessage() {
+            const hour = new Date().getHours();
+            let greeting = 'Good evening';
+            if (hour < 12) greeting = 'Good morning';
+            else if (hour < 18) greeting = 'Good afternoon';
+
+            const adminText = window.EmberFrame.isAdmin ? ' (Administrator)' : '';
+            showNotification(`${greeting}, {{ username }}${adminText}! Welcome to EmberFrame.`, 'success', 5000);
+
+            if (isMobile) {
+                setTimeout(() => {
+                    showNotification('Tap the Start button to access applications.', 'info', 4000);
+                }, 2000);
+            }
         }
 
         // Logout function
         function logout() {
             if (confirm('Are you sure you want to sign out?')) {
-                window.location.href = '/logout';
+                showNotification('Signing out...', 'info', 2000);
+                setTimeout(() => {
+                    window.location.href = '/logout';
+                }, 1000);
             }
         }
 
         // Handle orientation changes
         window.addEventListener('orientationchange', () => {
             setTimeout(() => {
-                location.reload(); // Simple refresh on orientation change
+                // Refresh layout without full reload
+                if (window.WindowManager && window.WindowManager.handleWindowResize) {
+                    window.WindowManager.handleWindowResize();
+                }
             }, 500);
         });
 
         // Prevent context menu on mobile
         if (isMobile) {
             document.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
+                if (!e.target.closest('.desktop')) {
+                    e.preventDefault();
+                }
             });
         }
 
         // Start loading sequence
         updateLoading();
 
-        console.log('✅ Desktop script loaded successfully');
+        // Wait for WindowManager to load, then update interfaces
+        document.addEventListener('DOMContentLoaded', () => {
+            // The WindowManager will handle updating the desktop icons and start menu
+            console.log('✅ DOM loaded, waiting for WindowManager...');
+        });
+
+        console.log('✅ Enhanced desktop script loaded successfully');
     </script>
 
-    <!-- Load the enhanced window manager and other components -->
+    <!-- Load the enhanced window manager -->
     <script>
-        // This would load the enhanced window manager and other components
-        // Since we can't include external files in this example, the WindowManager
-        // would need to be loaded here or injected from the artifacts above
-
-        console.log('🔥 EmberFrame Enhanced Desktop Environment Ready');
-        console.log('Device:', isMobile ? 'Mobile/Tablet' : 'Desktop');
-        console.log('Touch Support:', 'ontouchstart' in window);
-        console.log('Screen Size:', window.innerWidth + 'x' + window.innerHeight);
+        // This ensures the WindowManager loads with all the enhancements
+        console.log('🔥 Loading Enhanced Window Manager...');
     </script>
 </body>
 </html>
