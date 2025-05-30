@@ -1,4 +1,4 @@
-// Complete EmberFrame Settings Application - Fully Functional
+// Enhanced Settings Application - Fully Functional with Server Integration
 class Settings {
     static createWindow() {
         return {
@@ -47,13 +47,13 @@ class Settings {
                                     <p>Choose your preferred color theme</p>
                                 </div>
                                 <div class="theme-selector">
-                                    <div class="theme-option active" data-theme="ember-red">
-                                        <div class="theme-preview" style="background: linear-gradient(135deg, #ff4500, #dc143c);"></div>
-                                        <span>Ember Red</span>
-                                    </div>
                                     <div class="theme-option" data-theme="cyber-blue">
                                         <div class="theme-preview" style="background: linear-gradient(135deg, #00ffff, #0066ff);"></div>
                                         <span>Cyber Blue</span>
+                                    </div>
+                                    <div class="theme-option" data-theme="ember-red">
+                                        <div class="theme-preview" style="background: linear-gradient(135deg, #ff4500, #dc143c);"></div>
+                                        <span>Ember Red</span>
                                     </div>
                                     <div class="theme-option" data-theme="matrix-green">
                                         <div class="theme-preview" style="background: linear-gradient(135deg, #00ff00, #008800);"></div>
@@ -479,11 +479,13 @@ class Settings {
                                 <div class="profile-card">
                                     <div class="profile-avatar">
                                         <div class="avatar-display" id="current-avatar">
+                                            <img id="avatar-image" style="display: none; width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
                                             <span id="avatar-text">?</span>
                                         </div>
                                         <button class="change-avatar-btn" onclick="Settings.changeAvatar()">
                                             <i class="fas fa-camera"></i>
                                         </button>
+                                        <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
                                     </div>
                                     <div class="profile-details">
                                         <div class="profile-field">
@@ -585,7 +587,7 @@ class Settings {
                                 <div class="about-logo">
                                     <div class="logo-icon">🔥</div>
                                     <h3>EmberFrame Desktop Environment</h3>
-                                    <p class="version-info">Version <strong>1.2.0</strong> • Build <strong>2024.12</strong></p>
+                                    <p class="version-info">Version <strong>1.3.0</strong> • Build <strong>2024.12</strong></p>
                                 </div>
 
                                 <div class="system-info">
@@ -631,13 +633,14 @@ class Settings {
                                         <li>Mobile-responsive design</li>
                                         <li>Real-time notifications and system tray</li>
                                         <li>Drag-and-drop file operations</li>
+                                        <li>Per-user settings and preferences</li>
                                     </ul>
 
                                     <h4>Technology Stack</h4>
                                     <ul>
                                         <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript ES6+</li>
                                         <li><strong>Backend:</strong> Python Flask with Socket.IO</li>
-                                        <li><strong>UI Framework:</strong> Custom component system</li>
+                                        <li><strong>Database:</strong> SQLite with SQLAlchemy</li>
                                         <li><strong>Real-time:</strong> WebSocket communication</li>
                                         <li><strong>Storage:</strong> File system integration</li>
                                     </ul>
@@ -662,760 +665,7 @@ class Settings {
                     </div>
                 </div>
 
-                <style>
-                    .settings-app {
-                        height: 100%;
-                        display: flex;
-                        background: linear-gradient(135deg, #0a0a0f 0%, #141420 50%, #1a1a2e 100%);
-                        color: #ffffff;
-                        font-family: 'Rajdhani', sans-serif;
-                        overflow: hidden;
-                    }
-
-                    .settings-sidebar {
-                        width: 240px;
-                        background: rgba(0, 0, 0, 0.4);
-                        border-right: 1px solid rgba(0, 212, 255, 0.3);
-                        backdrop-filter: blur(10px);
-                    }
-
-                    .settings-nav {
-                        padding: 20px 0;
-                    }
-
-                    .settings-nav-item {
-                        display: flex;
-                        align-items: center;
-                        gap: 12px;
-                        padding: 14px 20px;
-                        cursor: pointer;
-                        transition: all 0.3s ease;
-                        border-left: 3px solid transparent;
-                        font-weight: 500;
-                    }
-
-                    .settings-nav-item:hover {
-                        background: rgba(0, 212, 255, 0.1);
-                        border-left-color: rgba(0, 212, 255, 0.5);
-                    }
-
-                    .settings-nav-item.active {
-                        background: rgba(0, 212, 255, 0.2);
-                        border-left-color: #00d4ff;
-                        color: #00ffff;
-                    }
-
-                    .settings-nav-item i {
-                        width: 20px;
-                        text-align: center;
-                        font-size: 16px;
-                    }
-
-                    .settings-content {
-                        flex: 1;
-                        overflow-y: auto;
-                        padding: 0;
-                    }
-
-                    .settings-section {
-                        display: none;
-                        padding: 30px;
-                        max-width: 800px;
-                    }
-
-                    .settings-section.active {
-                        display: block;
-                    }
-
-                    .section-header {
-                        margin-bottom: 40px;
-                        padding-bottom: 20px;
-                        border-bottom: 2px solid rgba(0, 212, 255, 0.3);
-                    }
-
-                    .section-header h2 {
-                        font-size: 28px;
-                        color: #00ffff;
-                        margin-bottom: 8px;
-                        font-family: 'Orbitron', monospace;
-                        font-weight: 700;
-                        display: flex;
-                        align-items: center;
-                        gap: 12px;
-                    }
-
-                    .section-header p {
-                        color: #c0c0c0;
-                        font-size: 16px;
-                        margin: 0;
-                    }
-
-                    .setting-group {
-                        margin-bottom: 40px;
-                        background: rgba(0, 0, 0, 0.2);
-                        border-radius: 12px;
-                        padding: 25px;
-                        border: 1px solid rgba(0, 212, 255, 0.2);
-                    }
-
-                    .setting-label {
-                        margin-bottom: 20px;
-                    }
-
-                    .setting-label h3 {
-                        font-size: 20px;
-                        color: #00d4ff;
-                        margin-bottom: 6px;
-                        font-weight: 600;
-                    }
-
-                    .setting-label p {
-                        color: #8892b0;
-                        font-size: 14px;
-                        margin: 0;
-                    }
-
-                    .setting-controls {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 20px;
-                    }
-
-                    .setting-item {
-                        display: flex;
-                        align-items: center;
-                        gap: 16px;
-                        padding: 16px 20px;
-                        background: rgba(0, 0, 0, 0.2);
-                        border-radius: 8px;
-                        border: 1px solid rgba(0, 212, 255, 0.1);
-                    }
-
-                    .setting-info {
-                        flex: 1;
-                    }
-
-                    .setting-info span {
-                        display: block;
-                        font-weight: 500;
-                        color: #ffffff;
-                        margin-bottom: 4px;
-                    }
-
-                    .setting-info small {
-                        color: #8892b0;
-                        font-size: 13px;
-                    }
-
-                    /* Toggle Switch */
-                    .toggle-switch {
-                        position: relative;
-                        width: 50px;
-                        height: 24px;
-                        flex-shrink: 0;
-                    }
-
-                    .toggle-switch input {
-                        opacity: 0;
-                        width: 0;
-                        height: 0;
-                    }
-
-                    .toggle-slider {
-                        position: absolute;
-                        cursor: pointer;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        bottom: 0;
-                        background: rgba(0, 0, 0, 0.4);
-                        border: 1px solid rgba(0, 212, 255, 0.3);
-                        transition: 0.3s;
-                        border-radius: 12px;
-                    }
-
-                    .toggle-slider::before {
-                        position: absolute;
-                        content: "";
-                        height: 18px;
-                        width: 18px;
-                        left: 2px;
-                        bottom: 2px;
-                        background: #ffffff;
-                        transition: 0.3s;
-                        border-radius: 50%;
-                    }
-
-                    input:checked + .toggle-slider {
-                        background: linear-gradient(135deg, #00d4ff, #00ffff);
-                        border-color: #00ffff;
-                    }
-
-                    input:checked + .toggle-slider::before {
-                        transform: translateX(26px);
-                    }
-
-                    /* Slider Control */
-                    .slider-control {
-                        display: flex;
-                        align-items: center;
-                        gap: 16px;
-                        flex: 1;
-                    }
-
-                    .slider-control label {
-                        min-width: 120px;
-                        font-weight: 500;
-                        color: #ffffff;
-                    }
-
-                    .slider-control input[type="range"] {
-                        flex: 1;
-                        height: 6px;
-                        background: rgba(0, 0, 0, 0.4);
-                        border-radius: 3px;
-                        outline: none;
-                        appearance: none;
-                    }
-
-                    .slider-control input[type="range"]::-webkit-slider-thumb {
-                        appearance: none;
-                        width: 18px;
-                        height: 18px;
-                        background: linear-gradient(135deg, #00d4ff, #00ffff);
-                        border-radius: 50%;
-                        cursor: pointer;
-                        box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-                    }
-
-                    .slider-control span {
-                        min-width: 50px;
-                        text-align: right;
-                        color: #00d4ff;
-                        font-weight: 600;
-                    }
-
-                    /* Dropdown Control */
-                    .dropdown-control {
-                        display: flex;
-                        align-items: center;
-                        gap: 16px;
-                        flex: 1;
-                    }
-
-                    .dropdown-control label {
-                        min-width: 120px;
-                        font-weight: 500;
-                        color: #ffffff;
-                    }
-
-                    .dropdown-control select {
-                        flex: 1;
-                        padding: 10px 14px;
-                        background: rgba(0, 0, 0, 0.4);
-                        border: 1px solid rgba(0, 212, 255, 0.3);
-                        border-radius: 6px;
-                        color: #ffffff;
-                        font-size: 14px;
-                        font-family: inherit;
-                    }
-
-                    .dropdown-control select:focus {
-                        outline: none;
-                        border-color: #00d4ff;
-                        box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
-                    }
-
-                    /* Theme Selector */
-                    .theme-selector {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                        gap: 16px;
-                    }
-
-                    .theme-option {
-                        cursor: pointer;
-                        padding: 16px;
-                        border-radius: 12px;
-                        border: 2px solid rgba(0, 212, 255, 0.2);
-                        background: rgba(0, 0, 0, 0.2);
-                        transition: all 0.3s ease;
-                        text-align: center;
-                    }
-
-                    .theme-option:hover {
-                        border-color: rgba(0, 212, 255, 0.6);
-                        transform: translateY(-2px);
-                    }
-
-                    .theme-option.active {
-                        border-color: #00ffff;
-                        box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
-                    }
-
-                    .theme-preview {
-                        width: 100%;
-                        height: 60px;
-                        border-radius: 8px;
-                        margin-bottom: 12px;
-                        border: 1px solid rgba(255, 255, 255, 0.1);
-                    }
-
-                    .theme-option span {
-                        font-size: 14px;
-                        font-weight: 500;
-                        color: #ffffff;
-                    }
-
-                    /* Wallpaper Section */
-                    .wallpaper-section {
-                        background: rgba(0, 0, 0, 0.2);
-                        border-radius: 12px;
-                        padding: 20px;
-                        border: 1px solid rgba(0, 212, 255, 0.2);
-                    }
-
-                    .wallpaper-tabs {
-                        display: flex;
-                        gap: 4px;
-                        margin-bottom: 20px;
-                        background: rgba(0, 0, 0, 0.2);
-                        border-radius: 8px;
-                        padding: 4px;
-                    }
-
-                    .wallpaper-tab {
-                        flex: 1;
-                        padding: 10px 16px;
-                        background: transparent;
-                        border: none;
-                        border-radius: 6px;
-                        color: #8892b0;
-                        cursor: pointer;
-                        transition: all 0.3s ease;
-                        font-family: inherit;
-                        font-weight: 500;
-                    }
-
-                    .wallpaper-tab.active {
-                        background: linear-gradient(135deg, #00d4ff, #00ffff);
-                        color: #0a0a0f;
-                    }
-
-                    .wallpaper-grid {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-                        gap: 12px;
-                        max-height: 300px;
-                        overflow-y: auto;
-                    }
-
-                    .wallpaper-item {
-                        aspect-ratio: 16/10;
-                        border-radius: 8px;
-                        cursor: pointer;
-                        border: 2px solid transparent;
-                        transition: all 0.3s ease;
-                        overflow: hidden;
-                        position: relative;
-                    }
-
-                    .wallpaper-item:hover {
-                        border-color: rgba(0, 212, 255, 0.6);
-                        transform: scale(1.05);
-                    }
-
-                    .wallpaper-item.selected {
-                        border-color: #00ffff;
-                        box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
-                    }
-
-                    .upload-wallpaper {
-                        aspect-ratio: 16/10;
-                        border: 2px dashed rgba(0, 212, 255, 0.5);
-                        border-radius: 8px;
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        cursor: pointer;
-                        transition: all 0.3s ease;
-                        gap: 8px;
-                    }
-
-                    .upload-wallpaper:hover {
-                        border-color: #00ffff;
-                        background: rgba(0, 212, 255, 0.1);
-                    }
-
-                    .upload-wallpaper i {
-                        font-size: 24px;
-                        color: #00d4ff;
-                    }
-
-                    .upload-wallpaper span {
-                        font-size: 12px;
-                        color: #8892b0;
-                        text-align: center;
-                    }
-
-                    /* Profile Card */
-                    .profile-card {
-                        display: flex;
-                        gap: 24px;
-                        align-items: flex-start;
-                        background: rgba(0, 0, 0, 0.2);
-                        border-radius: 12px;
-                        padding: 24px;
-                        border: 1px solid rgba(0, 212, 255, 0.2);
-                    }
-
-                    .profile-avatar {
-                        position: relative;
-                        flex-shrink: 0;
-                    }
-
-                    .avatar-display {
-                        width: 80px;
-                        height: 80px;
-                        border-radius: 50%;
-                        background: linear-gradient(135deg, #00d4ff, #00ffff);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 32px;
-                        font-weight: 700;
-                        color: #0a0a0f;
-                        border: 3px solid rgba(0, 255, 255, 0.3);
-                    }
-
-                    .change-avatar-btn {
-                        position: absolute;
-                        bottom: -5px;
-                        right: -5px;
-                        width: 30px;
-                        height: 30px;
-                        border-radius: 50%;
-                        background: #00d4ff;
-                        border: none;
-                        color: #0a0a0f;
-                        cursor: pointer;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 12px;
-                        transition: all 0.3s ease;
-                    }
-
-                    .change-avatar-btn:hover {
-                        background: #00ffff;
-                        transform: scale(1.1);
-                    }
-
-                    .profile-details {
-                        flex: 1;
-                        display: flex;
-                        flex-direction: column;
-                        gap: 16px;
-                    }
-
-                    .profile-field {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        padding: 12px 0;
-                        border-bottom: 1px solid rgba(0, 212, 255, 0.1);
-                    }
-
-                    .profile-field:last-child {
-                        border-bottom: none;
-                    }
-
-                    .profile-field label {
-                        font-weight: 500;
-                        color: #8892b0;
-                        font-size: 14px;
-                    }
-
-                    .profile-field span {
-                        color: #ffffff;
-                        font-weight: 600;
-                    }
-
-                    /* Storage Info */
-                    .storage-info {
-                        background: rgba(0, 0, 0, 0.2);
-                        border-radius: 12px;
-                        padding: 24px;
-                        border: 1px solid rgba(0, 212, 255, 0.2);
-                    }
-
-                    .storage-bar {
-                        width: 100%;
-                        height: 12px;
-                        background: rgba(0, 0, 0, 0.4);
-                        border-radius: 6px;
-                        overflow: hidden;
-                        margin-bottom: 16px;
-                        border: 1px solid rgba(0, 212, 255, 0.2);
-                    }
-
-                    .storage-used {
-                        height: 100%;
-                        background: linear-gradient(90deg, #00d4ff, #00ffff);
-                        transition: width 0.5s ease;
-                        border-radius: 6px;
-                    }
-
-                    .storage-details {
-                        display: flex;
-                        justify-content: space-between;
-                        margin-bottom: 20px;
-                        font-size: 14px;
-                    }
-
-                    .storage-breakdown {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 8px;
-                    }
-
-                    .breakdown-item {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        padding: 8px 12px;
-                        background: rgba(0, 0, 0, 0.2);
-                        border-radius: 6px;
-                        font-size: 13px;
-                    }
-
-                    .breakdown-label {
-                        color: #8892b0;
-                    }
-
-                    .breakdown-value {
-                        color: #00d4ff;
-                        font-weight: 600;
-                    }
-
-                    /* Action Button */
-                    .action-button {
-                        display: flex;
-                        align-items: center;
-                        gap: 10px;
-                        padding: 12px 20px;
-                        background: linear-gradient(135deg, #00d4ff, #00ffff);
-                        color: #0a0a0f;
-                        border: none;
-                        border-radius: 8px;
-                        cursor: pointer;
-                        font-family: inherit;
-                        font-weight: 600;
-                        font-size: 14px;
-                        transition: all 0.3s ease;
-                        text-decoration: none;
-                    }
-
-                    .action-button:hover {
-                        transform: translateY(-2px);
-                        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
-                    }
-
-                    .action-button.danger {
-                        background: linear-gradient(135deg, #ff4466, #ff6b6b);
-                        color: #ffffff;
-                    }
-
-                    .action-button.danger:hover {
-                        box-shadow: 0 5px 20px rgba(255, 68, 102, 0.4);
-                    }
-
-                    /* About Content */
-                    .about-content {
-                        max-width: 700px;
-                    }
-
-                    .about-logo {
-                        text-align: center;
-                        margin-bottom: 40px;
-                        padding: 30px;
-                        background: rgba(0, 0, 0, 0.2);
-                        border-radius: 12px;
-                        border: 1px solid rgba(0, 212, 255, 0.2);
-                    }
-
-                    .logo-icon {
-                        font-size: 80px;
-                        margin-bottom: 20px;
-                        animation: logo-glow 3s ease-in-out infinite alternate;
-                    }
-
-                    @keyframes logo-glow {
-                        from { text-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
-                        to { text-shadow: 0 0 40px rgba(0, 255, 255, 0.8); }
-                    }
-
-                    .about-logo h3 {
-                        font-size: 32px;
-                        color: #00ffff;
-                        margin-bottom: 8px;
-                        font-family: 'Orbitron', monospace;
-                        font-weight: 700;
-                    }
-
-                    .version-info {
-                        color: #8892b0;
-                        font-size: 16px;
-                    }
-
-                    .system-info {
-                        margin-bottom: 40px;
-                    }
-
-                    .info-grid {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                        gap: 16px;
-                        background: rgba(0, 0, 0, 0.2);
-                        border-radius: 12px;
-                        padding: 24px;
-                        border: 1px solid rgba(0, 212, 255, 0.2);
-                    }
-
-                    .info-item {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 4px;
-                    }
-
-                    .info-item label {
-                        font-size: 12px;
-                        color: #8892b0;
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
-                    }
-
-                    .info-item span {
-                        color: #ffffff;
-                        font-weight: 600;
-                        font-size: 14px;
-                    }
-
-                    .about-description {
-                        background: rgba(0, 0, 0, 0.2);
-                        border-radius: 12px;
-                        padding: 30px;
-                        border: 1px solid rgba(0, 212, 255, 0.2);
-                        margin-bottom: 30px;
-                        line-height: 1.6;
-                    }
-
-                    .about-description h4 {
-                        color: #00d4ff;
-                        font-size: 20px;
-                        margin-bottom: 16px;
-                        font-weight: 600;
-                    }
-
-                    .about-description p {
-                        color: #c0c0c0;
-                        margin-bottom: 20px;
-                        font-size: 15px;
-                    }
-
-                    .about-description ul {
-                        margin-left: 20px;
-                        margin-bottom: 20px;
-                    }
-
-                    .about-description li {
-                        color: #c0c0c0;
-                        margin-bottom: 8px;
-                        font-size: 14px;
-                    }
-
-                    .about-actions {
-                        display: flex;
-                        gap: 16px;
-                        flex-wrap: wrap;
-                    }
-
-                    /* Responsive Design */
-                    @media (max-width: 768px) {
-                        .settings-app {
-                            flex-direction: column;
-                        }
-
-                        .settings-sidebar {
-                            width: 100%;
-                            height: auto;
-                        }
-
-                        .settings-nav {
-                            display: flex;
-                            overflow-x: auto;
-                            padding: 10px;
-                            gap: 8px;
-                        }
-
-                        .settings-nav-item {
-                            flex-shrink: 0;
-                            padding: 8px 16px;
-                            border-radius: 20px;
-                            border-left: none;
-                            border: 1px solid rgba(0, 212, 255, 0.2);
-                        }
-
-                        .settings-content {
-                            overflow-y: auto;
-                        }
-
-                        .settings-section {
-                            padding: 20px;
-                        }
-
-                        .theme-selector {
-                            grid-template-columns: repeat(2, 1fr);
-                        }
-
-                        .profile-card {
-                            flex-direction: column;
-                            text-align: center;
-                        }
-
-                        .about-actions {
-                            flex-direction: column;
-                        }
-
-                        .info-grid {
-                            grid-template-columns: 1fr;
-                        }
-                    }
-
-                    /* Scrollbar Styling */
-                    .settings-content::-webkit-scrollbar,
-                    .wallpaper-grid::-webkit-scrollbar {
-                        width: 8px;
-                    }
-
-                    .settings-content::-webkit-scrollbar-track,
-                    .wallpaper-grid::-webkit-scrollbar-track {
-                        background: rgba(0, 0, 0, 0.2);
-                        border-radius: 4px;
-                    }
-
-                    .settings-content::-webkit-scrollbar-thumb,
-                    .wallpaper-grid::-webkit-scrollbar-thumb {
-                        background: linear-gradient(135deg, #00d4ff, #00ffff);
-                        border-radius: 4px;
-                    }
-
-                    .settings-content::-webkit-scrollbar-thumb:hover,
-                    .wallpaper-grid::-webkit-scrollbar-thumb:hover {
-                        background: linear-gradient(135deg, #00ffff, #00d4ff);
-                    }
-                </style>
+                ${this.getSettingsCSS()}
             `,
             onInit: (windowElement) => {
                 Settings.init(windowElement);
@@ -1423,20 +673,780 @@ class Settings {
         };
     }
 
+    static getSettingsCSS() {
+        return `<style>
+            .settings-app {
+                height: 100%;
+                display: flex;
+                background: linear-gradient(135deg, #0a0a0f 0%, #141420 50%, #1a1a2e 100%);
+                color: #ffffff;
+                font-family: 'Rajdhani', sans-serif;
+                overflow: hidden;
+            }
+
+            .settings-sidebar {
+                width: 240px;
+                background: rgba(0, 0, 0, 0.4);
+                border-right: 1px solid rgba(0, 212, 255, 0.3);
+                backdrop-filter: blur(10px);
+            }
+
+            .settings-nav {
+                padding: 20px 0;
+            }
+
+            .settings-nav-item {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 14px 20px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                border-left: 3px solid transparent;
+                font-weight: 500;
+            }
+
+            .settings-nav-item:hover {
+                background: rgba(0, 212, 255, 0.1);
+                border-left-color: rgba(0, 212, 255, 0.5);
+            }
+
+            .settings-nav-item.active {
+                background: rgba(0, 212, 255, 0.2);
+                border-left-color: #00d4ff;
+                color: #00ffff;
+            }
+
+            .settings-nav-item i {
+                width: 20px;
+                text-align: center;
+                font-size: 16px;
+            }
+
+            .settings-content {
+                flex: 1;
+                overflow-y: auto;
+                padding: 0;
+            }
+
+            .settings-section {
+                display: none;
+                padding: 30px;
+                max-width: 800px;
+            }
+
+            .settings-section.active {
+                display: block;
+            }
+
+            .section-header {
+                margin-bottom: 40px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            }
+
+            .section-header h2 {
+                font-size: 28px;
+                color: #00ffff;
+                margin-bottom: 8px;
+                font-family: 'Orbitron', monospace;
+                font-weight: 700;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .section-header p {
+                color: #c0c0c0;
+                font-size: 16px;
+                margin: 0;
+            }
+
+            .setting-group {
+                margin-bottom: 40px;
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+                padding: 25px;
+                border: 1px solid rgba(0, 212, 255, 0.2);
+            }
+
+            .setting-label {
+                margin-bottom: 20px;
+            }
+
+            .setting-label h3 {
+                font-size: 20px;
+                color: #00d4ff;
+                margin-bottom: 6px;
+                font-weight: 600;
+            }
+
+            .setting-label p {
+                color: #8892b0;
+                font-size: 14px;
+                margin: 0;
+            }
+
+            .setting-controls {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .setting-item {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                padding: 16px 20px;
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 8px;
+                border: 1px solid rgba(0, 212, 255, 0.1);
+            }
+
+            .setting-info {
+                flex: 1;
+            }
+
+            .setting-info span {
+                display: block;
+                font-weight: 500;
+                color: #ffffff;
+                margin-bottom: 4px;
+            }
+
+            .setting-info small {
+                color: #8892b0;
+                font-size: 13px;
+            }
+
+            /* Toggle Switch */
+            .toggle-switch {
+                position: relative;
+                width: 50px;
+                height: 24px;
+                flex-shrink: 0;
+            }
+
+            .toggle-switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+            .toggle-slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.4);
+                border: 1px solid rgba(0, 212, 255, 0.3);
+                transition: 0.3s;
+                border-radius: 12px;
+            }
+
+            .toggle-slider::before {
+                position: absolute;
+                content: "";
+                height: 18px;
+                width: 18px;
+                left: 2px;
+                bottom: 2px;
+                background: #ffffff;
+                transition: 0.3s;
+                border-radius: 50%;
+            }
+
+            input:checked + .toggle-slider {
+                background: linear-gradient(135deg, #00d4ff, #00ffff);
+                border-color: #00ffff;
+            }
+
+            input:checked + .toggle-slider::before {
+                transform: translateX(26px);
+            }
+
+            /* Slider Control */
+            .slider-control {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                flex: 1;
+            }
+
+            .slider-control label {
+                min-width: 120px;
+                font-weight: 500;
+                color: #ffffff;
+            }
+
+            .slider-control input[type="range"] {
+                flex: 1;
+                height: 6px;
+                background: rgba(0, 0, 0, 0.4);
+                border-radius: 3px;
+                outline: none;
+                appearance: none;
+            }
+
+            .slider-control input[type="range"]::-webkit-slider-thumb {
+                appearance: none;
+                width: 18px;
+                height: 18px;
+                background: linear-gradient(135deg, #00d4ff, #00ffff);
+                border-radius: 50%;
+                cursor: pointer;
+                box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            }
+
+            .slider-control span {
+                min-width: 50px;
+                text-align: right;
+                color: #00d4ff;
+                font-weight: 600;
+            }
+
+            /* Dropdown Control */
+            .dropdown-control {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                flex: 1;
+            }
+
+            .dropdown-control label {
+                min-width: 120px;
+                font-weight: 500;
+                color: #ffffff;
+            }
+
+            .dropdown-control select {
+                flex: 1;
+                padding: 10px 14px;
+                background: rgba(0, 0, 0, 0.4);
+                border: 1px solid rgba(0, 212, 255, 0.3);
+                border-radius: 6px;
+                color: #ffffff;
+                font-size: 14px;
+                font-family: inherit;
+            }
+
+            .dropdown-control select:focus {
+                outline: none;
+                border-color: #00d4ff;
+                box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+            }
+
+            /* Theme Selector */
+            .theme-selector {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 16px;
+            }
+
+            .theme-option {
+                cursor: pointer;
+                padding: 16px;
+                border-radius: 12px;
+                border: 2px solid rgba(0, 212, 255, 0.2);
+                background: rgba(0, 0, 0, 0.2);
+                transition: all 0.3s ease;
+                text-align: center;
+            }
+
+            .theme-option:hover {
+                border-color: rgba(0, 212, 255, 0.6);
+                transform: translateY(-2px);
+            }
+
+            .theme-option.active {
+                border-color: #00ffff;
+                box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            }
+
+            .theme-preview {
+                width: 100%;
+                height: 60px;
+                border-radius: 8px;
+                margin-bottom: 12px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .theme-option span {
+                font-size: 14px;
+                font-weight: 500;
+                color: #ffffff;
+            }
+
+            /* Wallpaper Section */
+            .wallpaper-section {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+                padding: 20px;
+                border: 1px solid rgba(0, 212, 255, 0.2);
+            }
+
+            .wallpaper-tabs {
+                display: flex;
+                gap: 4px;
+                margin-bottom: 20px;
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 8px;
+                padding: 4px;
+            }
+
+            .wallpaper-tab {
+                flex: 1;
+                padding: 10px 16px;
+                background: transparent;
+                border: none;
+                border-radius: 6px;
+                color: #8892b0;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-family: inherit;
+                font-weight: 500;
+            }
+
+            .wallpaper-tab.active {
+                background: linear-gradient(135deg, #00d4ff, #00ffff);
+                color: #0a0a0f;
+            }
+
+            .wallpaper-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                gap: 12px;
+                max-height: 300px;
+                overflow-y: auto;
+            }
+
+            .wallpaper-item {
+                aspect-ratio: 16/10;
+                border-radius: 8px;
+                cursor: pointer;
+                border: 2px solid transparent;
+                transition: all 0.3s ease;
+                overflow: hidden;
+                position: relative;
+            }
+
+            .wallpaper-item:hover {
+                border-color: rgba(0, 212, 255, 0.6);
+                transform: scale(1.05);
+            }
+
+            .wallpaper-item.selected {
+                border-color: #00ffff;
+                box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            }
+
+            .upload-wallpaper {
+                aspect-ratio: 16/10;
+                border: 2px dashed rgba(0, 212, 255, 0.5);
+                border-radius: 8px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                gap: 8px;
+            }
+
+            .upload-wallpaper:hover {
+                border-color: #00ffff;
+                background: rgba(0, 212, 255, 0.1);
+            }
+
+            .upload-wallpaper i {
+                font-size: 24px;
+                color: #00d4ff;
+            }
+
+            .upload-wallpaper span {
+                font-size: 12px;
+                color: #8892b0;
+                text-align: center;
+            }
+
+            /* Profile Card */
+            .profile-card {
+                display: flex;
+                gap: 24px;
+                align-items: flex-start;
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+                padding: 24px;
+                border: 1px solid rgba(0, 212, 255, 0.2);
+            }
+
+            .profile-avatar {
+                position: relative;
+                flex-shrink: 0;
+            }
+
+            .avatar-display {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #00d4ff, #00ffff);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 32px;
+                font-weight: 700;
+                color: #0a0a0f;
+                border: 3px solid rgba(0, 255, 255, 0.3);
+                overflow: hidden;
+            }
+
+            .change-avatar-btn {
+                position: absolute;
+                bottom: -5px;
+                right: -5px;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                background: #00d4ff;
+                border: none;
+                color: #0a0a0f;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                transition: all 0.3s ease;
+            }
+
+            .change-avatar-btn:hover {
+                background: #00ffff;
+                transform: scale(1.1);
+            }
+
+            .profile-details {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .profile-field {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px 0;
+                border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+            }
+
+            .profile-field:last-child {
+                border-bottom: none;
+            }
+
+            .profile-field label {
+                font-weight: 500;
+                color: #8892b0;
+                font-size: 14px;
+            }
+
+            .profile-field span {
+                color: #ffffff;
+                font-weight: 600;
+            }
+
+            /* Storage Info */
+            .storage-info {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+                padding: 24px;
+                border: 1px solid rgba(0, 212, 255, 0.2);
+            }
+
+            .storage-bar {
+                width: 100%;
+                height: 12px;
+                background: rgba(0, 0, 0, 0.4);
+                border-radius: 6px;
+                overflow: hidden;
+                margin-bottom: 16px;
+                border: 1px solid rgba(0, 212, 255, 0.2);
+            }
+
+            .storage-used {
+                height: 100%;
+                background: linear-gradient(90deg, #00d4ff, #00ffff);
+                transition: width 0.5s ease;
+                border-radius: 6px;
+            }
+
+            .storage-details {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 20px;
+                font-size: 14px;
+            }
+
+            .storage-breakdown {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .breakdown-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 12px;
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 6px;
+                font-size: 13px;
+            }
+
+            .breakdown-label {
+                color: #8892b0;
+            }
+
+            .breakdown-value {
+                color: #00d4ff;
+                font-weight: 600;
+            }
+
+            /* Action Button */
+            .action-button {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 12px 20px;
+                background: linear-gradient(135deg, #00d4ff, #00ffff);
+                color: #0a0a0f;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-family: inherit;
+                font-weight: 600;
+                font-size: 14px;
+                transition: all 0.3s ease;
+                text-decoration: none;
+            }
+
+            .action-button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+            }
+
+            .action-button.danger {
+                background: linear-gradient(135deg, #ff4466, #ff6b6b);
+                color: #ffffff;
+            }
+
+            .action-button.danger:hover {
+                box-shadow: 0 5px 20px rgba(255, 68, 102, 0.4);
+            }
+
+            /* About Content */
+            .about-content {
+                max-width: 700px;
+            }
+
+            .about-logo {
+                text-align: center;
+                margin-bottom: 40px;
+                padding: 30px;
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+                border: 1px solid rgba(0, 212, 255, 0.2);
+            }
+
+            .logo-icon {
+                font-size: 80px;
+                margin-bottom: 20px;
+                animation: logo-glow 3s ease-in-out infinite alternate;
+            }
+
+            @keyframes logo-glow {
+                from { text-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
+                to { text-shadow: 0 0 40px rgba(0, 255, 255, 0.8); }
+            }
+
+            .about-logo h3 {
+                font-size: 32px;
+                color: #00ffff;
+                margin-bottom: 8px;
+                font-family: 'Orbitron', monospace;
+                font-weight: 700;
+            }
+
+            .version-info {
+                color: #8892b0;
+                font-size: 16px;
+            }
+
+            .system-info {
+                margin-bottom: 40px;
+            }
+
+            .info-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 16px;
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+                padding: 24px;
+                border: 1px solid rgba(0, 212, 255, 0.2);
+            }
+
+            .info-item {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .info-item label {
+                font-size: 12px;
+                color: #8892b0;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .info-item span {
+                color: #ffffff;
+                font-weight: 600;
+                font-size: 14px;
+            }
+
+            .about-description {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 12px;
+                padding: 30px;
+                border: 1px solid rgba(0, 212, 255, 0.2);
+                margin-bottom: 30px;
+                line-height: 1.6;
+            }
+
+            .about-description h4 {
+                color: #00d4ff;
+                font-size: 20px;
+                margin-bottom: 16px;
+                font-weight: 600;
+            }
+
+            .about-description p {
+                color: #c0c0c0;
+                margin-bottom: 20px;
+                font-size: 15px;
+            }
+
+            .about-description ul {
+                margin-left: 20px;
+                margin-bottom: 20px;
+            }
+
+            .about-description li {
+                color: #c0c0c0;
+                margin-bottom: 8px;
+                font-size: 14px;
+            }
+
+            .about-actions {
+                display: flex;
+                gap: 16px;
+                flex-wrap: wrap;
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .settings-app {
+                    flex-direction: column;
+                }
+
+                .settings-sidebar {
+                    width: 100%;
+                    height: auto;
+                }
+
+                .settings-nav {
+                    display: flex;
+                    overflow-x: auto;
+                    padding: 10px;
+                    gap: 8px;
+                }
+
+                .settings-nav-item {
+                    flex-shrink: 0;
+                    padding: 8px 16px;
+                    border-radius: 20px;
+                    border-left: none;
+                    border: 1px solid rgba(0, 212, 255, 0.2);
+                }
+
+                .settings-content {
+                    overflow-y: auto;
+                }
+
+                .settings-section {
+                    padding: 20px;
+                }
+
+                .theme-selector {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                .profile-card {
+                    flex-direction: column;
+                    text-align: center;
+                }
+
+                .about-actions {
+                    flex-direction: column;
+                }
+
+                .info-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            /* Scrollbar Styling */
+            .settings-content::-webkit-scrollbar,
+            .wallpaper-grid::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .settings-content::-webkit-scrollbar-track,
+            .wallpaper-grid::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 4px;
+            }
+
+            .settings-content::-webkit-scrollbar-thumb,
+            .wallpaper-grid::-webkit-scrollbar-thumb {
+                background: linear-gradient(135deg, #00d4ff, #00ffff);
+                border-radius: 4px;
+            }
+
+            .settings-content::-webkit-scrollbar-thumb:hover,
+            .wallpaper-grid::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(135deg, #00ffff, #00d4ff);
+            }
+        </style>`;
+    }
+
     static init(windowElement) {
         this.currentWindow = windowElement;
         this.startTime = Date.now();
         this.currentSettings = {};
+        this.userInfo = {};
+        this.isLoading = false;
+        this.debounceTimer = null;
 
         this.setupNavigation();
-        this.loadCurrentSettings();
+        this.loadUserSettings();
         this.setupEventListeners();
         this.loadWallpapers();
         this.loadSystemInfo();
-        this.loadProfileInfo();
         this.startUptime();
 
-        console.log('🔧 Settings application initialized');
+        console.log('🔧 Enhanced Settings application initialized');
     }
 
     static setupNavigation() {
@@ -1460,6 +1470,73 @@ class Settings {
                 console.log(`📄 Switched to section: ${item.dataset.section}`);
             });
         });
+    }
+
+    // Load settings from server instead of localStorage
+    static async loadUserSettings() {
+        try {
+            this.showLoadingMessage('Loading your preferences...');
+
+            const response = await fetch('/api/user/preferences');
+            const data = await response.json();
+
+            if (data.success) {
+                this.currentSettings = data.preferences;
+                this.userInfo = data.user;
+
+                this.applyStoredSettings();
+                this.loadProfileInfo();
+                this.showNotification('Settings loaded successfully', 'success');
+            } else {
+                throw new Error(data.error || 'Failed to load preferences');
+            }
+        } catch (error) {
+            console.error('Failed to load user settings:', error);
+            this.showNotification('Failed to load settings, using defaults', 'warning');
+            this.currentSettings = this.getDefaultSettings();
+            this.applyStoredSettings();
+        }
+    }
+
+    // Save settings to server
+    static async saveSettingsToServer() {
+        if (this.isLoading) return;
+
+        try {
+            this.isLoading = true;
+
+            const response = await fetch('/api/user/preferences', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(this.currentSettings)
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                throw new Error(data.error || 'Failed to save preferences');
+            }
+
+            console.log('⚙️ Settings saved to server');
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+            this.showNotification('Failed to save settings', 'error');
+        } finally {
+            this.isLoading = false;
+        }
+    }
+
+    // Debounced save function
+    static debouncedSave() {
+        if (this.debounceTimer) {
+            clearTimeout(this.debounceTimer);
+        }
+
+        this.debounceTimer = setTimeout(() => {
+            this.saveSettingsToServer();
+        }, 1000); // Save 1 second after last change
     }
 
     static setupEventListeners() {
@@ -1489,93 +1566,77 @@ class Settings {
             this.handleWallpaperUpload(e.target.files[0]);
         });
 
+        // Avatar upload
+        const avatarUpload = this.currentWindow.querySelector('#avatar-upload');
+        avatarUpload.addEventListener('change', (e) => {
+            this.handleAvatarUpload(e.target.files[0]);
+        });
+
         // Settings controls
         this.setupSettingControls();
     }
 
     static setupSettingControls() {
-        // Animations
-        const animationsToggle = this.currentWindow.querySelector('#animations-enabled');
-        animationsToggle.addEventListener('change', (e) => {
-            this.updateAnimations(e.target.checked);
-        });
-
-        // Transparency
-        const transparencySlider = this.currentWindow.querySelector('#transparency-slider');
-        transparencySlider.addEventListener('input', (e) => {
-            this.updateTransparency(e.target.value);
-        });
-
-        // Font settings
-        const fontFamily = this.currentWindow.querySelector('#font-family');
-        fontFamily.addEventListener('change', (e) => {
-            this.updateFontFamily(e.target.value);
-        });
-
-        const fontSize = this.currentWindow.querySelector('#font-size-slider');
-        fontSize.addEventListener('input', (e) => {
-            this.updateFontSize(e.target.value);
-        });
-
-        // Icon size
-        const iconSize = this.currentWindow.querySelector('#icon-size-slider');
-        iconSize.addEventListener('input', (e) => {
-            this.updateIconSize(e.target.value);
-        });
-
-        // Show icon labels
-        const showLabels = this.currentWindow.querySelector('#show-icon-labels');
-        showLabels.addEventListener('change', (e) => {
-            this.updateIconLabels(e.target.checked);
-        });
-
-        // Taskbar position
-        const taskbarPosition = this.currentWindow.querySelector('#taskbar-position');
-        taskbarPosition.addEventListener('change', (e) => {
-            this.updateTaskbarPosition(e.target.value);
-        });
-
-        // Notifications
-        const notificationsEnabled = this.currentWindow.querySelector('#enable-notifications');
-        notificationsEnabled.addEventListener('change', (e) => {
-            this.updateNotifications(e.target.checked);
-        });
-
-        // All other toggles and controls
-        this.setupAllControls();
-    }
-
-    static setupAllControls() {
-        const controls = [
-            { id: 'blur-effects', setting: 'blurEffects', type: 'toggle' },
-            { id: 'icon-shadows', setting: 'iconShadows', type: 'toggle' },
-            { id: 'auto-hide-taskbar', setting: 'autoHideTaskbar', type: 'toggle' },
-            { id: 'show-clock', setting: 'showClock', type: 'toggle' },
-            { id: 'snap-windows', setting: 'snapWindows', type: 'toggle' },
-            { id: 'restore-windows', setting: 'restoreWindows', type: 'toggle' },
-            { id: 'restore-session', setting: 'restoreSession', type: 'toggle' },
-            { id: 'startup-sound', setting: 'startupSound', type: 'toggle' },
-            { id: 'hardware-acceleration', setting: 'hardwareAcceleration', type: 'toggle' },
-            { id: 'auto-logout', setting: 'autoLogout', type: 'toggle' },
-            { id: 'remember-login', setting: 'rememberLogin', type: 'toggle' }
+        // All toggles
+        const toggles = [
+            { id: 'animations-enabled', setting: 'animationsEnabled', apply: this.updateAnimations },
+            { id: 'blur-effects', setting: 'blurEffects', apply: this.updateBlurEffects },
+            { id: 'show-icon-labels', setting: 'showIconLabels', apply: this.updateIconLabels },
+            { id: 'icon-shadows', setting: 'iconShadows', apply: this.updateIconShadows },
+            { id: 'auto-hide-taskbar', setting: 'autoHideTaskbar', apply: this.updateAutoHideTaskbar },
+            { id: 'show-clock', setting: 'showClock', apply: this.updateShowClock },
+            { id: 'snap-windows', setting: 'snapWindows' },
+            { id: 'restore-windows', setting: 'restoreWindows' },
+            { id: 'restore-session', setting: 'restoreSession' },
+            { id: 'startup-sound', setting: 'startupSound' },
+            { id: 'enable-notifications', setting: 'enableNotifications', apply: this.updateNotifications },
+            { id: 'hardware-acceleration', setting: 'hardwareAcceleration', apply: this.updateHardwareAcceleration },
+            { id: 'auto-logout', setting: 'autoLogout' },
+            { id: 'remember-login', setting: 'rememberLogin' }
         ];
 
-        controls.forEach(control => {
-            const element = this.currentWindow.querySelector(`#${control.id}`);
+        toggles.forEach(toggle => {
+            const element = this.currentWindow.querySelector(`#${toggle.id}`);
             if (element) {
                 element.addEventListener('change', (e) => {
-                    this.updateSetting(control.setting, e.target.checked);
+                    this.updateSetting(toggle.setting, e.target.checked);
+                    if (toggle.apply) {
+                        toggle.apply.call(this, e.target.checked);
+                    }
                 });
             }
         });
 
-        // Dropdown controls
+        // Sliders
+        const sliders = [
+            { id: 'transparency-slider', setting: 'transparency', apply: this.updateTransparency, valueId: 'transparency-value', unit: '%' },
+            { id: 'font-size-slider', setting: 'fontSize', apply: this.updateFontSize, valueId: 'font-size-value', unit: 'px' },
+            { id: 'icon-size-slider', setting: 'iconSize', apply: this.updateIconSize, valueId: 'icon-size-value', unit: 'px' }
+        ];
+
+        sliders.forEach(slider => {
+            const element = this.currentWindow.querySelector(`#${slider.id}`);
+            if (element) {
+                element.addEventListener('input', (e) => {
+                    const value = parseInt(e.target.value);
+                    this.updateSliderValue(slider.id, slider.valueId, slider.unit);
+                    this.updateSetting(slider.setting, value);
+                    if (slider.apply) {
+                        slider.apply.call(this, value);
+                    }
+                });
+            }
+        });
+
+        // Dropdowns
         const dropdowns = [
+            { id: 'font-family', setting: 'fontFamily', apply: this.updateFontFamily },
+            { id: 'taskbar-position', setting: 'taskbarPosition', apply: this.updateTaskbarPosition },
             { id: 'double-click-action', setting: 'doubleClickAction' },
             { id: 'session-timeout', setting: 'sessionTimeout' },
-            { id: 'notification-duration', setting: 'notificationDuration' },
-            { id: 'notification-position', setting: 'notificationPosition' },
-            { id: 'animation-quality', setting: 'animationQuality' },
+            { id: 'notification-duration', setting: 'notificationDuration', apply: this.updateNotificationDuration },
+            { id: 'notification-position', setting: 'notificationPosition', apply: this.updateNotificationPosition },
+            { id: 'animation-quality', setting: 'animationQuality', apply: this.updateAnimationQuality },
             { id: 'max-windows', setting: 'maxWindows' }
         ];
 
@@ -1584,25 +1645,403 @@ class Settings {
             if (element) {
                 element.addEventListener('change', (e) => {
                     this.updateSetting(dropdown.setting, e.target.value);
+                    if (dropdown.apply) {
+                        dropdown.apply.call(this, e.target.value);
+                    }
                 });
             }
         });
     }
 
-    static loadCurrentSettings() {
-        try {
-            const stored = localStorage.getItem('emberframe-settings');
-            this.currentSettings = stored ? JSON.parse(stored) : this.getDefaultSettings();
-            this.applyStoredSettings();
-        } catch (error) {
-            console.error('Failed to load settings:', error);
-            this.currentSettings = this.getDefaultSettings();
+    // Theme application
+    static selectTheme(themeName, save = true) {
+        // Update theme selector UI
+        this.currentWindow.querySelectorAll('.theme-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        const selectedOption = this.currentWindow.querySelector(`[data-theme="${themeName}"]`);
+        if (selectedOption) {
+            selectedOption.classList.add('active');
         }
+
+        // Apply theme to document
+        this.applyTheme(themeName);
+
+        if (save) {
+            this.updateSetting('theme', themeName);
+            this.showNotification('Theme changed successfully', 'success');
+        }
+    }
+
+    static applyTheme(themeName) {
+        const themes = {
+            'cyber-blue': {
+                primary: '#00ffff',
+                secondary: '#0066ff',
+                background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)'
+            },
+            'ember-red': {
+                primary: '#ff4500',
+                secondary: '#dc143c',
+                background: 'linear-gradient(135deg, #1a0a00 0%, #2d1a0a 100%)'
+            },
+            'matrix-green': {
+                primary: '#00ff00',
+                secondary: '#008800',
+                background: 'linear-gradient(135deg, #000000 0%, #001100 100%)'
+            },
+            'neon-purple': {
+                primary: '#8000ff',
+                secondary: '#4000cc',
+                background: 'linear-gradient(135deg, #0a0010 0%, #1a1030 100%)'
+            },
+            'ice-blue': {
+                primary: '#80e0ff',
+                secondary: '#4080ff',
+                background: 'linear-gradient(135deg, #050510 0%, #101530 100%)'
+            },
+            'ember-orange': {
+                primary: '#ff8c00',
+                secondary: '#ff4500',
+                background: 'linear-gradient(135deg, #1a1000 0%, #2d1a00 100%)'
+            }
+        };
+
+        const theme = themes[themeName] || themes['cyber-blue'];
+
+        // Apply to CSS variables
+        document.documentElement.style.setProperty('--primary-blue', theme.primary);
+        document.documentElement.style.setProperty('--neon-cyan', theme.secondary);
+        document.body.style.background = theme.background;
+
+        // Store in EmberFrame global
+        if (window.EmberFrame) {
+            window.EmberFrame.currentTheme = themeName;
+        }
+    }
+
+    // Apply all setting functions
+    static updateAnimations(enabled) {
+        document.documentElement.style.setProperty('--animation-duration', enabled ? '0.3s' : '0s');
+        if (enabled) {
+            document.body.classList.remove('no-animations');
+        } else {
+            document.body.classList.add('no-animations');
+        }
+    }
+
+    static updateTransparency(value) {
+        this.updateSliderValue('#transparency-slider', '#transparency-value', '%');
+        const opacity = (100 - parseInt(value)) / 100;
+        document.documentElement.style.setProperty('--window-opacity', opacity);
+
+        // Apply to existing windows
+        document.querySelectorAll('.window').forEach(window => {
+            window.style.opacity = opacity;
+        });
+    }
+
+    static updateBlurEffects(enabled) {
+        if (enabled) {
+            document.body.classList.remove('no-blur');
+        } else {
+            document.body.classList.add('no-blur');
+        }
+    }
+
+    static updateFontFamily(family) {
+        document.documentElement.style.setProperty('--system-font', family);
+        document.body.style.fontFamily = family;
+    }
+
+    static updateFontSize(size) {
+        this.updateSliderValue('#font-size-slider', '#font-size-value', 'px');
+        document.documentElement.style.setProperty('--base-font-size', size + 'px');
+        document.body.style.fontSize = size + 'px';
+    }
+
+    static updateIconSize(size) {
+        this.updateSliderValue('#icon-size-slider', '#icon-size-value', 'px');
+        document.documentElement.style.setProperty('--icon-size', size + 'px');
+
+        // Apply to existing icons
+        document.querySelectorAll('.icon-image').forEach(icon => {
+            icon.style.width = size + 'px';
+            icon.style.height = size + 'px';
+        });
+    }
+
+    static updateIconLabels(show) {
+        const labels = document.querySelectorAll('.icon-label');
+        labels.forEach(label => {
+            label.style.display = show ? 'block' : 'none';
+        });
+    }
+
+    static updateIconShadows(show) {
+        if (show) {
+            document.body.classList.remove('no-icon-shadows');
+        } else {
+            document.body.classList.add('no-icon-shadows');
+        }
+    }
+
+    static updateTaskbarPosition(position) {
+        const taskbar = document.querySelector('.taskbar');
+        if (taskbar) {
+            if (position === 'top') {
+                taskbar.style.bottom = 'auto';
+                taskbar.style.top = '0';
+                document.querySelector('.desktop').style.height = 'calc(100vh - var(--taskbar-height))';
+                document.querySelector('.desktop').style.top = 'var(--taskbar-height)';
+            } else {
+                taskbar.style.top = 'auto';
+                taskbar.style.bottom = '0';
+                document.querySelector('.desktop').style.height = 'calc(100vh - var(--taskbar-height))';
+                document.querySelector('.desktop').style.top = '0';
+            }
+        }
+        this.showNotification('Taskbar position updated', 'success');
+    }
+
+    static updateAutoHideTaskbar(enabled) {
+        const taskbar = document.querySelector('.taskbar');
+        if (taskbar) {
+            if (enabled) {
+                taskbar.classList.add('auto-hide');
+            } else {
+                taskbar.classList.remove('auto-hide');
+            }
+        }
+    }
+
+    static updateShowClock(show) {
+        const clock = document.querySelector('.time-display');
+        if (clock) {
+            clock.style.display = show ? 'block' : 'none';
+        }
+    }
+
+    static updateNotifications(enabled) {
+        if (window.NotificationSystem) {
+            window.NotificationSystem.enabled = enabled;
+        }
+    }
+
+    static updateNotificationDuration(duration) {
+        if (window.NotificationSystem) {
+            window.NotificationSystem.defaultDuration = parseInt(duration);
+        }
+    }
+
+    static updateNotificationPosition(position) {
+        if (window.NotificationSystem && window.NotificationSystem.container) {
+            const container = window.NotificationSystem.container;
+
+            // Reset all positions
+            container.style.top = 'auto';
+            container.style.bottom = 'auto';
+            container.style.left = 'auto';
+            container.style.right = 'auto';
+
+            // Apply new position
+            switch(position) {
+                case 'top-left':
+                    container.style.top = '20px';
+                    container.style.left = '20px';
+                    break;
+                case 'top-right':
+                    container.style.top = '20px';
+                    container.style.right = '20px';
+                    break;
+                case 'bottom-left':
+                    container.style.bottom = '90px';
+                    container.style.left = '20px';
+                    break;
+                case 'bottom-right':
+                    container.style.bottom = '90px';
+                    container.style.right = '20px';
+                    break;
+            }
+        }
+    }
+
+    static updateAnimationQuality(quality) {
+        document.body.className = document.body.className.replace(/animation-quality-\w+/g, '');
+        document.body.classList.add(`animation-quality-${quality}`);
+    }
+
+    static updateHardwareAcceleration(enabled) {
+        if (enabled) {
+            document.body.style.transform = 'translateZ(0)';
+        } else {
+            document.body.style.transform = 'none';
+        }
+    }
+
+    // Avatar upload functionality
+    static changeAvatar() {
+        const avatarUpload = this.currentWindow.querySelector('#avatar-upload');
+        avatarUpload.click();
+    }
+
+    static async handleAvatarUpload(file) {
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            this.showNotification('Please select a valid image file', 'error');
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            this.showNotification('Image file too large. Maximum size is 5MB.', 'error');
+            return;
+        }
+
+        try {
+            this.showLoadingMessage('Uploading avatar...');
+
+            const formData = new FormData();
+            formData.append('avatar', file);
+
+            const response = await fetch('/api/user/avatar', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.updateAvatarDisplay(data.avatar);
+                this.showNotification('Avatar updated successfully', 'success');
+            } else {
+                throw new Error(data.error || 'Failed to upload avatar');
+            }
+        } catch (error) {
+            console.error('Avatar upload failed:', error);
+            this.showNotification('Failed to upload avatar: ' + error.message, 'error');
+        }
+    }
+
+    static updateAvatarDisplay(avatarFilename) {
+        const avatarImage = this.currentWindow.querySelector('#avatar-image');
+        const avatarText = this.currentWindow.querySelector('#avatar-text');
+
+        if (avatarFilename) {
+            avatarImage.src = `/api/user/avatar/${avatarFilename}`;
+            avatarImage.style.display = 'block';
+            avatarText.style.display = 'none';
+        } else {
+            avatarImage.style.display = 'none';
+            avatarText.style.display = 'block';
+        }
+
+        // Update taskbar avatar if present
+        const taskbarAvatar = document.querySelector('.user-avatar');
+        if (taskbarAvatar && avatarFilename) {
+            taskbarAvatar.style.backgroundImage = `url(/api/user/avatar/${avatarFilename})`;
+            taskbarAvatar.style.backgroundSize = 'cover';
+            taskbarAvatar.textContent = '';
+        }
+    }
+
+    // Wallpaper functions
+    static switchWallpaperTab(tabName) {
+        // Update tab buttons
+        this.currentWindow.querySelectorAll('.wallpaper-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        this.currentWindow.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+        // Update content
+        this.currentWindow.querySelectorAll('.wallpaper-grid').forEach(grid => {
+            grid.style.display = 'none';
+        });
+        this.currentWindow.querySelector(`#wallpaper-${tabName}`).style.display = 'grid';
+    }
+
+    static loadWallpapers() {
+        this.loadGradientWallpapers();
+        this.loadPatternWallpapers();
+    }
+
+    static loadGradientWallpapers() {
+        const gradients = [
+            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+            'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
+            'linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%)'
+        ];
+
+        const container = this.currentWindow.querySelector('#wallpaper-gradients');
+        container.innerHTML = gradients.map((gradient, index) => `
+            <div class="wallpaper-item" data-wallpaper="gradient-${index}" style="background: ${gradient};" onclick="Settings.setWallpaper('gradient-${index}', '${gradient.replace(/'/g, "\\'")}')">
+            </div>
+        `).join('');
+    }
+
+    static loadPatternWallpapers() {
+        const patterns = [
+            'radial-gradient(circle, rgba(0,212,255,0.1) 1px, transparent 1px)',
+            'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,212,255,0.1) 10px, rgba(0,212,255,0.1) 20px)',
+            'conic-gradient(from 0deg, #0a0a0f, #1a1a2e, #0a0a0f)',
+            'linear-gradient(90deg, rgba(0,212,255,0.1) 50%, transparent 50%)'
+        ];
+
+        const container = this.currentWindow.querySelector('#wallpaper-patterns');
+        container.innerHTML = patterns.map((pattern, index) => `
+            <div class="wallpaper-item" data-wallpaper="pattern-${index}" style="background: ${pattern};" onclick="Settings.setWallpaper('pattern-${index}', '${pattern.replace(/'/g, "\\'")}')">
+            </div>
+        `).join('');
+    }
+
+    static setWallpaper(id, style) {
+        // Apply wallpaper
+        document.body.style.background = style;
+
+        // Update selection
+        this.currentWindow.querySelectorAll('.wallpaper-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        const selectedItem = this.currentWindow.querySelector(`[data-wallpaper="${id}"]`);
+        if (selectedItem) {
+            selectedItem.classList.add('selected');
+        }
+
+        // Save settings
+        this.updateSetting('wallpaper', id);
+        this.updateSetting('wallpaperStyle', style);
+        this.showNotification('Wallpaper changed', 'success');
+    }
+
+    static handleWallpaperUpload(file) {
+        if (!file || !file.type.startsWith('image/')) {
+            this.showNotification('Please select a valid image file', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const imageUrl = e.target.result;
+            const style = `url('${imageUrl}') center/cover no-repeat`;
+            this.setWallpaper('custom-' + Date.now(), style);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Utility functions
+    static updateSetting(key, value) {
+        this.currentSettings[key] = value;
+        this.debouncedSave();
     }
 
     static getDefaultSettings() {
         return {
-            theme: 'ember-red',
+            theme: 'cyber-blue',
             wallpaper: 'gradient-1',
             animationsEnabled: true,
             transparency: 0,
@@ -1633,7 +2072,7 @@ class Settings {
     }
 
     static applyStoredSettings() {
-        // Apply theme
+        // Apply theme first
         this.selectTheme(this.currentSettings.theme, false);
 
         // Apply form values
@@ -1668,8 +2107,30 @@ class Settings {
         this.updateSliderValue('#font-size-slider', '#font-size-value', 'px');
         this.updateSliderValue('#icon-size-slider', '#icon-size-value', 'px');
 
-        // Apply settings to page
+        // Apply wallpaper
+        if (this.currentSettings.wallpaperStyle) {
+            document.body.style.background = this.currentSettings.wallpaperStyle;
+        }
+
+        // Apply all visual settings
         this.applyCurrentSettings();
+    }
+
+    static applyCurrentSettings() {
+        this.updateAnimations(this.currentSettings.animationsEnabled);
+        this.updateTransparency(this.currentSettings.transparency);
+        this.updateBlurEffects(this.currentSettings.blurEffects);
+        this.updateFontFamily(this.currentSettings.fontFamily);
+        this.updateFontSize(this.currentSettings.fontSize);
+        this.updateIconSize(this.currentSettings.iconSize);
+        this.updateIconLabels(this.currentSettings.showIconLabels);
+        this.updateIconShadows(this.currentSettings.iconShadows);
+        this.updateShowClock(this.currentSettings.showClock);
+        this.updateNotifications(this.currentSettings.enableNotifications);
+        this.updateNotificationDuration(this.currentSettings.notificationDuration);
+        this.updateNotificationPosition(this.currentSettings.notificationPosition);
+        this.updateAnimationQuality(this.currentSettings.animationQuality);
+        this.updateHardwareAcceleration(this.currentSettings.hardwareAcceleration);
     }
 
     static setFormValue(selector, value) {
@@ -1691,228 +2152,54 @@ class Settings {
         }
     }
 
-    static selectTheme(themeName, save = true) {
-        // Update theme selector UI
-        this.currentWindow.querySelectorAll('.theme-option').forEach(option => {
-            option.classList.remove('active');
-        });
-        const selectedOption = this.currentWindow.querySelector(`[data-theme="${themeName}"]`);
-        if (selectedOption) {
-            selectedOption.classList.add('active');
+    static loadProfileInfo() {
+        if (!this.userInfo) return;
+
+        this.setElementText('#profile-username', this.userInfo.username);
+        this.setElementText('#profile-role', this.userInfo.isAdmin ? 'Administrator' : 'Standard User');
+
+        if (this.userInfo.createdAt) {
+            this.setElementText('#profile-created', new Date(this.userInfo.createdAt).toLocaleDateString());
         }
 
-        // Apply theme to document
-        this.applyTheme(themeName);
-
-        if (save) {
-            this.updateSetting('theme', themeName);
-            this.showNotification('Theme changed successfully', 'success');
-        }
-    }
-
-    static applyTheme(themeName) {
-        const themes = {
-            'ember-red': {
-                primary: '#ff4500',
-                secondary: '#dc143c',
-                background: 'linear-gradient(135deg, #1a0a00 0%, #2d1a0a 100%)'
-            },
-            'cyber-blue': {
-                primary: '#00ffff',
-                secondary: '#0066ff',
-                background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)'
-            },
-            'matrix-green': {
-                primary: '#00ff00',
-                secondary: '#008800',
-                background: 'linear-gradient(135deg, #000000 0%, #001100 100%)'
-            },
-            'neon-purple': {
-                primary: '#8000ff',
-                secondary: '#4000cc',
-                background: 'linear-gradient(135deg, #0a0010 0%, #1a1030 100%)'
-            },
-            'ice-blue': {
-                primary: '#80e0ff',
-                secondary: '#4080ff',
-                background: 'linear-gradient(135deg, #050510 0%, #101530 100%)'
-            },
-            'ember-orange': {
-                primary: '#ff8c00',
-                secondary: '#ff4500',
-                background: 'linear-gradient(135deg, #1a1000 0%, #2d1a00 100%)'
-            }
-        };
-
-        const theme = themes[themeName] || themes['ember-red'];
-
-        // Apply to document root
-        document.documentElement.style.setProperty('--primary-blue', theme.primary);
-        document.documentElement.style.setProperty('--neon-cyan', theme.secondary);
-        document.body.style.background = theme.background;
-    }
-
-    static switchWallpaperTab(tabName) {
-        // Update tab buttons
-        this.currentWindow.querySelectorAll('.wallpaper-tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        this.currentWindow.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-
-        // Update content
-        this.currentWindow.querySelectorAll('.wallpaper-grid').forEach(grid => {
-            grid.style.display = 'none';
-        });
-        this.currentWindow.querySelector(`#wallpaper-${tabName}`).style.display = 'grid';
-    }
-
-    static loadWallpapers() {
-        this.loadGradientWallpapers();
-        this.loadPatternWallpapers();
-    }
-
-    static loadGradientWallpapers() {
-        const gradients = [
-            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-            'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
-            'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
-            'linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%)'
-        ];
-
-        const container = this.currentWindow.querySelector('#wallpaper-gradients');
-        container.innerHTML = gradients.map((gradient, index) => `
-            <div class="wallpaper-item" data-wallpaper="gradient-${index}" style="background: ${gradient};" onclick="Settings.setWallpaper('gradient-${index}', '${gradient}')">
-            </div>
-        `).join('');
-    }
-
-    static loadPatternWallpapers() {
-        const patterns = [
-            'radial-gradient(circle, rgba(0,212,255,0.1) 1px, transparent 1px)',
-            'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,212,255,0.1) 10px, rgba(0,212,255,0.1) 20px)',
-            'conic-gradient(from 0deg, #0a0a0f, #1a1a2e, #0a0a0f)',
-            'linear-gradient(90deg, rgba(0,212,255,0.1) 50%, transparent 50%)'
-        ];
-
-        const container = this.currentWindow.querySelector('#wallpaper-patterns');
-        container.innerHTML = patterns.map((pattern, index) => `
-            <div class="wallpaper-item" data-wallpaper="pattern-${index}" style="background: ${pattern};" onclick="Settings.setWallpaper('pattern-${index}', '${pattern}')">
-            </div>
-        `).join('');
-    }
-
-    static setWallpaper(id, style) {
-        // Apply wallpaper
-        document.body.style.background = style;
-
-        // Update selection
-        this.currentWindow.querySelectorAll('.wallpaper-item').forEach(item => {
-            item.classList.remove('selected');
-        });
-        this.currentWindow.querySelector(`[data-wallpaper="${id}"]`).classList.add('selected');
-
-        // Save setting
-        this.updateSetting('wallpaper', id);
-        this.updateSetting('wallpaperStyle', style);
-        this.showNotification('Wallpaper changed', 'success');
-    }
-
-    static handleWallpaperUpload(file) {
-        if (!file || !file.type.startsWith('image/')) {
-            this.showNotification('Please select a valid image file', 'error');
-            return;
+        if (this.userInfo.lastLogin) {
+            this.setElementText('#profile-last-login', new Date(this.userInfo.lastLogin).toLocaleString());
         }
 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const imageUrl = e.target.result;
-            const style = `url('${imageUrl}') center/cover no-repeat`;
-            this.setWallpaper('custom-' + Date.now(), style);
-        };
-        reader.readAsDataURL(file);
-    }
-
-    static updateAnimations(enabled) {
-        document.documentElement.style.setProperty('--animation-duration', enabled ? '0.3s' : '0s');
-        this.updateSetting('animationsEnabled', enabled);
-    }
-
-    static updateTransparency(value) {
-        this.updateSliderValue('#transparency-slider', '#transparency-value', '%');
-
-        // Apply transparency to windows
-        const opacity = (100 - parseInt(value)) / 100;
-        document.documentElement.style.setProperty('--window-opacity', opacity);
-
-        this.updateSetting('transparency', parseInt(value));
-    }
-
-    static updateFontFamily(family) {
-        document.documentElement.style.setProperty('--system-font', family);
-        this.updateSetting('fontFamily', family);
-    }
-
-    static updateFontSize(size) {
-        this.updateSliderValue('#font-size-slider', '#font-size-value', 'px');
-        document.documentElement.style.setProperty('--base-font-size', size + 'px');
-        this.updateSetting('fontSize', parseInt(size));
-    }
-
-    static updateIconSize(size) {
-        this.updateSliderValue('#icon-size-slider', '#icon-size-value', 'px');
-        document.documentElement.style.setProperty('--icon-size', size + 'px');
-        this.updateSetting('iconSize', parseInt(size));
-    }
-
-    static updateIconLabels(show) {
-        const labels = document.querySelectorAll('.icon-label');
-        labels.forEach(label => {
-            label.style.display = show ? 'block' : 'none';
-        });
-        this.updateSetting('showIconLabels', show);
-    }
-
-    static updateTaskbarPosition(position) {
-        // This would require more complex DOM manipulation
-        this.showNotification('Taskbar position will be updated on next login', 'info');
-        this.updateSetting('taskbarPosition', position);
-    }
-
-    static updateNotifications(enabled) {
-        if (window.NotificationSystem) {
-            window.NotificationSystem.enabled = enabled;
+        // Set avatar
+        const avatarText = this.currentWindow.querySelector('#avatar-text');
+        if (avatarText) {
+            avatarText.textContent = this.userInfo.username.charAt(0).toUpperCase();
         }
-        this.updateSetting('enableNotifications', enabled);
-    }
 
-    static updateSetting(key, value) {
-        this.currentSettings[key] = value;
-        this.saveSettings();
-    }
-
-    static saveSettings() {
-        try {
-            localStorage.setItem('emberframe-settings', JSON.stringify(this.currentSettings));
-            console.log('⚙️ Settings saved:', this.currentSettings);
-        } catch (error) {
-            console.error('Failed to save settings:', error);
+        // Load avatar if exists
+        if (this.userInfo.avatar) {
+            this.updateAvatarDisplay(this.userInfo.avatar);
         }
+
+        // Load storage info (simulated for now)
+        this.loadStorageInfo();
     }
 
-    static applyCurrentSettings() {
-        // Apply all current settings to the interface
-        this.applyTheme(this.currentSettings.theme);
-        this.updateAnimations(this.currentSettings.animationsEnabled);
-        this.updateTransparency(this.currentSettings.transparency);
-        this.updateFontFamily(this.currentSettings.fontFamily);
-        this.updateFontSize(this.currentSettings.fontSize);
-        this.updateIconSize(this.currentSettings.iconSize);
-        this.updateIconLabels(this.currentSettings.showIconLabels);
-        this.updateNotifications(this.currentSettings.enableNotifications);
+    static loadStorageInfo() {
+        // Simulate storage usage
+        const usedMB = Math.floor(Math.random() * 50) + 10;
+        const totalMB = 100;
+        const availableMB = totalMB - usedMB;
+        const percentage = (usedMB / totalMB) * 100;
+
+        this.setElementText('#storage-used', usedMB + ' MB');
+        this.setElementText('#storage-available', availableMB + ' MB');
+
+        const storageBar = this.currentWindow.querySelector('#storage-bar');
+        if (storageBar) {
+            storageBar.style.width = percentage + '%';
+        }
+
+        // Breakdown
+        this.setElementText('#storage-documents', Math.floor(usedMB * 0.6) + ' MB');
+        this.setElementText('#storage-media', Math.floor(usedMB * 0.3) + ' MB');
+        this.setElementText('#storage-other', Math.floor(usedMB * 0.1) + ' MB');
     }
 
     static loadSystemInfo() {
@@ -1955,47 +2242,6 @@ class Settings {
         return 'Unknown';
     }
 
-    static loadProfileInfo() {
-        // Get current user info
-        const username = window.EmberFrame?.currentUser || 'User';
-        const isAdmin = window.EmberFrame?.isAdmin || false;
-
-        this.setElementText('#profile-username', username);
-        this.setElementText('#profile-role', isAdmin ? 'Administrator' : 'Standard User');
-        this.setElementText('#profile-created', new Date().toLocaleDateString());
-        this.setElementText('#profile-last-login', 'Now');
-
-        // Set avatar
-        const avatarText = this.currentWindow.querySelector('#avatar-text');
-        if (avatarText) {
-            avatarText.textContent = username.charAt(0).toUpperCase();
-        }
-
-        // Load storage info (simulated)
-        this.loadStorageInfo();
-    }
-
-    static loadStorageInfo() {
-        // Simulate storage usage
-        const usedMB = Math.floor(Math.random() * 50) + 10;
-        const totalMB = 100;
-        const availableMB = totalMB - usedMB;
-        const percentage = (usedMB / totalMB) * 100;
-
-        this.setElementText('#storage-used', usedMB + ' MB');
-        this.setElementText('#storage-available', availableMB + ' MB');
-
-        const storageBar = this.currentWindow.querySelector('#storage-bar');
-        if (storageBar) {
-            storageBar.style.width = percentage + '%';
-        }
-
-        // Breakdown
-        this.setElementText('#storage-documents', Math.floor(usedMB * 0.6) + ' MB');
-        this.setElementText('#storage-media', Math.floor(usedMB * 0.3) + ' MB');
-        this.setElementText('#storage-other', Math.floor(usedMB * 0.1) + ' MB');
-    }
-
     static startUptime() {
         setInterval(() => {
             const uptime = Date.now() - this.startTime;
@@ -2018,21 +2264,29 @@ class Settings {
     // Action Methods
     static clearCache() {
         if (confirm('Clear all cache and temporary files? This action cannot be undone.')) {
-            try {
-                localStorage.clear();
-                sessionStorage.clear();
-                this.showNotification('Cache cleared successfully', 'success');
-            } catch (error) {
-                this.showNotification('Failed to clear cache', 'error');
+            // Clear browser cache
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
+                });
             }
+
+            // Clear storage
+            localStorage.clear();
+            sessionStorage.clear();
+
+            this.showNotification('Cache cleared successfully', 'success');
         }
     }
 
     static exportSettings() {
         const data = {
             settings: this.currentSettings,
+            userInfo: this.userInfo,
             exported: new Date().toISOString(),
-            version: '1.2.0'
+            version: '1.3.0'
         };
 
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -2040,7 +2294,7 @@ class Settings {
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = `emberframe-settings-${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `emberframe-settings-${this.userInfo.username}-${new Date().toISOString().split('T')[0]}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -2049,23 +2303,24 @@ class Settings {
         this.showNotification('Settings exported successfully', 'success');
     }
 
-    static resetSettings() {
+    static async resetSettings() {
         if (confirm('Reset all settings to default values? This action cannot be undone.')) {
-            localStorage.removeItem('emberframe-settings');
-            this.currentSettings = this.getDefaultSettings();
-            this.applyStoredSettings();
-            this.showNotification('Settings reset to defaults', 'success');
+            try {
+                this.currentSettings = this.getDefaultSettings();
+                await this.saveSettingsToServer();
+                this.applyStoredSettings();
+                this.showNotification('Settings reset to defaults', 'success');
+            } catch (error) {
+                this.showNotification('Failed to reset settings', 'error');
+            }
         }
     }
 
-    static changeAvatar() {
-        this.showNotification('Avatar customization coming in future update', 'info');
-    }
-
-    static changePassword() {
+    static async changePassword() {
         const newPassword = prompt('Enter new password (minimum 6 characters):');
         if (newPassword && newPassword.length >= 6) {
-            this.showNotification('Password changed successfully', 'success');
+            // TODO: Implement password change API
+            this.showNotification('Password change functionality coming soon', 'info');
         } else if (newPassword) {
             this.showNotification('Password must be at least 6 characters', 'error');
         }
@@ -2087,9 +2342,10 @@ class Settings {
     }
 
     static sendFeedback() {
-        this.showNotification('Feedback system not yet implemented', 'info');
+        this.showNotification('Feedback system coming in future update', 'info');
     }
 
+    // Utility functions
     static showNotification(message, type = 'info', duration = 4000) {
         if (window.Notification) {
             return window.Notification.show(message, type, duration);
@@ -2099,10 +2355,14 @@ class Settings {
         }
     }
 
+    static showLoadingMessage(message) {
+        console.log(`Loading: ${message}`);
+    }
+
     static onClose(windowElement) {
         // Cleanup
-        if (this.uptimeInterval) {
-            clearInterval(this.uptimeInterval);
+        if (this.debounceTimer) {
+            clearTimeout(this.debounceTimer);
         }
         return true;
     }
