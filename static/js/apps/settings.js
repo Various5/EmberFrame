@@ -1,684 +1,1419 @@
-// Enhanced Settings Application with Wallpaper Management
+// Complete EmberFrame Settings Application - Fully Functional
 class Settings {
     static createWindow() {
         return {
-            title: 'Settings',
-            width: '800px',
-            height: '600px',
+            title: 'EmberFrame Settings',
+            width: '900px',
+            height: '700px',
             autoSize: false,
             content: `
-                <div class="settings">
+                <div class="settings-app">
                     <div class="settings-sidebar">
                         <div class="settings-nav">
-                            <div class="settings-nav-item active" data-section="appearance">🎨 Appearance</div>
-                            <div class="settings-nav-item" data-section="desktop">🖥️ Desktop</div>
-                            <div class="settings-nav-item" data-section="system">⚙️ System</div>
-                            <div class="settings-nav-item" data-section="account">👤 Account</div>
-                            <div class="settings-nav-item" data-section="about">ℹ️ About</div>
+                            <div class="settings-nav-item active" data-section="appearance">
+                                <i class="fas fa-palette"></i>
+                                <span>Appearance</span>
+                            </div>
+                            <div class="settings-nav-item" data-section="desktop">
+                                <i class="fas fa-desktop"></i>
+                                <span>Desktop</span>
+                            </div>
+                            <div class="settings-nav-item" data-section="system">
+                                <i class="fas fa-cog"></i>
+                                <span>System</span>
+                            </div>
+                            <div class="settings-nav-item" data-section="account">
+                                <i class="fas fa-user"></i>
+                                <span>Account</span>
+                            </div>
+                            <div class="settings-nav-item" data-section="about">
+                                <i class="fas fa-info-circle"></i>
+                                <span>About</span>
+                            </div>
                         </div>
                     </div>
+                    
                     <div class="settings-content">
                         <!-- Appearance Section -->
-                        <div class="settings-section" id="appearance-section">
-                            <h2>Appearance</h2>
-                            
-                            <div class="setting-group">
-                                <label>Theme:</label>
-                                <select id="theme-select" onchange="Settings.changeTheme(this.value)">
-                                    <option value="default">Default Blue</option>
-                                    <option value="dark">Dark Mode</option>
-                                    <option value="light">Light Mode</option>
-                                    <option value="purple">Purple</option>
-                                    <option value="green">Green</option>
-                                    <option value="orange">Orange</option>
-                                </select>
+                        <div class="settings-section active" id="appearance-section">
+                            <div class="section-header">
+                                <h2><i class="fas fa-palette"></i> Appearance Settings</h2>
+                                <p>Customize the visual appearance of your EmberFrame desktop</p>
                             </div>
                             
                             <div class="setting-group">
-                                <label>Desktop Background:</label>
+                                <div class="setting-label">
+                                    <h3>Theme Selection</h3>
+                                    <p>Choose your preferred color theme</p>
+                                </div>
+                                <div class="theme-selector">
+                                    <div class="theme-option active" data-theme="ember-red">
+                                        <div class="theme-preview" style="background: linear-gradient(135deg, #ff4500, #dc143c);"></div>
+                                        <span>Ember Red</span>
+                                    </div>
+                                    <div class="theme-option" data-theme="cyber-blue">
+                                        <div class="theme-preview" style="background: linear-gradient(135deg, #00ffff, #0066ff);"></div>
+                                        <span>Cyber Blue</span>
+                                    </div>
+                                    <div class="theme-option" data-theme="matrix-green">
+                                        <div class="theme-preview" style="background: linear-gradient(135deg, #00ff00, #008800);"></div>
+                                        <span>Matrix Green</span>
+                                    </div>
+                                    <div class="theme-option" data-theme="neon-purple">
+                                        <div class="theme-preview" style="background: linear-gradient(135deg, #8000ff, #4000cc);"></div>
+                                        <span>Neon Purple</span>
+                                    </div>
+                                    <div class="theme-option" data-theme="ice-blue">
+                                        <div class="theme-preview" style="background: linear-gradient(135deg, #80e0ff, #4080ff);"></div>
+                                        <span>Ice Blue</span>
+                                    </div>
+                                    <div class="theme-option" data-theme="ember-orange">
+                                        <div class="theme-preview" style="background: linear-gradient(135deg, #ff8c00, #ff4500);"></div>
+                                        <span>Ember Orange</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <div class="setting-label">
+                                    <h3>Desktop Background</h3>
+                                    <p>Select or upload custom wallpapers</p>
+                                </div>
                                 <div class="wallpaper-section">
-                                    <div class="wallpaper-controls">
-                                        <button onclick="Settings.uploadWallpaper()" class="upload-btn">
-                                            📤 Upload Wallpaper
-                                        </button>
-                                        <button onclick="Settings.loadWallpapers()" class="refresh-btn">
-                                            🔄 Refresh
+                                    <div class="wallpaper-tabs">
+                                        <button class="wallpaper-tab active" data-tab="gradients">Gradients</button>
+                                        <button class="wallpaper-tab" data-tab="patterns">Patterns</button>
+                                        <button class="wallpaper-tab" data-tab="custom">Custom</button>
+                                    </div>
+                                    
+                                    <div class="wallpaper-content">
+                                        <div class="wallpaper-grid" id="wallpaper-gradients">
+                                            <!-- Gradient wallpapers will be loaded here -->
+                                        </div>
+                                        <div class="wallpaper-grid" id="wallpaper-patterns" style="display: none;">
+                                            <!-- Pattern wallpapers will be loaded here -->
+                                        </div>
+                                        <div class="wallpaper-grid" id="wallpaper-custom" style="display: none;">
+                                            <div class="upload-wallpaper" id="upload-wallpaper">
+                                                <i class="fas fa-cloud-upload-alt"></i>
+                                                <span>Upload Custom Wallpaper</span>
+                                                <input type="file" id="wallpaper-upload" accept="image/*" style="display: none;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <div class="setting-label">
+                                    <h3>Visual Effects</h3>
+                                    <p>Control animations and transparency</p>
+                                </div>
+                                <div class="setting-controls">
+                                    <div class="setting-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="animations-enabled" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <div class="setting-info">
+                                            <span>Enable Animations</span>
+                                            <small>Smooth transitions and window effects</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="slider-control">
+                                            <label>Window Transparency</label>
+                                            <input type="range" id="transparency-slider" min="0" max="50" value="0">
+                                            <span id="transparency-value">0%</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="blur-effects" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <div class="setting-info">
+                                            <span>Blur Effects</span>
+                                            <small>Background blur for windows and menus</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <div class="setting-label">
+                                    <h3>Font Settings</h3>
+                                    <p>Customize text appearance</p>
+                                </div>
+                                <div class="setting-controls">
+                                    <div class="setting-item">
+                                        <div class="dropdown-control">
+                                            <label>System Font</label>
+                                            <select id="font-family">
+                                                <option value="Rajdhani">Rajdhani (Default)</option>
+                                                <option value="Orbitron">Orbitron</option>
+                                                <option value="system">System Default</option>
+                                                <option value="monospace">Monospace</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="slider-control">
+                                            <label>Font Size</label>
+                                            <input type="range" id="font-size-slider" min="12" max="18" value="14">
+                                            <span id="font-size-value">14px</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Desktop Section -->
+                        <div class="settings-section" id="desktop-section">
+                            <div class="section-header">
+                                <h2><i class="fas fa-desktop"></i> Desktop Settings</h2>
+                                <p>Configure your desktop environment and layout</p>
+                            </div>
+
+                            <div class="setting-group">
+                                <div class="setting-label">
+                                    <h3>Icon Settings</h3>
+                                    <p>Customize desktop icon appearance</p>
+                                </div>
+                                <div class="setting-controls">
+                                    <div class="setting-item">
+                                        <div class="slider-control">
+                                            <label>Icon Size</label>
+                                            <input type="range" id="icon-size-slider" min="32" max="80" value="48">
+                                            <span id="icon-size-value">48px</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="show-icon-labels" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <div class="setting-info">
+                                            <span>Show Icon Labels</span>
+                                            <small>Display text labels under desktop icons</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="icon-shadows" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <div class="setting-info">
+                                            <span>Icon Shadows</span>
+                                            <small>Add shadow effects to desktop icons</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <div class="setting-label">
+                                    <h3>Taskbar Configuration</h3>
+                                    <p>Customize the taskbar appearance and behavior</p>
+                                </div>
+                                <div class="setting-controls">
+                                    <div class="setting-item">
+                                        <div class="dropdown-control">
+                                            <label>Taskbar Position</label>
+                                            <select id="taskbar-position">
+                                                <option value="bottom">Bottom</option>
+                                                <option value="top">Top</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="auto-hide-taskbar">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <div class="setting-info">
+                                            <span>Auto-hide Taskbar</span>
+                                            <small>Hide taskbar when not in use</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="show-clock" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <div class="setting-info">
+                                            <span>Show Clock</span>
+                                            <small>Display time in the system tray</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <div class="setting-label">
+                                    <h3>Window Behavior</h3>
+                                    <p>Control how windows behave</p>
+                                </div>
+                                <div class="setting-controls">
+                                    <div class="setting-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="snap-windows" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <div class="setting-info">
+                                            <span>Snap Windows</span>
+                                            <small>Automatically align windows when dragging</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="restore-windows" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <div class="setting-info">
+                                            <span>Restore Windows</span>
+                                            <small>Remember window positions between sessions</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="dropdown-control">
+                                            <label>Double-click Action</label>
+                                            <select id="double-click-action">
+                                                <option value="maximize">Maximize Window</option>
+                                                <option value="minimize">Minimize Window</option>
+                                                <option value="none">No Action</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Section -->
+                        <div class="settings-section" id="system-section">
+                            <div class="section-header">
+                                <h2><i class="fas fa-cog"></i> System Settings</h2>
+                                <p>Configure system behavior and preferences</p>
+                            </div>
+
+                            <div class="setting-group">
+                                <div class="setting-label">
+                                    <h3>Startup & Session</h3>
+                                    <p>Control what happens when EmberFrame starts</p>
+                                </div>
+                                <div class="setting-controls">
+                                    <div class="setting-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="restore-session" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <div class="setting-info">
+                                            <span>Restore Previous Session</span>
+                                            <small>Reopen windows from your last session</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="startup-sound">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <div class="setting-info">
+                                            <span>Startup Sound</span>
+                                            <small>Play sound when EmberFrame loads</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="dropdown-control">
+                                            <label>Session Timeout</label>
+                                            <select id="session-timeout">
+                                                <option value="30">30 minutes</option>
+                                                <option value="60">1 hour</option>
+                                                <option value="240">4 hours</option>
+                                                <option value="1440">24 hours</option>
+                                                <option value="0">Never</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <div class="setting-label">
+                                    <h3>Notifications</h3>
+                                    <p>Control how notifications appear</p>
+                                </div>
+                                <div class="setting-controls">
+                                    <div class="setting-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="enable-notifications" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <div class="setting-info">
+                                            <span>Enable Notifications</span>
+                                            <small>Show system notifications</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="dropdown-control">
+                                            <label>Notification Duration</label>
+                                            <select id="notification-duration">
+                                                <option value="2000">2 seconds</option>
+                                                <option value="4000">4 seconds</option>
+                                                <option value="6000">6 seconds</option>
+                                                <option value="10000">10 seconds</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="dropdown-control">
+                                            <label>Notification Position</label>
+                                            <select id="notification-position">
+                                                <option value="top-right">Top Right</option>
+                                                <option value="top-left">Top Left</option>
+                                                <option value="bottom-right">Bottom Right</option>
+                                                <option value="bottom-left">Bottom Left</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <div class="setting-label">
+                                    <h3>Performance</h3>
+                                    <p>Optimize system performance</p>
+                                </div>
+                                <div class="setting-controls">
+                                    <div class="setting-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="hardware-acceleration" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <div class="setting-info">
+                                            <span>Hardware Acceleration</span>
+                                            <small>Use GPU for better performance</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="dropdown-control">
+                                            <label>Animation Quality</label>
+                                            <select id="animation-quality">
+                                                <option value="high">High Quality</option>
+                                                <option value="medium">Medium Quality</option>
+                                                <option value="low">Low Quality</option>
+                                                <option value="none">Disabled</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <div class="dropdown-control">
+                                            <label>Max Windows</label>
+                                            <select id="max-windows">
+                                                <option value="5">5 windows</option>
+                                                <option value="10">10 windows</option>
+                                                <option value="20">20 windows</option>
+                                                <option value="0">Unlimited</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <div class="setting-label">
+                                    <h3>Data Management</h3>
+                                    <p>Manage your data and cache</p>
+                                </div>
+                                <div class="setting-controls">
+                                    <div class="setting-item">
+                                        <button class="action-button" onclick="Settings.clearCache()">
+                                            <i class="fas fa-trash"></i>
+                                            Clear Cache & Temporary Files
                                         </button>
                                     </div>
                                     
-                                    <div class="wallpaper-categories">
-                                        <div class="category-tabs">
-                                            <button class="tab-btn active" onclick="Settings.showWallpaperCategory('default')">
-                                                Default
-                                            </button>
-                                            <button class="tab-btn" onclick="Settings.showWallpaperCategory('user')">
-                                                My Wallpapers
-                                            </button>
-                                            <button class="tab-btn" onclick="Settings.showWallpaperCategory('gradients')">
-                                                Gradients
-                                            </button>
-                                        </div>
-                                        
-                                        <div class="wallpaper-grid" id="wallpaper-grid">
-                                            <div class="wallpaper-loading">Loading wallpapers...</div>
-                                        </div>
+                                    <div class="setting-item">
+                                        <button class="action-button" onclick="Settings.exportSettings()">
+                                            <i class="fas fa-download"></i>
+                                            Export Settings
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <button class="action-button danger" onclick="Settings.resetSettings()">
+                                            <i class="fas fa-undo"></i>
+                                            Reset All Settings
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="setting-group">
-                                <label>
-                                    <input type="checkbox" id="animations-checkbox" checked onchange="Settings.toggleAnimations(this.checked)">
-                                    Enable animations and transitions
-                                </label>
-                            </div>
-                            
-                            <div class="setting-group">
-                                <label>Window Transparency:</label>
-                                <input type="range" id="transparency-slider" min="0" max="100" value="0" 
-                                       onchange="Settings.changeTransparency(this.value)">
-                                <span id="transparency-value">0%</span>
-                            </div>
                         </div>
-                        
-                        <!-- Desktop Section -->
-                        <div class="settings-section" id="desktop-section" style="display: none;">
-                            <h2>Desktop</h2>
-                            
-                            <div class="setting-group">
-                                <label>Icon Size:</label>
-                                <input type="range" id="icon-size" min="32" max="80" value="48" 
-                                       onchange="Settings.changeIconSize(this.value)">
-                                <span id="icon-size-value">48px</span>
-                            </div>
-                            
-                            <div class="setting-group">
-                                <label>
-                                    <input type="checkbox" id="show-desktop-labels" checked 
-                                           onchange="Settings.toggleDesktopLabels(this.checked)">
-                                    Show desktop icon labels
-                                </label>
-                            </div>
-                            
-                            <div class="setting-group">
-                                <label>Desktop Layout:</label>
-                                <div class="layout-options">
-                                    <button onclick="Settings.arrangeIcons('grid')" class="layout-btn">
-                                        📱 Grid Layout
-                                    </button>
-                                    <button onclick="Settings.arrangeIcons('column')" class="layout-btn">
-                                        📋 Column Layout
-                                    </button>
-                                    <button onclick="Settings.arrangeIcons('free')" class="layout-btn">
-                                        🎯 Free Position
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="setting-group">
-                                <label>Taskbar Position:</label>
-                                <select id="taskbar-position" onchange="Settings.changeTaskbarPosition(this.value)">
-                                    <option value="bottom">Bottom</option>
-                                    <option value="top">Top</option>
-                                    <option value="left">Left</option>
-                                    <option value="right">Right</option>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <!-- System Section -->
-                        <div class="settings-section" id="system-section" style="display: none;">
-                            <h2>System</h2>
-                            
-                            <div class="setting-group">
-                                <label>Default Applications:</label>
-                                <div class="app-defaults">
-                                    <div class="default-app-row">
-                                        <span>Text files (.txt, .md):</span>
-                                        <select>
-                                            <option>Text Editor</option>
-                                            <option>External Editor</option>
-                                        </select>
-                                    </div>
-                                    <div class="default-app-row">
-                                        <span>Image files (.jpg, .png):</span>
-                                        <select>
-                                            <option>Image Viewer</option>
-                                            <option>External Viewer</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="setting-group">
-                                <label>Startup Options:</label>
-                                <div class="startup-options">
-                                    <label>
-                                        <input type="checkbox" id="startup-sound" onchange="Settings.toggleStartupSound(this.checked)">
-                                        Play startup sound
-                                    </label>
-                                    <label>
-                                        <input type="checkbox" id="auto-login" onchange="Settings.toggleAutoLogin(this.checked)">
-                                        Remember login (auto-login)
-                                    </label>
-                                    <label>
-                                        <input type="checkbox" id="restore-windows" onchange="Settings.toggleRestoreWindows(this.checked)">
-                                        Restore previous session windows
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="setting-group">
-                                <label>Privacy & Security:</label>
-                                <div class="privacy-options">
-                                    <button onclick="Settings.clearCache()" class="danger-button">
-                                        🗑️ Clear Cache & Temporary Files
-                                    </button>
-                                    <button onclick="Settings.clearHistory()" class="danger-button">
-                                        📜 Clear Command History
-                                    </button>
-                                    <button onclick="Settings.exportData()" class="info-button">
-                                        📦 Export User Data
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="setting-group">
-                                <label>System Actions:</label>
-                                <div class="system-actions">
-                                    <button onclick="Settings.resetSettings()" class="danger-button">
-                                        ⚠️ Reset All Settings
-                                    </button>
-                                    <button onclick="Settings.restartSystem()" class="warning-button">
-                                        🔄 Restart EmberFrame
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
+
                         <!-- Account Section -->
-                        <div class="settings-section" id="account-section" style="display: none;">
-                            <h2>Account Settings</h2>
-                            
+                        <div class="settings-section" id="account-section">
+                            <div class="section-header">
+                                <h2><i class="fas fa-user"></i> Account Settings</h2>
+                                <p>Manage your user profile and account information</p>
+                            </div>
+
                             <div class="setting-group">
-                                <label>Profile Information:</label>
-                                <div class="profile-info">
+                                <div class="setting-label">
+                                    <h3>Profile Information</h3>
+                                    <p>Your account details and avatar</p>
+                                </div>
+                                <div class="profile-card">
                                     <div class="profile-avatar">
-                                        <div class="avatar-circle">👤</div>
-                                        <button onclick="Settings.changeAvatar()">Change Avatar</button>
+                                        <div class="avatar-display" id="current-avatar">
+                                            <span id="avatar-text">?</span>
+                                        </div>
+                                        <button class="change-avatar-btn" onclick="Settings.changeAvatar()">
+                                            <i class="fas fa-camera"></i>
+                                        </button>
                                     </div>
                                     <div class="profile-details">
-                                        <div class="detail-row">
-                                            <label>Username:</label>
-                                            <span id="current-username">Loading...</span>
+                                        <div class="profile-field">
+                                            <label>Username</label>
+                                            <span id="profile-username">Loading...</span>
                                         </div>
-                                        <div class="detail-row">
-                                            <label>Account Created:</label>
-                                            <span id="account-created">Loading...</span>
+                                        <div class="profile-field">
+                                            <label>Account Type</label>
+                                            <span id="profile-role">Loading...</span>
                                         </div>
-                                        <div class="detail-row">
-                                            <label>Last Login:</label>
-                                            <span id="last-login">Now</span>
+                                        <div class="profile-field">
+                                            <label>Member Since</label>
+                                            <span id="profile-created">Loading...</span>
+                                        </div>
+                                        <div class="profile-field">
+                                            <label>Last Login</label>
+                                            <span id="profile-last-login">Loading...</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="setting-group">
-                                <label>Storage Usage:</label>
+                                <div class="setting-label">
+                                    <h3>Storage Usage</h3>
+                                    <p>Monitor your file storage usage</p>
+                                </div>
                                 <div class="storage-info">
                                     <div class="storage-bar">
-                                        <div class="storage-used" id="storage-used-bar" style="width: 25%"></div>
+                                        <div class="storage-used" id="storage-bar" style="width: 0%"></div>
                                     </div>
                                     <div class="storage-details">
-                                        <span id="storage-used">0 MB</span> of <span id="storage-total">100 MB</span> used
+                                        <span>Used: <strong id="storage-used">0 MB</strong></span>
+                                        <span>Available: <strong id="storage-available">100 MB</strong></span>
+                                    </div>
+                                    <div class="storage-breakdown">
+                                        <div class="breakdown-item">
+                                            <span class="breakdown-label">Documents</span>
+                                            <span class="breakdown-value" id="storage-documents">0 MB</span>
+                                        </div>
+                                        <div class="breakdown-item">
+                                            <span class="breakdown-label">Media</span>
+                                            <span class="breakdown-value" id="storage-media">0 MB</span>
+                                        </div>
+                                        <div class="breakdown-item">
+                                            <span class="breakdown-label">Other</span>
+                                            <span class="breakdown-value" id="storage-other">0 MB</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="setting-group">
-                                <label>Security:</label>
-                                <div class="security-options">
-                                    <button onclick="Settings.changePassword()" class="primary-button">
-                                        🔐 Change Password
-                                    </button>
-                                    <button onclick="Settings.enableTwoFactor()" class="info-button">
-                                        🔒 Enable Two-Factor Auth
-                                    </button>
+                                <div class="setting-label">
+                                    <h3>Security</h3>
+                                    <p>Manage your account security</p>
+                                </div>
+                                <div class="setting-controls">
+                                    <div class="setting-item">
+                                        <button class="action-button" onclick="Settings.changePassword()">
+                                            <i class="fas fa-key"></i>
+                                            Change Password
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="auto-logout">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <div class="setting-info">
+                                            <span>Auto Logout</span>
+                                            <small>Automatically sign out after inactivity</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setting-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="remember-login" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                        <div class="setting-info">
+                                            <span>Remember Login</span>
+                                            <small>Stay signed in across browser sessions</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- About Section -->
-                        <div class="settings-section" id="about-section" style="display: none;">
-                            <h2>About EmberFrame</h2>
-                            <div class="about-info">
-                                <div class="about-logo">🔥</div>
-                                <h3>EmberFrame Desktop Environment</h3>
-                                <p><strong>Version:</strong> 1.0.0</p>
-                                <p><strong>Build:</strong> ${new Date().toISOString().split('T')[0]}</p>
-                                <p><strong>Platform:</strong> Web Browser</p>
-                                <p><strong>Engine:</strong> JavaScript/HTML5</p>
-                                <p><strong>Memory Usage:</strong> <span id="memory-usage">Loading...</span></p>
-                                <p><strong>Uptime:</strong> <span id="system-uptime">0:00:00</span></p>
-                                
+                        <div class="settings-section" id="about-section">
+                            <div class="section-header">
+                                <h2><i class="fas fa-info-circle"></i> About EmberFrame</h2>
+                                <p>System information and details</p>
+                            </div>
+
+                            <div class="about-content">
+                                <div class="about-logo">
+                                    <div class="logo-icon">🔥</div>
+                                    <h3>EmberFrame Desktop Environment</h3>
+                                    <p class="version-info">Version <strong>1.2.0</strong> • Build <strong>2024.12</strong></p>
+                                </div>
+
+                                <div class="system-info">
+                                    <div class="info-grid">
+                                        <div class="info-item">
+                                            <label>Platform</label>
+                                            <span id="platform-info">Loading...</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Browser</label>
+                                            <span id="browser-info">Loading...</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Screen Resolution</label>
+                                            <span id="screen-info">Loading...</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Memory Usage</label>
+                                            <span id="memory-info">Loading...</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Session Uptime</label>
+                                            <span id="uptime-info">Loading...</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <label>Connection</label>
+                                            <span id="connection-info">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class="about-description">
-                                    <p>EmberFrame is a modern web-based desktop environment that brings the familiar desktop experience to your browser with real file system integration, user management, and a complete suite of applications.</p>
+                                    <h4>About EmberFrame</h4>
+                                    <p>EmberFrame is a cutting-edge web-based desktop environment that brings the power and familiarity of traditional desktop computing to your browser. Built with modern web technologies, it provides a complete operating system experience with real file management, multi-user support, and a comprehensive suite of productivity applications.</p>
                                     
-                                    <h4>Features:</h4>
+                                    <h4>Key Features</h4>
                                     <ul>
-                                        <li>Real file system with user directories</li>
-                                        <li>Multi-user support with authentication</li>
-                                        <li>Draggable and resizable windows</li>
-                                        <li>Terminal with real command execution</li>
-                                        <li>Text editor with syntax highlighting</li>
-                                        <li>File manager with drag & drop</li>
-                                        <li>Customizable themes and wallpapers</li>
-                                        <li>Notification system</li>
+                                        <li>Complete desktop environment with window management</li>
+                                        <li>Real file system integration with user directories</li>
+                                        <li>Multi-user support with secure authentication</li>
+                                        <li>Built-in applications: Terminal, Text Editor, Media Player</li>
+                                        <li>Customizable themes and desktop layouts</li>
+                                        <li>Mobile-responsive design</li>
+                                        <li>Real-time notifications and system tray</li>
+                                        <li>Drag-and-drop file operations</li>
                                     </ul>
-                                    
-                                    <h4>Technical Stack:</h4>
+
+                                    <h4>Technology Stack</h4>
                                     <ul>
-                                        <li>Frontend: HTML5, CSS3, JavaScript</li>
-                                        <li>Backend: Python Flask</li>
-                                        <li>WebSocket: Flask-SocketIO</li>
-                                        <li>Storage: File system + JSON</li>
+                                        <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript ES6+</li>
+                                        <li><strong>Backend:</strong> Python Flask with Socket.IO</li>
+                                        <li><strong>UI Framework:</strong> Custom component system</li>
+                                        <li><strong>Real-time:</strong> WebSocket communication</li>
+                                        <li><strong>Storage:</strong> File system integration</li>
                                     </ul>
                                 </div>
-                                
-                                <div class="about-links">
-                                    <button onclick="Settings.showLicense()" class="info-button">
-                                        📄 License Information
+
+                                <div class="about-actions">
+                                    <button class="action-button" onclick="Settings.checkUpdates()">
+                                        <i class="fas fa-sync"></i>
+                                        Check for Updates
                                     </button>
-                                    <button onclick="Settings.checkUpdates()" class="primary-button">
-                                        🔄 Check for Updates
+                                    <button class="action-button" onclick="Settings.viewLicense()">
+                                        <i class="fas fa-file-contract"></i>
+                                        View License
+                                    </button>
+                                    <button class="action-button" onclick="Settings.sendFeedback()">
+                                        <i class="fas fa-comment"></i>
+                                        Send Feedback
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Hidden file input for wallpaper upload -->
-                <input type="file" id="wallpaper-upload-input" accept="image/*" style="display: none;" multiple>
-                
+
                 <style>
-                    .settings {
-                        display: flex;
+                    .settings-app {
                         height: 100%;
-                        background: #fff;
+                        display: flex;
+                        background: linear-gradient(135deg, #0a0a0f 0%, #141420 50%, #1a1a2e 100%);
+                        color: #ffffff;
+                        font-family: 'Rajdhani', sans-serif;
+                        overflow: hidden;
                     }
+
                     .settings-sidebar {
-                        width: 200px;
-                        background: #f8f9fa;
-                        border-right: 1px solid #dee2e6;
-                        overflow-y: auto;
+                        width: 240px;
+                        background: rgba(0, 0, 0, 0.4);
+                        border-right: 1px solid rgba(0, 212, 255, 0.3);
+                        backdrop-filter: blur(10px);
                     }
+
                     .settings-nav {
                         padding: 20px 0;
                     }
+
                     .settings-nav-item {
-                        padding: 12px 20px;
-                        cursor: pointer;
-                        transition: background-color 0.2s;
-                        font-size: 14px;
                         display: flex;
                         align-items: center;
-                        gap: 8px;
-                    }
-                    .settings-nav-item:hover {
-                        background: #e9ecef;
-                    }
-                    .settings-nav-item.active {
-                        background: #007bff;
-                        color: white;
-                    }
-                    .settings-content {
-                        flex: 1;
-                        padding: 30px;
-                        overflow-y: auto;
-                    }
-                    .settings-section h2 {
-                        margin-bottom: 30px;
-                        color: #333;
-                        font-size: 24px;
-                        border-bottom: 2px solid #007bff;
-                        padding-bottom: 10px;
-                    }
-                    .setting-group {
-                        margin-bottom: 25px;
-                        padding: 20px;
-                        background: #f8f9fa;
-                        border-radius: 8px;
-                        border: 1px solid #e9ecef;
-                    }
-                    .setting-group label {
-                        display: block;
-                        margin-bottom: 10px;
-                        font-weight: 600;
-                        color: #495057;
-                    }
-                    .setting-group select, .setting-group input[type="range"] {
-                        width: 200px;
-                        padding: 8px;
-                        border: 1px solid #ced4da;
-                        border-radius: 4px;
-                        font-size: 14px;
-                    }
-                    
-                    /* Wallpaper section */
-                    .wallpaper-section {
-                        margin-top: 15px;
-                    }
-                    .wallpaper-controls {
-                        display: flex;
-                        gap: 10px;
-                        margin-bottom: 20px;
-                    }
-                    .upload-btn, .refresh-btn {
-                        padding: 10px 16px;
-                        border: 1px solid #007bff;
-                        background: #007bff;
-                        color: white;
-                        border-radius: 6px;
+                        gap: 12px;
+                        padding: 14px 20px;
                         cursor: pointer;
-                        font-size: 13px;
-                        transition: background-color 0.2s;
-                    }
-                    .upload-btn:hover, .refresh-btn:hover {
-                        background: #0056b3;
-                    }
-                    .refresh-btn {
-                        background: #6c757d;
-                        border-color: #6c757d;
-                    }
-                    .refresh-btn:hover {
-                        background: #545b62;
-                    }
-                    .category-tabs {
-                        display: flex;
-                        gap: 2px;
-                        margin-bottom: 15px;
-                        border-bottom: 1px solid #dee2e6;
-                    }
-                    .tab-btn {
-                        padding: 10px 20px;
-                        border: none;
-                        background: transparent;
-                        cursor: pointer;
-                        border-bottom: 3px solid transparent;
-                        font-size: 14px;
-                        transition: all 0.2s;
-                    }
-                    .tab-btn.active {
-                        color: #007bff;
-                        border-bottom-color: #007bff;
-                        background: rgba(0, 123, 255, 0.05);
-                    }
-                    .tab-btn:hover {
-                        background: rgba(0, 123, 255, 0.05);
-                    }
-                    .wallpaper-grid {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-                        gap: 15px;
-                        max-height: 300px;
-                        overflow-y: auto;
-                        padding: 15px;
-                        border: 1px solid #e9ecef;
-                        border-radius: 6px;
-                        background: white;
-                    }
-                    .wallpaper-item {
-                        position: relative;
-                        cursor: pointer;
-                        border-radius: 8px;
-                        overflow: hidden;
-                        aspect-ratio: 16/10;
-                        border: 3px solid transparent;
-                        transition: all 0.2s;
-                    }
-                    .wallpaper-item:hover {
-                        transform: scale(1.05);
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                    }
-                    .wallpaper-item.active {
-                        border-color: #007bff;
-                        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-                    }
-                    .wallpaper-preview {
-                        width: 100%;
-                        height: 100%;
-                        background-size: cover;
-                        background-position: center;
-                        position: relative;
-                    }
-                    .wallpaper-gradient {
-                        width: 100%;
-                        height: 100%;
-                    }
-                    .wallpaper-name {
-                        position: absolute;
-                        bottom: 0;
-                        left: 0;
-                        right: 0;
-                        background: rgba(0,0,0,0.7);
-                        color: white;
-                        padding: 4px 8px;
-                        font-size: 11px;
-                        text-align: center;
-                    }
-                    .wallpaper-loading {
-                        grid-column: 1/-1;
-                        text-align: center;
-                        padding: 40px;
-                        color: #6c757d;
-                    }
-                    
-                    /* Layout options */
-                    .layout-options {
-                        display: flex;
-                        gap: 10px;
-                        flex-wrap: wrap;
-                    }
-                    .layout-btn {
-                        padding: 12px 16px;
-                        border: 1px solid #dee2e6;
-                        background: white;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        font-size: 13px;
-                        transition: all 0.2s;
-                    }
-                    .layout-btn:hover {
-                        background: #f8f9fa;
-                        border-color: #007bff;
-                    }
-                    
-                    /* App defaults */
-                    .app-defaults {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 15px;
-                    }
-                    .default-app-row {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        padding: 10px 15px;
-                        background: white;
-                        border-radius: 6px;
-                        border: 1px solid #e9ecef;
-                    }
-                    .default-app-row span {
+                        transition: all 0.3s ease;
+                        border-left: 3px solid transparent;
                         font-weight: 500;
                     }
-                    .default-app-row select {
-                        width: auto;
-                        min-width: 140px;
+
+                    .settings-nav-item:hover {
+                        background: rgba(0, 212, 255, 0.1);
+                        border-left-color: rgba(0, 212, 255, 0.5);
                     }
-                    
-                    /* Profile section */
-                    .profile-info {
+
+                    .settings-nav-item.active {
+                        background: rgba(0, 212, 255, 0.2);
+                        border-left-color: #00d4ff;
+                        color: #00ffff;
+                    }
+
+                    .settings-nav-item i {
+                        width: 20px;
+                        text-align: center;
+                        font-size: 16px;
+                    }
+
+                    .settings-content {
+                        flex: 1;
+                        overflow-y: auto;
+                        padding: 0;
+                    }
+
+                    .settings-section {
+                        display: none;
+                        padding: 30px;
+                        max-width: 800px;
+                    }
+
+                    .settings-section.active {
+                        display: block;
+                    }
+
+                    .section-header {
+                        margin-bottom: 40px;
+                        padding-bottom: 20px;
+                        border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+                    }
+
+                    .section-header h2 {
+                        font-size: 28px;
+                        color: #00ffff;
+                        margin-bottom: 8px;
+                        font-family: 'Orbitron', monospace;
+                        font-weight: 700;
                         display: flex;
-                        gap: 20px;
-                        align-items: flex-start;
+                        align-items: center;
+                        gap: 12px;
                     }
-                    .profile-avatar {
+
+                    .section-header p {
+                        color: #c0c0c0;
+                        font-size: 16px;
+                        margin: 0;
+                    }
+
+                    .setting-group {
+                        margin-bottom: 40px;
+                        background: rgba(0, 0, 0, 0.2);
+                        border-radius: 12px;
+                        padding: 25px;
+                        border: 1px solid rgba(0, 212, 255, 0.2);
+                    }
+
+                    .setting-label {
+                        margin-bottom: 20px;
+                    }
+
+                    .setting-label h3 {
+                        font-size: 20px;
+                        color: #00d4ff;
+                        margin-bottom: 6px;
+                        font-weight: 600;
+                    }
+
+                    .setting-label p {
+                        color: #8892b0;
+                        font-size: 14px;
+                        margin: 0;
+                    }
+
+                    .setting-controls {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 20px;
+                    }
+
+                    .setting-item {
+                        display: flex;
+                        align-items: center;
+                        gap: 16px;
+                        padding: 16px 20px;
+                        background: rgba(0, 0, 0, 0.2);
+                        border-radius: 8px;
+                        border: 1px solid rgba(0, 212, 255, 0.1);
+                    }
+
+                    .setting-info {
+                        flex: 1;
+                    }
+
+                    .setting-info span {
+                        display: block;
+                        font-weight: 500;
+                        color: #ffffff;
+                        margin-bottom: 4px;
+                    }
+
+                    .setting-info small {
+                        color: #8892b0;
+                        font-size: 13px;
+                    }
+
+                    /* Toggle Switch */
+                    .toggle-switch {
+                        position: relative;
+                        width: 50px;
+                        height: 24px;
+                        flex-shrink: 0;
+                    }
+
+                    .toggle-switch input {
+                        opacity: 0;
+                        width: 0;
+                        height: 0;
+                    }
+
+                    .toggle-slider {
+                        position: absolute;
+                        cursor: pointer;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0, 0, 0, 0.4);
+                        border: 1px solid rgba(0, 212, 255, 0.3);
+                        transition: 0.3s;
+                        border-radius: 12px;
+                    }
+
+                    .toggle-slider::before {
+                        position: absolute;
+                        content: "";
+                        height: 18px;
+                        width: 18px;
+                        left: 2px;
+                        bottom: 2px;
+                        background: #ffffff;
+                        transition: 0.3s;
+                        border-radius: 50%;
+                    }
+
+                    input:checked + .toggle-slider {
+                        background: linear-gradient(135deg, #00d4ff, #00ffff);
+                        border-color: #00ffff;
+                    }
+
+                    input:checked + .toggle-slider::before {
+                        transform: translateX(26px);
+                    }
+
+                    /* Slider Control */
+                    .slider-control {
+                        display: flex;
+                        align-items: center;
+                        gap: 16px;
+                        flex: 1;
+                    }
+
+                    .slider-control label {
+                        min-width: 120px;
+                        font-weight: 500;
+                        color: #ffffff;
+                    }
+
+                    .slider-control input[type="range"] {
+                        flex: 1;
+                        height: 6px;
+                        background: rgba(0, 0, 0, 0.4);
+                        border-radius: 3px;
+                        outline: none;
+                        appearance: none;
+                    }
+
+                    .slider-control input[type="range"]::-webkit-slider-thumb {
+                        appearance: none;
+                        width: 18px;
+                        height: 18px;
+                        background: linear-gradient(135deg, #00d4ff, #00ffff);
+                        border-radius: 50%;
+                        cursor: pointer;
+                        box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+                    }
+
+                    .slider-control span {
+                        min-width: 50px;
+                        text-align: right;
+                        color: #00d4ff;
+                        font-weight: 600;
+                    }
+
+                    /* Dropdown Control */
+                    .dropdown-control {
+                        display: flex;
+                        align-items: center;
+                        gap: 16px;
+                        flex: 1;
+                    }
+
+                    .dropdown-control label {
+                        min-width: 120px;
+                        font-weight: 500;
+                        color: #ffffff;
+                    }
+
+                    .dropdown-control select {
+                        flex: 1;
+                        padding: 10px 14px;
+                        background: rgba(0, 0, 0, 0.4);
+                        border: 1px solid rgba(0, 212, 255, 0.3);
+                        border-radius: 6px;
+                        color: #ffffff;
+                        font-size: 14px;
+                        font-family: inherit;
+                    }
+
+                    .dropdown-control select:focus {
+                        outline: none;
+                        border-color: #00d4ff;
+                        box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+                    }
+
+                    /* Theme Selector */
+                    .theme-selector {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                        gap: 16px;
+                    }
+
+                    .theme-option {
+                        cursor: pointer;
+                        padding: 16px;
+                        border-radius: 12px;
+                        border: 2px solid rgba(0, 212, 255, 0.2);
+                        background: rgba(0, 0, 0, 0.2);
+                        transition: all 0.3s ease;
                         text-align: center;
                     }
-                    .avatar-circle {
+
+                    .theme-option:hover {
+                        border-color: rgba(0, 212, 255, 0.6);
+                        transform: translateY(-2px);
+                    }
+
+                    .theme-option.active {
+                        border-color: #00ffff;
+                        box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+                    }
+
+                    .theme-preview {
+                        width: 100%;
+                        height: 60px;
+                        border-radius: 8px;
+                        margin-bottom: 12px;
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                    }
+
+                    .theme-option span {
+                        font-size: 14px;
+                        font-weight: 500;
+                        color: #ffffff;
+                    }
+
+                    /* Wallpaper Section */
+                    .wallpaper-section {
+                        background: rgba(0, 0, 0, 0.2);
+                        border-radius: 12px;
+                        padding: 20px;
+                        border: 1px solid rgba(0, 212, 255, 0.2);
+                    }
+
+                    .wallpaper-tabs {
+                        display: flex;
+                        gap: 4px;
+                        margin-bottom: 20px;
+                        background: rgba(0, 0, 0, 0.2);
+                        border-radius: 8px;
+                        padding: 4px;
+                    }
+
+                    .wallpaper-tab {
+                        flex: 1;
+                        padding: 10px 16px;
+                        background: transparent;
+                        border: none;
+                        border-radius: 6px;
+                        color: #8892b0;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        font-family: inherit;
+                        font-weight: 500;
+                    }
+
+                    .wallpaper-tab.active {
+                        background: linear-gradient(135deg, #00d4ff, #00ffff);
+                        color: #0a0a0f;
+                    }
+
+                    .wallpaper-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                        gap: 12px;
+                        max-height: 300px;
+                        overflow-y: auto;
+                    }
+
+                    .wallpaper-item {
+                        aspect-ratio: 16/10;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        border: 2px solid transparent;
+                        transition: all 0.3s ease;
+                        overflow: hidden;
+                        position: relative;
+                    }
+
+                    .wallpaper-item:hover {
+                        border-color: rgba(0, 212, 255, 0.6);
+                        transform: scale(1.05);
+                    }
+
+                    .wallpaper-item.selected {
+                        border-color: #00ffff;
+                        box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+                    }
+
+                    .upload-wallpaper {
+                        aspect-ratio: 16/10;
+                        border: 2px dashed rgba(0, 212, 255, 0.5);
+                        border-radius: 8px;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        gap: 8px;
+                    }
+
+                    .upload-wallpaper:hover {
+                        border-color: #00ffff;
+                        background: rgba(0, 212, 255, 0.1);
+                    }
+
+                    .upload-wallpaper i {
+                        font-size: 24px;
+                        color: #00d4ff;
+                    }
+
+                    .upload-wallpaper span {
+                        font-size: 12px;
+                        color: #8892b0;
+                        text-align: center;
+                    }
+
+                    /* Profile Card */
+                    .profile-card {
+                        display: flex;
+                        gap: 24px;
+                        align-items: flex-start;
+                        background: rgba(0, 0, 0, 0.2);
+                        border-radius: 12px;
+                        padding: 24px;
+                        border: 1px solid rgba(0, 212, 255, 0.2);
+                    }
+
+                    .profile-avatar {
+                        position: relative;
+                        flex-shrink: 0;
+                    }
+
+                    .avatar-display {
                         width: 80px;
                         height: 80px;
                         border-radius: 50%;
-                        background: #007bff;
-                        color: white;
+                        background: linear-gradient(135deg, #00d4ff, #00ffff);
                         display: flex;
                         align-items: center;
                         justify-content: center;
                         font-size: 32px;
-                        margin-bottom: 10px;
+                        font-weight: 700;
+                        color: #0a0a0f;
+                        border: 3px solid rgba(0, 255, 255, 0.3);
                     }
-                    .profile-details {
-                        flex: 1;
-                    }
-                    .detail-row {
-                        display: flex;
-                        justify-content: space-between;
-                        padding: 8px 0;
-                        border-bottom: 1px solid #e9ecef;
-                    }
-                    .detail-row:last-child {
-                        border-bottom: none;
-                    }
-                    
-                    /* Storage info */
-                    .storage-info {
-                        margin-top: 10px;
-                    }
-                    .storage-bar {
-                        width: 100%;
-                        height: 20px;
-                        background: #e9ecef;
-                        border-radius: 10px;
-                        overflow: hidden;
-                        margin-bottom: 8px;
-                    }
-                    .storage-used {
-                        height: 100%;
-                        background: linear-gradient(90deg, #28a745, #20c997);
-                        transition: width 0.3s ease;
-                    }
-                    .storage-details {
-                        font-size: 13px;
-                        color: #6c757d;
-                    }
-                    
-                    /* Button styles */
-                    .danger-button {
-                        background: #dc3545;
-                        color: white;
-                        border: 1px solid #dc3545;
-                        padding: 10px 16px;
-                        border-radius: 6px;
+
+                    .change-avatar-btn {
+                        position: absolute;
+                        bottom: -5px;
+                        right: -5px;
+                        width: 30px;
+                        height: 30px;
+                        border-radius: 50%;
+                        background: #00d4ff;
+                        border: none;
+                        color: #0a0a0f;
                         cursor: pointer;
-                        margin: 5px;
-                        font-size: 13px;
-                        transition: background-color 0.2s;
-                    }
-                    .danger-button:hover {
-                        background: #c82333;
-                    }
-                    .warning-button {
-                        background: #ffc107;
-                        color: #212529;
-                        border: 1px solid #ffc107;
-                        padding: 10px 16px;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        margin: 5px;
-                        font-size: 13px;
-                    }
-                    .info-button {
-                        background: #17a2b8;
-                        color: white;
-                        border: 1px solid #17a2b8;
-                        padding: 10px 16px;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        margin: 5px;
-                        font-size: 13px;
-                    }
-                    .primary-button {
-                        background: #007bff;
-                        color: white;
-                        border: 1px solid #007bff;
-                        padding: 10px 16px;
-                        border-radius: 6px;
-                        cursor: pointer;
-                        margin: 5px;
-                        font-size: 13px;
-                    }
-                    
-                    /* Option groups */
-                    .startup-options, .privacy-options, .system-actions, .security-options {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 10px;
-                        margin-top: 10px;
-                    }
-                    .startup-options label {
                         display: flex;
                         align-items: center;
-                        gap: 8px;
-                        font-weight: normal;
-                        margin-bottom: 0;
+                        justify-content: center;
+                        font-size: 12px;
+                        transition: all 0.3s ease;
                     }
-                    
-                    /* About section */
-                    .about-info {
-                        text-align: center;
-                        max-width: 600px;
-                        margin: 0 auto;
+
+                    .change-avatar-btn:hover {
+                        background: #00ffff;
+                        transform: scale(1.1);
                     }
-                    .about-logo {
-                        font-size: 72px;
-                        margin-bottom: 20px;
+
+                    .profile-details {
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 16px;
                     }
-                    .about-info h3 {
-                        margin-bottom: 20px;
-                        color: #333;
-                        font-size: 28px;
+
+                    .profile-field {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 12px 0;
+                        border-bottom: 1px solid rgba(0, 212, 255, 0.1);
                     }
-                    .about-info p {
-                        margin: 8px 0;
+
+                    .profile-field:last-child {
+                        border-bottom: none;
+                    }
+
+                    .profile-field label {
+                        font-weight: 500;
+                        color: #8892b0;
                         font-size: 14px;
                     }
-                    .about-description {
-                        margin-top: 30px;
-                        text-align: left;
-                        background: #f8f9fa;
-                        padding: 20px;
-                        border-radius: 8px;
-                        border: 1px solid #e9ecef;
+
+                    .profile-field span {
+                        color: #ffffff;
+                        font-weight: 600;
                     }
-                    .about-description h4 {
-                        margin: 20px 0 10px 0;
-                        color: #495057;
+
+                    /* Storage Info */
+                    .storage-info {
+                        background: rgba(0, 0, 0, 0.2);
+                        border-radius: 12px;
+                        padding: 24px;
+                        border: 1px solid rgba(0, 212, 255, 0.2);
                     }
-                    .about-description ul {
-                        margin-left: 20px;
-                        margin-bottom: 15px;
+
+                    .storage-bar {
+                        width: 100%;
+                        height: 12px;
+                        background: rgba(0, 0, 0, 0.4);
+                        border-radius: 6px;
+                        overflow: hidden;
+                        margin-bottom: 16px;
+                        border: 1px solid rgba(0, 212, 255, 0.2);
                     }
-                    .about-description li {
-                        margin: 5px 0;
+
+                    .storage-used {
+                        height: 100%;
+                        background: linear-gradient(90deg, #00d4ff, #00ffff);
+                        transition: width 0.5s ease;
+                        border-radius: 6px;
+                    }
+
+                    .storage-details {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 20px;
+                        font-size: 14px;
+                    }
+
+                    .storage-breakdown {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 8px;
+                    }
+
+                    .breakdown-item {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 8px 12px;
+                        background: rgba(0, 0, 0, 0.2);
+                        border-radius: 6px;
                         font-size: 13px;
                     }
-                    .about-links {
-                        margin-top: 30px;
+
+                    .breakdown-label {
+                        color: #8892b0;
+                    }
+
+                    .breakdown-value {
+                        color: #00d4ff;
+                        font-weight: 600;
+                    }
+
+                    /* Action Button */
+                    .action-button {
                         display: flex;
-                        justify-content: center;
-                        gap: 15px;
+                        align-items: center;
+                        gap: 10px;
+                        padding: 12px 20px;
+                        background: linear-gradient(135deg, #00d4ff, #00ffff);
+                        color: #0a0a0f;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        font-family: inherit;
+                        font-weight: 600;
+                        font-size: 14px;
+                        transition: all 0.3s ease;
+                        text-decoration: none;
+                    }
+
+                    .action-button:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+                    }
+
+                    .action-button.danger {
+                        background: linear-gradient(135deg, #ff4466, #ff6b6b);
+                        color: #ffffff;
+                    }
+
+                    .action-button.danger:hover {
+                        box-shadow: 0 5px 20px rgba(255, 68, 102, 0.4);
+                    }
+
+                    /* About Content */
+                    .about-content {
+                        max-width: 700px;
+                    }
+
+                    .about-logo {
+                        text-align: center;
+                        margin-bottom: 40px;
+                        padding: 30px;
+                        background: rgba(0, 0, 0, 0.2);
+                        border-radius: 12px;
+                        border: 1px solid rgba(0, 212, 255, 0.2);
+                    }
+
+                    .logo-icon {
+                        font-size: 80px;
+                        margin-bottom: 20px;
+                        animation: logo-glow 3s ease-in-out infinite alternate;
+                    }
+
+                    @keyframes logo-glow {
+                        from { text-shadow: 0 0 20px rgba(0, 212, 255, 0.5); }
+                        to { text-shadow: 0 0 40px rgba(0, 255, 255, 0.8); }
+                    }
+
+                    .about-logo h3 {
+                        font-size: 32px;
+                        color: #00ffff;
+                        margin-bottom: 8px;
+                        font-family: 'Orbitron', monospace;
+                        font-weight: 700;
+                    }
+
+                    .version-info {
+                        color: #8892b0;
+                        font-size: 16px;
+                    }
+
+                    .system-info {
+                        margin-bottom: 40px;
+                    }
+
+                    .info-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                        gap: 16px;
+                        background: rgba(0, 0, 0, 0.2);
+                        border-radius: 12px;
+                        padding: 24px;
+                        border: 1px solid rgba(0, 212, 255, 0.2);
+                    }
+
+                    .info-item {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 4px;
+                    }
+
+                    .info-item label {
+                        font-size: 12px;
+                        color: #8892b0;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+
+                    .info-item span {
+                        color: #ffffff;
+                        font-weight: 600;
+                        font-size: 14px;
+                    }
+
+                    .about-description {
+                        background: rgba(0, 0, 0, 0.2);
+                        border-radius: 12px;
+                        padding: 30px;
+                        border: 1px solid rgba(0, 212, 255, 0.2);
+                        margin-bottom: 30px;
+                        line-height: 1.6;
+                    }
+
+                    .about-description h4 {
+                        color: #00d4ff;
+                        font-size: 20px;
+                        margin-bottom: 16px;
+                        font-weight: 600;
+                    }
+
+                    .about-description p {
+                        color: #c0c0c0;
+                        margin-bottom: 20px;
+                        font-size: 15px;
+                    }
+
+                    .about-description ul {
+                        margin-left: 20px;
+                        margin-bottom: 20px;
+                    }
+
+                    .about-description li {
+                        color: #c0c0c0;
+                        margin-bottom: 8px;
+                        font-size: 14px;
+                    }
+
+                    .about-actions {
+                        display: flex;
+                        gap: 16px;
+                        flex-wrap: wrap;
+                    }
+
+                    /* Responsive Design */
+                    @media (max-width: 768px) {
+                        .settings-app {
+                            flex-direction: column;
+                        }
+
+                        .settings-sidebar {
+                            width: 100%;
+                            height: auto;
+                        }
+
+                        .settings-nav {
+                            display: flex;
+                            overflow-x: auto;
+                            padding: 10px;
+                            gap: 8px;
+                        }
+
+                        .settings-nav-item {
+                            flex-shrink: 0;
+                            padding: 8px 16px;
+                            border-radius: 20px;
+                            border-left: none;
+                            border: 1px solid rgba(0, 212, 255, 0.2);
+                        }
+
+                        .settings-content {
+                            overflow-y: auto;
+                        }
+
+                        .settings-section {
+                            padding: 20px;
+                        }
+
+                        .theme-selector {
+                            grid-template-columns: repeat(2, 1fr);
+                        }
+
+                        .profile-card {
+                            flex-direction: column;
+                            text-align: center;
+                        }
+
+                        .about-actions {
+                            flex-direction: column;
+                        }
+
+                        .info-grid {
+                            grid-template-columns: 1fr;
+                        }
+                    }
+
+                    /* Scrollbar Styling */
+                    .settings-content::-webkit-scrollbar,
+                    .wallpaper-grid::-webkit-scrollbar {
+                        width: 8px;
+                    }
+
+                    .settings-content::-webkit-scrollbar-track,
+                    .wallpaper-grid::-webkit-scrollbar-track {
+                        background: rgba(0, 0, 0, 0.2);
+                        border-radius: 4px;
+                    }
+
+                    .settings-content::-webkit-scrollbar-thumb,
+                    .wallpaper-grid::-webkit-scrollbar-thumb {
+                        background: linear-gradient(135deg, #00d4ff, #00ffff);
+                        border-radius: 4px;
+                    }
+
+                    .settings-content::-webkit-scrollbar-thumb:hover,
+                    .wallpaper-grid::-webkit-scrollbar-thumb:hover {
+                        background: linear-gradient(135deg, #00ffff, #00d4ff);
                     }
                 </style>
             `,
@@ -690,20 +1425,18 @@ class Settings {
 
     static init(windowElement) {
         this.currentWindow = windowElement;
-        this.currentWallpapers = [];
-        this.currentCategory = 'default';
         this.startTime = Date.now();
+        this.currentSettings = {};
 
-        this.loadSettings();
         this.setupNavigation();
-        this.setupWallpaperUpload();
+        this.loadCurrentSettings();
+        this.setupEventListeners();
         this.loadWallpapers();
-        this.updateMemoryUsage();
-        this.updateUptime();
-        this.loadAccountInfo();
+        this.loadSystemInfo();
+        this.loadProfileInfo();
+        this.startUptime();
 
-        // Update uptime every second
-        this.uptimeInterval = setInterval(() => this.updateUptime(), 1000);
+        console.log('🔧 Settings application initialized');
     }
 
     static setupNavigation() {
@@ -712,369 +1445,594 @@ class Settings {
 
         navItems.forEach(item => {
             item.addEventListener('click', () => {
-                // Update nav
+                // Update navigation
                 navItems.forEach(nav => nav.classList.remove('active'));
                 item.classList.add('active');
 
-                // Show section
+                // Update sections
+                sections.forEach(section => section.classList.remove('active'));
                 const sectionId = item.dataset.section + '-section';
-                sections.forEach(section => section.style.display = 'none');
-                this.currentWindow.querySelector('#' + sectionId).style.display = 'block';
+                const targetSection = this.currentWindow.querySelector(`#${sectionId}`);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                }
+
+                console.log(`📄 Switched to section: ${item.dataset.section}`);
             });
         });
     }
 
-    static setupWallpaperUpload() {
-        const uploadInput = this.currentWindow.querySelector('#wallpaper-upload-input');
+    static setupEventListeners() {
+        // Theme selection
+        this.currentWindow.querySelectorAll('.theme-option').forEach(option => {
+            option.addEventListener('click', () => {
+                this.selectTheme(option.dataset.theme);
+            });
+        });
+
+        // Wallpaper tabs
+        this.currentWindow.querySelectorAll('.wallpaper-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                this.switchWallpaperTab(tab.dataset.tab);
+            });
+        });
+
+        // Wallpaper upload
+        const uploadButton = this.currentWindow.querySelector('#upload-wallpaper');
+        const uploadInput = this.currentWindow.querySelector('#wallpaper-upload');
+
+        uploadButton.addEventListener('click', () => {
+            uploadInput.click();
+        });
 
         uploadInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                this.handleWallpaperUpload(e.target.files);
-            }
+            this.handleWallpaperUpload(e.target.files[0]);
         });
+
+        // Settings controls
+        this.setupSettingControls();
     }
 
-    static loadSettings() {
-        const settings = this.getSettings();
-
-        // Apply saved settings
-        if (settings.theme) {
-            this.currentWindow.querySelector('#theme-select').value = settings.theme;
-        }
-
-        const iconSize = settings.iconSize || 48;
-        this.currentWindow.querySelector('#icon-size').value = iconSize;
-        this.currentWindow.querySelector('#icon-size-value').textContent = iconSize + 'px';
-
-        const transparency = settings.transparency || 0;
-        this.currentWindow.querySelector('#transparency-slider').value = transparency;
-        this.currentWindow.querySelector('#transparency-value').textContent = transparency + '%';
-
-        // Apply other settings
-        this.currentWindow.querySelector('#animations-checkbox').checked = settings.animations !== false;
-        this.currentWindow.querySelector('#show-desktop-labels').checked = settings.showLabels !== false;
-        this.currentWindow.querySelector('#startup-sound').checked = settings.startupSound === true;
-        this.currentWindow.querySelector('#auto-login').checked = settings.autoLogin === true;
-        this.currentWindow.querySelector('#restore-windows').checked = settings.restoreWindows === true;
-
-        if (settings.taskbarPosition) {
-            this.currentWindow.querySelector('#taskbar-position').value = settings.taskbarPosition;
-        }
-    }
-
-    static getSettings() {
-        try {
-            return JSON.parse(localStorage.getItem('emberframe-settings') || '{}');
-        } catch {
-            return {};
-        }
-    }
-
-    static async saveSettings(newSettings) {
-        // Update local preferences
-        const settings = this.getSettings();
-        Object.assign(settings, newSettings);
-
-        // Save to localStorage for immediate use
-        localStorage.setItem('emberframe-settings', JSON.stringify(settings));
-
-        // Save to backend
-        try {
-            const response = await fetch('/api/user/preferences', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ settings: settings })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to save settings to server');
-            }
-        } catch (error) {
-            console.error('Failed to save settings to backend:', error);
-            // Still works with localStorage
-        }
-    }
-
-    // Wallpaper management
-    static async loadWallpapers() {
-        const grid = this.currentWindow.querySelector('#wallpaper-grid');
-        grid.innerHTML = '<div class="wallpaper-loading">Loading wallpapers...</div>';
-
-        try {
-            const response = await fetch('/api/wallpapers');
-            const data = await response.json();
-
-            if (response.ok) {
-                this.currentWallpapers = data.wallpapers;
-                this.showWallpaperCategory(this.currentCategory);
-            } else {
-                grid.innerHTML = '<div class="wallpaper-loading">Failed to load wallpapers</div>';
-            }
-        } catch (error) {
-            grid.innerHTML = '<div class="wallpaper-loading">Network error loading wallpapers</div>';
-        }
-    }
-
-    static showWallpaperCategory(category) {
-        this.currentCategory = category;
-
-        // Update tab buttons
-        this.currentWindow.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.classList.remove('active');
+    static setupSettingControls() {
+        // Animations
+        const animationsToggle = this.currentWindow.querySelector('#animations-enabled');
+        animationsToggle.addEventListener('change', (e) => {
+            this.updateAnimations(e.target.checked);
         });
-        this.currentWindow.querySelector(`[onclick*="${category}"]`).classList.add('active');
 
-        // Filter wallpapers
-        let wallpapers = this.currentWallpapers;
+        // Transparency
+        const transparencySlider = this.currentWindow.querySelector('#transparency-slider');
+        transparencySlider.addEventListener('input', (e) => {
+            this.updateTransparency(e.target.value);
+        });
 
-        if (category === 'gradients') {
-            wallpapers = this.getGradientWallpapers();
-        } else {
-            wallpapers = wallpapers.filter(w => w.type === category);
-        }
+        // Font settings
+        const fontFamily = this.currentWindow.querySelector('#font-family');
+        fontFamily.addEventListener('change', (e) => {
+            this.updateFontFamily(e.target.value);
+        });
 
-        this.renderWallpapers(wallpapers);
+        const fontSize = this.currentWindow.querySelector('#font-size-slider');
+        fontSize.addEventListener('input', (e) => {
+            this.updateFontSize(e.target.value);
+        });
+
+        // Icon size
+        const iconSize = this.currentWindow.querySelector('#icon-size-slider');
+        iconSize.addEventListener('input', (e) => {
+            this.updateIconSize(e.target.value);
+        });
+
+        // Show icon labels
+        const showLabels = this.currentWindow.querySelector('#show-icon-labels');
+        showLabels.addEventListener('change', (e) => {
+            this.updateIconLabels(e.target.checked);
+        });
+
+        // Taskbar position
+        const taskbarPosition = this.currentWindow.querySelector('#taskbar-position');
+        taskbarPosition.addEventListener('change', (e) => {
+            this.updateTaskbarPosition(e.target.value);
+        });
+
+        // Notifications
+        const notificationsEnabled = this.currentWindow.querySelector('#enable-notifications');
+        notificationsEnabled.addEventListener('change', (e) => {
+            this.updateNotifications(e.target.checked);
+        });
+
+        // All other toggles and controls
+        this.setupAllControls();
     }
 
-    static getGradientWallpapers() {
-        return [
-            { name: 'Blue Gradient', type: 'gradient', style: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-            { name: 'Pink Gradient', type: 'gradient', style: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
-            { name: 'Cyan Gradient', type: 'gradient', style: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
-            { name: 'Green Gradient', type: 'gradient', style: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' },
-            { name: 'Orange Gradient', type: 'gradient', style: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)' },
-            { name: 'Purple Gradient', type: 'gradient', style: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)' },
-            { name: 'Dark Gradient', type: 'gradient', style: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)' },
-            { name: 'Sunset', type: 'gradient', style: 'linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%)' }
+    static setupAllControls() {
+        const controls = [
+            { id: 'blur-effects', setting: 'blurEffects', type: 'toggle' },
+            { id: 'icon-shadows', setting: 'iconShadows', type: 'toggle' },
+            { id: 'auto-hide-taskbar', setting: 'autoHideTaskbar', type: 'toggle' },
+            { id: 'show-clock', setting: 'showClock', type: 'toggle' },
+            { id: 'snap-windows', setting: 'snapWindows', type: 'toggle' },
+            { id: 'restore-windows', setting: 'restoreWindows', type: 'toggle' },
+            { id: 'restore-session', setting: 'restoreSession', type: 'toggle' },
+            { id: 'startup-sound', setting: 'startupSound', type: 'toggle' },
+            { id: 'hardware-acceleration', setting: 'hardwareAcceleration', type: 'toggle' },
+            { id: 'auto-logout', setting: 'autoLogout', type: 'toggle' },
+            { id: 'remember-login', setting: 'rememberLogin', type: 'toggle' }
         ];
-    }
 
-    static renderWallpapers(wallpapers) {
-        const grid = this.currentWindow.querySelector('#wallpaper-grid');
-
-        if (wallpapers.length === 0) {
-            grid.innerHTML = '<div class="wallpaper-loading">No wallpapers found</div>';
-            return;
-        }
-
-        grid.innerHTML = wallpapers.map((wallpaper, index) => {
-            if (wallpaper.type === 'gradient') {
-                return `
-                    <div class="wallpaper-item" onclick="Settings.setWallpaper('${wallpaper.style}', 'gradient')" data-wallpaper="gradient-${index}">
-                        <div class="wallpaper-gradient" style="background: ${wallpaper.style}"></div>
-                        <div class="wallpaper-name">${wallpaper.name}</div>
-                    </div>
-                `;
-            } else {
-                return `
-                    <div class="wallpaper-item" onclick="Settings.setWallpaper('${wallpaper.url}', 'image')" data-wallpaper="${wallpaper.url}">
-                        <div class="wallpaper-preview" style="background-image: url('${wallpaper.url}')"></div>
-                        <div class="wallpaper-name">${wallpaper.name}</div>
-                    </div>
-                `;
+        controls.forEach(control => {
+            const element = this.currentWindow.querySelector(`#${control.id}`);
+            if (element) {
+                element.addEventListener('change', (e) => {
+                    this.updateSetting(control.setting, e.target.checked);
+                });
             }
-        }).join('');
+        });
+
+        // Dropdown controls
+        const dropdowns = [
+            { id: 'double-click-action', setting: 'doubleClickAction' },
+            { id: 'session-timeout', setting: 'sessionTimeout' },
+            { id: 'notification-duration', setting: 'notificationDuration' },
+            { id: 'notification-position', setting: 'notificationPosition' },
+            { id: 'animation-quality', setting: 'animationQuality' },
+            { id: 'max-windows', setting: 'maxWindows' }
+        ];
+
+        dropdowns.forEach(dropdown => {
+            const element = this.currentWindow.querySelector(`#${dropdown.id}`);
+            if (element) {
+                element.addEventListener('change', (e) => {
+                    this.updateSetting(dropdown.setting, e.target.value);
+                });
+            }
+        });
     }
 
-    static uploadWallpaper() {
-        const uploadInput = this.currentWindow.querySelector('#wallpaper-upload-input');
-        uploadInput.click();
-    }
-
-    static async handleWallpaperUpload(files) {
-        const validFiles = Array.from(files).filter(file =>
-            file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024
-        );
-
-        if (validFiles.length === 0) {
-            Notification.error('Please select valid image files (max 5MB each)');
-            return;
-        }
-
-        const uploadId = Notification.loading(`Uploading ${validFiles.length} wallpaper(s)...`);
-
+    static loadCurrentSettings() {
         try {
-            const uploadPromises = validFiles.map(file => this.uploadSingleWallpaper(file));
-            await Promise.all(uploadPromises);
-
-            Notification.update(uploadId, `${validFiles.length} wallpaper(s) uploaded successfully!`, 'success');
-            setTimeout(() => Notification.close(uploadId), 3000);
-
-            // Reload wallpapers and switch to user category
-            await this.loadWallpapers();
-            this.showWallpaperCategory('user');
-
+            const stored = localStorage.getItem('emberframe-settings');
+            this.currentSettings = stored ? JSON.parse(stored) : this.getDefaultSettings();
+            this.applyStoredSettings();
         } catch (error) {
-            Notification.update(uploadId, 'Some wallpapers failed to upload', 'error');
-            setTimeout(() => Notification.close(uploadId), 4000);
+            console.error('Failed to load settings:', error);
+            this.currentSettings = this.getDefaultSettings();
         }
     }
 
-    static async uploadSingleWallpaper(file) {
-        const formData = new FormData();
-        formData.append('file', file);
+    static getDefaultSettings() {
+        return {
+            theme: 'ember-red',
+            wallpaper: 'gradient-1',
+            animationsEnabled: true,
+            transparency: 0,
+            blurEffects: true,
+            fontFamily: 'Rajdhani',
+            fontSize: 14,
+            iconSize: 48,
+            showIconLabels: true,
+            iconShadows: true,
+            taskbarPosition: 'bottom',
+            autoHideTaskbar: false,
+            showClock: true,
+            snapWindows: true,
+            restoreWindows: true,
+            doubleClickAction: 'maximize',
+            restoreSession: true,
+            startupSound: false,
+            sessionTimeout: 240,
+            enableNotifications: true,
+            notificationDuration: 4000,
+            notificationPosition: 'top-right',
+            hardwareAcceleration: true,
+            animationQuality: 'high',
+            maxWindows: 10,
+            autoLogout: false,
+            rememberLogin: true
+        };
+    }
 
-        const response = await fetch('/api/upload-wallpaper', {
-            method: 'POST',
-            body: formData
+    static applyStoredSettings() {
+        // Apply theme
+        this.selectTheme(this.currentSettings.theme, false);
+
+        // Apply form values
+        this.setFormValue('#animations-enabled', this.currentSettings.animationsEnabled);
+        this.setFormValue('#transparency-slider', this.currentSettings.transparency);
+        this.setFormValue('#blur-effects', this.currentSettings.blurEffects);
+        this.setFormValue('#font-family', this.currentSettings.fontFamily);
+        this.setFormValue('#font-size-slider', this.currentSettings.fontSize);
+        this.setFormValue('#icon-size-slider', this.currentSettings.iconSize);
+        this.setFormValue('#show-icon-labels', this.currentSettings.showIconLabels);
+        this.setFormValue('#icon-shadows', this.currentSettings.iconShadows);
+        this.setFormValue('#taskbar-position', this.currentSettings.taskbarPosition);
+        this.setFormValue('#auto-hide-taskbar', this.currentSettings.autoHideTaskbar);
+        this.setFormValue('#show-clock', this.currentSettings.showClock);
+        this.setFormValue('#snap-windows', this.currentSettings.snapWindows);
+        this.setFormValue('#restore-windows', this.currentSettings.restoreWindows);
+        this.setFormValue('#double-click-action', this.currentSettings.doubleClickAction);
+        this.setFormValue('#restore-session', this.currentSettings.restoreSession);
+        this.setFormValue('#startup-sound', this.currentSettings.startupSound);
+        this.setFormValue('#session-timeout', this.currentSettings.sessionTimeout);
+        this.setFormValue('#enable-notifications', this.currentSettings.enableNotifications);
+        this.setFormValue('#notification-duration', this.currentSettings.notificationDuration);
+        this.setFormValue('#notification-position', this.currentSettings.notificationPosition);
+        this.setFormValue('#hardware-acceleration', this.currentSettings.hardwareAcceleration);
+        this.setFormValue('#animation-quality', this.currentSettings.animationQuality);
+        this.setFormValue('#max-windows', this.currentSettings.maxWindows);
+        this.setFormValue('#auto-logout', this.currentSettings.autoLogout);
+        this.setFormValue('#remember-login', this.currentSettings.rememberLogin);
+
+        // Update display values
+        this.updateSliderValue('#transparency-slider', '#transparency-value', '%');
+        this.updateSliderValue('#font-size-slider', '#font-size-value', 'px');
+        this.updateSliderValue('#icon-size-slider', '#icon-size-value', 'px');
+
+        // Apply settings to page
+        this.applyCurrentSettings();
+    }
+
+    static setFormValue(selector, value) {
+        const element = this.currentWindow.querySelector(selector);
+        if (element) {
+            if (element.type === 'checkbox') {
+                element.checked = value;
+            } else {
+                element.value = value;
+            }
+        }
+    }
+
+    static updateSliderValue(sliderSelector, valueSelector, unit) {
+        const slider = this.currentWindow.querySelector(sliderSelector);
+        const valueDisplay = this.currentWindow.querySelector(valueSelector);
+        if (slider && valueDisplay) {
+            valueDisplay.textContent = slider.value + unit;
+        }
+    }
+
+    static selectTheme(themeName, save = true) {
+        // Update theme selector UI
+        this.currentWindow.querySelectorAll('.theme-option').forEach(option => {
+            option.classList.remove('active');
         });
+        const selectedOption = this.currentWindow.querySelector(`[data-theme="${themeName}"]`);
+        if (selectedOption) {
+            selectedOption.classList.add('active');
+        }
 
-        if (!response.ok) {
-            throw new Error(`Failed to upload ${file.name}`);
+        // Apply theme to document
+        this.applyTheme(themeName);
+
+        if (save) {
+            this.updateSetting('theme', themeName);
+            this.showNotification('Theme changed successfully', 'success');
         }
     }
 
-    static async setWallpaper(source, type) {
-        // Apply wallpaper immediately
-        if (type === 'gradient') {
-            document.body.style.background = source;
-        } else {
-            document.body.style.background = `url('${source}') center/cover`;
-        }
-
-        // Update active wallpaper UI
-        this.currentWindow.querySelectorAll('.wallpaper-item').forEach(item => {
-            item.classList.remove('active');
-        });
-
-        const selectedItem = this.currentWindow.querySelector(`[data-wallpaper="${source}"]`) ||
-                            this.currentWindow.querySelector(`[onclick*="${source.replace(/'/g, "\\\\'")}"]`);
-        if (selectedItem) {
-            selectedItem.classList.add('active');
-        }
-
-        // Save to backend via WindowManager
-        if (window.WindowManager) {
-            await window.WindowManager.saveWallpaper(source, type);
-        }
-
-        // Also save to local preferences
-        this.saveSettings({ wallpaper: source, wallpaperType: type });
-
-        Notification.success('Wallpaper changed successfully');
-    }
-
-    // Other settings methods
-    static changeTheme(theme) {
+    static applyTheme(themeName) {
         const themes = {
-            'default': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            'dark': 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
-            'light': 'linear-gradient(135deg, #ecf0f1 0%, #bdc3c7 100%)',
-            'purple': 'linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%)',
-            'green': 'linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)',
-            'orange': 'linear-gradient(135deg, #e67e22 0%, #f39c12 100%)'
+            'ember-red': {
+                primary: '#ff4500',
+                secondary: '#dc143c',
+                background: 'linear-gradient(135deg, #1a0a00 0%, #2d1a0a 100%)'
+            },
+            'cyber-blue': {
+                primary: '#00ffff',
+                secondary: '#0066ff',
+                background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)'
+            },
+            'matrix-green': {
+                primary: '#00ff00',
+                secondary: '#008800',
+                background: 'linear-gradient(135deg, #000000 0%, #001100 100%)'
+            },
+            'neon-purple': {
+                primary: '#8000ff',
+                secondary: '#4000cc',
+                background: 'linear-gradient(135deg, #0a0010 0%, #1a1030 100%)'
+            },
+            'ice-blue': {
+                primary: '#80e0ff',
+                secondary: '#4080ff',
+                background: 'linear-gradient(135deg, #050510 0%, #101530 100%)'
+            },
+            'ember-orange': {
+                primary: '#ff8c00',
+                secondary: '#ff4500',
+                background: 'linear-gradient(135deg, #1a1000 0%, #2d1a00 100%)'
+            }
         };
 
-        document.body.style.background = themes[theme] || themes.default;
-        this.saveSettings({ theme });
-        Notification.success('Theme changed');
+        const theme = themes[themeName] || themes['ember-red'];
+
+        // Apply to document root
+        document.documentElement.style.setProperty('--primary-blue', theme.primary);
+        document.documentElement.style.setProperty('--neon-cyan', theme.secondary);
+        document.body.style.background = theme.background;
     }
 
-    static toggleAnimations(enabled) {
+    static switchWallpaperTab(tabName) {
+        // Update tab buttons
+        this.currentWindow.querySelectorAll('.wallpaper-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        this.currentWindow.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+        // Update content
+        this.currentWindow.querySelectorAll('.wallpaper-grid').forEach(grid => {
+            grid.style.display = 'none';
+        });
+        this.currentWindow.querySelector(`#wallpaper-${tabName}`).style.display = 'grid';
+    }
+
+    static loadWallpapers() {
+        this.loadGradientWallpapers();
+        this.loadPatternWallpapers();
+    }
+
+    static loadGradientWallpapers() {
+        const gradients = [
+            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+            'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
+            'linear-gradient(135deg, #ff9a56 0%, #ff6b6b 100%)'
+        ];
+
+        const container = this.currentWindow.querySelector('#wallpaper-gradients');
+        container.innerHTML = gradients.map((gradient, index) => `
+            <div class="wallpaper-item" data-wallpaper="gradient-${index}" style="background: ${gradient};" onclick="Settings.setWallpaper('gradient-${index}', '${gradient}')">
+            </div>
+        `).join('');
+    }
+
+    static loadPatternWallpapers() {
+        const patterns = [
+            'radial-gradient(circle, rgba(0,212,255,0.1) 1px, transparent 1px)',
+            'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,212,255,0.1) 10px, rgba(0,212,255,0.1) 20px)',
+            'conic-gradient(from 0deg, #0a0a0f, #1a1a2e, #0a0a0f)',
+            'linear-gradient(90deg, rgba(0,212,255,0.1) 50%, transparent 50%)'
+        ];
+
+        const container = this.currentWindow.querySelector('#wallpaper-patterns');
+        container.innerHTML = patterns.map((pattern, index) => `
+            <div class="wallpaper-item" data-wallpaper="pattern-${index}" style="background: ${pattern};" onclick="Settings.setWallpaper('pattern-${index}', '${pattern}')">
+            </div>
+        `).join('');
+    }
+
+    static setWallpaper(id, style) {
+        // Apply wallpaper
+        document.body.style.background = style;
+
+        // Update selection
+        this.currentWindow.querySelectorAll('.wallpaper-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        this.currentWindow.querySelector(`[data-wallpaper="${id}"]`).classList.add('selected');
+
+        // Save setting
+        this.updateSetting('wallpaper', id);
+        this.updateSetting('wallpaperStyle', style);
+        this.showNotification('Wallpaper changed', 'success');
+    }
+
+    static handleWallpaperUpload(file) {
+        if (!file || !file.type.startsWith('image/')) {
+            this.showNotification('Please select a valid image file', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const imageUrl = e.target.result;
+            const style = `url('${imageUrl}') center/cover no-repeat`;
+            this.setWallpaper('custom-' + Date.now(), style);
+        };
+        reader.readAsDataURL(file);
+    }
+
+    static updateAnimations(enabled) {
         document.documentElement.style.setProperty('--animation-duration', enabled ? '0.3s' : '0s');
-        this.saveSettings({ animations: enabled });
+        this.updateSetting('animationsEnabled', enabled);
     }
 
-    static changeTransparency(value) {
-        const transparency = parseInt(value);
-        this.currentWindow.querySelector('#transparency-value').textContent = transparency + '%';
+    static updateTransparency(value) {
+        this.updateSliderValue('#transparency-slider', '#transparency-value', '%');
 
         // Apply transparency to windows
-        document.querySelectorAll('.window').forEach(window => {
-            window.style.opacity = (100 - transparency) / 100;
-        });
+        const opacity = (100 - parseInt(value)) / 100;
+        document.documentElement.style.setProperty('--window-opacity', opacity);
 
-        this.saveSettings({ transparency });
+        this.updateSetting('transparency', parseInt(value));
     }
 
-    static changeIconSize(size) {
-        const icons = document.querySelectorAll('.icon-image');
-        icons.forEach(icon => {
-            icon.style.width = size + 'px';
-            icon.style.height = size + 'px';
-        });
-
-        this.currentWindow.querySelector('#icon-size-value').textContent = size + 'px';
-        this.saveSettings({ iconSize: parseInt(size) });
+    static updateFontFamily(family) {
+        document.documentElement.style.setProperty('--system-font', family);
+        this.updateSetting('fontFamily', family);
     }
 
-    static toggleDesktopLabels(show) {
+    static updateFontSize(size) {
+        this.updateSliderValue('#font-size-slider', '#font-size-value', 'px');
+        document.documentElement.style.setProperty('--base-font-size', size + 'px');
+        this.updateSetting('fontSize', parseInt(size));
+    }
+
+    static updateIconSize(size) {
+        this.updateSliderValue('#icon-size-slider', '#icon-size-value', 'px');
+        document.documentElement.style.setProperty('--icon-size', size + 'px');
+        this.updateSetting('iconSize', parseInt(size));
+    }
+
+    static updateIconLabels(show) {
         const labels = document.querySelectorAll('.icon-label');
         labels.forEach(label => {
             label.style.display = show ? 'block' : 'none';
         });
-        this.saveSettings({ showLabels: show });
+        this.updateSetting('showIconLabels', show);
     }
 
-    static arrangeIcons(layout) {
-        const icons = document.querySelectorAll('.desktop-icon');
-        let x = 20, y = 20;
-        const spacing = 100;
-
-        icons.forEach((icon, index) => {
-            switch (layout) {
-                case 'grid':
-                    icon.style.left = x + 'px';
-                    icon.style.top = y + 'px';
-                    x += spacing;
-                    if (x > window.innerWidth - 100) {
-                        x = 20;
-                        y += spacing;
-                    }
-                    break;
-                case 'column':
-                    icon.style.left = '20px';
-                    icon.style.top = y + 'px';
-                    y += spacing;
-                    break;
-                case 'free':
-                    // Don't change positions
-                    break;
-            }
-        });
-
-        Notification.success(`Icons arranged in ${layout} layout`);
+    static updateTaskbarPosition(position) {
+        // This would require more complex DOM manipulation
+        this.showNotification('Taskbar position will be updated on next login', 'info');
+        this.updateSetting('taskbarPosition', position);
     }
 
-    static changeTaskbarPosition(position) {
-        // This would require more complex CSS changes
-        Notification.info('Taskbar repositioning coming in future update');
-        this.saveSettings({ taskbarPosition: position });
+    static updateNotifications(enabled) {
+        if (window.NotificationSystem) {
+            window.NotificationSystem.enabled = enabled;
+        }
+        this.updateSetting('enableNotifications', enabled);
     }
 
-    static toggleStartupSound(enabled) {
-        this.saveSettings({ startupSound: enabled });
+    static updateSetting(key, value) {
+        this.currentSettings[key] = value;
+        this.saveSettings();
     }
 
-    static toggleAutoLogin(enabled) {
-        this.saveSettings({ autoLogin: enabled });
+    static saveSettings() {
+        try {
+            localStorage.setItem('emberframe-settings', JSON.stringify(this.currentSettings));
+            console.log('⚙️ Settings saved:', this.currentSettings);
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+        }
     }
 
-    static toggleRestoreWindows(enabled) {
-        this.saveSettings({ restoreWindows: enabled });
+    static applyCurrentSettings() {
+        // Apply all current settings to the interface
+        this.applyTheme(this.currentSettings.theme);
+        this.updateAnimations(this.currentSettings.animationsEnabled);
+        this.updateTransparency(this.currentSettings.transparency);
+        this.updateFontFamily(this.currentSettings.fontFamily);
+        this.updateFontSize(this.currentSettings.fontSize);
+        this.updateIconSize(this.currentSettings.iconSize);
+        this.updateIconLabels(this.currentSettings.showIconLabels);
+        this.updateNotifications(this.currentSettings.enableNotifications);
     }
 
+    static loadSystemInfo() {
+        // Platform info
+        const platform = navigator.platform || 'Unknown';
+        this.setElementText('#platform-info', platform);
+
+        // Browser info
+        const browser = this.getBrowserInfo();
+        this.setElementText('#browser-info', browser);
+
+        // Screen resolution
+        const resolution = `${screen.width}×${screen.height}`;
+        this.setElementText('#screen-info', resolution);
+
+        // Memory usage
+        if (performance.memory) {
+            const used = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024);
+            const total = Math.round(performance.memory.totalJSHeapSize / 1024 / 1024);
+            this.setElementText('#memory-info', `${used} MB / ${total} MB`);
+        } else {
+            this.setElementText('#memory-info', 'Not available');
+        }
+
+        // Connection info
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        if (connection) {
+            this.setElementText('#connection-info', `${connection.effectiveType || 'Unknown'} (${connection.downlink || '?'} Mbps)`);
+        } else {
+            this.setElementText('#connection-info', 'Unknown');
+        }
+    }
+
+    static getBrowserInfo() {
+        const ua = navigator.userAgent;
+        if (ua.includes('Chrome')) return 'Chrome';
+        if (ua.includes('Firefox')) return 'Firefox';
+        if (ua.includes('Safari')) return 'Safari';
+        if (ua.includes('Edge')) return 'Edge';
+        return 'Unknown';
+    }
+
+    static loadProfileInfo() {
+        // Get current user info
+        const username = window.EmberFrame?.currentUser || 'User';
+        const isAdmin = window.EmberFrame?.isAdmin || false;
+
+        this.setElementText('#profile-username', username);
+        this.setElementText('#profile-role', isAdmin ? 'Administrator' : 'Standard User');
+        this.setElementText('#profile-created', new Date().toLocaleDateString());
+        this.setElementText('#profile-last-login', 'Now');
+
+        // Set avatar
+        const avatarText = this.currentWindow.querySelector('#avatar-text');
+        if (avatarText) {
+            avatarText.textContent = username.charAt(0).toUpperCase();
+        }
+
+        // Load storage info (simulated)
+        this.loadStorageInfo();
+    }
+
+    static loadStorageInfo() {
+        // Simulate storage usage
+        const usedMB = Math.floor(Math.random() * 50) + 10;
+        const totalMB = 100;
+        const availableMB = totalMB - usedMB;
+        const percentage = (usedMB / totalMB) * 100;
+
+        this.setElementText('#storage-used', usedMB + ' MB');
+        this.setElementText('#storage-available', availableMB + ' MB');
+
+        const storageBar = this.currentWindow.querySelector('#storage-bar');
+        if (storageBar) {
+            storageBar.style.width = percentage + '%';
+        }
+
+        // Breakdown
+        this.setElementText('#storage-documents', Math.floor(usedMB * 0.6) + ' MB');
+        this.setElementText('#storage-media', Math.floor(usedMB * 0.3) + ' MB');
+        this.setElementText('#storage-other', Math.floor(usedMB * 0.1) + ' MB');
+    }
+
+    static startUptime() {
+        setInterval(() => {
+            const uptime = Date.now() - this.startTime;
+            const hours = Math.floor(uptime / (1000 * 60 * 60));
+            const minutes = Math.floor((uptime % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((uptime % (1000 * 60)) / 1000);
+
+            const uptimeString = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            this.setElementText('#uptime-info', uptimeString);
+        }, 1000);
+    }
+
+    static setElementText(selector, text) {
+        const element = this.currentWindow.querySelector(selector);
+        if (element) {
+            element.textContent = text;
+        }
+    }
+
+    // Action Methods
     static clearCache() {
-        if (confirm('This will clear all cached data. Continue?')) {
-            localStorage.clear();
-            sessionStorage.clear();
-            Notification.success('Cache cleared successfully');
+        if (confirm('Clear all cache and temporary files? This action cannot be undone.')) {
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                this.showNotification('Cache cleared successfully', 'success');
+            } catch (error) {
+                this.showNotification('Failed to clear cache', 'error');
+            }
         }
     }
 
-    static clearHistory() {
-        if (confirm('Clear all command history?')) {
-            // Would clear terminal history
-            Notification.success('Command history cleared');
-        }
-    }
-
-    static exportData() {
-        const settings = this.getSettings();
+    static exportSettings() {
         const data = {
-            settings: settings,
+            settings: this.currentSettings,
             exported: new Date().toISOString(),
-            version: '1.0.0'
+            version: '1.2.0'
         };
 
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1082,99 +2040,70 @@ class Settings {
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'emberframe-settings.json';
+        a.download = `emberframe-settings-${new Date().toISOString().split('T')[0]}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
 
-        Notification.success('Settings exported to downloads');
+        this.showNotification('Settings exported successfully', 'success');
     }
 
     static resetSettings() {
-        if (confirm('This will reset all settings to default. Continue?')) {
+        if (confirm('Reset all settings to default values? This action cannot be undone.')) {
             localStorage.removeItem('emberframe-settings');
-            Notification.success('Settings reset to default');
-            setTimeout(() => location.reload(), 1000);
+            this.currentSettings = this.getDefaultSettings();
+            this.applyStoredSettings();
+            this.showNotification('Settings reset to defaults', 'success');
         }
-    }
-
-    static restartSystem() {
-        if (confirm('Restart EmberFrame? This will close all windows.')) {
-            location.reload();
-        }
-    }
-
-    static async loadAccountInfo() {
-        // In a real implementation, this would fetch from server
-        this.currentWindow.querySelector('#current-username').textContent =
-            document.querySelector('.username')?.textContent || 'user';
-        this.currentWindow.querySelector('#account-created').textContent = 'January, 2025';
-
-        // Simulate storage usage
-        const usedMB = Math.floor(Math.random() * 25) + 5;
-        const totalMB = 100;
-        const percentage = (usedMB / totalMB) * 100;
-
-        this.currentWindow.querySelector('#storage-used').textContent = usedMB + ' MB';
-        this.currentWindow.querySelector('#storage-total').textContent = totalMB + ' MB';
-        this.currentWindow.querySelector('#storage-used-bar').style.width = percentage + '%';
     }
 
     static changeAvatar() {
-        Notification.info('Avatar customization coming soon');
+        this.showNotification('Avatar customization coming in future update', 'info');
     }
 
     static changePassword() {
-        const newPassword = prompt('Enter new password:');
+        const newPassword = prompt('Enter new password (minimum 6 characters):');
         if (newPassword && newPassword.length >= 6) {
-            Notification.success('Password changed successfully');
+            this.showNotification('Password changed successfully', 'success');
         } else if (newPassword) {
-            Notification.error('Password must be at least 6 characters');
+            this.showNotification('Password must be at least 6 characters', 'error');
         }
-    }
-
-    static enableTwoFactor() {
-        Notification.info('Two-factor authentication setup coming soon');
-    }
-
-    static updateMemoryUsage() {
-        if (performance.memory) {
-            const used = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024);
-            const total = Math.round(performance.memory.totalJSHeapSize / 1024 / 1024);
-            this.currentWindow.querySelector('#memory-usage').textContent = `${used} MB / ${total} MB`;
-        } else {
-            this.currentWindow.querySelector('#memory-usage').textContent = 'Not available';
-        }
-    }
-
-    static updateUptime() {
-        const uptime = Date.now() - this.startTime;
-        const hours = Math.floor(uptime / (1000 * 60 * 60));
-        const minutes = Math.floor((uptime % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((uptime % (1000 * 60)) / 1000);
-
-        const uptimeString = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        this.currentWindow.querySelector('#system-uptime').textContent = uptimeString;
-    }
-
-    static showLicense() {
-        Notification.info('License: MIT License - Free for personal and commercial use');
     }
 
     static checkUpdates() {
-        const updateId = Notification.loading('Checking for updates...');
+        const updateId = this.showNotification('Checking for updates...', 'info', 0);
+
         setTimeout(() => {
-            Notification.update(updateId, 'You have the latest version!', 'success');
-            setTimeout(() => Notification.close(updateId), 3000);
+            if (window.Notification) {
+                window.Notification.update(updateId, 'You have the latest version of EmberFrame!', 'success');
+                setTimeout(() => window.Notification.close(updateId), 3000);
+            }
         }, 2000);
     }
 
+    static viewLicense() {
+        this.showNotification('License: MIT License - Free for personal and commercial use', 'info', 8000);
+    }
+
+    static sendFeedback() {
+        this.showNotification('Feedback system not yet implemented', 'info');
+    }
+
+    static showNotification(message, type = 'info', duration = 4000) {
+        if (window.Notification) {
+            return window.Notification.show(message, type, duration);
+        } else {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            return Date.now();
+        }
+    }
+
     static onClose(windowElement) {
+        // Cleanup
         if (this.uptimeInterval) {
             clearInterval(this.uptimeInterval);
         }
-        this.currentWindow = null;
         return true;
     }
 }
