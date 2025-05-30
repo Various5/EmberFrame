@@ -24,14 +24,14 @@
             --glow-blue: 0 0 20px rgba(0, 212, 255, 0.5);
             --border-gradient: linear-gradient(135deg, var(--primary-blue), var(--neon-cyan));
             --bg-gradient: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 50%, var(--tertiary-bg) 100%);
-            --taskbar-height: 70px;
-            --icon-size: 55px;
+            --taskbar-height: 60px;
+            --icon-size: 48px;
         }
 
         @media (max-width: 768px) {
             :root {
-                --taskbar-height: 60px;
-                --icon-size: 45px;
+                --taskbar-height: 55px;
+                --icon-size: 42px;
             }
         }
 
@@ -62,141 +62,197 @@
             height: 100%;
             z-index: -2;
             background-image:
-                linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: grid-move 20s linear infinite;
+                linear-gradient(rgba(0, 212, 255, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.08) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: grid-move 25s linear infinite;
         }
 
         @keyframes grid-move {
             0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
+            100% { transform: translate(40px, 40px); }
         }
 
         /* Desktop Area */
         .desktop {
             height: calc(100vh - var(--taskbar-height));
             position: relative;
-            padding: 20px;
+            padding: 15px;
             overflow: hidden;
         }
 
-        /* Desktop Icons */
+        /* Desktop Icons - Draggable */
         .desktop-icon {
             position: absolute;
-            width: 90px;
+            width: 75px;
             text-align: center;
             cursor: pointer;
-            padding: 15px 10px;
-            border-radius: 15px;
+            padding: 10px 8px;
+            border-radius: 12px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             user-select: none;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
             border: 1px solid rgba(0, 212, 255, 0.2);
             touch-action: manipulation;
+            background: rgba(0, 0, 0, 0.1);
+            z-index: 100;
         }
 
         .desktop-icon:hover {
-            background: rgba(0, 212, 255, 0.1);
-            border-color: rgba(0, 212, 255, 0.5);
-            transform: translateY(-5px) scale(1.05);
+            background: rgba(0, 212, 255, 0.15);
+            border-color: rgba(0, 212, 255, 0.6);
+            transform: translateY(-3px) scale(1.05);
             box-shadow: var(--glow-blue);
         }
 
         .desktop-icon.selected {
-            background: rgba(0, 212, 255, 0.2);
+            background: rgba(0, 212, 255, 0.25);
             border-color: rgba(0, 212, 255, 0.8);
             box-shadow: var(--glow-blue);
+        }
+
+        .desktop-icon.dragging {
+            transform: scale(1.1);
+            opacity: 0.8;
+            z-index: 1000;
         }
 
         .icon-image {
             width: var(--icon-size);
             height: var(--icon-size);
-            margin: 0 auto 12px;
+            margin: 0 auto 8px;
             background: var(--border-gradient);
-            border-radius: 15px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 22px;
             color: var(--bright-white);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
         }
 
         .icon-label {
             color: var(--bright-white);
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 500;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
             font-family: 'Orbitron', monospace;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
+            line-height: 1.2;
         }
 
-        /* Taskbar */
+        /* Taskbar - Slim Design */
         .taskbar {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             height: var(--taskbar-height);
-            background: rgba(20, 20, 32, 0.95);
-            backdrop-filter: blur(20px);
+            background: rgba(10, 10, 15, 0.95);
+            backdrop-filter: blur(25px);
             display: flex;
             align-items: center;
-            padding: 0 25px;
-            border-top: 2px solid;
-            border-image: var(--border-gradient) 1;
+            padding: 0 20px;
+            border-top: 1px solid rgba(0, 212, 255, 0.3);
             z-index: 2000;
-            box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 -3px 20px rgba(0, 0, 0, 0.6);
         }
 
         .start-button {
             background: var(--border-gradient);
             color: var(--bright-white);
             border: none;
-            padding: 12px 25px;
-            border-radius: 12px;
+            padding: 10px 20px;
+            border-radius: 10px;
             cursor: pointer;
             font-family: 'Orbitron', monospace;
             font-weight: 600;
-            font-size: 15px;
+            font-size: 14px;
             transition: all 0.3s ease;
-            margin-right: 25px;
+            margin-right: 20px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            min-width: 80px;
+        }
+
+        .start-button:hover {
+            transform: scale(1.05);
+            box-shadow: var(--glow-blue);
         }
 
         .taskbar-apps {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex: 1;
             overflow-x: auto;
             padding: 0 15px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .taskbar-apps::-webkit-scrollbar {
+            display: none;
         }
 
         .taskbar-app {
             background: rgba(0, 212, 255, 0.1);
             border: 1px solid rgba(0, 212, 255, 0.3);
             color: var(--bright-white);
-            padding: 10px 20px;
-            border-radius: 10px;
+            padding: 8px 16px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 14px;
+            font-size: 12px;
             white-space: nowrap;
             flex-shrink: 0;
+            font-family: 'Orbitron', monospace;
+            font-weight: 500;
         }
 
         .taskbar-app.active {
             background: var(--primary-blue);
             color: var(--primary-bg);
+            box-shadow: var(--glow-blue);
+        }
+
+        .taskbar-app:hover {
+            background: rgba(0, 212, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .taskbar-shortcuts {
+            display: flex;
+            gap: 6px;
+            margin-right: 15px;
+            padding: 0 10px;
+            border-right: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .taskbar-shortcut {
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--primary-blue);
+            font-size: 16px;
+        }
+
+        .taskbar-shortcut:hover {
+            background: rgba(0, 212, 255, 0.2);
+            transform: scale(1.1);
         }
 
         .system-tray {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
             font-family: 'Orbitron', monospace;
             flex-shrink: 0;
         }
@@ -204,16 +260,16 @@
         .user-info {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 8px 16px;
+            gap: 10px;
+            padding: 6px 12px;
             background: rgba(0, 212, 255, 0.1);
             border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 10px;
+            border-radius: 8px;
         }
 
         .user-avatar {
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             background: var(--border-gradient);
             display: flex;
@@ -221,40 +277,47 @@
             justify-content: center;
             font-weight: 700;
             color: var(--bright-white);
+            font-size: 12px;
         }
 
         .time-display {
             font-weight: 600;
             color: var(--neon-cyan);
-            text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+            font-size: 13px;
         }
 
         .logout-btn {
             background: rgba(255, 68, 102, 0.1);
             border: 1px solid rgba(255, 68, 102, 0.3);
             color: var(--error-color);
-            padding: 8px 16px;
-            border-radius: 10px;
+            padding: 6px 12px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-size: 12px;
         }
 
-        /* Start Menu */
+        .logout-btn:hover {
+            background: rgba(255, 68, 102, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* Start Menu - Futuristic Design */
         .start-menu {
             position: fixed;
             bottom: calc(var(--taskbar-height) + 10px);
-            left: 25px;
-            width: 420px;
-            max-height: 600px;
-            background: rgba(20, 20, 32, 0.95);
-            border: 2px solid;
-            border-image: var(--border-gradient) 1;
-            border-radius: 20px;
-            backdrop-filter: blur(20px);
+            left: 20px;
+            width: 450px;
+            max-height: 650px;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            border-radius: 16px;
+            backdrop-filter: blur(25px);
             display: none;
             flex-direction: column;
             z-index: 3000;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
             overflow: hidden;
         }
 
@@ -266,7 +329,7 @@
         @keyframes slideUpGlow {
             from {
                 opacity: 0;
-                transform: translateY(30px) scale(0.9);
+                transform: translateY(30px) scale(0.95);
             }
             to {
                 opacity: 1;
@@ -275,76 +338,86 @@
         }
 
         .start-menu-header {
-            padding: 25px;
+            padding: 20px;
             border-bottom: 1px solid rgba(0, 212, 255, 0.3);
             background: rgba(0, 212, 255, 0.05);
         }
 
         .start-menu-title {
             font-family: 'Orbitron', monospace;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
             color: var(--primary-blue);
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
 
         .start-menu-search {
             width: 100%;
-            padding: 12px 20px;
+            padding: 10px 16px;
             border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 12px;
+            border-radius: 10px;
             background: rgba(0, 0, 0, 0.3);
             color: var(--bright-white);
             font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+        }
+
+        .start-menu-search:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: var(--glow-blue);
         }
 
         .start-menu-apps {
             flex: 1;
-            padding: 15px;
+            padding: 10px;
             overflow-y: auto;
         }
 
         .start-menu-category {
-            padding: 10px 20px 5px;
+            padding: 8px 16px;
             font-weight: 600;
             color: var(--primary-blue);
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 1px;
             border-bottom: 1px solid rgba(0, 212, 255, 0.2);
             margin-bottom: 5px;
+            font-family: 'Orbitron', monospace;
         }
 
         .start-menu-app {
             display: flex;
             align-items: center;
-            padding: 15px 20px;
-            border-radius: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
             border: 1px solid transparent;
+            position: relative;
         }
 
         .start-menu-app:hover {
             background: rgba(0, 212, 255, 0.1);
             border-color: rgba(0, 212, 255, 0.3);
-            transform: translateX(5px);
+            transform: translateX(3px);
         }
 
         .start-menu-app-icon {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             background: var(--border-gradient);
-            border-radius: 10px;
-            margin-right: 15px;
+            border-radius: 8px;
+            margin-right: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
             color: var(--bright-white);
+            flex-shrink: 0;
         }
 
         .start-menu-app-details {
@@ -352,16 +425,61 @@
         }
 
         .start-menu-app-name {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 500;
             color: var(--bright-white);
             font-family: 'Orbitron', monospace;
+            margin-bottom: 2px;
         }
 
         .start-menu-app-desc {
-            font-size: 11px;
-            color: #999;
-            margin-top: 2px;
+            font-size: 10px;
+            color: #8892b0;
+            opacity: 0.8;
+        }
+
+        /* Context Menus - Always on top */
+        .context-menu {
+            position: fixed;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            border-radius: 10px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            padding: 8px 0;
+            min-width: 200px;
+            display: none;
+            z-index: 9999;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            color: white;
+        }
+
+        .context-menu-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--bright-white);
+        }
+
+        .context-menu-item:hover {
+            background: rgba(0, 212, 255, 0.15);
+            color: var(--neon-cyan);
+        }
+
+        .context-menu-item i {
+            width: 16px;
+            text-align: center;
+            color: var(--primary-blue);
+        }
+
+        .context-menu-separator {
+            height: 1px;
+            background: rgba(0, 212, 255, 0.3);
+            margin: 4px 0;
         }
 
         /* Windows */
@@ -371,10 +489,10 @@
             min-height: 200px;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(15px);
-            border-radius: 15px;
+            border-radius: 12px;
             box-shadow: 0 12px 40px rgba(0,0,0,0.3);
             overflow: hidden;
-            border: 2px solid rgba(0, 212, 255, 0.3);
+            border: 1px solid rgba(0, 212, 255, 0.3);
             z-index: 1000;
         }
 
@@ -387,37 +505,38 @@
         .window-header {
             background: linear-gradient(135deg, #1a1a2e, #2d2d3a);
             color: var(--bright-white);
-            padding: 15px 20px;
+            padding: 12px 16px;
             cursor: move;
             display: flex;
             justify-content: space-between;
             align-items: center;
             user-select: none;
-            border-radius: 15px 15px 0 0;
+            border-radius: 12px 12px 0 0;
+            height: 50px;
         }
 
         .window-title {
             font-weight: 600;
-            font-size: 16px;
+            font-size: 14px;
             font-family: 'Orbitron', monospace;
             color: var(--primary-blue);
         }
 
         .window-controls {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         .window-control {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
         }
 
@@ -436,121 +555,64 @@
             color: white;
         }
 
+        .window-control:hover {
+            transform: scale(1.2);
+        }
+
         .window-content {
-            height: calc(100% - 60px);
+            height: calc(100% - 50px);
             overflow: auto;
             background: rgba(255, 255, 255, 0.98);
         }
 
-        /* Context Menu */
-        .context-menu-shortcuts {
-            position: fixed;
-            background: rgba(20, 20, 32, 0.95);
-            border: 1px solid rgba(0, 212, 255, 0.3);
+        /* Drop zones for shortcuts */
+        .drop-zone {
+            position: absolute;
+            border: 2px dashed var(--primary-blue);
             border-radius: 10px;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-            padding: 10px 0;
-            min-width: 220px;
-            display: none;
-            z-index: 5000;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 14px;
-            color: white;
-        }
-
-        .context-menu-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .context-menu-item:hover {
             background: rgba(0, 212, 255, 0.1);
-        }
-
-        /* Notifications */
-        .notification-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 6000;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-width: 400px;
-        }
-
-        .notification {
-            background: rgba(20, 20, 32, 0.95);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 12px;
-            padding: 15px 20px;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-        }
-
-        .notification.success {
-            border-color: var(--success-color);
-            color: var(--success-color);
-        }
-
-        .notification.error {
-            border-color: var(--error-color);
-            color: var(--error-color);
-        }
-
-        .notification.warning {
-            border-color: var(--warning-color);
-            color: var(--warning-color);
-        }
-
-        .notification.info {
-            border-color: var(--primary-blue);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
             color: var(--primary-blue);
+            font-weight: 600;
+            z-index: 500;
         }
 
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        .drop-zone.active {
+            display: flex;
         }
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .desktop {
-                padding: 15px;
+                padding: 10px;
             }
 
             .desktop-icon {
-                width: 80px;
-                padding: 12px 8px;
+                width: 65px;
+                padding: 8px 6px;
             }
 
             .start-menu {
-                width: calc(100vw - 40px);
-                left: 20px;
-                max-height: calc(100vh - var(--taskbar-height) - 40px);
+                width: calc(100vw - 30px);
+                left: 15px;
+                max-height: calc(100vh - var(--taskbar-height) - 30px);
             }
 
             .taskbar {
-                padding: 0 15px;
+                padding: 0 12px;
             }
 
             .start-button {
-                padding: 10px 20px;
-                font-size: 14px;
-                margin-right: 15px;
+                padding: 8px 16px;
+                font-size: 12px;
+                margin-right: 12px;
+            }
+
+            .taskbar-shortcuts {
+                display: none; /* Hide on mobile to save space */
             }
 
             .window {
@@ -558,7 +620,12 @@
                 height: calc(100vh - var(--taskbar-height) - 20px) !important;
                 top: 10px !important;
                 left: 10px !important;
-                border-radius: 12px;
+                border-radius: 10px;
+            }
+
+            .context-menu {
+                min-width: 180px;
+                font-size: 12px;
             }
         }
     </style>
@@ -569,11 +636,11 @@
         <div style="text-align: center;">
             <div style="font-size: 80px; margin-bottom: 30px; animation: pulse-glow 2s infinite alternate; color: var(--primary-blue); text-shadow: var(--glow-blue);">🔥</div>
             <h1 style="font-family: 'Orbitron', monospace; font-size: 40px; font-weight: 900; color: var(--bright-white); margin-bottom: 20px; letter-spacing: 3px; text-transform: uppercase;">EmberFrame</h1>
-            <p style="font-size: 18px; color: #c0c0c0; margin-bottom: 40px; font-weight: 300;">Initializing Enhanced Desktop Environment</p>
+            <p style="font-size: 18px; color: #c0c0c0; margin-bottom: 40px; font-weight: 300;">Initializing Dynamic Desktop Environment</p>
             <div style="width: 400px; height: 6px; background: rgba(0, 212, 255, 0.2); border-radius: 3px; overflow: hidden; margin: 0 auto 20px;">
                 <div id="loading-progress" style="height: 100%; background: var(--border-gradient); transition: width 0.3s ease; width: 0%;"></div>
             </div>
-            <div id="loading-text" style="font-family: 'Rajdhani', sans-serif; color: var(--neon-cyan); font-size: 16px; font-weight: 500;">Loading Core Systems...</div>
+            <div id="loading-text" style="font-family: 'Rajdhani', sans-serif; color: var(--neon-cyan); font-size: 16px; font-weight: 500;">Discovering Applications...</div>
         </div>
     </div>
 
@@ -582,7 +649,7 @@
 
     <!-- Desktop Area -->
     <div class="desktop" id="desktop">
-        <!-- Dynamic desktop icons will be loaded here -->
+        <!-- Dynamic desktop icons will be created here -->
     </div>
 
     <!-- Taskbar -->
@@ -590,6 +657,10 @@
         <button class="start-button" id="start-button">
             🔥 Start
         </button>
+
+        <div class="taskbar-shortcuts" id="taskbar-shortcuts">
+            <!-- Taskbar shortcuts will be added here dynamically -->
+        </div>
 
         <div class="taskbar-apps" id="taskbar-apps">
             <!-- Running applications will appear here -->
@@ -602,7 +673,7 @@
             </div>
             <div class="time-display" id="current-time"></div>
             <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Sign Out
+                <i class="fas fa-sign-out-alt"></i> Exit
             </button>
         </div>
     </div>
@@ -618,49 +689,770 @@
         </div>
     </div>
 
+    <!-- Context Menus -->
+    <div class="context-menu" id="desktop-context-menu">
+        <div class="context-menu-item" data-action="refresh">
+            <i class="fas fa-sync-alt"></i> Refresh Desktop
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" data-action="settings">
+            <i class="fas fa-cog"></i> Desktop Settings
+        </div>
+        <div class="context-menu-item" data-action="terminal">
+            <i class="fas fa-terminal"></i> Open Terminal Here
+        </div>
+    </div>
+
+    <div class="context-menu" id="app-context-menu">
+        <div class="context-menu-item" data-action="add-desktop">
+            <i class="fas fa-plus"></i> Add to Desktop
+        </div>
+        <div class="context-menu-item" data-action="add-taskbar">
+            <i class="fas fa-thumbtack"></i> Pin to Taskbar
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" data-action="open">
+            <i class="fas fa-play"></i> Open
+        </div>
+    </div>
+
+    <div class="context-menu" id="icon-context-menu">
+        <div class="context-menu-item" data-action="open">
+            <i class="fas fa-play"></i> Open
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" data-action="remove">
+            <i class="fas fa-trash"></i> Remove from Desktop
+        </div>
+    </div>
+
+    <div class="context-menu" id="taskbar-context-menu">
+        <div class="context-menu-item" data-action="open">
+            <i class="fas fa-play"></i> Open
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" data-action="unpin">
+            <i class="fas fa-times"></i> Unpin from Taskbar
+        </div>
+    </div>
+
+    <!-- Drop Zones -->
+    <div class="drop-zone" id="desktop-drop-zone">
+        <i class="fas fa-desktop"></i> Drop here to add to Desktop
+    </div>
+    <div class="drop-zone" id="taskbar-drop-zone">
+        <i class="fas fa-window-minimize"></i> Drop here to pin to Taskbar
+    </div>
+
     <!-- Windows Container -->
     <div id="windows-container"></div>
 
     <!-- Notification Container -->
     <div class="notification-container" id="notification-container"></div>
 
-        <div class="desktop-icon" style="top: 270px; left: 30px;" data-app="media-player">
-            <div class="icon-image">
-                <i class="fas fa-play-circle"></i>
-            </div>
-            <div class="icon-label">Media Player</div>
-        </div>
-
-        <div class="desktop-icon" style="top: 270px; left: 140px;" data-app="public-folder">
-            <div class="icon-image">
-                <i class="fas fa-globe"></i>
-            </div>
-            <div class="icon-label">Public Files</div>
-        </div>
     <!-- JavaScript -->
     <script>
-        console.log('🔥 EmberFrame Enhanced Desktop loading for user: {{ username }}');
+        console.log('🔥 EmberFrame Dynamic Desktop loading for user: {{ username }}');
 
         // Global configuration
         window.EmberFrame = {
             currentUser: '{{ username }}',
-            isAdmin: false, // Will be loaded from API
-            apps: {},
-            preferences: {}
+            isAdmin: false,
+            availableApps: new Map(),
+            desktopShortcuts: [],
+            taskbarShortcuts: [],
+            preferences: {},
+            draggedElement: null,
+            draggedFromTaskbar: false
         };
 
         // Device detection
         const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         console.log('Device type:', isMobile ? 'Mobile' : 'Desktop');
 
-        // Loading screen management
+        // App Discovery System
+        class AppDiscovery {
+            static async discoverApps() {
+                console.log('🔍 Discovering available applications...');
+
+                // Known app files to check
+                const appFiles = [
+                    'file-manager',
+                    'terminal',
+                    'text-editor',
+                    'media-player',
+                    'settings',
+                    'admin-panel'
+                ];
+
+                const discoveredApps = new Map();
+
+                // Add built-in apps with their metadata
+                const builtInApps = [
+                    {
+                        id: 'file-manager',
+                        name: 'File Manager',
+                        icon: 'fas fa-folder',
+                        description: 'Browse and manage your files',
+                        category: 'System'
+                    },
+                    {
+                        id: 'terminal',
+                        name: 'Terminal',
+                        icon: 'fas fa-terminal',
+                        description: 'Command line interface',
+                        category: 'System'
+                    },
+                    {
+                        id: 'text-editor',
+                        name: 'Text Editor',
+                        icon: 'fas fa-edit',
+                        description: 'Create and edit documents',
+                        category: 'Productivity'
+                    },
+                    {
+                        id: 'media-player',
+                        name: 'Media Player',
+                        icon: 'fas fa-play-circle',
+                        description: 'Play audio and video files',
+                        category: 'Entertainment'
+                    },
+                    {
+                        id: 'settings',
+                        name: 'Settings',
+                        icon: 'fas fa-cog',
+                        description: 'Customize your experience',
+                        category: 'System'
+                    },
+                    {
+                        id: 'public-folder',
+                        name: 'Public Files',
+                        icon: 'fas fa-globe',
+                        description: 'Access shared public files',
+                        category: 'System'
+                    }
+                ];
+
+                // Check if user is admin and add admin panel
+                try {
+                    const response = await fetch('/api/admin/check');
+                    if (response.ok) {
+                        const data = await response.json();
+                        window.EmberFrame.isAdmin = data.is_admin;
+
+                        if (data.is_admin) {
+                            builtInApps.push({
+                                id: 'admin-panel',
+                                name: 'Admin Panel',
+                                icon: 'fas fa-shield-alt',
+                                description: 'Manage system and public files',
+                                category: 'Administration'
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to check admin status:', error);
+                }
+
+                // Check which apps are actually available by testing window objects
+                for (const app of builtInApps) {
+                    const className = this.getAppClassName(app.id);
+                    if (window[className] || app.id === 'public-folder') {
+                        discoveredApps.set(app.id, app);
+                        console.log(`✅ Found app: ${app.name}`);
+                    } else {
+                        console.log(`⚠️ App not loaded: ${app.name} (${className})`);
+                    }
+                }
+
+                window.EmberFrame.availableApps = discoveredApps;
+                console.log(`🎯 Discovery complete: ${discoveredApps.size} apps found`);
+
+                return discoveredApps;
+            }
+
+            static getAppClassName(appId) {
+                // Convert app-id to ClassName format
+                return appId.split('-')
+                    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                    .join('');
+            }
+        }
+
+        // Shortcut Management System
+        class ShortcutManager {
+            static async loadShortcuts() {
+                try {
+                    // Load desktop shortcuts
+                    const desktopResponse = await fetch('/api/shortcuts/desktop');
+                    if (desktopResponse.ok) {
+                        const data = await desktopResponse.json();
+                        window.EmberFrame.desktopShortcuts = data.shortcuts || [];
+                    }
+
+                    // Load taskbar shortcuts
+                    const taskbarResponse = await fetch('/api/shortcuts/taskbar');
+                    if (taskbarResponse.ok) {
+                        const data = await taskbarResponse.json();
+                        window.EmberFrame.taskbarShortcuts = data.shortcuts || [];
+                    }
+
+                    console.log('📌 Shortcuts loaded:', {
+                        desktop: window.EmberFrame.desktopShortcuts.length,
+                        taskbar: window.EmberFrame.taskbarShortcuts.length
+                    });
+                } catch (error) {
+                    console.error('Failed to load shortcuts:', error);
+                    window.EmberFrame.desktopShortcuts = [];
+                    window.EmberFrame.taskbarShortcuts = [];
+                }
+            }
+
+            static async saveShortcuts(type, shortcuts) {
+                try {
+                    const response = await fetch(`/api/shortcuts/${type}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ shortcuts })
+                    });
+                    return response.ok;
+                } catch (error) {
+                    console.error(`Failed to save ${type} shortcuts:`, error);
+                    return false;
+                }
+            }
+
+            static async addDesktopShortcut(appId, x, y) {
+                const app = window.EmberFrame.availableApps.get(appId);
+                if (!app) return false;
+
+                const shortcut = { app: appId, x, y };
+                window.EmberFrame.desktopShortcuts.push(shortcut);
+
+                if (await this.saveShortcuts('desktop', window.EmberFrame.desktopShortcuts)) {
+                    this.createDesktopIcon(shortcut);
+                    if (window.Notification) {
+                        window.Notification.success(`${app.name} added to desktop`);
+                    }
+                    return true;
+                }
+                return false;
+            }
+
+            static async removeDesktopShortcut(appId) {
+                window.EmberFrame.desktopShortcuts = window.EmberFrame.desktopShortcuts.filter(s => s.app !== appId);
+
+                if (await this.saveShortcuts('desktop', window.EmberFrame.desktopShortcuts)) {
+                    const icon = document.querySelector(`.desktop-icon[data-app="${appId}"]`);
+                    if (icon) icon.remove();
+                    return true;
+                }
+                return false;
+            }
+
+            static async addTaskbarShortcut(appId) {
+                const app = window.EmberFrame.availableApps.get(appId);
+                if (!app) return false;
+
+                // Check if already pinned
+                if (window.EmberFrame.taskbarShortcuts.some(s => s.app === appId)) {
+                    if (window.Notification) {
+                        window.Notification.warning(`${app.name} is already pinned to taskbar`);
+                    }
+                    return false;
+                }
+
+                const shortcut = { app: appId };
+                window.EmberFrame.taskbarShortcuts.push(shortcut);
+
+                if (await this.saveShortcuts('taskbar', window.EmberFrame.taskbarShortcuts)) {
+                    this.updateTaskbarShortcuts();
+                    if (window.Notification) {
+                        window.Notification.success(`${app.name} pinned to taskbar`);
+                    }
+                    return true;
+                }
+                return false;
+            }
+
+            static async removeTaskbarShortcut(appId) {
+                window.EmberFrame.taskbarShortcuts = window.EmberFrame.taskbarShortcuts.filter(s => s.app !== appId);
+
+                if (await this.saveShortcuts('taskbar', window.EmberFrame.taskbarShortcuts)) {
+                    this.updateTaskbarShortcuts();
+                    return true;
+                }
+                return false;
+            }
+
+            static createDesktopIcon(shortcut) {
+                const app = window.EmberFrame.availableApps.get(shortcut.app);
+                if (!app) return;
+
+                const desktop = document.getElementById('desktop');
+                const icon = document.createElement('div');
+                icon.className = 'desktop-icon';
+                icon.dataset.app = shortcut.app;
+                icon.style.left = shortcut.x + 'px';
+                icon.style.top = shortcut.y + 'px';
+
+                icon.innerHTML = `
+                    <div class="icon-image">
+                        <i class="${app.icon}"></i>
+                    </div>
+                    <div class="icon-label">${app.name}</div>
+                `;
+
+                this.setupIconEvents(icon);
+                desktop.appendChild(icon);
+            }
+
+            static updateDesktopShortcuts() {
+                // Clear existing icons
+                document.querySelectorAll('.desktop-icon').forEach(icon => icon.remove());
+
+                // Create icons from shortcuts
+                window.EmberFrame.desktopShortcuts.forEach(shortcut => {
+                    this.createDesktopIcon(shortcut);
+                });
+            }
+
+            static updateTaskbarShortcuts() {
+                const container = document.getElementById('taskbar-shortcuts');
+                container.innerHTML = '';
+
+                window.EmberFrame.taskbarShortcuts.forEach(shortcut => {
+                    const app = window.EmberFrame.availableApps.get(shortcut.app);
+                    if (!app) return;
+
+                    const button = document.createElement('div');
+                    button.className = 'taskbar-shortcut';
+                    button.dataset.app = shortcut.app;
+                    button.title = app.name;
+                    button.innerHTML = `<i class="${app.icon}"></i>`;
+
+                    button.addEventListener('click', () => {
+                        if (window.WindowManager) {
+                            window.WindowManager.openApp(shortcut.app);
+                        }
+                    });
+
+                    button.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        ContextMenuManager.show('taskbar', e.clientX, e.clientY, { app: shortcut.app });
+                    });
+
+                    container.appendChild(button);
+                });
+            }
+
+            static setupIconEvents(icon) {
+                let clickCount = 0;
+                let dragStartPos = null;
+                let isDragging = false;
+
+                // Double-click to open
+                icon.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    clickCount++;
+
+                    setTimeout(() => {
+                        if (clickCount === 1 && !isDragging) {
+                            this.selectIcon(icon);
+                        } else if (clickCount === 2) {
+                            const appId = icon.dataset.app;
+                            if (window.WindowManager) {
+                                window.WindowManager.openApp(appId);
+                            }
+                        }
+                        clickCount = 0;
+                    }, 300);
+                });
+
+                // Drag functionality (desktop only)
+                if (!isMobile) {
+                    icon.addEventListener('mousedown', (e) => {
+                        if (e.button !== 0) return; // Only left mouse button
+
+                        dragStartPos = {
+                            x: e.clientX - icon.offsetLeft,
+                            y: e.clientY - icon.offsetTop
+                        };
+
+                        const onMouseMove = (e) => {
+                            if (!isDragging && dragStartPos) {
+                                const distance = Math.sqrt(
+                                    Math.pow(e.clientX - (icon.offsetLeft + dragStartPos.x), 2) +
+                                    Math.pow(e.clientY - (icon.offsetTop + dragStartPos.y), 2)
+                                );
+
+                                if (distance > 5) {
+                                    isDragging = true;
+                                    icon.classList.add('dragging');
+                                    window.EmberFrame.draggedElement = icon;
+                                    this.showDropZones();
+                                }
+                            }
+
+                            if (isDragging) {
+                                const newX = e.clientX - dragStartPos.x;
+                                const newY = e.clientY - dragStartPos.y;
+
+                                // Constrain to desktop area
+                                const desktop = document.getElementById('desktop');
+                                const maxX = desktop.clientWidth - icon.offsetWidth;
+                                const maxY = desktop.clientHeight - icon.offsetHeight;
+
+                                icon.style.left = Math.max(0, Math.min(newX, maxX)) + 'px';
+                                icon.style.top = Math.max(0, Math.min(newY, maxY)) + 'px';
+                            }
+                        };
+
+                        const onMouseUp = async () => {
+                            document.removeEventListener('mousemove', onMouseMove);
+                            document.removeEventListener('mouseup', onMouseUp);
+
+                            if (isDragging) {
+                                icon.classList.remove('dragging');
+                                window.EmberFrame.draggedElement = null;
+                                this.hideDropZones();
+
+                                // Update shortcut position
+                                const appId = icon.dataset.app;
+                                const shortcutIndex = window.EmberFrame.desktopShortcuts.findIndex(s => s.app === appId);
+                                if (shortcutIndex !== -1) {
+                                    window.EmberFrame.desktopShortcuts[shortcutIndex].x = parseInt(icon.style.left);
+                                    window.EmberFrame.desktopShortcuts[shortcutIndex].y = parseInt(icon.style.top);
+                                    await this.saveShortcuts('desktop', window.EmberFrame.desktopShortcuts);
+                                }
+
+                                setTimeout(() => { isDragging = false; }, 100);
+                            }
+
+                            dragStartPos = null;
+                        };
+
+                        document.addEventListener('mousemove', onMouseMove);
+                        document.addEventListener('mouseup', onMouseUp);
+                        e.preventDefault();
+                    });
+                }
+
+                // Context menu
+                icon.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    ContextMenuManager.show('icon', e.clientX, e.clientY, { app: icon.dataset.app });
+                });
+            }
+
+            static selectIcon(icon) {
+                document.querySelectorAll('.desktop-icon').forEach(i => i.classList.remove('selected'));
+                icon.classList.add('selected');
+            }
+
+            static showDropZones() {
+                // Implementation for showing drop zones during drag
+            }
+
+            static hideDropZones() {
+                // Implementation for hiding drop zones
+            }
+        }
+
+        // Context Menu Management
+        class ContextMenuManager {
+            static currentMenu = null;
+            static currentContext = null;
+
+            static show(type, x, y, context = {}) {
+                this.hide();
+
+                const menu = document.getElementById(`${type}-context-menu`);
+                if (!menu) return;
+
+                this.currentMenu = menu;
+                this.currentContext = context;
+
+                // Position menu
+                menu.style.left = Math.min(x, window.innerWidth - 220) + 'px';
+                menu.style.top = Math.min(y, window.innerHeight - 200) + 'px';
+                menu.style.display = 'block';
+
+                // Setup event listeners
+                menu.addEventListener('click', this.handleClick.bind(this));
+                document.addEventListener('click', this.handleOutsideClick.bind(this));
+
+                console.log(`📋 Context menu shown: ${type}`, context);
+            }
+
+            static hide() {
+                if (this.currentMenu) {
+                    this.currentMenu.style.display = 'none';
+                    this.currentMenu = null;
+                    this.currentContext = null;
+                    document.removeEventListener('click', this.handleOutsideClick.bind(this));
+                }
+            }
+
+            static handleClick(e) {
+                const item = e.target.closest('.context-menu-item');
+                if (!item) return;
+
+                const action = item.dataset.action;
+                this.executeAction(action, this.currentContext);
+                this.hide();
+            }
+
+            static handleOutsideClick(e) {
+                if (!e.target.closest('.context-menu')) {
+                    this.hide();
+                }
+            }
+
+            static async executeAction(action, context) {
+                console.log(`🎬 Executing action: ${action}`, context);
+
+                switch (action) {
+                    case 'add-desktop':
+                        if (context.app) {
+                            const x = Math.random() * (window.innerWidth - 200) + 50;
+                            const y = Math.random() * (window.innerHeight - 300) + 50;
+                            await ShortcutManager.addDesktopShortcut(context.app, x, y);
+                        }
+                        break;
+
+                    case 'add-taskbar':
+                        if (context.app) {
+                            await ShortcutManager.addTaskbarShortcut(context.app);
+                        }
+                        break;
+
+                    case 'remove':
+                        if (context.app) {
+                            await ShortcutManager.removeDesktopShortcut(context.app);
+                        }
+                        break;
+
+                    case 'unpin':
+                        if (context.app) {
+                            await ShortcutManager.removeTaskbarShortcut(context.app);
+                        }
+                        break;
+
+                    case 'open':
+                        if (context.app && window.WindowManager) {
+                            window.WindowManager.openApp(context.app);
+                        }
+                        break;
+
+                    case 'refresh':
+                        await this.refreshDesktop();
+                        break;
+
+                    case 'settings':
+                        if (window.WindowManager) {
+                            window.WindowManager.openApp('settings');
+                        }
+                        break;
+
+                    case 'terminal':
+                        if (window.WindowManager) {
+                            window.WindowManager.openApp('terminal');
+                        }
+                        break;
+                }
+            }
+
+            static async refreshDesktop() {
+                await AppDiscovery.discoverApps();
+                DesktopManager.updateStartMenu();
+                ShortcutManager.updateDesktopShortcuts();
+                ShortcutManager.updateTaskbarShortcuts();
+                if (window.Notification) {
+                    window.Notification.success('Desktop refreshed');
+                }
+            }
+        }
+
+        // Desktop Manager
+        class DesktopManager {
+            static init() {
+                this.setupEventListeners();
+                this.updateTime();
+                setInterval(() => this.updateTime(), 1000);
+            }
+
+            static setupEventListeners() {
+                const startButton = document.getElementById('start-button');
+                const startMenu = document.getElementById('start-menu');
+                const appSearch = document.getElementById('app-search');
+                const desktop = document.getElementById('desktop');
+
+                // Start menu toggle
+                startButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.toggleStartMenu();
+                });
+
+                // Close start menu when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.start-menu') && !e.target.closest('.start-button')) {
+                        this.closeStartMenu();
+                    }
+                });
+
+                // App search
+                appSearch.addEventListener('input', (e) => {
+                    this.filterApps(e.target.value.toLowerCase());
+                });
+
+                // Desktop context menu
+                desktop.addEventListener('contextmenu', (e) => {
+                    if (e.target === desktop) {
+                        e.preventDefault();
+                        ContextMenuManager.show('desktop', e.clientX, e.clientY);
+                    }
+                });
+
+                // Clear selections when clicking desktop
+                desktop.addEventListener('click', () => {
+                    document.querySelectorAll('.desktop-icon').forEach(icon => {
+                        icon.classList.remove('selected');
+                    });
+                });
+            }
+
+            static toggleStartMenu() {
+                const startMenu = document.getElementById('start-menu');
+                const isActive = startMenu.classList.contains('active');
+
+                if (isActive) {
+                    this.closeStartMenu();
+                } else {
+                    this.openStartMenu();
+                }
+            }
+
+            static openStartMenu() {
+                const startMenu = document.getElementById('start-menu');
+                startMenu.classList.add('active');
+
+                if (!isMobile) {
+                    document.getElementById('app-search').focus();
+                }
+            }
+
+            static closeStartMenu() {
+                const startMenu = document.getElementById('start-menu');
+                startMenu.classList.remove('active');
+            }
+
+            static updateStartMenu() {
+                const container = document.getElementById('start-menu-apps');
+
+                // Group apps by category
+                const categories = {};
+                window.EmberFrame.availableApps.forEach((app, id) => {
+                    const category = app.category || 'Other';
+                    if (!categories[category]) {
+                        categories[category] = [];
+                    }
+                    categories[category].push({ id, ...app });
+                });
+
+                // Build HTML
+                let html = '';
+                Object.keys(categories).sort().forEach(category => {
+                    html += `<div class="start-menu-category">${category}</div>`;
+
+                    categories[category].forEach(app => {
+                        html += `
+                            <div class="start-menu-app" data-app="${app.id}">
+                                <div class="start-menu-app-icon">
+                                    <i class="${app.icon}"></i>
+                                </div>
+                                <div class="start-menu-app-details">
+                                    <div class="start-menu-app-name">${app.name}</div>
+                                    <div class="start-menu-app-desc">${app.description}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                });
+
+                container.innerHTML = html;
+
+                // Add event listeners
+                container.querySelectorAll('.start-menu-app').forEach(app => {
+                    // Click to open
+                    app.addEventListener('click', () => {
+                        const appId = app.dataset.app;
+                        if (window.WindowManager) {
+                            window.WindowManager.openApp(appId);
+                        }
+                        this.closeStartMenu();
+                    });
+
+                    // Right-click for shortcuts
+                    app.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        ContextMenuManager.show('app', e.clientX, e.clientY, { app: app.dataset.app });
+                    });
+                });
+            }
+
+            static filterApps(searchTerm) {
+                const apps = document.querySelectorAll('.start-menu-app');
+                const categories = document.querySelectorAll('.start-menu-category');
+
+                apps.forEach(app => {
+                    const name = app.querySelector('.start-menu-app-name').textContent.toLowerCase();
+                    const desc = app.querySelector('.start-menu-app-desc').textContent.toLowerCase();
+
+                    if (name.includes(searchTerm) || desc.includes(searchTerm)) {
+                        app.style.display = 'flex';
+                    } else {
+                        app.style.display = 'none';
+                    }
+                });
+
+                // Hide empty categories
+                categories.forEach(category => {
+                    let hasVisibleApps = false;
+                    let nextElement = category.nextElementSibling;
+
+                    while (nextElement && !nextElement.classList.contains('start-menu-category')) {
+                        if (nextElement.style.display !== 'none') {
+                            hasVisibleApps = true;
+                            break;
+                        }
+                        nextElement = nextElement.nextElementSibling;
+                    }
+
+                    category.style.display = hasVisibleApps ? 'block' : 'none';
+                });
+            }
+
+            static updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: isMobile ? undefined : '2-digit',
+                    hour12: false
+                });
+                document.getElementById('current-time').textContent = timeString;
+            }
+        }
+
+        // Loading sequence
         let loadingSteps = [
-            'Initializing Core Systems...',
+            'Discovering Applications...',
             'Loading User Preferences...',
-            'Connecting to File System...',
-            'Preparing Desktop Environment...',
-            'Loading Applications...',
-            'Finalizing Startup Sequence...'
+            'Initializing Shortcuts...',
+            'Setting Up Desktop...',
+            'Preparing Start Menu...',
+            'Finalizing System...'
         ];
         let currentStep = 0;
 
@@ -684,174 +1476,38 @@
             }, 500);
         }
 
-        // Desktop initialization
+        // Main initialization
         async function initializeDesktop() {
-            console.log('🚀 Initializing enhanced desktop environment');
+            console.log('🚀 Initializing dynamic desktop environment');
 
             try {
-                // Load user preferences and system info
-                await loadUserData();
+                // Initialize systems
+                DesktopManager.init();
 
-                // Initialize time display
-                updateTime();
-                setInterval(updateTime, 1000);
+                // Discover available applications
+                await AppDiscovery.discoverApps();
 
-                // Setup interactions
-                setupDesktopInteractions();
-                setupStartMenu();
+                // Load user shortcuts
+                await ShortcutManager.loadShortcuts();
 
-                // Load user shortcuts and apps
-                if (window.WindowManager) {
-                    // Wait for WindowManager to be fully loaded
-                    console.log('✅ WindowManager available, updating interfaces');
-                } else {
-                    console.warn('⚠️ WindowManager not yet available');
-                }
+                // Update UI
+                DesktopManager.updateStartMenu();
+                ShortcutManager.updateDesktopShortcuts();
+                ShortcutManager.updateTaskbarShortcuts();
+
+                console.log('✅ Desktop initialization complete');
 
                 // Show welcome message
                 showWelcomeMessage();
 
             } catch (error) {
                 console.error('❌ Desktop initialization failed:', error);
-                showNotification('Desktop initialization failed. Some features may not work.', 'error');
-            }
-        }
-
-        // Load user data from API
-        async function loadUserData() {
-            try {
-                // Load user info
-                const userResponse = await fetch('/api/user/info');
-                if (userResponse.ok) {
-                    const userData = await userResponse.json();
-                    window.EmberFrame.isAdmin = userData.is_admin;
-                    console.log('✅ User data loaded:', userData.username, userData.is_admin ? '(Admin)' : '(User)');
-                }
-
-                // Load user preferences
-                const prefsResponse = await fetch('/api/user/preferences');
-                if (prefsResponse.ok) {
-                    const preferences = await prefsResponse.json();
-                    window.EmberFrame.preferences = preferences;
-                    console.log('✅ User preferences loaded');
-                }
-            } catch (error) {
-                console.error('❌ Failed to load user data:', error);
-            }
-        }
-
-        // Time display
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: isMobile ? undefined : '2-digit',
-                hour12: false
-            });
-            document.getElementById('current-time').textContent = timeString;
-        }
-
-        // Desktop interactions
-        function setupDesktopInteractions() {
-            let startMenuOpen = false;
-
-            // Start button
-            document.getElementById('start-button').addEventListener(isMobile ? 'touchend' : 'click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleStartMenu();
-            });
-
-            // Close start menu when clicking outside
-            document.addEventListener(isMobile ? 'touchend' : 'click', (e) => {
-                if (startMenuOpen && !e.target.closest('.start-menu') && !e.target.closest('.start-button')) {
-                    toggleStartMenu();
-                }
-            });
-
-            function toggleStartMenu() {
-                const startMenu = document.getElementById('start-menu');
-                startMenuOpen = !startMenuOpen;
-
-                if (startMenuOpen) {
-                    startMenu.classList.add('active');
-                    if (!isMobile) {
-                        document.getElementById('app-search').focus();
-                    }
-                } else {
-                    startMenu.classList.remove('active');
+                if (window.Notification) {
+                    window.Notification.error('Desktop initialization failed. Some features may not work.');
                 }
             }
-
-            // Desktop right-click (will be handled by WindowManager)
-            console.log('✅ Desktop interactions setup complete');
         }
 
-        // Start menu setup
-        function setupStartMenu() {
-            // App search functionality
-            document.getElementById('app-search').addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase();
-                document.querySelectorAll('.start-menu-app').forEach(app => {
-                    const appName = app.querySelector('.start-menu-app-name').textContent.toLowerCase();
-                    const appDesc = app.querySelector('.start-menu-app-desc')?.textContent.toLowerCase() || '';
-
-                    if (appName.includes(searchTerm) || appDesc.includes(searchTerm)) {
-                        app.style.display = 'flex';
-                    } else {
-                        app.style.display = 'none';
-                    }
-                });
-
-                // Hide/show categories based on visible apps
-                document.querySelectorAll('.start-menu-category').forEach(category => {
-                    const nextSibling = category.nextElementSibling;
-                    let hasVisibleApps = false;
-
-                    let current = nextSibling;
-                    while (current && !current.classList.contains('start-menu-category')) {
-                        if (current.classList.contains('start-menu-app') && current.style.display !== 'none') {
-                            hasVisibleApps = true;
-                            break;
-                        }
-                        current = current.nextElementSibling;
-                    }
-
-                    category.style.display = hasVisibleApps ? 'block' : 'none';
-                });
-            });
-
-            console.log('✅ Start menu setup complete');
-        }
-
-        // Notification system
-        function showNotification(message, type = 'info', duration = 4000) {
-            const container = document.getElementById('notification-container');
-            const notification = document.createElement('div');
-            notification.className = `notification ${type}`;
-            notification.textContent = message;
-
-            // Add click to dismiss
-            notification.addEventListener('click', () => {
-                notification.remove();
-            });
-
-            container.appendChild(notification);
-
-            // Auto-remove
-            if (duration > 0) {
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.remove();
-                    }
-                }, duration);
-            }
-
-            return notification;
-        }
-
-        // Welcome message
         function showWelcomeMessage() {
             const hour = new Date().getHours();
             let greeting = 'Good evening';
@@ -859,60 +1515,56 @@
             else if (hour < 18) greeting = 'Good afternoon';
 
             const adminText = window.EmberFrame.isAdmin ? ' (Administrator)' : '';
-            showNotification(`${greeting}, {{ username }}${adminText}! Welcome to EmberFrame.`, 'success', 5000);
 
-            if (isMobile) {
+            if (window.Notification) {
+                window.Notification.success(`${greeting}, {{ username }}${adminText}! Welcome to EmberFrame.`, 5000);
+
                 setTimeout(() => {
-                    showNotification('Tap the Start button to access applications.', 'info', 4000);
+                    if (window.EmberFrame.desktopShortcuts.length === 0) {
+                        window.Notification.info('Right-click apps in the Start menu to add shortcuts to your desktop.', 6000);
+                    }
                 }, 2000);
             }
         }
 
-        // Logout function
         function logout() {
             if (confirm('Are you sure you want to sign out?')) {
-                showNotification('Signing out...', 'info', 2000);
+                if (window.Notification) {
+                    window.Notification.info('Signing out...', 2000);
+                }
                 setTimeout(() => {
                     window.location.href = '/logout';
                 }, 1000);
             }
         }
 
-        // Handle orientation changes
-        window.addEventListener('orientationchange', () => {
-            setTimeout(() => {
-                // Refresh layout without full reload
-                if (window.WindowManager && window.WindowManager.handleWindowResize) {
-                    window.WindowManager.handleWindowResize();
-                }
-            }, 500);
+        // Handle orientation changes and resize
+        window.addEventListener('resize', () => {
+            if (window.WindowManager && window.WindowManager.handleWindowResize) {
+                window.WindowManager.handleWindowResize();
+            }
         });
-
-        // Prevent context menu on mobile
-        if (isMobile) {
-            document.addEventListener('contextmenu', (e) => {
-                if (!e.target.closest('.desktop')) {
-                    e.preventDefault();
-                }
-            });
-        }
 
         // Start loading sequence
         updateLoading();
 
-        // Wait for WindowManager to load, then update interfaces
-        document.addEventListener('DOMContentLoaded', () => {
-            // The WindowManager will handle updating the desktop icons and start menu
-            console.log('✅ DOM loaded, waiting for WindowManager...');
-        });
-
-        console.log('✅ Enhanced desktop script loaded successfully');
+        console.log('✅ Dynamic desktop script loaded successfully');
     </script>
 
-    <!-- Load the enhanced window manager -->
+    <!-- Load core systems -->
+    <script src="{{ url_for('static', filename='js/notification.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/window-manager.js') }}"></script>
+
+    <!-- Load applications dynamically -->
+    <script src="{{ url_for('static', filename='js/apps/file-manager.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/apps/terminal.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/apps/text-editor.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/apps/media-player.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/apps/settings.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin-panel.js') }}"></script>
+
     <script>
-        // This ensures the WindowManager loads with all the enhancements
-        console.log('🔥 Loading Enhanced Window Manager...');
+        console.log('🔥 All systems loaded - EmberFrame ready');
     </script>
 </body>
 </html>
