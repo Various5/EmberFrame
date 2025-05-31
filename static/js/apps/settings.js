@@ -183,17 +183,13 @@ class Settings {
                                         <i class="fas fa-paint-brush"></i>
                                         <span>Gradient</span>
                                     </div>
-                                    <div class="bg-type" data-type="animated">
-                                        <i class="fas fa-film"></i>
-                                        <span>Animated</span>
+                                    <div class="bg-type" data-type="media">
+                                        <i class="fas fa-video"></i>
+                                        <span>Media</span>
                                     </div>
                                     <div class="bg-type" data-type="pattern">
                                         <i class="fas fa-th"></i>
                                         <span>Pattern</span>
-                                    </div>
-                                    <div class="bg-type" data-type="video">
-                                        <i class="fas fa-video"></i>
-                                        <span>Video</span>
                                     </div>
                                 </div>
                             </div>
@@ -399,6 +395,14 @@ class Settings {
                                     <span class="checkmark"></span>
                                     Enable Particle System
                                 </label>
+                                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                    <button id="test-particles" class="action-btn" style="flex: 1;">
+                                        🧪 Test Simple Particles
+                                    </button>
+                                    <button id="test-advanced" class="action-btn" style="flex: 1;">
+                                        🚀 Test Advanced System
+                                    </button>
+                                </div>
                             </div>
 
                             <div class="setting-group">
@@ -415,6 +419,10 @@ class Settings {
                                     <div class="behavior-option active" data-behavior="float">
                                         <i class="fas fa-cloud"></i>
                                         <span>Float</span>
+                                    </div>
+                                    <div class="behavior-option" data-behavior="text">
+                                        <i class="fas fa-font"></i>
+                                        <span>Text Shape</span>
                                     </div>
                                     <div class="behavior-option" data-behavior="follow">
                                         <i class="fas fa-mouse-pointer"></i>
@@ -555,6 +563,51 @@ class Settings {
                                     <div class="behavior-option" data-behavior="laser">
                                         <i class="fas fa-crosshairs"></i>
                                         <span>Laser Pointer</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Text Particle Settings -->
+                            <div class="setting-group" id="text-particle-settings" style="display: none;">
+                                <label>Text Particle Configuration</label>
+                                <div class="control-item">
+                                    <label>Text to Display</label>
+                                    <input type="text" id="particle-text" placeholder="Enter your text" value="EMBERFRAME" class="text-input">
+                                </div>
+                                <div class="control-row">
+                                    <div class="control-item">
+                                        <label>Font Size</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="text-font-size" min="20" max="200" value="80">
+                                            <span class="slider-value">80px</span>
+                                        </div>
+                                    </div>
+                                    <div class="control-item">
+                                        <label>Text Weight</label>
+                                        <select id="text-font-weight">
+                                            <option value="normal">Normal</option>
+                                            <option value="bold" selected>Bold</option>
+                                            <option value="900">Extra Bold</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="control-row">
+                                    <div class="control-item">
+                                        <label>Letter Spacing</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="text-letter-spacing" min="0" max="50" value="10">
+                                            <span class="slider-value">10px</span>
+                                        </div>
+                                    </div>
+                                    <div class="control-item">
+                                        <label>Text Animation</label>
+                                        <select id="text-animation">
+                                            <option value="static">Static</option>
+                                            <option value="wave">Wave</option>
+                                            <option value="bounce">Bounce</option>
+                                            <option value="typewriter">Typewriter</option>
+                                            <option value="explode">Explode</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -908,22 +961,43 @@ class Settings {
             this.importSettings();
         });
 
-        // Video background controls
-        this.windowElement.querySelector('#video-browse').addEventListener('click', () => {
-            this.windowElement.querySelector('#video-file').click();
+        // Media background controls
+        this.windowElement.querySelector('#gif-browse').addEventListener('click', () => {
+            this.windowElement.querySelector('#gif-file').click();
         });
 
-        this.windowElement.querySelector('#video-file').addEventListener('change', (e) => {
+        this.windowElement.querySelector('#gif-file').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
                 const url = URL.createObjectURL(file);
-                this.windowElement.querySelector('#video-url').value = url;
-                this.applySetting('video-url', url);
+                this.windowElement.querySelector('#gif-url').value = url;
+                this.applySetting('gif-url', url);
             }
         });
 
-        this.windowElement.querySelector('#video-url').addEventListener('input', (e) => {
-            this.applySetting('video-url', e.target.value);
+        this.windowElement.querySelector('#gif-url').addEventListener('input', (e) => {
+            this.applySetting('gif-url', e.target.value);
+        });
+
+        this.windowElement.querySelector('#youtube-url').addEventListener('input', (e) => {
+            this.applySetting('youtube-url', e.target.value);
+        });
+
+        // Text particle controls
+        this.windowElement.querySelector('#particle-text').addEventListener('input', (e) => {
+            this.applySetting('particle-text', e.target.value);
+        });
+
+        // Test particles button
+        this.windowElement.querySelector('#test-particles').addEventListener('click', () => {
+            console.log('🧪 Testing simple particles...');
+            window.createTestParticles();
+        });
+
+        // Test advanced particles button
+        this.windowElement.querySelector('#test-advanced').addEventListener('click', () => {
+            console.log('🚀 Testing advanced particles...');
+            window.testAdvancedParticles();
         });
     }
 
@@ -1161,22 +1235,20 @@ class Settings {
 
         // Show/hide relevant settings
         this.windowElement.querySelector('#gradient-settings').style.display = type === 'gradient' ? 'block' : 'none';
-        this.windowElement.querySelector('#animated-settings').style.display = type === 'animated' ? 'block' : 'none';
+        this.windowElement.querySelector('#media-settings').style.display = type === 'media' ? 'block' : 'none';
         this.windowElement.querySelector('#pattern-settings').style.display = type === 'pattern' ? 'block' : 'none';
-        this.windowElement.querySelector('#video-settings').style.display = type === 'video' ? 'block' : 'none';
 
         this.updateBackground();
         this.saveSettings();
     }
 
-    static setAnimatedBackground(animation) {
-        this.settings.backgroundAnimation = animation;
-        this.initializeBackgroundSystem();
-        this.saveSettings();
-    }
+    static setMediaType(mediaType) {
+        this.settings.mediaType = mediaType;
 
-    static setPattern(pattern) {
-        this.settings.backgroundPattern = pattern;
+        // Show/hide controls
+        this.windowElement.querySelector('#gif-controls').style.display = mediaType === 'gif' ? 'block' : 'none';
+        this.windowElement.querySelector('#youtube-controls').style.display = mediaType === 'youtube' ? 'block' : 'none';
+
         this.updateBackground();
         this.saveSettings();
     }
@@ -1212,6 +1284,7 @@ class Settings {
                 document.body.classList.toggle('no-animations', !value);
                 break;
             case 'particles-enabled':
+                console.log(`🎆 Particles ${value ? 'enabled' : 'disabled'}`);
                 if (value) {
                     this.initializeParticleSystem();
                 } else {
@@ -1244,20 +1317,24 @@ class Settings {
             case 'pattern-3d':
                 this.updateBackground();
                 break;
-            case 'video-url':
-            case 'video-opacity':
-            case 'video-speed':
-            case 'video-loop':
-            case 'video-muted':
-            case 'video-blur':
-                if (this.settings.backgroundType === 'video') {
+            case 'gif-url':
+            case 'youtube-url':
+            case 'media-opacity':
+            case 'media-speed':
+            case 'media-loop':
+            case 'media-muted':
+            case 'media-blur':
+                if (this.settings.backgroundType === 'media') {
                     this.updateBackground();
                 }
                 break;
-            case 'animation-speed':
-            case 'animation-intensity':
-                if (this.backgroundSystem) {
-                    this.backgroundSystem.settings = this.settings;
+            case 'particle-text':
+            case 'text-font-size':
+            case 'text-font-weight':
+            case 'text-letter-spacing':
+            case 'text-animation':
+                if (this.particleSystem && this.settings.particleBehavior === 'text') {
+                    this.particleSystem.arrangeAsText();
                 }
                 break;
             case 'mouse-force':
@@ -1337,44 +1414,62 @@ class Settings {
             this.wallpaperLayer.style.background = `linear-gradient(${angle}deg, ${start}, ${end})`;
         } else if (type === 'pattern') {
             this.generatePattern();
-        } else if (type === 'video') {
-            this.setupVideoBackground();
+        } else if (type === 'media') {
+            this.setupMediaBackground();
         }
     }
 
-    static setupVideoBackground() {
-        const videoUrl = this.settings['video-url'];
-        const opacity = (this.settings['video-opacity'] || 50) / 100;
-        const speed = this.settings['video-speed'] || 1;
-        const loop = this.settings['video-loop'] !== false;
-        const muted = this.settings['video-muted'] !== false;
-        const blur = this.settings['video-blur'] || false;
+    static setupMediaBackground() {
+        const mediaType = this.settings.mediaType || 'gif';
+        const opacity = (this.settings['media-opacity'] || 50) / 100;
+        const speed = this.settings['media-speed'] || 1;
+        const loop = this.settings['media-loop'] !== false;
+        const muted = this.settings['media-muted'] !== false;
+        const blur = this.settings['media-blur'] || false;
 
-        if (videoUrl) {
-            const video = document.createElement('video');
-            video.style.cssText = `
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                opacity: ${opacity};
-                filter: ${blur ? 'blur(5px)' : 'none'};
-            `;
-
-            video.src = videoUrl;
-            video.loop = loop;
-            video.muted = muted;
-            video.autoplay = true;
-            video.playbackRate = speed;
-
-            // Handle video load errors
-            video.onerror = () => {
-                console.error('Failed to load video:', videoUrl);
-                this.wallpaperLayer.innerHTML = '<div style="color: #ff4444; text-align: center; padding: 50px;">Failed to load video</div>';
-            };
-
-            this.wallpaperLayer.appendChild(video);
-            this.currentVideo = video;
+        if (mediaType === 'gif') {
+            const gifUrl = this.settings['gif-url'];
+            if (gifUrl) {
+                const img = document.createElement('img');
+                img.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    opacity: ${opacity};
+                    filter: ${blur ? 'blur(5px)' : 'none'};
+                `;
+                img.src = gifUrl;
+                img.onerror = () => {
+                    console.error('Failed to load GIF:', gifUrl);
+                    this.wallpaperLayer.innerHTML = '<div style="color: #ff4444; text-align: center; padding: 50px;">Failed to load GIF</div>';
+                };
+                this.wallpaperLayer.appendChild(img);
+            }
+        } else if (mediaType === 'youtube') {
+            const youtubeUrl = this.settings['youtube-url'];
+            if (youtubeUrl) {
+                const videoId = this.extractYouTubeVideoId(youtubeUrl);
+                if (videoId) {
+                    const iframe = document.createElement('iframe');
+                    iframe.style.cssText = `
+                        width: 100%;
+                        height: 100%;
+                        border: none;
+                        opacity: ${opacity};
+                        filter: ${blur ? 'blur(5px)' : 'none'};
+                    `;
+                    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=${loop ? 1 : 0}&mute=${muted ? 1 : 0}&controls=0&playlist=${videoId}`;
+                    iframe.allow = 'autoplay; encrypted-media';
+                    this.wallpaperLayer.appendChild(iframe);
+                }
+            }
         }
+    }
+
+    static extractYouTubeVideoId(url) {
+        const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+        const match = url.match(regex);
+        return match ? match[1] : null;
     }
 
     static generatePattern() {
@@ -1514,20 +1609,20 @@ class Settings {
     }
 
     static initializeSystems() {
-        // Create wallpaper layer
+        // Create wallpaper layer first
         this.createWallpaperLayer();
 
+        // Initialize particle system if enabled
         if (this.settings['particles-enabled']) {
             this.initializeParticleSystem();
-        }
-
-        if (this.settings.backgroundType === 'animated') {
-            this.initializeBackgroundSystem();
         }
 
         if (this.settings['show-fps']) {
             this.initializeFPSCounter();
         }
+
+        // Apply background after systems are ready
+        this.updateBackground();
     }
 
     static createWallpaperLayer() {
@@ -1556,14 +1651,36 @@ class Settings {
     }
 
     static initializeParticleSystem() {
-        // Only destroy if already exists to avoid conflicts
+        console.log('🎆 initializeParticleSystem called');
+
+        // Destroy any existing system
         if (this.particleSystem) {
+            console.log('🗑️ Destroying existing particle system');
             this.destroyParticleSystem();
         }
 
-        // Create new particle system with current settings
-        this.particleSystem = new ParticleSystem(this.settings);
-        console.log('🎆 Advanced particle system initialized');
+        // Wait a moment to ensure cleanup
+        setTimeout(() => {
+            // Check if we have settings
+            if (!this.settings) {
+                console.error('❌ No settings available for particle system');
+                this.settings = this.getDefaultSettings();
+            }
+
+            console.log('🎯 Creating particle system with settings:', {
+                enabled: this.settings['particles-enabled'],
+                count: this.settings['particle-count'],
+                behavior: this.settings.particleBehavior,
+                color: this.settings['particle-color']
+            });
+
+            try {
+                this.particleSystem = new ParticleSystem(this.settings);
+                console.log('✅ Particle system created successfully');
+            } catch (error) {
+                console.error('❌ Failed to create particle system:', error);
+            }
+        }, 100);
     }
 
     static destroyParticleSystem() {
@@ -1571,25 +1688,6 @@ class Settings {
             this.particleSystem.destroy();
             this.particleSystem = null;
             console.log('🚫 Advanced particle system destroyed');
-        }
-    }
-
-    static initializeBackgroundSystem() {
-        // Only destroy if already exists
-        if (this.backgroundSystem) {
-            this.destroyBackgroundSystem();
-        }
-
-        // Create new background system
-        this.backgroundSystem = new BackgroundSystem(this.settings);
-        console.log('🎬 Animated background system initialized');
-    }
-
-    static destroyBackgroundSystem() {
-        if (this.backgroundSystem) {
-            this.backgroundSystem.destroy();
-            this.backgroundSystem = null;
-            console.log('🚫 Animated background system destroyed');
         }
     }
 
@@ -1714,9 +1812,14 @@ class Settings {
             'gradient-start': '#667eea',
             'gradient-end': '#764ba2',
             'gradient-angle': 135,
-            backgroundAnimation: 'matrix',
-            'animation-speed': 1,
-            'animation-intensity': 1,
+            mediaType: 'gif',
+            'gif-url': '',
+            'youtube-url': '',
+            'media-opacity': 50,
+            'media-speed': 1,
+            'media-loop': true,
+            'media-muted': true,
+            'media-blur': false,
             backgroundPattern: 'dots',
             'pattern-visibility': 30,
             'pattern-size': 20,
@@ -1727,12 +1830,6 @@ class Settings {
             'pattern-animate': false,
             'pattern-glow': false,
             'pattern-3d': false,
-            'video-url': '',
-            'video-opacity': 50,
-            'video-speed': 1,
-            'video-loop': true,
-            'video-muted': true,
-            'video-blur': false,
 
             // Particles
             'particles-enabled': true,
@@ -1745,6 +1842,13 @@ class Settings {
             'particle-glow': true,
             'particle-trails': true,
             'particle-connect': false,
+
+            // Text Particles
+            'particle-text': 'EMBERFRAME',
+            'text-font-size': 80,
+            'text-font-weight': 'bold',
+            'text-letter-spacing': 10,
+            'text-animation': 'static',
 
             // Mouse Interaction
             'mouse-force': 1,
@@ -1790,6 +1894,10 @@ class Settings {
     // Method to apply saved settings on startup
     static applyStartupSettings() {
         const settings = this.loadSettings();
+        console.log('🚀 Applying startup settings:', settings);
+
+        // Set settings first before initializing systems
+        this.settings = settings;
 
         // Apply all visual settings immediately
         this.setColorScheme(settings.colorScheme);
@@ -1811,21 +1919,10 @@ class Settings {
             document.documentElement.style.setProperty('--window-shadow', '0 10px 30px rgba(0,0,0,0.3)');
         }
 
-        // Initialize background systems
-        this.createWallpaperLayer();
-        this.settings = settings;
+        // Initialize systems with settings already available (particle system only)
+        this.initializeSystems();
 
-        if (settings['particles-enabled']) {
-            this.initializeParticleSystem();
-        }
-
-        if (settings.backgroundType === 'animated') {
-            this.initializeBackgroundSystem();
-        }
-
-        this.updateBackground();
-
-        console.log('🚀 Startup settings applied');
+        console.log('✅ Startup settings applied successfully');
     }
 
     static getStyles() {
@@ -2306,13 +2403,16 @@ class Settings {
                 }
 
                 /* Video Controls */
-                .video-controls {
+                .video-controls,
+                .media-controls {
                     display: flex;
                     flex-direction: column;
                     gap: 15px;
                 }
 
-                .video-input {
+                .video-input,
+                .media-input,
+                .text-input {
                     width: 100%;
                     padding: 8px 12px;
                     background: rgba(255, 255, 255, 0.1);
@@ -2321,6 +2421,12 @@ class Settings {
                     color: white;
                     outline: none;
                     margin-bottom: 10px;
+                }
+
+                .text-input {
+                    font-size: 16px;
+                    font-weight: bold;
+                    text-align: center;
                 }
 
                 .browse-btn {
@@ -2337,6 +2443,47 @@ class Settings {
                 .browse-btn:hover {
                     transform: translateY(-1px);
                     box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+                }
+
+                /* Media Type Selector */
+                .media-type-selector {
+                    display: flex;
+                    gap: 10px;
+                    margin-bottom: 20px;
+                }
+
+                .media-type {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 5px;
+                    padding: 15px 20px;
+                    border: 2px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    flex: 1;
+                }
+
+                .media-type:hover {
+                    border-color: var(--accent-color, #00d4ff);
+                }
+
+                .media-type.active {
+                    border-color: var(--accent-color, #00d4ff);
+                    background: rgba(0, 212, 255, 0.2);
+                }
+
+                .media-type i {
+                    font-size: 24px;
+                    color: var(--accent-color, #00d4ff);
+                }
+
+                .help-text {
+                    font-size: 12px;
+                    color: rgba(255, 255, 255, 0.6);
+                    margin-top: 5px;
+                    font-style: italic;
                 }
 
                 /* Controls */
@@ -2554,14 +2701,16 @@ class Settings {
 // Enhanced Particle System
 class ParticleSystem {
     constructor(settings) {
-        this.settings = settings;
+        console.log('🔥 ParticleSystem constructor started');
+        this.settings = settings || Settings.getDefaultSettings();
         this.particles = [];
         this.canvas = null;
         this.ctx = null;
         this.animationId = null;
+        this.isRunning = false;
         this.mouse = {
-            x: 0,
-            y: 0,
+            x: window.innerWidth / 2,
+            y: window.innerHeight / 2,
             lastX: 0,
             lastY: 0,
             vx: 0,
@@ -2572,14 +2721,42 @@ class ParticleSystem {
         };
         this.clickParticles = [];
 
+        console.log('🔧 Particle settings:', this.settings);
         this.init();
     }
 
     init() {
-        this.createCanvas();
-        this.setupEventListeners();
-        this.createParticles();
+        console.log('🚀 ParticleSystem.init() starting...');
+
+        try {
+            this.createCanvas();
+            this.setupEventListeners();
+            this.createParticles();
+            this.startAnimation();
+            console.log('✅ ParticleSystem initialized successfully');
+        } catch (error) {
+            console.error('❌ ParticleSystem initialization failed:', error);
+        }
+    }
+
+    startAnimation() {
+        if (this.isRunning) {
+            console.log('⚠️ Animation already running');
+            return;
+        }
+
+        this.isRunning = true;
+        console.log('🎬 Starting particle animation');
         this.animate();
+    }
+
+    stopAnimation() {
+        this.isRunning = false;
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+        console.log('⏹️ Particle animation stopped');
     }
 
     createCanvas() {
@@ -2634,8 +2811,10 @@ class ParticleSystem {
         this.particles = [];
         const count = parseInt(this.settings['particle-count']) || 100;
 
+        console.log(`🎯 Creating ${count} particles...`);
+
         for (let i = 0; i < count; i++) {
-            this.particles.push({
+            const particle = {
                 x: Math.random() * this.canvas.width,
                 y: Math.random() * this.canvas.height,
                 vx: (Math.random() - 0.5) * 2,
@@ -2650,8 +2829,16 @@ class ParticleSystem {
                 radius: Math.random() * 100 + 50,
                 orbitalAngle: Math.random() * Math.PI * 2,
                 trail: []
-            });
+            };
+
+            // Set original position for some behaviors
+            particle.originalX = particle.x;
+            particle.originalY = particle.y;
+
+            this.particles.push(particle);
         }
+
+        console.log(`✅ Created ${this.particles.length} particles`);
     }
 
     setBehavior(behavior) {
@@ -2660,12 +2847,81 @@ class ParticleSystem {
 
         if (behavior === 'sphere' || behavior === 'cube') {
             this.arrangeIn3D();
+        } else if (behavior === 'text') {
+            this.arrangeAsText();
         }
 
         // Log mouse settings for debugging
         if (behavior.includes('mouse')) {
             console.log(`🖱️ Mouse settings - Force: ${this.settings['mouse-force']}, Range: ${this.settings['mouse-range']}`);
         }
+    }
+
+    arrangeAsText() {
+        const text = this.settings['particle-text'] || 'EMBERFRAME';
+        const fontSize = parseInt(this.settings['text-font-size']) || 80;
+        const fontWeight = this.settings['text-font-weight'] || 'bold';
+        const letterSpacing = parseInt(this.settings['text-letter-spacing']) || 10;
+
+        // Create a temporary canvas to get text metrics
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.font = `${fontWeight} ${fontSize}px Arial`;
+
+        // Calculate text dimensions
+        const textMetrics = tempCtx.measureText(text);
+        const textWidth = textMetrics.width + (letterSpacing * (text.length - 1));
+        const textHeight = fontSize;
+
+        // Position text in center of screen
+        const startX = (this.canvas.width - textWidth) / 2;
+        const startY = (this.canvas.height + textHeight) / 2;
+
+        // Create image data from text
+        tempCanvas.width = textWidth + 100;
+        tempCanvas.height = textHeight + 100;
+        tempCtx.font = `${fontWeight} ${fontSize}px Arial`;
+        tempCtx.fillStyle = 'white';
+        tempCtx.textBaseline = 'top';
+
+        let currentX = 50;
+        for (let i = 0; i < text.length; i++) {
+            tempCtx.fillText(text[i], currentX, 50);
+            currentX += tempCtx.measureText(text[i]).width + letterSpacing;
+        }
+
+        // Get pixel data
+        const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+        const data = imageData.data;
+
+        // Find text pixels and assign particles to them
+        const textPixels = [];
+        for (let y = 0; y < tempCanvas.height; y += 3) {
+            for (let x = 0; x < tempCanvas.width; x += 3) {
+                const index = (y * tempCanvas.width + x) * 4;
+                const alpha = data[index + 3];
+                if (alpha > 128) {
+                    textPixels.push({
+                        x: startX + x - 50,
+                        y: startY + y - 50
+                    });
+                }
+            }
+        }
+
+        // Assign particles to text positions
+        this.particles.forEach((particle, index) => {
+            if (index < textPixels.length) {
+                particle.targetX = textPixels[index].x;
+                particle.targetY = textPixels[index].y;
+            } else {
+                // Extra particles float around randomly
+                particle.targetX = Math.random() * this.canvas.width;
+                particle.targetY = Math.random() * this.canvas.height;
+            }
+        });
+
+        console.log(`📝 Arranged ${textPixels.length} particles for text: "${text}"`);
     }
 
     arrangeIn3D() {
@@ -3114,6 +3370,57 @@ class ParticleSystem {
                         particle.y += (ldy / ldist) * speed * 5;
                     }
                     break;
+
+                case 'text':
+                    // Move particles towards their text positions
+                    if (particle.targetX !== undefined && particle.targetY !== undefined) {
+                        const textAnimation = this.settings['text-animation'] || 'static';
+                        let targetX = particle.targetX;
+                        let targetY = particle.targetY;
+
+                        // Apply text animations
+                        switch (textAnimation) {
+                            case 'wave':
+                                targetY += Math.sin(Date.now() * 0.003 + particle.targetX * 0.01) * 20;
+                                break;
+                            case 'bounce':
+                                targetY += Math.abs(Math.sin(Date.now() * 0.005 + index * 0.1)) * 30;
+                                break;
+                            case 'typewriter':
+                                // Reveal particles progressively
+                                const revealProgress = (Date.now() * 0.001) % 10;
+                                const particleRevealTime = index * 0.02;
+                                if (revealProgress < particleRevealTime) {
+                                    targetX = Math.random() * this.canvas.width;
+                                    targetY = Math.random() * this.canvas.height;
+                                }
+                                break;
+                            case 'explode':
+                                const explodeTime = Math.sin(Date.now() * 0.002) * 50;
+                                const dx = particle.targetX - this.canvas.width / 2;
+                                const dy = particle.targetY - this.canvas.height / 2;
+                                targetX = particle.targetX + dx * explodeTime * 0.01;
+                                targetY = particle.targetY + dy * explodeTime * 0.01;
+                                break;
+                        }
+
+                        // Move towards target position
+                        const dtx = targetX - particle.x;
+                        const dty = targetY - particle.y;
+                        const attractionForce = 0.05 * speed;
+
+                        particle.vx += dtx * attractionForce;
+                        particle.vy += dty * attractionForce;
+                        particle.x += particle.vx;
+                        particle.y += particle.vy;
+                        particle.vx *= 0.8; // Damping
+                        particle.vy *= 0.8;
+                    } else {
+                        // No target position, float randomly
+                        particle.x += particle.vx * speed;
+                        particle.y += particle.vy * speed;
+                    }
+                    break;
             }
 
             // Boundary wrapping
@@ -3132,7 +3439,35 @@ class ParticleSystem {
         const connect = this.settings['particle-connect'];
         const trails = this.settings['particle-trails'];
 
+        // Clear canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Debug: Show canvas bounds
+        this.ctx.strokeStyle = '#ff0000';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Debug info
+        this.ctx.fillStyle = '#ffff00';
+        this.ctx.font = '16px Arial';
+        this.ctx.fillText(`Particles: ${this.particles.length}`, 10, 30);
+        this.ctx.fillText(`Canvas: ${this.canvas.width}x${this.canvas.height}`, 10, 50);
+        this.ctx.fillText(`Color: ${color}`, 10, 70);
+        this.ctx.fillText(`Size: ${size}`, 10, 90);
+
+        if (this.particles.length === 0) {
+            this.ctx.fillStyle = '#ff0000';
+            this.ctx.font = '20px Arial';
+            this.ctx.fillText('No particles found!', 10, 120);
+            return;
+        }
+
+        // Show first few particle positions
+        for (let i = 0; i < Math.min(5, this.particles.length); i++) {
+            const p = this.particles[i];
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.fillText(`P${i}: ${Math.round(p.x)},${Math.round(p.y)}`, 10, 120 + i * 20);
+        }
 
         // Draw connections first (behind particles)
         if (connect) {
@@ -3166,8 +3501,18 @@ class ParticleSystem {
             });
         }
 
+        // Count visible particles
+        let visibleCount = 0;
+        let drawnCount = 0;
+
         // Draw particles
-        this.particles.forEach(particle => {
+        this.particles.forEach((particle, index) => {
+            // Check if particle is in visible area
+            if (particle.x >= -50 && particle.x <= this.canvas.width + 50 &&
+                particle.y >= -50 && particle.y <= this.canvas.height + 50) {
+                visibleCount++;
+            }
+
             // Draw trail first
             if (trails && particle.trail && particle.trail.length > 1) {
                 this.ctx.strokeStyle = color + '60';
@@ -3216,11 +3561,29 @@ class ParticleSystem {
                     break;
             }
 
-            this.ctx.fill();
+            try {
+                this.ctx.fill();
+                drawnCount++;
+            } catch (error) {
+                console.error('Error drawing particle:', error);
+            }
         });
+
+        // Debug info about visible particles
+        this.ctx.fillStyle = '#00ff00';
+        this.ctx.fillText(`Visible: ${visibleCount}/${this.particles.length}`, 10, 220);
+        this.ctx.fillText(`Drawn: ${drawnCount}`, 10, 240);
 
         // Reset shadow
         this.ctx.shadowBlur = 0;
+
+        // Force a large visible particle for testing
+        this.ctx.fillStyle = '#ff00ff';
+        this.ctx.beginPath();
+        this.ctx.arc(100, 300, 20, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.fillText('Test Circle', 130, 305);
     }
 
     drawStar(x, y, size) {
@@ -3252,30 +3615,61 @@ class ParticleSystem {
     }
 
     animate() {
-        this.updateParticles();
-        this.updateClickParticles();
-        this.drawParticles();
-        this.drawClickParticles();
-        this.animationId = requestAnimationFrame(() => this.animate());
+        if (!this.isRunning) {
+            console.log('🛑 Animation stopped');
+            return;
+        }
+
+        if (!this.canvas || !this.ctx) {
+            console.error('❌ Cannot animate - canvas or context missing');
+            this.isRunning = false;
+            return;
+        }
+
+        try {
+            this.updateParticles();
+            this.updateClickParticles();
+            this.drawParticles();
+            this.drawClickParticles();
+        } catch (error) {
+            console.error('❌ Animation error:', error);
+        }
+
+        // Continue animation loop
+        if (this.isRunning) {
+            this.animationId = requestAnimationFrame(() => this.animate());
+        }
     }
 
     updateSettings(newSettings) {
         this.settings = newSettings;
+        console.log('🔄 Updating particle system settings:', newSettings);
 
         // Recreate particles if count changed
         const newCount = parseInt(newSettings['particle-count']) || 100;
         if (newCount !== this.particles.length) {
+            console.log(`🔢 Particle count changed from ${this.particles.length} to ${newCount}`);
             this.createParticles();
         }
     }
 
     destroy() {
-        if (this.animationId) {
-            cancelAnimationFrame(this.animationId);
-        }
+        console.log('🗑️ Destroying particle system...');
+
+        this.stopAnimation();
+
         if (this.canvas && this.canvas.parentNode) {
             this.canvas.parentNode.removeChild(this.canvas);
+            console.log('🗑️ Particle canvas removed');
         }
+
+        // Clear particles
+        this.particles = [];
+        this.clickParticles = [];
+        this.canvas = null;
+        this.ctx = null;
+
+        console.log('✅ Particle system destroyed completely');
     }
 }
 
@@ -3825,16 +4219,109 @@ class FPSCounter {
 // Make Settings available globally
 window.Settings = Settings;
 
+// Simple particle system for immediate testing
+window.createTestParticles = function() {
+    console.log('🧪 Creating test particles directly...');
+
+    // Remove any existing particle canvas
+    const existing = document.getElementById('test-particles-canvas');
+    if (existing) existing.remove();
+
+    // Create test canvas
+    const canvas = document.createElement('canvas');
+    canvas.id = 'test-particles-canvas';
+    canvas.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: -5;
+        background: rgba(255, 0, 0, 0.1);
+    `;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+    document.body.appendChild(canvas);
+
+    // Create simple particles
+    const particles = [];
+    for (let i = 0; i < 50; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 2,
+            vy: (Math.random() - 0.5) * 2
+        });
+    }
+
+    // Simple animation
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Update and draw particles
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Wrap around edges
+            if (p.x < 0) p.x = canvas.width;
+            if (p.x > canvas.width) p.x = 0;
+            if (p.y < 0) p.y = canvas.height;
+            if (p.y > canvas.height) p.y = 0;
+
+            // Draw particle
+            ctx.fillStyle = '#00d4ff';
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+    console.log('✅ Test particles should now be visible!');
+};
+
+// Global function to test advanced particles
+window.testAdvancedParticles = function() {
+    console.log('🚀 Testing advanced particle system...');
+    if (window.Settings) {
+        Settings.destroyParticleSystem();
+        setTimeout(() => {
+            Settings.initializeParticleSystem();
+        }, 200);
+    } else {
+        console.error('❌ Settings not available');
+    }
+};
+
 // Auto-apply startup settings when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    Settings.applyStartupSettings();
+    console.log('🚀 DOM loaded, starting initialization...');
+
+    // Create test particles immediately for testing
+    window.createTestParticles();
+
+    // Apply settings after a short delay
+    setTimeout(() => {
+        try {
+            Settings.applyStartupSettings();
+        } catch (error) {
+            console.error('❌ Error applying startup settings:', error);
+        }
+    }, 500);
 });
 
 // Also apply when scripts load (for hot reloading)
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        Settings.applyStartupSettings();
-    });
+    console.log('🚀 Script loaded, DOM not ready yet...');
 } else {
-    Settings.applyStartupSettings();
+    console.log('🚀 Script loaded, DOM already ready...');
+    window.createTestParticles();
+    setTimeout(() => {
+        Settings.applyStartupSettings();
+    }, 500);
 }

@@ -9,7 +9,7 @@
  * @enabled true
  */
 
-class EliteSpaceShooter {
+class SpaceShooter {
   // ═══════════════════════════════════════════════════════════════
   // CORE GAME PROPERTIES
   // ═══════════════════════════════════════════════════════════════
@@ -246,14 +246,14 @@ class EliteSpaceShooter {
         </div>
       `,
       onInit: (container) => {
-        EliteSpaceShooter._container = container;
-        EliteSpaceShooter._canvas = container.querySelector('#ess-canvas');
-        EliteSpaceShooter._ctx = EliteSpaceShooter._canvas.getContext('2d');
+        SpaceShooter._container = container;
+        SpaceShooter._canvas = container.querySelector('#ess-canvas');
+        SpaceShooter._ctx = SpaceShooter._canvas.getContext('2d');
 
-        EliteSpaceShooter._init();
+        SpaceShooter._init();
       },
       onDestroy: () => {
-        EliteSpaceShooter._cleanup();
+        SpaceShooter._cleanup();
       }
     };
   }
@@ -262,32 +262,32 @@ class EliteSpaceShooter {
     console.log('🚀 Initializing Elite Space Shooter');
 
     // Load save data
-    EliteSpaceShooter._loadGameData();
+    SpaceShooter._loadGameData();
 
     // Initialize systems
-    EliteSpaceShooter._initializeBackground();
-    EliteSpaceShooter._initializePlayer();
-    EliteSpaceShooter._setupEventListeners();
-    EliteSpaceShooter._updateUI();
+    SpaceShooter._initializeBackground();
+    SpaceShooter._initializePlayer();
+    SpaceShooter._setupEventListeners();
+    SpaceShooter._updateUI();
 
     // Show main menu
-    EliteSpaceShooter._showScreen('main-menu');
+    SpaceShooter._showScreen('main-menu');
 
     // Set focus for keyboard input
-    EliteSpaceShooter._container.tabIndex = 0;
-    EliteSpaceShooter._container.focus();
+    SpaceShooter._container.tabIndex = 0;
+    SpaceShooter._container.focus();
   }
 
   static _cleanup() {
-    EliteSpaceShooter._stopGame();
-    const container = EliteSpaceShooter._container;
+    SpaceShooter._stopGame();
+    const container = SpaceShooter._container;
 
     if (container) {
-      container.removeEventListener('keydown', EliteSpaceShooter._onKeyDown);
-      container.removeEventListener('keyup', EliteSpaceShooter._onKeyUp);
-      container.removeEventListener('mousemove', EliteSpaceShooter._onMouseMove);
-      container.removeEventListener('mousedown', EliteSpaceShooter._onMouseDown);
-      container.removeEventListener('mouseup', EliteSpaceShooter._onMouseUp);
+      container.removeEventListener('keydown', SpaceShooter._onKeyDown);
+      container.removeEventListener('keyup', SpaceShooter._onKeyUp);
+      container.removeEventListener('mousemove', SpaceShooter._onMouseMove);
+      container.removeEventListener('mousedown', SpaceShooter._onMouseDown);
+      container.removeEventListener('mouseup', SpaceShooter._onMouseUp);
     }
   }
 
@@ -297,11 +297,11 @@ class EliteSpaceShooter {
 
   static _initializeBackground() {
     // Create starfield
-    EliteSpaceShooter._stars = [];
+    SpaceShooter._stars = [];
     for (let i = 0; i < 100; i++) {
-      EliteSpaceShooter._stars.push({
-        x: Math.random() * EliteSpaceShooter._width,
-        y: Math.random() * EliteSpaceShooter._height,
+      SpaceShooter._stars.push({
+        x: Math.random() * SpaceShooter._width,
+        y: Math.random() * SpaceShooter._height,
         size: Math.random() * 2 + 0.5,
         speed: Math.random() * 100 + 50,
         brightness: Math.random() * 0.8 + 0.2
@@ -310,9 +310,9 @@ class EliteSpaceShooter {
   }
 
   static _initializePlayer() {
-    EliteSpaceShooter._player = {
+    SpaceShooter._player = {
       x: 100,
-      y: EliteSpaceShooter._height / 2,
+      y: SpaceShooter._height / 2,
       width: 45,
       height: 30,
 
@@ -342,33 +342,33 @@ class EliteSpaceShooter {
   }
 
   static _setupEventListeners() {
-    const container = EliteSpaceShooter._container;
+    const container = SpaceShooter._container;
 
     // Keyboard events
-    container.addEventListener('keydown', EliteSpaceShooter._onKeyDown.bind(EliteSpaceShooter));
-    container.addEventListener('keyup', EliteSpaceShooter._onKeyUp.bind(EliteSpaceShooter));
+    container.addEventListener('keydown', SpaceShooter._onKeyDown.bind(SpaceShooter));
+    container.addEventListener('keyup', SpaceShooter._onKeyUp.bind(SpaceShooter));
 
     // Mouse events
-    container.addEventListener('mousemove', EliteSpaceShooter._onMouseMove.bind(EliteSpaceShooter));
-    container.addEventListener('mousedown', EliteSpaceShooter._onMouseDown.bind(EliteSpaceShooter));
-    container.addEventListener('mouseup', EliteSpaceShooter._onMouseUp.bind(EliteSpaceShooter));
+    container.addEventListener('mousemove', SpaceShooter._onMouseMove.bind(SpaceShooter));
+    container.addEventListener('mousedown', SpaceShooter._onMouseDown.bind(SpaceShooter));
+    container.addEventListener('mouseup', SpaceShooter._onMouseUp.bind(SpaceShooter));
 
     // Menu button events
-    EliteSpaceShooter._setupMenuButtons();
+    SpaceShooter._setupMenuButtons();
   }
 
   static _setupMenuButtons() {
-    const startBtn = EliteSpaceShooter._container.querySelector('#start-game-btn');
-    const instructionsBtn = EliteSpaceShooter._container.querySelector('#instructions-btn');
-    const backFromInstructionsBtn = EliteSpaceShooter._container.querySelector('#back-from-instructions-btn');
-    const retryBtn = EliteSpaceShooter._container.querySelector('#retry-btn');
-    const continueBtn = EliteSpaceShooter._container.querySelector('#continue-btn');
+    const startBtn = SpaceShooter._container.querySelector('#start-game-btn');
+    const instructionsBtn = SpaceShooter._container.querySelector('#instructions-btn');
+    const backFromInstructionsBtn = SpaceShooter._container.querySelector('#back-from-instructions-btn');
+    const retryBtn = SpaceShooter._container.querySelector('#retry-btn');
+    const continueBtn = SpaceShooter._container.querySelector('#continue-btn');
 
-    if (startBtn) startBtn.addEventListener('click', () => EliteSpaceShooter._startGame());
-    if (instructionsBtn) instructionsBtn.addEventListener('click', () => EliteSpaceShooter._showInstructions());
-    if (backFromInstructionsBtn) backFromInstructionsBtn.addEventListener('click', () => EliteSpaceShooter._showScreen('main-menu'));
-    if (retryBtn) retryBtn.addEventListener('click', () => EliteSpaceShooter._startGame());
-    if (continueBtn) continueBtn.addEventListener('click', () => EliteSpaceShooter._nextLevel());
+    if (startBtn) startBtn.addEventListener('click', () => SpaceShooter._startGame());
+    if (instructionsBtn) instructionsBtn.addEventListener('click', () => SpaceShooter._showInstructions());
+    if (backFromInstructionsBtn) backFromInstructionsBtn.addEventListener('click', () => SpaceShooter._showScreen('main-menu'));
+    if (retryBtn) retryBtn.addEventListener('click', () => SpaceShooter._startGame());
+    if (continueBtn) continueBtn.addEventListener('click', () => SpaceShooter._nextLevel());
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -376,7 +376,7 @@ class EliteSpaceShooter {
   // ═══════════════════════════════════════════════════════════════
 
   static _onKeyDown(e) {
-    EliteSpaceShooter._keys[e.code] = true;
+    SpaceShooter._keys[e.code] = true;
 
     // Prevent default for game keys
     if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code)) {
@@ -384,43 +384,43 @@ class EliteSpaceShooter {
     }
 
     // Handle special keys
-    if (e.code === 'KeyP' && EliteSpaceShooter._gameState === 'playing') {
-      EliteSpaceShooter._pauseGame();
+    if (e.code === 'KeyP' && SpaceShooter._gameState === 'playing') {
+      SpaceShooter._pauseGame();
     }
 
     if (e.code === 'Escape') {
-      if (EliteSpaceShooter._gameState === 'playing') {
-        EliteSpaceShooter._pauseGame();
-      } else if (EliteSpaceShooter._gameState === 'paused') {
-        EliteSpaceShooter._resumeGame();
+      if (SpaceShooter._gameState === 'playing') {
+        SpaceShooter._pauseGame();
+      } else if (SpaceShooter._gameState === 'paused') {
+        SpaceShooter._resumeGame();
       }
     }
   }
 
   static _onKeyUp(e) {
-    EliteSpaceShooter._keys[e.code] = false;
+    SpaceShooter._keys[e.code] = false;
   }
 
   static _onMouseMove(e) {
-    const rect = EliteSpaceShooter._canvas.getBoundingClientRect();
-    EliteSpaceShooter._mouse.x = e.clientX - rect.left;
-    EliteSpaceShooter._mouse.y = e.clientY - rect.top;
+    const rect = SpaceShooter._canvas.getBoundingClientRect();
+    SpaceShooter._mouse.x = e.clientX - rect.left;
+    SpaceShooter._mouse.y = e.clientY - rect.top;
   }
 
   static _onMouseDown(e) {
-    EliteSpaceShooter._mouse.down = true;
+    SpaceShooter._mouse.down = true;
 
     // Left click fires weapons in game
-    if (EliteSpaceShooter._gameState === 'playing' && e.button === 0) {
-      EliteSpaceShooter._keys['Space'] = true;
+    if (SpaceShooter._gameState === 'playing' && e.button === 0) {
+      SpaceShooter._keys['Space'] = true;
     }
   }
 
   static _onMouseUp(e) {
-    EliteSpaceShooter._mouse.down = false;
+    SpaceShooter._mouse.down = false;
 
     if (e.button === 0) {
-      EliteSpaceShooter._keys['Space'] = false;
+      SpaceShooter._keys['Space'] = false;
     }
   }
 
@@ -431,112 +431,112 @@ class EliteSpaceShooter {
   static _startGame() {
     console.log('🎮 Starting new game');
 
-    EliteSpaceShooter._gameState = 'playing';
-    EliteSpaceShooter._currentLevel = 1;
-    EliteSpaceShooter._score = 0;
-    EliteSpaceShooter._lives = 3;
-    EliteSpaceShooter._credits = 0;
-    EliteSpaceShooter._experience = 0;
-    EliteSpaceShooter._combo = 0;
-    EliteSpaceShooter._multiplier = 1;
-    EliteSpaceShooter._enemiesKilled = 0;
-    EliteSpaceShooter._levelProgress = 0;
+    SpaceShooter._gameState = 'playing';
+    SpaceShooter._currentLevel = 1;
+    SpaceShooter._score = 0;
+    SpaceShooter._lives = 3;
+    SpaceShooter._credits = 0;
+    SpaceShooter._experience = 0;
+    SpaceShooter._combo = 0;
+    SpaceShooter._multiplier = 1;
+    SpaceShooter._enemiesKilled = 0;
+    SpaceShooter._levelProgress = 0;
 
     // Reset player
-    EliteSpaceShooter._initializePlayer();
+    SpaceShooter._initializePlayer();
 
     // Clear all game objects
-    EliteSpaceShooter._clearGameObjects();
+    SpaceShooter._clearGameObjects();
 
     // Reset spawn timer
-    EliteSpaceShooter._spawnTimer = 0;
+    SpaceShooter._spawnTimer = 0;
 
     // Hide overlay and start game loop
-    EliteSpaceShooter._hideAllScreens();
-    EliteSpaceShooter._startGameLoop();
+    SpaceShooter._hideAllScreens();
+    SpaceShooter._startGameLoop();
   }
 
   static _pauseGame() {
-    if (EliteSpaceShooter._running) {
-      EliteSpaceShooter._running = false;
-      EliteSpaceShooter._gameState = 'paused';
+    if (SpaceShooter._running) {
+      SpaceShooter._running = false;
+      SpaceShooter._gameState = 'paused';
       // Show pause overlay
     }
   }
 
   static _resumeGame() {
-    if (EliteSpaceShooter._gameState === 'paused') {
-      EliteSpaceShooter._gameState = 'playing';
-      EliteSpaceShooter._startGameLoop();
+    if (SpaceShooter._gameState === 'paused') {
+      SpaceShooter._gameState = 'playing';
+      SpaceShooter._startGameLoop();
     }
   }
 
   static _gameOver() {
     console.log('💀 Game Over');
 
-    EliteSpaceShooter._gameState = 'gameover';
-    EliteSpaceShooter._stopGame();
+    SpaceShooter._gameState = 'gameover';
+    SpaceShooter._stopGame();
 
     // Update high score
-    if (EliteSpaceShooter._score > EliteSpaceShooter._saveData.highScore) {
-      EliteSpaceShooter._saveData.highScore = EliteSpaceShooter._score;
+    if (SpaceShooter._score > SpaceShooter._saveData.highScore) {
+      SpaceShooter._saveData.highScore = SpaceShooter._score;
     }
 
-    if (EliteSpaceShooter._currentLevel > EliteSpaceShooter._saveData.maxLevel) {
-      EliteSpaceShooter._saveData.maxLevel = EliteSpaceShooter._currentLevel;
+    if (SpaceShooter._currentLevel > SpaceShooter._saveData.maxLevel) {
+      SpaceShooter._saveData.maxLevel = SpaceShooter._currentLevel;
     }
 
-    EliteSpaceShooter._saveGameData();
+    SpaceShooter._saveGameData();
 
     // Show game over screen
-    EliteSpaceShooter._showGameOverScreen();
+    SpaceShooter._showGameOverScreen();
   }
 
   static _nextLevel() {
-    console.log(`✅ Level ${EliteSpaceShooter._currentLevel} complete!`);
+    console.log(`✅ Level ${SpaceShooter._currentLevel} complete!`);
 
-    EliteSpaceShooter._currentLevel++;
-    EliteSpaceShooter._levelProgress = 0;
-    EliteSpaceShooter._enemiesKilled = 0;
+    SpaceShooter._currentLevel++;
+    SpaceShooter._levelProgress = 0;
+    SpaceShooter._enemiesKilled = 0;
 
     // Award level completion bonus
-    const bonus = EliteSpaceShooter._currentLevel * 1000;
-    EliteSpaceShooter._score += bonus;
-    EliteSpaceShooter._credits += EliteSpaceShooter._currentLevel * 50;
+    const bonus = SpaceShooter._currentLevel * 1000;
+    SpaceShooter._score += bonus;
+    SpaceShooter._credits += SpaceShooter._currentLevel * 50;
 
     // Clear enemies and bullets
-    EliteSpaceShooter._enemies = [];
-    EliteSpaceShooter._enemyBullets = [];
-    EliteSpaceShooter._missiles = [];
+    SpaceShooter._enemies = [];
+    SpaceShooter._enemyBullets = [];
+    SpaceShooter._missiles = [];
 
     // Restore some health
-    EliteSpaceShooter._player.health = Math.min(EliteSpaceShooter._player.maxHealth, EliteSpaceShooter._player.health + 25);
-    EliteSpaceShooter._player.shield = EliteSpaceShooter._player.maxShield;
-    EliteSpaceShooter._player.energy = EliteSpaceShooter._player.maxEnergy;
+    SpaceShooter._player.health = Math.min(SpaceShooter._player.maxHealth, SpaceShooter._player.health + 25);
+    SpaceShooter._player.shield = SpaceShooter._player.maxShield;
+    SpaceShooter._player.energy = SpaceShooter._player.maxEnergy;
 
     // Check if final level
-    if (EliteSpaceShooter._currentLevel > EliteSpaceShooter._maxLevel) {
-      EliteSpaceShooter._victory();
+    if (SpaceShooter._currentLevel > SpaceShooter._maxLevel) {
+      SpaceShooter._victory();
     } else {
       // Continue playing
-      EliteSpaceShooter._gameState = 'playing';
-      EliteSpaceShooter._spawnTimer = 0;
-      EliteSpaceShooter._spawnInterval = Math.max(1000, EliteSpaceShooter._spawnInterval - 100);
+      SpaceShooter._gameState = 'playing';
+      SpaceShooter._spawnTimer = 0;
+      SpaceShooter._spawnInterval = Math.max(1000, SpaceShooter._spawnInterval - 100);
     }
   }
 
   static _victory() {
     console.log('🏆 Victory! All levels completed!');
 
-    EliteSpaceShooter._gameState = 'victory';
-    EliteSpaceShooter._stopGame();
+    SpaceShooter._gameState = 'victory';
+    SpaceShooter._stopGame();
 
     // Final bonus
-    EliteSpaceShooter._score += 10000;
-    EliteSpaceShooter._credits += 500;
+    SpaceShooter._score += 10000;
+    SpaceShooter._credits += 500;
 
-    EliteSpaceShooter._saveGameData();
-    EliteSpaceShooter._showVictoryScreen();
+    SpaceShooter._saveGameData();
+    SpaceShooter._showVictoryScreen();
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -544,31 +544,31 @@ class EliteSpaceShooter {
   // ═══════════════════════════════════════════════════════════════
 
   static _startGameLoop() {
-    EliteSpaceShooter._lastTime = performance.now();
-    EliteSpaceShooter._running = true;
-    EliteSpaceShooter._gameLoop(EliteSpaceShooter._lastTime);
+    SpaceShooter._lastTime = performance.now();
+    SpaceShooter._running = true;
+    SpaceShooter._gameLoop(SpaceShooter._lastTime);
   }
 
   static _stopGame() {
-    EliteSpaceShooter._running = false;
-    if (EliteSpaceShooter._animationId) {
-      cancelAnimationFrame(EliteSpaceShooter._animationId);
-      EliteSpaceShooter._animationId = null;
+    SpaceShooter._running = false;
+    if (SpaceShooter._animationId) {
+      cancelAnimationFrame(SpaceShooter._animationId);
+      SpaceShooter._animationId = null;
     }
   }
 
   static _gameLoop(timestamp) {
-    if (!EliteSpaceShooter._running) return;
+    if (!SpaceShooter._running) return;
 
-    EliteSpaceShooter._deltaTime = (timestamp - EliteSpaceShooter._lastTime) / 1000;
-    EliteSpaceShooter._lastTime = timestamp;
+    SpaceShooter._deltaTime = (timestamp - SpaceShooter._lastTime) / 1000;
+    SpaceShooter._lastTime = timestamp;
 
-    if (EliteSpaceShooter._gameState === 'playing') {
-      EliteSpaceShooter._update(EliteSpaceShooter._deltaTime);
+    if (SpaceShooter._gameState === 'playing') {
+      SpaceShooter._update(SpaceShooter._deltaTime);
     }
 
-    EliteSpaceShooter._render();
-    EliteSpaceShooter._animationId = requestAnimationFrame(EliteSpaceShooter._gameLoop.bind(EliteSpaceShooter));
+    SpaceShooter._render();
+    SpaceShooter._animationId = requestAnimationFrame(SpaceShooter._gameLoop.bind(SpaceShooter));
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -577,49 +577,49 @@ class EliteSpaceShooter {
 
   static _update(deltaTime) {
     // Update background
-    EliteSpaceShooter._updateBackground(deltaTime);
+    SpaceShooter._updateBackground(deltaTime);
 
     // Update player
-    EliteSpaceShooter._updatePlayer(deltaTime);
+    SpaceShooter._updatePlayer(deltaTime);
 
     // Update weapons and projectiles
-    EliteSpaceShooter._updatePlayerBullets(deltaTime);
-    EliteSpaceShooter._updateEnemyBullets(deltaTime);
-    EliteSpaceShooter._updateMissiles(deltaTime);
+    SpaceShooter._updatePlayerBullets(deltaTime);
+    SpaceShooter._updateEnemyBullets(deltaTime);
+    SpaceShooter._updateMissiles(deltaTime);
 
     // Update enemies and AI
-    EliteSpaceShooter._updateEnemies(deltaTime);
-    EliteSpaceShooter._updateEnemySpawning(deltaTime);
+    SpaceShooter._updateEnemies(deltaTime);
+    SpaceShooter._updateEnemySpawning(deltaTime);
 
     // Update environment
-    EliteSpaceShooter._updateAsteroids(deltaTime);
-    EliteSpaceShooter._updatePowerups(deltaTime);
+    SpaceShooter._updateAsteroids(deltaTime);
+    SpaceShooter._updatePowerups(deltaTime);
 
     // Update visual effects
-    EliteSpaceShooter._updateParticles(deltaTime);
-    EliteSpaceShooter._updateExplosions(deltaTime);
-    EliteSpaceShooter._updateVisualEffects(deltaTime);
+    SpaceShooter._updateParticles(deltaTime);
+    SpaceShooter._updateExplosions(deltaTime);
+    SpaceShooter._updateVisualEffects(deltaTime);
 
     // Check collisions
-    EliteSpaceShooter._checkCollisions();
+    SpaceShooter._checkCollisions();
 
     // Update game logic
-    EliteSpaceShooter._updateGameLogic(deltaTime);
+    SpaceShooter._updateGameLogic(deltaTime);
 
     // Update UI
-    EliteSpaceShooter._updateUI();
+    SpaceShooter._updateUI();
   }
 
   static _updatePlayer(deltaTime) {
-    const player = EliteSpaceShooter._player;
+    const player = SpaceShooter._player;
 
     // Handle input
     let inputX = 0, inputY = 0;
 
-    if (EliteSpaceShooter._keys['ArrowLeft'] || EliteSpaceShooter._keys['KeyA']) inputX -= 1;
-    if (EliteSpaceShooter._keys['ArrowRight'] || EliteSpaceShooter._keys['KeyD']) inputX += 1;
-    if (EliteSpaceShooter._keys['ArrowUp'] || EliteSpaceShooter._keys['KeyW']) inputY -= 1;
-    if (EliteSpaceShooter._keys['ArrowDown'] || EliteSpaceShooter._keys['KeyS']) inputY += 1;
+    if (SpaceShooter._keys['ArrowLeft'] || SpaceShooter._keys['KeyA']) inputX -= 1;
+    if (SpaceShooter._keys['ArrowRight'] || SpaceShooter._keys['KeyD']) inputX += 1;
+    if (SpaceShooter._keys['ArrowUp'] || SpaceShooter._keys['KeyW']) inputY -= 1;
+    if (SpaceShooter._keys['ArrowDown'] || SpaceShooter._keys['KeyS']) inputY += 1;
 
     // Normalize diagonal movement
     if (inputX !== 0 && inputY !== 0) {
@@ -648,8 +648,8 @@ class EliteSpaceShooter {
     player.y += player.velocity.y * deltaTime;
 
     // Boundary constraints
-    player.x = Math.max(0, Math.min(player.x, EliteSpaceShooter._width - player.width));
-    player.y = Math.max(0, Math.min(player.y, EliteSpaceShooter._height - player.height));
+    player.x = Math.max(0, Math.min(player.x, SpaceShooter._width - player.width));
+    player.y = Math.max(0, Math.min(player.y, SpaceShooter._height - player.height));
 
     // Update timers
     player.fireRate = Math.max(0, player.fireRate - deltaTime * 1000);
@@ -667,31 +667,31 @@ class EliteSpaceShooter {
     }
 
     // Handle weapons
-    EliteSpaceShooter._handlePlayerWeapons();
+    SpaceShooter._handlePlayerWeapons();
   }
 
   static _handlePlayerWeapons() {
-    const player = EliteSpaceShooter._player;
+    const player = SpaceShooter._player;
 
     // Primary weapon
-    if (EliteSpaceShooter._keys['Space'] && player.fireRate <= 0) {
+    if (SpaceShooter._keys['Space'] && player.fireRate <= 0) {
       if (player.energy >= 5) {
-        EliteSpaceShooter._firePrimaryWeapon();
+        SpaceShooter._firePrimaryWeapon();
         player.fireRate = 150;
         player.energy -= 5;
       }
     }
 
     // Secondary weapon
-    if (EliteSpaceShooter._keys['ShiftLeft'] && player.specialCooldown <= 0) {
-      EliteSpaceShooter._fireSecondaryWeapon();
+    if (SpaceShooter._keys['ShiftLeft'] && player.specialCooldown <= 0) {
+      SpaceShooter._fireSecondaryWeapon();
     }
   }
 
   static _firePrimaryWeapon() {
-    const player = EliteSpaceShooter._player;
+    const player = SpaceShooter._player;
 
-    EliteSpaceShooter._createPlayerBullet({
+    SpaceShooter._createPlayerBullet({
       x: player.x + player.width,
       y: player.y + player.height / 2,
       type: 'laser',
@@ -700,18 +700,18 @@ class EliteSpaceShooter {
       color: '#00ffff'
     });
 
-    EliteSpaceShooter._addScreenShake(2);
+    SpaceShooter._addScreenShake(2);
   }
 
   static _fireSecondaryWeapon() {
-    const player = EliteSpaceShooter._player;
+    const player = SpaceShooter._player;
 
     if (player.energy >= 30) {
-      EliteSpaceShooter._createMissile({
+      SpaceShooter._createMissile({
         x: player.x + player.width,
         y: player.y + player.height / 2,
-        targetX: EliteSpaceShooter._mouse.x,
-        targetY: EliteSpaceShooter._mouse.y,
+        targetX: SpaceShooter._mouse.x,
+        targetY: SpaceShooter._mouse.y,
         damage: 150,
         isPlayerMissile: true
       });
@@ -719,7 +719,7 @@ class EliteSpaceShooter {
       player.energy -= 30;
       player.specialCooldown = 2000;
 
-      EliteSpaceShooter._addScreenShake(5);
+      SpaceShooter._addScreenShake(5);
     }
   }
 
@@ -728,7 +728,7 @@ class EliteSpaceShooter {
   // ═══════════════════════════════════════════════════════════════
 
   static _createPlayerBullet(config) {
-    EliteSpaceShooter._playerBullets.push({
+    SpaceShooter._playerBullets.push({
       x: config.x,
       y: config.y,
       width: 12,
@@ -742,7 +742,7 @@ class EliteSpaceShooter {
   }
 
   static _createEnemyBullet(config) {
-    EliteSpaceShooter._enemyBullets.push({
+    SpaceShooter._enemyBullets.push({
       x: config.x,
       y: config.y,
       width: 8,
@@ -756,7 +756,7 @@ class EliteSpaceShooter {
   }
 
   static _createMissile(config) {
-    EliteSpaceShooter._missiles.push({
+    SpaceShooter._missiles.push({
       x: config.x,
       y: config.y,
       width: 20,
@@ -774,8 +774,8 @@ class EliteSpaceShooter {
   }
 
   static _updatePlayerBullets(deltaTime) {
-    for (let i = EliteSpaceShooter._playerBullets.length - 1; i >= 0; i--) {
-      const bullet = EliteSpaceShooter._playerBullets[i];
+    for (let i = SpaceShooter._playerBullets.length - 1; i >= 0; i--) {
+      const bullet = SpaceShooter._playerBullets[i];
 
       // Update position
       bullet.x += bullet.velocity.x * deltaTime;
@@ -783,16 +783,16 @@ class EliteSpaceShooter {
       bullet.life -= deltaTime;
 
       // Remove if out of bounds or expired
-      if (bullet.x > EliteSpaceShooter._width || bullet.life <= 0 ||
-          bullet.x < -50 || bullet.y < -50 || bullet.y > EliteSpaceShooter._height + 50) {
-        EliteSpaceShooter._playerBullets.splice(i, 1);
+      if (bullet.x > SpaceShooter._width || bullet.life <= 0 ||
+          bullet.x < -50 || bullet.y < -50 || bullet.y > SpaceShooter._height + 50) {
+        SpaceShooter._playerBullets.splice(i, 1);
       }
     }
   }
 
   static _updateEnemyBullets(deltaTime) {
-    for (let i = EliteSpaceShooter._enemyBullets.length - 1; i >= 0; i--) {
-      const bullet = EliteSpaceShooter._enemyBullets[i];
+    for (let i = SpaceShooter._enemyBullets.length - 1; i >= 0; i--) {
+      const bullet = SpaceShooter._enemyBullets[i];
 
       // Update position
       bullet.x += bullet.velocity.x * deltaTime;
@@ -800,16 +800,16 @@ class EliteSpaceShooter {
       bullet.life -= deltaTime;
 
       // Remove if out of bounds or expired
-      if (bullet.x < -50 || bullet.x > EliteSpaceShooter._width + 50 ||
-          bullet.y < -50 || bullet.y > EliteSpaceShooter._height + 50 || bullet.life <= 0) {
-        EliteSpaceShooter._enemyBullets.splice(i, 1);
+      if (bullet.x < -50 || bullet.x > SpaceShooter._width + 50 ||
+          bullet.y < -50 || bullet.y > SpaceShooter._height + 50 || bullet.life <= 0) {
+        SpaceShooter._enemyBullets.splice(i, 1);
       }
     }
   }
 
   static _updateMissiles(deltaTime) {
-    for (let i = EliteSpaceShooter._missiles.length - 1; i >= 0; i--) {
-      const missile = EliteSpaceShooter._missiles[i];
+    for (let i = SpaceShooter._missiles.length - 1; i >= 0; i--) {
+      const missile = SpaceShooter._missiles[i];
 
       // Calculate angle to target
       const dx = missile.targetX - missile.x;
@@ -841,11 +841,11 @@ class EliteSpaceShooter {
       missile.life -= deltaTime;
 
       // Remove if out of bounds or expired
-      if (missile.x < -100 || missile.x > EliteSpaceShooter._width + 100 ||
-          missile.y < -100 || missile.y > EliteSpaceShooter._height + 100 || missile.life <= 0) {
+      if (missile.x < -100 || missile.x > SpaceShooter._width + 100 ||
+          missile.y < -100 || missile.y > SpaceShooter._height + 100 || missile.life <= 0) {
         // Create explosion when missile expires
-        EliteSpaceShooter._createExplosion(missile.x, missile.y, 60, '#ff8800');
-        EliteSpaceShooter._missiles.splice(i, 1);
+        SpaceShooter._createExplosion(missile.x, missile.y, 60, '#ff8800');
+        SpaceShooter._missiles.splice(i, 1);
       }
     }
   }
@@ -855,22 +855,22 @@ class EliteSpaceShooter {
   // ═══════════════════════════════════════════════════════════════
 
   static _updateEnemySpawning(deltaTime) {
-    EliteSpaceShooter._spawnTimer += deltaTime * 1000;
+    SpaceShooter._spawnTimer += deltaTime * 1000;
 
-    if (EliteSpaceShooter._spawnTimer >= EliteSpaceShooter._spawnInterval) {
-      EliteSpaceShooter._spawnTimer = 0;
-      EliteSpaceShooter._spawnEnemy();
+    if (SpaceShooter._spawnTimer >= SpaceShooter._spawnInterval) {
+      SpaceShooter._spawnTimer = 0;
+      SpaceShooter._spawnEnemy();
     }
   }
 
   static _spawnEnemy() {
     const enemy = {
-      x: EliteSpaceShooter._width + 20,
-      y: Math.random() * (EliteSpaceShooter._height - 40),
+      x: SpaceShooter._width + 20,
+      y: Math.random() * (SpaceShooter._height - 40),
       width: 32,
       height: 32,
-      health: 30 + EliteSpaceShooter._currentLevel * 10,
-      maxHealth: 30 + EliteSpaceShooter._currentLevel * 10,
+      health: 30 + SpaceShooter._currentLevel * 10,
+      maxHealth: 30 + SpaceShooter._currentLevel * 10,
       speed: 120 + Math.random() * 80,
       points: 100,
       fireRate: Math.random() * 2000 + 1000,
@@ -879,12 +879,12 @@ class EliteSpaceShooter {
       eyeColor: '#FFF'
     };
 
-    EliteSpaceShooter._enemies.push(enemy);
+    SpaceShooter._enemies.push(enemy);
   }
 
   static _updateEnemies(deltaTime) {
-    for (let i = EliteSpaceShooter._enemies.length - 1; i >= 0; i--) {
-      const enemy = EliteSpaceShooter._enemies[i];
+    for (let i = SpaceShooter._enemies.length - 1; i >= 0; i--) {
+      const enemy = SpaceShooter._enemies[i];
 
       // Move enemy
       enemy.x -= enemy.speed * deltaTime;
@@ -893,21 +893,21 @@ class EliteSpaceShooter {
       enemy.lastFire += deltaTime * 1000;
       if (enemy.lastFire >= enemy.fireRate) {
         enemy.lastFire = 0;
-        EliteSpaceShooter._enemyFire(enemy);
+        SpaceShooter._enemyFire(enemy);
       }
 
       // Remove if off screen or dead
       if (enemy.x < -100 || enemy.health <= 0) {
         if (enemy.health <= 0) {
-          EliteSpaceShooter._enemyDestroyed(enemy);
+          SpaceShooter._enemyDestroyed(enemy);
         }
-        EliteSpaceShooter._enemies.splice(i, 1);
+        SpaceShooter._enemies.splice(i, 1);
       }
     }
   }
 
   static _enemyFire(enemy) {
-    const player = EliteSpaceShooter._player;
+    const player = SpaceShooter._player;
     const dx = player.x - enemy.x;
     const dy = player.y - enemy.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -917,7 +917,7 @@ class EliteSpaceShooter {
       const angle = Math.atan2(dy, dx);
       const speed = 250;
 
-      EliteSpaceShooter._createEnemyBullet({
+      SpaceShooter._createEnemyBullet({
         x: enemy.x,
         y: enemy.y + enemy.height / 2,
         velocity: {
@@ -932,21 +932,21 @@ class EliteSpaceShooter {
 
   static _enemyDestroyed(enemy) {
     // Award points with multiplier
-    const points = enemy.points * EliteSpaceShooter._multiplier;
-    EliteSpaceShooter._score += points;
-    EliteSpaceShooter._credits += Math.floor(points / 10);
+    const points = enemy.points * SpaceShooter._multiplier;
+    SpaceShooter._score += points;
+    SpaceShooter._credits += Math.floor(points / 10);
 
     // Update combo
-    EliteSpaceShooter._combo++;
-    EliteSpaceShooter._maxCombo = Math.max(EliteSpaceShooter._maxCombo, EliteSpaceShooter._combo);
+    SpaceShooter._combo++;
+    SpaceShooter._maxCombo = Math.max(SpaceShooter._maxCombo, SpaceShooter._combo);
 
     // Increase multiplier
-    if (EliteSpaceShooter._combo >= 10) {
-      EliteSpaceShooter._multiplier = Math.min(5, 1 + Math.floor(EliteSpaceShooter._combo / 10) * 0.5);
+    if (SpaceShooter._combo >= 10) {
+      SpaceShooter._multiplier = Math.min(5, 1 + Math.floor(SpaceShooter._combo / 10) * 0.5);
     }
 
     // Create explosion
-    EliteSpaceShooter._createExplosion(
+    SpaceShooter._createExplosion(
       enemy.x + enemy.width / 2,
       enemy.y + enemy.height / 2,
       enemy.width * 1.5,
@@ -954,14 +954,14 @@ class EliteSpaceShooter {
     );
 
     // Screen shake
-    EliteSpaceShooter._addScreenShake(8);
+    SpaceShooter._addScreenShake(8);
 
-    EliteSpaceShooter._enemiesKilled++;
-    EliteSpaceShooter._levelProgress = Math.min(1, EliteSpaceShooter._enemiesKilled / (20 + EliteSpaceShooter._currentLevel * 5));
+    SpaceShooter._enemiesKilled++;
+    SpaceShooter._levelProgress = Math.min(1, SpaceShooter._enemiesKilled / (20 + SpaceShooter._currentLevel * 5));
 
     // Check level completion
-    if (EliteSpaceShooter._enemiesKilled >= 20 + EliteSpaceShooter._currentLevel * 5) {
-      EliteSpaceShooter._nextLevel();
+    if (SpaceShooter._enemiesKilled >= 20 + SpaceShooter._currentLevel * 5) {
+      SpaceShooter._nextLevel();
     }
   }
 
@@ -970,23 +970,23 @@ class EliteSpaceShooter {
   // ═══════════════════════════════════════════════════════════════
 
   static _checkCollisions() {
-    const player = EliteSpaceShooter._player;
+    const player = SpaceShooter._player;
 
     // Player bullets vs enemies
-    for (let i = EliteSpaceShooter._playerBullets.length - 1; i >= 0; i--) {
-      const bullet = EliteSpaceShooter._playerBullets[i];
+    for (let i = SpaceShooter._playerBullets.length - 1; i >= 0; i--) {
+      const bullet = SpaceShooter._playerBullets[i];
 
-      for (let j = EliteSpaceShooter._enemies.length - 1; j >= 0; j--) {
-        const enemy = EliteSpaceShooter._enemies[j];
+      for (let j = SpaceShooter._enemies.length - 1; j >= 0; j--) {
+        const enemy = SpaceShooter._enemies[j];
 
-        if (EliteSpaceShooter._checkRectCollision(bullet, enemy)) {
+        if (SpaceShooter._checkRectCollision(bullet, enemy)) {
           // Hit enemy
           enemy.health -= bullet.damage;
-          EliteSpaceShooter._playerBullets.splice(i, 1);
+          SpaceShooter._playerBullets.splice(i, 1);
 
           if (enemy.health <= 0) {
-            EliteSpaceShooter._enemyDestroyed(enemy);
-            EliteSpaceShooter._enemies.splice(j, 1);
+            SpaceShooter._enemyDestroyed(enemy);
+            SpaceShooter._enemies.splice(j, 1);
           }
           break;
         }
@@ -994,51 +994,51 @@ class EliteSpaceShooter {
     }
 
     // Enemy bullets vs player
-    for (let i = EliteSpaceShooter._enemyBullets.length - 1; i >= 0; i--) {
-      const bullet = EliteSpaceShooter._enemyBullets[i];
+    for (let i = SpaceShooter._enemyBullets.length - 1; i >= 0; i--) {
+      const bullet = SpaceShooter._enemyBullets[i];
 
-      if (EliteSpaceShooter._checkRectCollision(bullet, player)) {
+      if (SpaceShooter._checkRectCollision(bullet, player)) {
         // Hit player
         if (player.invulnerability <= 0) {
-          EliteSpaceShooter._damagePlayer(bullet.damage);
+          SpaceShooter._damagePlayer(bullet.damage);
           player.invulnerability = 1000;
         }
-        EliteSpaceShooter._enemyBullets.splice(i, 1);
+        SpaceShooter._enemyBullets.splice(i, 1);
       }
     }
 
     // Player vs enemies (collision damage)
-    for (let i = EliteSpaceShooter._enemies.length - 1; i >= 0; i--) {
-      const enemy = EliteSpaceShooter._enemies[i];
+    for (let i = SpaceShooter._enemies.length - 1; i >= 0; i--) {
+      const enemy = SpaceShooter._enemies[i];
 
-      if (EliteSpaceShooter._checkRectCollision(player, enemy)) {
+      if (SpaceShooter._checkRectCollision(player, enemy)) {
         if (player.invulnerability <= 0) {
-          EliteSpaceShooter._damagePlayer(50);
+          SpaceShooter._damagePlayer(50);
           player.invulnerability = 1000;
         }
         // Destroy enemy on collision
-        EliteSpaceShooter._enemyDestroyed(enemy);
-        EliteSpaceShooter._enemies.splice(i, 1);
+        SpaceShooter._enemyDestroyed(enemy);
+        SpaceShooter._enemies.splice(i, 1);
       }
     }
 
     // Missiles vs enemies
-    for (let i = EliteSpaceShooter._missiles.length - 1; i >= 0; i--) {
-      const missile = EliteSpaceShooter._missiles[i];
+    for (let i = SpaceShooter._missiles.length - 1; i >= 0; i--) {
+      const missile = SpaceShooter._missiles[i];
 
       if (missile.isPlayerMissile) {
-        for (let j = EliteSpaceShooter._enemies.length - 1; j >= 0; j--) {
-          const enemy = EliteSpaceShooter._enemies[j];
+        for (let j = SpaceShooter._enemies.length - 1; j >= 0; j--) {
+          const enemy = SpaceShooter._enemies[j];
 
-          if (EliteSpaceShooter._checkRectCollision(missile, enemy)) {
+          if (SpaceShooter._checkRectCollision(missile, enemy)) {
             // Hit enemy with missile
             enemy.health -= missile.damage;
-            EliteSpaceShooter._createExplosion(missile.x, missile.y, 80, '#ff8800');
-            EliteSpaceShooter._missiles.splice(i, 1);
+            SpaceShooter._createExplosion(missile.x, missile.y, 80, '#ff8800');
+            SpaceShooter._missiles.splice(i, 1);
 
             if (enemy.health <= 0) {
-              EliteSpaceShooter._enemyDestroyed(enemy);
-              EliteSpaceShooter._enemies.splice(j, 1);
+              SpaceShooter._enemyDestroyed(enemy);
+              SpaceShooter._enemies.splice(j, 1);
             }
             break;
           }
@@ -1055,7 +1055,7 @@ class EliteSpaceShooter {
   }
 
   static _damagePlayer(damage) {
-    const player = EliteSpaceShooter._player;
+    const player = SpaceShooter._player;
 
     if (player.shield > 0) {
       const shieldDamage = Math.min(damage, player.shield);
@@ -1068,26 +1068,26 @@ class EliteSpaceShooter {
       player.hitFlash = 200;
     }
 
-    EliteSpaceShooter._addScreenShake(10);
+    SpaceShooter._addScreenShake(10);
 
     if (player.health <= 0) {
-      EliteSpaceShooter._playerDeath();
+      SpaceShooter._playerDeath();
     }
   }
 
   static _playerDeath() {
-    EliteSpaceShooter._lives--;
+    SpaceShooter._lives--;
 
-    if (EliteSpaceShooter._lives <= 0) {
-      EliteSpaceShooter._gameOver();
+    if (SpaceShooter._lives <= 0) {
+      SpaceShooter._gameOver();
     } else {
       // Respawn player
-      EliteSpaceShooter._player.health = EliteSpaceShooter._player.maxHealth;
-      EliteSpaceShooter._player.shield = EliteSpaceShooter._player.maxShield;
-      EliteSpaceShooter._player.x = 100;
-      EliteSpaceShooter._player.y = EliteSpaceShooter._height / 2;
-      EliteSpaceShooter._player.velocity = { x: 0, y: 0 };
-      EliteSpaceShooter._player.invulnerability = 3000;
+      SpaceShooter._player.health = SpaceShooter._player.maxHealth;
+      SpaceShooter._player.shield = SpaceShooter._player.maxShield;
+      SpaceShooter._player.x = 100;
+      SpaceShooter._player.y = SpaceShooter._height / 2;
+      SpaceShooter._player.velocity = { x: 0, y: 0 };
+      SpaceShooter._player.invulnerability = 3000;
     }
   }
 
@@ -1096,34 +1096,34 @@ class EliteSpaceShooter {
   // ═══════════════════════════════════════════════════════════════
 
   static _clearGameObjects() {
-    EliteSpaceShooter._playerBullets = [];
-    EliteSpaceShooter._enemies = [];
-    EliteSpaceShooter._enemyBullets = [];
-    EliteSpaceShooter._missiles = [];
-    EliteSpaceShooter._asteroids = [];
-    EliteSpaceShooter._powerups = [];
-    EliteSpaceShooter._explosions = [];
-    EliteSpaceShooter._particles = [];
+    SpaceShooter._playerBullets = [];
+    SpaceShooter._enemies = [];
+    SpaceShooter._enemyBullets = [];
+    SpaceShooter._missiles = [];
+    SpaceShooter._asteroids = [];
+    SpaceShooter._powerups = [];
+    SpaceShooter._explosions = [];
+    SpaceShooter._particles = [];
   }
 
   static _updateBackground(deltaTime) {
     // Update stars
-    for (const star of EliteSpaceShooter._stars) {
+    for (const star of SpaceShooter._stars) {
       star.x -= star.speed * deltaTime;
       if (star.x < -10) {
-        star.x = EliteSpaceShooter._width + 10;
-        star.y = Math.random() * EliteSpaceShooter._height;
+        star.x = SpaceShooter._width + 10;
+        star.y = Math.random() * SpaceShooter._height;
       }
     }
   }
 
   static _updateParticles(deltaTime) {
-    for (let i = EliteSpaceShooter._particles.length - 1; i >= 0; i--) {
-      const particle = EliteSpaceShooter._particles[i];
+    for (let i = SpaceShooter._particles.length - 1; i >= 0; i--) {
+      const particle = SpaceShooter._particles[i];
       particle.life -= deltaTime;
 
       if (particle.life <= 0) {
-        EliteSpaceShooter._particles.splice(i, 1);
+        SpaceShooter._particles.splice(i, 1);
       } else {
         particle.x += particle.velocity.x * deltaTime;
         particle.y += particle.velocity.y * deltaTime;
@@ -1133,30 +1133,30 @@ class EliteSpaceShooter {
   }
 
   static _updateExplosions(deltaTime) {
-    for (let i = EliteSpaceShooter._explosions.length - 1; i >= 0; i--) {
-      const explosion = EliteSpaceShooter._explosions[i];
+    for (let i = SpaceShooter._explosions.length - 1; i >= 0; i--) {
+      const explosion = SpaceShooter._explosions[i];
       explosion.life -= deltaTime;
       explosion.radius += explosion.expansionRate * deltaTime;
 
       if (explosion.life <= 0) {
-        EliteSpaceShooter._explosions.splice(i, 1);
+        SpaceShooter._explosions.splice(i, 1);
       }
     }
   }
 
   static _updateVisualEffects(deltaTime) {
     // Update screen shake
-    if (EliteSpaceShooter._screenShake.duration > 0) {
-      EliteSpaceShooter._screenShake.duration -= deltaTime * 1000;
-      if (EliteSpaceShooter._screenShake.duration <= 0) {
-        EliteSpaceShooter._screenShake.intensity = 0;
+    if (SpaceShooter._screenShake.duration > 0) {
+      SpaceShooter._screenShake.duration -= deltaTime * 1000;
+      if (SpaceShooter._screenShake.duration <= 0) {
+        SpaceShooter._screenShake.intensity = 0;
       }
     }
   }
 
   static _updateGameLogic(deltaTime) {
     // Reset combo if no kills for a while
-    if (EliteSpaceShooter._combo > 0) {
+    if (SpaceShooter._combo > 0) {
       // Could add combo timeout logic here
     }
   }
@@ -1170,7 +1170,7 @@ class EliteSpaceShooter {
   }
 
   static _createExplosion(x, y, size, color) {
-    EliteSpaceShooter._explosions.push({
+    SpaceShooter._explosions.push({
       x: x,
       y: y,
       radius: 0,
@@ -1182,8 +1182,8 @@ class EliteSpaceShooter {
   }
 
   static _addScreenShake(intensity) {
-    EliteSpaceShooter._screenShake.intensity = Math.max(EliteSpaceShooter._screenShake.intensity, intensity);
-    EliteSpaceShooter._screenShake.duration = 200;
+    SpaceShooter._screenShake.intensity = Math.max(SpaceShooter._screenShake.intensity, intensity);
+    SpaceShooter._screenShake.duration = 200;
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -1191,36 +1191,36 @@ class EliteSpaceShooter {
   // ═══════════════════════════════════════════════════════════════
 
   static _render() {
-    const ctx = EliteSpaceShooter._ctx;
+    const ctx = SpaceShooter._ctx;
 
     // Apply screen shake
     ctx.save();
-    if (EliteSpaceShooter._screenShake.intensity > 0) {
-      const shakeX = (Math.random() - 0.5) * EliteSpaceShooter._screenShake.intensity;
-      const shakeY = (Math.random() - 0.5) * EliteSpaceShooter._screenShake.intensity;
+    if (SpaceShooter._screenShake.intensity > 0) {
+      const shakeX = (Math.random() - 0.5) * SpaceShooter._screenShake.intensity;
+      const shakeY = (Math.random() - 0.5) * SpaceShooter._screenShake.intensity;
       ctx.translate(shakeX, shakeY);
     }
 
     // Clear canvas
     ctx.fillStyle = '#000011';
-    ctx.fillRect(0, 0, EliteSpaceShooter._width, EliteSpaceShooter._height);
+    ctx.fillRect(0, 0, SpaceShooter._width, SpaceShooter._height);
 
     // Render background stars
-    EliteSpaceShooter._renderStars(ctx);
+    SpaceShooter._renderStars(ctx);
 
     // Render game objects
-    EliteSpaceShooter._renderExplosions(ctx);
-    EliteSpaceShooter._renderParticles(ctx);
-    EliteSpaceShooter._renderProjectiles(ctx);
-    EliteSpaceShooter._renderEnemies(ctx);
-    EliteSpaceShooter._renderPlayer(ctx);
+    SpaceShooter._renderExplosions(ctx);
+    SpaceShooter._renderParticles(ctx);
+    SpaceShooter._renderProjectiles(ctx);
+    SpaceShooter._renderEnemies(ctx);
+    SpaceShooter._renderPlayer(ctx);
 
     ctx.restore();
   }
 
   static _renderStars(ctx) {
     ctx.fillStyle = '#ffffff';
-    for (const star of EliteSpaceShooter._stars) {
+    for (const star of SpaceShooter._stars) {
       ctx.globalAlpha = star.brightness;
       ctx.fillRect(star.x, star.y, star.size, star.size);
     }
@@ -1228,7 +1228,7 @@ class EliteSpaceShooter {
   }
 
   static _renderPlayer(ctx) {
-    const player = EliteSpaceShooter._player;
+    const player = SpaceShooter._player;
 
     if (player.invulnerability > 0 && Math.floor(Date.now() / 100) % 2) {
       return; // Flashing effect when invulnerable
@@ -1270,7 +1270,7 @@ class EliteSpaceShooter {
   }
 
   static _renderEnemies(ctx) {
-    for (const enemy of EliteSpaceShooter._enemies) {
+    for (const enemy of SpaceShooter._enemies) {
       ctx.save();
       ctx.translate(enemy.x + enemy.width/2, enemy.y + enemy.height/2);
 
@@ -1307,19 +1307,19 @@ class EliteSpaceShooter {
   static _renderProjectiles(ctx) {
     // Player bullets
     ctx.fillStyle = '#00ffff';
-    for (const bullet of EliteSpaceShooter._playerBullets) {
+    for (const bullet of SpaceShooter._playerBullets) {
       ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
     }
 
     // Enemy bullets
     ctx.fillStyle = '#ff4444';
-    for (const bullet of EliteSpaceShooter._enemyBullets) {
+    for (const bullet of SpaceShooter._enemyBullets) {
       ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
     }
 
     // Missiles
     ctx.fillStyle = '#ffaa00';
-    for (const missile of EliteSpaceShooter._missiles) {
+    for (const missile of SpaceShooter._missiles) {
       ctx.save();
       ctx.translate(missile.x + missile.width/2, missile.y + missile.height/2);
       ctx.rotate(missile.rotation);
@@ -1329,7 +1329,7 @@ class EliteSpaceShooter {
   }
 
   static _renderExplosions(ctx) {
-    for (const explosion of EliteSpaceShooter._explosions) {
+    for (const explosion of SpaceShooter._explosions) {
       const alpha = explosion.life / 0.5;
       ctx.strokeStyle = `rgba(255, 140, 0, ${alpha})`;
       ctx.lineWidth = 4;
@@ -1340,7 +1340,7 @@ class EliteSpaceShooter {
   }
 
   static _renderParticles(ctx) {
-    for (const particle of EliteSpaceShooter._particles) {
+    for (const particle of SpaceShooter._particles) {
       const alpha = particle.life / particle.maxLife;
       ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
       ctx.fillRect(particle.x, particle.y, particle.size, particle.size);
@@ -1353,55 +1353,55 @@ class EliteSpaceShooter {
 
   static _updateUI() {
     // Update score display
-    const scoreEl = EliteSpaceShooter._container.querySelector('#ess-score');
-    if (scoreEl) scoreEl.textContent = `SCORE: ${EliteSpaceShooter._score.toLocaleString()}`;
+    const scoreEl = SpaceShooter._container.querySelector('#ess-score');
+    if (scoreEl) scoreEl.textContent = `SCORE: ${SpaceShooter._score.toLocaleString()}`;
 
     // Update other UI elements
-    const creditsEl = EliteSpaceShooter._container.querySelector('#ess-credits');
-    if (creditsEl) creditsEl.textContent = `CREDITS: ${EliteSpaceShooter._credits}`;
+    const creditsEl = SpaceShooter._container.querySelector('#ess-credits');
+    if (creditsEl) creditsEl.textContent = `CREDITS: ${SpaceShooter._credits}`;
 
-    const livesEl = EliteSpaceShooter._container.querySelector('#ess-lives');
-    if (livesEl) livesEl.textContent = `LIVES: ${EliteSpaceShooter._lives}`;
+    const livesEl = SpaceShooter._container.querySelector('#ess-lives');
+    if (livesEl) livesEl.textContent = `LIVES: ${SpaceShooter._lives}`;
 
-    const levelEl = EliteSpaceShooter._container.querySelector('#ess-level');
-    if (levelEl) levelEl.textContent = `LEVEL: ${EliteSpaceShooter._currentLevel}`;
+    const levelEl = SpaceShooter._container.querySelector('#ess-level');
+    if (levelEl) levelEl.textContent = `LEVEL: ${SpaceShooter._currentLevel}`;
 
-    const comboEl = EliteSpaceShooter._container.querySelector('#ess-combo');
-    if (comboEl) comboEl.textContent = `COMBO: ${EliteSpaceShooter._combo}x`;
+    const comboEl = SpaceShooter._container.querySelector('#ess-combo');
+    if (comboEl) comboEl.textContent = `COMBO: ${SpaceShooter._combo}x`;
 
-    const multiplierEl = EliteSpaceShooter._container.querySelector('#ess-multiplier');
-    if (multiplierEl) multiplierEl.textContent = `×${EliteSpaceShooter._multiplier.toFixed(1)}`;
+    const multiplierEl = SpaceShooter._container.querySelector('#ess-multiplier');
+    if (multiplierEl) multiplierEl.textContent = `×${SpaceShooter._multiplier.toFixed(1)}`;
 
     // Update health bars
-    const player = EliteSpaceShooter._player;
+    const player = SpaceShooter._player;
     if (player) {
-      const hullFill = EliteSpaceShooter._container.querySelector('#hull-fill');
+      const hullFill = SpaceShooter._container.querySelector('#hull-fill');
       if (hullFill) hullFill.style.width = `${(player.health / player.maxHealth) * 100}%`;
 
-      const shieldFill = EliteSpaceShooter._container.querySelector('#shield-fill');
+      const shieldFill = SpaceShooter._container.querySelector('#shield-fill');
       if (shieldFill) shieldFill.style.width = `${(player.shield / player.maxShield) * 100}%`;
 
-      const energyFill = EliteSpaceShooter._container.querySelector('#energy-fill');
+      const energyFill = SpaceShooter._container.querySelector('#energy-fill');
       if (energyFill) energyFill.style.width = `${(player.energy / player.maxEnergy) * 100}%`;
     }
 
     // Update level progress
-    const progressFill = EliteSpaceShooter._container.querySelector('#level-progress-fill');
-    if (progressFill) progressFill.style.width = `${EliteSpaceShooter._levelProgress * 100}%`;
+    const progressFill = SpaceShooter._container.querySelector('#level-progress-fill');
+    if (progressFill) progressFill.style.width = `${SpaceShooter._levelProgress * 100}%`;
   }
 
   // Screen management
   static _showScreen(screenId) {
     // Hide all screens
-    EliteSpaceShooter._hideAllScreens();
+    SpaceShooter._hideAllScreens();
 
     // Show specific screen
-    const screen = EliteSpaceShooter._container.querySelector(`#${screenId}`);
+    const screen = SpaceShooter._container.querySelector(`#${screenId}`);
     if (screen) {
       screen.style.display = 'block';
     }
 
-    const overlay = EliteSpaceShooter._container.querySelector('#ess-overlay');
+    const overlay = SpaceShooter._container.querySelector('#ess-overlay');
     if (overlay) {
       overlay.style.display = 'flex';
     }
@@ -1410,50 +1410,50 @@ class EliteSpaceShooter {
   static _hideAllScreens() {
     const screens = ['main-menu', 'instructions', 'game-over-screen', 'victory-screen'];
     screens.forEach(screenId => {
-      const screen = EliteSpaceShooter._container.querySelector(`#${screenId}`);
+      const screen = SpaceShooter._container.querySelector(`#${screenId}`);
       if (screen) screen.style.display = 'none';
     });
 
-    const overlay = EliteSpaceShooter._container.querySelector('#ess-overlay');
+    const overlay = SpaceShooter._container.querySelector('#ess-overlay');
     if (overlay) {
       overlay.style.display = 'none';
     }
   }
 
   static _showInstructions() {
-    EliteSpaceShooter._showScreen('instructions');
+    SpaceShooter._showScreen('instructions');
   }
 
   static _showGameOverScreen() {
-    const finalStats = EliteSpaceShooter._container.querySelector('#final-stats');
+    const finalStats = SpaceShooter._container.querySelector('#final-stats');
     if (finalStats) {
       finalStats.innerHTML = `
-        Final Score: ${EliteSpaceShooter._score.toLocaleString()}<br>
-        Level Reached: ${EliteSpaceShooter._currentLevel}<br>
-        Max Combo: ${EliteSpaceShooter._maxCombo}x
+        Final Score: ${SpaceShooter._score.toLocaleString()}<br>
+        Level Reached: ${SpaceShooter._currentLevel}<br>
+        Max Combo: ${SpaceShooter._maxCombo}x
       `;
     }
 
-    EliteSpaceShooter._showScreen('game-over-screen');
+    SpaceShooter._showScreen('game-over-screen');
   }
 
   static _showVictoryScreen() {
-    const victoryStats = EliteSpaceShooter._container.querySelector('#victory-stats');
+    const victoryStats = SpaceShooter._container.querySelector('#victory-stats');
     if (victoryStats) {
       victoryStats.innerHTML = `
-        Final Score: ${EliteSpaceShooter._score.toLocaleString()}<br>
-        All ${EliteSpaceShooter._maxLevel} Levels Completed!<br>
-        Max Combo: ${EliteSpaceShooter._maxCombo}x
+        Final Score: ${SpaceShooter._score.toLocaleString()}<br>
+        All ${SpaceShooter._maxLevel} Levels Completed!<br>
+        Max Combo: ${SpaceShooter._maxCombo}x
       `;
     }
 
-    EliteSpaceShooter._showScreen('victory-screen');
+    SpaceShooter._showScreen('victory-screen');
   }
 
   // Save/Load system
   static _saveGameData() {
     try {
-      localStorage.setItem('eliteSpaceShooterSave', JSON.stringify(EliteSpaceShooter._saveData));
+      localStorage.setItem('eliteSpaceShooterSave', JSON.stringify(SpaceShooter._saveData));
     } catch (e) {
       console.warn('Could not save game data');
     }
@@ -1463,15 +1463,15 @@ class EliteSpaceShooter {
     try {
       const saved = localStorage.getItem('eliteSpaceShooterSave');
       if (saved) {
-        EliteSpaceShooter._saveData = { ...EliteSpaceShooter._saveData, ...JSON.parse(saved) };
+        SpaceShooter._saveData = { ...SpaceShooter._saveData, ...JSON.parse(saved) };
       }
 
       // Update high score display
-      const highScoreEl = EliteSpaceShooter._container.querySelector('#high-score-display');
-      if (highScoreEl) highScoreEl.textContent = EliteSpaceShooter._saveData.highScore;
+      const highScoreEl = SpaceShooter._container.querySelector('#high-score-display');
+      if (highScoreEl) highScoreEl.textContent = SpaceShooter._saveData.highScore;
 
-      const maxLevelEl = EliteSpaceShooter._container.querySelector('#max-level-display');
-      if (maxLevelEl) maxLevelEl.textContent = EliteSpaceShooter._saveData.maxLevel;
+      const maxLevelEl = SpaceShooter._container.querySelector('#max-level-display');
+      if (maxLevelEl) maxLevelEl.textContent = SpaceShooter._saveData.maxLevel;
     } catch (e) {
       console.warn('Could not load game data');
     }
@@ -1479,4 +1479,4 @@ class EliteSpaceShooter {
 }
 
 // Export for WindowManager
-window.EliteSpaceShooter = EliteSpaceShooter;
+window.SpaceShooter = SpaceShooter;
