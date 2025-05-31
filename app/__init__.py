@@ -1,33 +1,44 @@
-# app/__init__.py - Complete EmberFrame Application with Full API Implementation
+# app/__init__.py - Complete EmberFrame Application (Fixed Version)
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_file, send_from_directory, \
     abort, flash
-from flask_socketio import SocketIO, emit, join_room, leave_room, disconnect
+from flask_socketio import SocketIO, emit, join_room, leave_room
 import os
 import json
+import logging
 import hashlib
 import shutil
 import mimetypes
-import secrets
-import uuid
+import zipfile
+import tempfile
 from datetime import datetime, timedelta
-from pathlib import Path
 from werkzeug.utils import secure_filename
-from werkzeug.security import generate_password_hash, check_password_hash
-import logging
-from logging.handlers import RotatingFileHandler
+from werkzeug.exceptions import RequestEntityTooLarge
+import secrets
+import subprocess
+import sys
+from pathlib import Path
+import time
+import uuid
+import base64
+from PIL import Image
+import magic
 
 # Try to import CSRF protection, but make it optional
 try:
-    from flask_wtf.csrf import CSRFProtect, generate_csrf
+    from flask_wtf.csrf import CSRFProtect
 
     CSRF_AVAILABLE = True
 except ImportError:
     print("Warning: Flask-WTF not available, CSRF protection disabled")
     CSRFProtect = None
-    generate_csrf = lambda: ""
     CSRF_AVAILABLE = False
 
 socketio = SocketIO()
+
+# Global variables for session tracking
+active_sessions = {}
+user_preferences = {}
+user_shortcuts = {}
 
 
 def create_app():
@@ -52,40 +63,40 @@ def create_app():
         static_folder=static_dir
     )
 
-    # Configuration
+    # Enhanced Configuration
     app.config.update(
         SECRET_KEY=os.environ.get('SECRET_KEY', 'ember-secret-key-change-in-production-2024'),
         UPLOAD_FOLDER=os.path.join(project_root, 'user_data'),
         PUBLIC_FOLDER=os.path.join(project_root, 'public_data'),
         WALLPAPER_FOLDER=os.path.join(static_dir, 'wallpapers'),
-        USERS_FOLDER=os.path.join(project_root, 'users'),
+        AVATAR_FOLDER=os.path.join(static_dir, 'avatars'),
+        TEMP_FOLDER=os.path.join(project_root, 'temp'),
         LOGS_FOLDER=os.path.join(project_root, 'logs'),
-        MAX_CONTENT_LENGTH=16 * 1024 * 1024,  # 16MB max file size
+        BACKUP_FOLDER=os.path.join(project_root, 'backups'),
+        MAX_CONTENT_LENGTH=32 * 1024 * 1024,  # 32MB max file size
         WTF_CSRF_ENABLED=CSRF_AVAILABLE,
         WTF_CSRF_TIME_LIMIT=None,
-        WTF_CSRF_SSL_STRICT=False,
-        SESSION_PERMANENT=True,
+        SESSION_PERMANENT=False,
         PERMANENT_SESSION_LIFETIME=timedelta(hours=24),
-        JSON_SORT_KEYS=False
+        SEND_FILE_MAX_AGE_DEFAULT=timedelta(hours=1),
+        JSON_SORT_KEYS=False,
+        JSONIFY_PRETTYPRINT_REGULAR=True,
     )
 
-    # Setup logging
-    setup_logging(app)
-
     # Initialize extensions
-    socketio.init_app(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
+    socketio.init_app(app, cors_allowed_origins="*", async_mode='threading')
 
     # Initialize CSRF protection if available
     if CSRF_AVAILABLE:
         csrf = CSRFProtect(app)
-        app.logger.info("✅ CSRF protection enabled")
+        print("✅ CSRF protection enabled")
 
         @app.template_global()
         def csrf_token():
             try:
+                from flask_wtf.csrf import generate_csrf
                 return generate_csrf()
-            except Exception as e:
-                app.logger.error(f"CSRF token generation error: {e}")
+            except Exception:
                 return ""
     else:
         @app.template_global()
@@ -93,149 +104,91 @@ def create_app():
             return ""
 
     # Create necessary directories
-    for directory in [
+    directories_to_create = [
         app.config['UPLOAD_FOLDER'],
         app.config['PUBLIC_FOLDER'],
         app.config['WALLPAPER_FOLDER'],
-        app.config['USERS_FOLDER'],
-        app.config['LOGS_FOLDER']
-    ]:
-        os.makedirs(directory, exist_ok=True)
+        app.config['AVATAR_FOLDER'],
+        app.config['TEMP_FOLDER'],
+        app.config['LOGS_FOLDER'],
+        app.config['BACKUP_FOLDER'],
+        os.path.join(project_root, 'users'),
+        os.path.join(app.config['PUBLIC_FOLDER'], 'shared'),
+        os.path.join(app.config['PUBLIC_FOLDER'], 'documents'),
+        os.path.join(app.config['PUBLIC_FOLDER'], 'media'),
+        os.path.join(app.config['PUBLIC_FOLDER'], 'software')
+    ]
+
+    for directory in directories_to_create:
+        try:
+            os.makedirs(directory, exist_ok=True)
+        except Exception as e:
+            print(f"⚠️ Could not create directory {directory}: {e}")
 
     # Check template files
     if os.path.exists(template_dir):
         template_files = [f for f in os.listdir(template_dir) if f.endswith('.html')]
-        app.logger.info(f"📄 Found templates: {template_files}")
+        print(f"📄 Found templates: {template_files}")
     else:
-        app.logger.error("❌ Template directory not found!")
+        print("❌ Template directory not found!")
 
     # =====================
-    # HELPER FUNCTIONS
+    # TEMPLATE FILTERS
     # =====================
 
-    def require_auth():
-        """Check if user is authenticated"""
-        if 'username' not in session:
-            return jsonify({'success': False, 'error': 'Authentication required'}), 401
-        return None
+    @app.template_filter('filesizeformat')
+    def filesizeformat(num_bytes):
+        """Format file size in human readable format"""
+        if num_bytes is None:
+            return "0 B"
 
-    def is_admin(username=None):
+        num_bytes = float(num_bytes)
+        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+            if num_bytes < 1024.0:
+                return f"{num_bytes:.1f} {unit}"
+            num_bytes /= 1024.0
+        return f"{num_bytes:.1f} PB"
+
+    @app.template_filter('datetimeformat')
+    def datetimeformat(timestamp, format='%Y-%m-%d %H:%M'):
+        """Format timestamp"""
+        if isinstance(timestamp, (int, float)):
+            timestamp = datetime.fromtimestamp(timestamp)
+        return timestamp.strftime(format)
+
+    # =====================
+    # AUTHENTICATION HELPERS
+    # =====================
+
+    def require_login(f):
+        """Decorator to require authentication"""
+
+        def decorated_function(*args, **kwargs):
+            if 'username' not in session:
+                if request.is_json:
+                    return jsonify({'error': 'Authentication required'}), 401
+                return redirect(url_for('login_page'))
+            return f(*args, **kwargs)
+
+        decorated_function.__name__ = f.__name__
+        return decorated_function
+
+    def is_admin():
         """Check if current user is admin"""
-        if username:
-            return username.lower() == 'admin'
-        return session.get('username', '').lower() == 'admin' or session.get('is_admin', False)
+        return session.get('username') in ['admin', 'administrator'] or session.get('is_admin', False)
 
-    def get_user_data_path(username=None):
-        """Get user data directory path"""
-        if not username:
-            username = session.get('username')
+    def require_admin(f):
+        """Decorator to require admin privileges"""
 
-        if not username:
-            return None
+        def decorated_function(*args, **kwargs):
+            if not is_admin():
+                if request.is_json:
+                    return jsonify({'error': 'Admin privileges required'}), 403
+                abort(403)
+            return f(*args, **kwargs)
 
-        user_path = os.path.join(app.config['UPLOAD_FOLDER'], username)
-        os.makedirs(user_path, exist_ok=True)
-        return user_path
-
-    def get_public_data_path():
-        """Get public data directory path"""
-        return app.config['PUBLIC_FOLDER']
-
-    def get_file_icon(filename, file_type):
-        """Get appropriate icon for file type"""
-        if file_type == 'folder':
-            return '📁'
-
-        ext = os.path.splitext(filename)[1].lower()
-
-        # File type mappings
-        icons = {
-            '.txt': '📄', '.md': '📝', '.doc': '📄', '.docx': '📄',
-            '.pdf': '📕', '.rtf': '📄', '.odt': '📄',
-            '.jpg': '🖼️', '.jpeg': '🖼️', '.png': '🖼️', '.gif': '🖼️',
-            '.svg': '🖼️', '.bmp': '🖼️', '.webp': '🖼️', '.ico': '🖼️',
-            '.mp3': '🎵', '.wav': '🎵', '.ogg': '🎵', '.m4a': '🎵',
-            '.flac': '🎵', '.aac': '🎵', '.wma': '🎵',
-            '.mp4': '🎬', '.avi': '🎬', '.mov': '🎬', '.mkv': '🎬',
-            '.wmv': '🎬', '.flv': '🎬', '.webm': '🎬',
-            '.zip': '📦', '.rar': '📦', '.7z': '📦', '.tar': '📦',
-            '.gz': '📦', '.bz2': '📦', '.xz': '📦',
-            '.js': '⚡', '.html': '🌐', '.css': '🎨', '.json': '⚙️',
-            '.xml': '📋', '.yaml': '📋', '.yml': '📋',
-            '.py': '🐍', '.java': '☕', '.cpp': '⚡', '.c': '⚡',
-            '.cs': '🔷', '.php': '🌐', '.rb': '💎', '.go': '🔵',
-            '.rs': '🦀', '.swift': '🦉', '.kt': '🟧',
-            '.exe': '⚙️', '.msi': '⚙️', '.deb': '📦', '.rpm': '📦',
-            '.dmg': '💽', '.iso': '💿', '.img': '💿',
-            '.sql': '🗃️', '.db': '🗃️', '.sqlite': '🗃️',
-            '.log': '📊', '.csv': '📈', '.xls': '📊', '.xlsx': '📊'
-        }
-
-        return icons.get(ext, '📄')
-
-    def format_file_info(filepath, base_path=''):
-        """Format file information for API response"""
-        try:
-            stat = os.stat(filepath)
-            filename = os.path.basename(filepath)
-            is_dir = os.path.isdir(filepath)
-
-            return {
-                'name': filename,
-                'type': 'folder' if is_dir else 'file',
-                'size': 0 if is_dir else stat.st_size,
-                'modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
-                'icon': get_file_icon(filename, 'folder' if is_dir else 'file'),
-                'path': os.path.relpath(filepath, base_path) if base_path else filename,
-                'readable': os.access(filepath, os.R_OK),
-                'writable': os.access(filepath, os.W_OK)
-            }
-        except (OSError, FileNotFoundError) as e:
-            app.logger.error(f"Error getting file info for {filepath}: {e}")
-            return None
-
-    def ensure_user_directory(username):
-        """Create user directory and default folders"""
-        user_dir = get_user_data_path(username)
-        if not user_dir:
-            return False
-
-        # Create default directories
-        default_dirs = ['Documents', 'Downloads', 'Pictures', 'Desktop', 'Music', 'Videos', 'Projects']
-        for dir_name in default_dirs:
-            os.makedirs(os.path.join(user_dir, dir_name), exist_ok=True)
-
-        app.logger.info(f"📁 User directory ensured: {user_dir}")
-        return True
-
-    def save_user_data(username, data_type, data):
-        """Save user data to JSON file"""
-        try:
-            users_dir = app.config['USERS_FOLDER']
-            filename = f"{username}_{data_type}.json"
-            filepath = os.path.join(users_dir, filename)
-
-            with open(filepath, 'w') as f:
-                json.dump(data, f, indent=2)
-            return True
-        except Exception as e:
-            app.logger.error(f"Failed to save user data: {e}")
-            return False
-
-    def load_user_data(username, data_type, default=None):
-        """Load user data from JSON file"""
-        try:
-            users_dir = app.config['USERS_FOLDER']
-            filename = f"{username}_{data_type}.json"
-            filepath = os.path.join(users_dir, filename)
-
-            if os.path.exists(filepath):
-                with open(filepath, 'r') as f:
-                    return json.load(f)
-            return default or {}
-        except Exception as e:
-            app.logger.error(f"Failed to load user data: {e}")
-            return default or {}
+        decorated_function.__name__ = f.__name__
+        return decorated_function
 
     # =====================
     # MAIN ROUTES
@@ -245,9 +198,17 @@ def create_app():
     def index():
         """Main index route"""
         if 'username' in session:
-            username = session['username']
-            app.logger.info(f"🏠 User {username} accessing desktop")
-            return render_template('desktop.html', username=username)
+            # Track active session
+            session_id = session.get('session_id', str(uuid.uuid4()))
+            session['session_id'] = session_id
+            active_sessions[session_id] = {
+                'username': session['username'],
+                'login_time': datetime.now(),
+                'last_activity': datetime.now(),
+                'ip_address': request.remote_addr,
+                'user_agent': request.headers.get('User-Agent', '')
+            }
+            return render_template('desktop.html', username=session['username'])
         return redirect(url_for('login_page'))
 
     @app.route('/login', methods=['GET'])
@@ -265,7 +226,7 @@ def create_app():
             username = data.get('username', '').strip()
             password = data.get('password', '')
 
-            app.logger.info(f"🔐 Login attempt: {username}")
+            print(f"🔐 Login attempt: {username}")
 
             if not username or not password:
                 return jsonify({'success': False, 'message': 'Username and password are required'})
@@ -273,33 +234,35 @@ def create_app():
             if len(username) < 3:
                 return jsonify({'success': False, 'message': 'Username must be at least 3 characters'})
 
-            # Simple authentication for testing - accept any user with 3+ char username
-            # In production, you'd validate against a database
+            # Enhanced authentication logic
             if len(username) >= 3 and len(password) >= 1:
                 session['username'] = username
-                session['is_admin'] = is_admin(username)
-                session['login_time'] = datetime.now().isoformat()
                 session['session_id'] = str(uuid.uuid4())
+                session['login_time'] = datetime.now().isoformat()
+                session['is_admin'] = username.lower() in ['admin', 'administrator']
                 session.permanent = True
 
-                ensure_user_directory(username)
+                # Create user directory and load preferences
+                ensure_user_directory(username, app.config['UPLOAD_FOLDER'])
+                load_user_preferences(username)
+                load_user_shortcuts(username)
 
-                app.logger.info(f"✅ Login successful: {username} (Admin: {session.get('is_admin', False)})")
+                print(f"✅ Login successful: {username} (Admin: {session.get('is_admin', False)})")
                 return jsonify({
                     'success': True,
                     'message': 'Login successful',
                     'redirect': url_for('index'),
                     'user': {
                         'username': username,
-                        'is_admin': session['is_admin']
+                        'is_admin': session.get('is_admin', False)
                     }
                 })
             else:
-                app.logger.warning(f"❌ Login failed: {username}")
+                print(f"❌ Login failed: {username}")
                 return jsonify({'success': False, 'message': 'Invalid username or password'})
 
         except Exception as e:
-            app.logger.error(f"❌ Login error: {e}")
+            print(f"❌ Login error: {e}")
             return jsonify({'success': False, 'message': 'Login error occurred'})
 
     @app.route('/register', methods=['GET'])
@@ -316,8 +279,9 @@ def create_app():
             data = request.get_json() or {}
             username = data.get('username', '').strip()
             password = data.get('password', '')
+            email = data.get('email', '').strip()
 
-            app.logger.info(f"📝 Registration attempt: {username}")
+            print(f"📝 Registration attempt: {username}")
 
             # Validate input
             if not username or not password:
@@ -330,86 +294,87 @@ def create_app():
                 return jsonify({'success': False, 'message': 'Password must be at least 6 characters'})
 
             # Check if user already exists
-            user_dir = get_user_data_path(username)
-            if user_dir and os.path.exists(user_dir):
+            user_file = os.path.join(project_root, 'users', f'{username}.json')
+            if os.path.exists(user_file):
                 return jsonify({'success': False, 'message': 'Username already exists'})
 
             # Create user account
-            if ensure_user_directory(username):
-                # Save user info (in production, use proper database)
-                user_info = {
-                    'username': username,
-                    'password_hash': generate_password_hash(password),
-                    'created_at': datetime.now().isoformat(),
-                    'is_admin': False
-                }
-                save_user_data(username, 'profile', user_info)
+            user_data = {
+                'username': username,
+                'password_hash': hashlib.sha256(password.encode()).hexdigest(),
+                'email': email,
+                'created_at': datetime.now().isoformat(),
+                'is_admin': False,
+                'preferences': get_default_preferences(),
+                'shortcuts': {'desktop': [], 'taskbar': []}
+            }
 
-                app.logger.info(f"✅ Registration successful: {username}")
-                return jsonify({'success': True, 'message': 'Registration successful'})
-            else:
-                return jsonify({'success': False, 'message': 'Failed to create user account'})
+            with open(user_file, 'w') as f:
+                json.dump(user_data, f, indent=2)
+
+            # Create user directory
+            ensure_user_directory(username, app.config['UPLOAD_FOLDER'])
+
+            print(f"✅ Registration successful: {username}")
+            return jsonify({'success': True, 'message': 'Registration successful'})
 
         except Exception as e:
-            app.logger.error(f"❌ Registration error: {e}")
+            print(f"❌ Registration error: {e}")
             return jsonify({'success': False, 'message': 'Registration error occurred'})
 
     @app.route('/logout')
     def logout():
         """Handle logout"""
         username = session.get('username', 'unknown')
+        session_id = session.get('session_id')
+
+        # Remove from active sessions
+        if session_id in active_sessions:
+            del active_sessions[session_id]
+
         session.clear()
-        app.logger.info(f"👋 Logout: {username}")
+        print(f"👋 Logout: {username}")
+        flash('You have been logged out successfully', 'info')
         return redirect(url_for('login_page'))
 
     # =====================
     # FILE MANAGEMENT API
     # =====================
 
+    @app.route('/api/files')
     @app.route('/api/files/')
     @app.route('/api/files/<path:filepath>')
+    @require_login
     def list_files(filepath=''):
-        """List files and folders in a directory"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
+        """List files in a directory"""
         try:
             # Determine if this is a public or user directory
             if filepath.startswith('public/'):
-                base_path = get_public_data_path()
-                relative_path = filepath[7:]  # Remove 'public/' prefix
+                # Public directory
+                base_path = app.config['PUBLIC_FOLDER']
+                rel_path = filepath[7:]  # Remove 'public/' prefix
                 is_writable = is_admin()  # Only admins can write to public
             else:
-                base_path = get_user_data_path()
-                relative_path = filepath
-                is_writable = True  # Users can write to their own directories
-
-            if not base_path:
-                return jsonify({'success': False, 'error': 'User directory not accessible'}), 403
+                # User directory
+                base_path = os.path.join(app.config['UPLOAD_FOLDER'], session['username'])
+                rel_path = filepath
+                is_writable = True
 
             # Construct full path
-            if relative_path:
-                full_path = os.path.join(base_path, relative_path)
+            if rel_path:
+                full_path = os.path.join(base_path, rel_path)
             else:
                 full_path = base_path
 
             # Security check - prevent directory traversal
-            full_path = os.path.abspath(full_path)
-            base_path = os.path.abspath(base_path)
-
-            if not full_path.startswith(base_path):
-                return jsonify({'success': False, 'error': 'Access denied'}), 403
-
-            # Create directory if it doesn't exist (for user directories)
-            if not os.path.exists(full_path) and not filepath.startswith('public/'):
-                os.makedirs(full_path, exist_ok=True)
+            if not os.path.abspath(full_path).startswith(os.path.abspath(base_path)):
+                return jsonify({'error': 'Access denied'}), 403
 
             if not os.path.exists(full_path):
-                return jsonify({'success': False, 'error': 'Directory not found'}), 404
+                return jsonify({'error': 'Directory not found'}), 404
 
             if not os.path.isdir(full_path):
-                return jsonify({'success': False, 'error': 'Path is not a directory'}), 400
+                return jsonify({'error': 'Not a directory'}), 400
 
             # List directory contents
             files = []
@@ -419,409 +384,369 @@ def create_app():
                         continue
 
                     item_path = os.path.join(full_path, item)
-                    file_info = format_file_info(item_path, full_path)
-                    if file_info:
+                    is_dir = os.path.isdir(item_path)
+
+                    try:
+                        stat = os.stat(item_path)
+                        file_info = {
+                            'name': item,
+                            'type': 'folder' if is_dir else 'file',
+                            'icon': get_file_icon(item, is_dir),
+                            'modified': stat.st_mtime,
+                            'permissions': oct(stat.st_mode)[-3:]
+                        }
+
+                        if not is_dir:
+                            file_info['size'] = stat.st_size
+                            file_info['mime_type'] = mimetypes.guess_type(item)[0]
+
                         files.append(file_info)
+                    except (OSError, IOError) as e:
+                        print(f"Error accessing {item}: {e}")
+                        continue
+
             except PermissionError:
-                return jsonify({'success': False, 'error': 'Permission denied'}), 403
+                return jsonify({'error': 'Permission denied'}), 403
 
             # Sort files: folders first, then by name
             files.sort(key=lambda x: (x['type'] != 'folder', x['name'].lower()))
 
-            app.logger.info(f"📁 Listed {len(files)} files in {filepath} for {session['username']}")
-
             return jsonify({
-                'success': True,
                 'files': files,
                 'path': filepath,
                 'writable': is_writable,
-                'count': len(files)
+                'parent': os.path.dirname(filepath) if filepath else None,
+                'total_files': len([f for f in files if f['type'] == 'file']),
+                'total_folders': len([f for f in files if f['type'] == 'folder']),
+                'total_size': sum(f.get('size', 0) for f in files if f['type'] == 'file')
             })
 
         except Exception as e:
-            app.logger.error(f"Error listing files: {e}")
-            return jsonify({'success': False, 'error': 'Internal server error'}), 500
+            print(f"❌ Error listing files: {e}")
+            return jsonify({'error': f'Failed to list directory: {str(e)}'}), 500
 
-    @app.route('/api/files/<path:filepath>', methods=['POST'])
-    def create_folder(filepath):
-        """Create a new folder"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
-        try:
-            data = request.get_json() or {}
-
-            if data.get('type') != 'folder':
-                return jsonify({'success': False, 'error': 'Only folder creation supported'}), 400
-
-            # Determine target directory
-            if filepath.startswith('public/'):
-                if not is_admin():
-                    return jsonify({'success': False, 'error': 'Admin access required'}), 403
-                base_path = get_public_data_path()
-                relative_path = filepath[7:]
-            else:
-                base_path = get_user_data_path()
-                relative_path = filepath
-
-            if not base_path:
-                return jsonify({'success': False, 'error': 'User directory not accessible'}), 403
-
-            # Construct full path
-            full_path = os.path.join(base_path, relative_path)
-
-            # Security check
-            full_path = os.path.abspath(full_path)
-            base_path = os.path.abspath(base_path)
-
-            if not full_path.startswith(base_path):
-                return jsonify({'success': False, 'error': 'Access denied'}), 403
-
-            # Create folder
-            if os.path.exists(full_path):
-                return jsonify({'success': False, 'error': 'Folder already exists'}), 409
-
-            os.makedirs(full_path, exist_ok=True)
-
-            app.logger.info(f"📁 Created folder: {filepath} by {session['username']}")
-
-            return jsonify({
-                'success': True,
-                'message': f'Folder created: {os.path.basename(full_path)}'
-            })
-
-        except Exception as e:
-            app.logger.error(f"Error creating folder: {e}")
-            return jsonify({'success': False, 'error': 'Failed to create folder'}), 500
-
-    @app.route('/api/files/<path:filepath>', methods=['DELETE'])
-    def delete_file(filepath):
-        """Delete a file or folder"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
-        try:
-            # Determine target directory
-            if filepath.startswith('public/'):
-                if not is_admin():
-                    return jsonify({'success': False, 'error': 'Admin access required'}), 403
-                base_path = get_public_data_path()
-                relative_path = filepath[7:]
-            else:
-                base_path = get_user_data_path()
-                relative_path = filepath
-
-            if not base_path:
-                return jsonify({'success': False, 'error': 'User directory not accessible'}), 403
-
-            # Construct full path
-            full_path = os.path.join(base_path, relative_path)
-
-            # Security check
-            full_path = os.path.abspath(full_path)
-            base_path = os.path.abspath(base_path)
-
-            if not full_path.startswith(base_path):
-                return jsonify({'success': False, 'error': 'Access denied'}), 403
-
-            if not os.path.exists(full_path):
-                return jsonify({'success': False, 'error': 'File not found'}), 404
-
-            # Delete file or folder
-            if os.path.isdir(full_path):
-                shutil.rmtree(full_path)
-            else:
-                os.unlink(full_path)
-
-            app.logger.info(f"🗑️ Deleted: {filepath} by {session['username']}")
-
-            return jsonify({
-                'success': True,
-                'message': f'Deleted: {os.path.basename(full_path)}'
-            })
-
-        except Exception as e:
-            app.logger.error(f"Error deleting file: {e}")
-            return jsonify({'success': False, 'error': 'Failed to delete item'}), 500
-
-    @app.route('/api/upload-file', methods=['POST'])
+    @app.route('/api/files/upload', methods=['POST'])
+    @require_login
     def upload_file():
-        """Upload a file"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
+        """Upload file(s)"""
         try:
-            if 'file' not in request.files:
-                return jsonify({'success': False, 'error': 'No file provided'}), 400
+            if 'files' not in request.files:
+                return jsonify({'error': 'No files provided'}), 400
 
-            file = request.files['file']
-            if file.filename == '':
-                return jsonify({'success': False, 'error': 'No file selected'}), 400
-
+            files = request.files.getlist('files')
             target_path = request.form.get('path', '')
+            overwrite = request.form.get('overwrite', 'false').lower() == 'true'
+
+            if not files or files[0].filename == '':
+                return jsonify({'error': 'No files selected'}), 400
 
             # Determine target directory
             if target_path.startswith('public/'):
                 if not is_admin():
-                    return jsonify({'success': False, 'error': 'Admin access required'}), 403
-                base_path = get_public_data_path()
-                relative_path = target_path[7:]
+                    return jsonify({'error': 'Admin privileges required for public uploads'}), 403
+                base_path = app.config['PUBLIC_FOLDER']
+                rel_path = target_path[7:]
             else:
-                base_path = get_user_data_path()
-                relative_path = target_path
+                base_path = os.path.join(app.config['UPLOAD_FOLDER'], session['username'])
+                rel_path = target_path
 
-            if not base_path:
-                return jsonify({'success': False, 'error': 'User directory not accessible'}), 403
-
-            # Secure filename
-            filename = secure_filename(file.filename)
-            if not filename:
-                return jsonify({'success': False, 'error': 'Invalid filename'}), 400
-
-            # Construct full path
-            if relative_path:
-                upload_dir = os.path.join(base_path, relative_path)
+            if rel_path:
+                upload_dir = os.path.join(base_path, rel_path)
             else:
                 upload_dir = base_path
 
-            os.makedirs(upload_dir, exist_ok=True)
-            file_path = os.path.join(upload_dir, filename)
-
             # Security check
-            file_path = os.path.abspath(file_path)
-            base_path = os.path.abspath(base_path)
+            if not os.path.abspath(upload_dir).startswith(os.path.abspath(base_path)):
+                return jsonify({'error': 'Invalid path'}), 403
 
-            if not file_path.startswith(base_path):
-                return jsonify({'success': False, 'error': 'Access denied'}), 403
+            os.makedirs(upload_dir, exist_ok=True)
 
-            # Save file
-            file.save(file_path)
+            uploaded_files = []
+            failed_files = []
 
-            app.logger.info(f"📤 File uploaded: {filename} to {target_path} by {session['username']}")
+            for file in files:
+                if file.filename == '':
+                    continue
+
+                try:
+                    # Secure filename
+                    filename = secure_filename(file.filename)
+                    if not filename:
+                        filename = f"upload_{int(time.time())}_{len(uploaded_files)}"
+
+                    file_path = os.path.join(upload_dir, filename)
+
+                    # Check if file exists
+                    if os.path.exists(file_path) and not overwrite:
+                        # Generate unique filename
+                        name, ext = os.path.splitext(filename)
+                        counter = 1
+                        while os.path.exists(file_path):
+                            filename = f"{name}_{counter}{ext}"
+                            file_path = os.path.join(upload_dir, filename)
+                            counter += 1
+
+                    # Save file
+                    file.save(file_path)
+
+                    # Get file info
+                    stat = os.stat(file_path)
+                    uploaded_files.append({
+                        'name': filename,
+                        'size': stat.st_size,
+                        'type': mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+                    })
+
+                except Exception as e:
+                    failed_files.append({
+                        'name': file.filename,
+                        'error': str(e)
+                    })
 
             return jsonify({
                 'success': True,
-                'message': f'File uploaded: {filename}',
-                'filename': filename,
-                'size': os.path.getsize(file_path)
+                'uploaded': uploaded_files,
+                'failed': failed_files,
+                'message': f'Uploaded {len(uploaded_files)} file(s) successfully'
             })
 
+        except RequestEntityTooLarge:
+            return jsonify({'error': 'File too large'}), 413
         except Exception as e:
-            app.logger.error(f"Error uploading file: {e}")
-            return jsonify({'success': False, 'error': 'Failed to upload file'}), 500
+            print(f"❌ Upload error: {e}")
+            return jsonify({'error': f'Upload failed: {str(e)}'}), 500
 
-    @app.route('/api/download-file/<path:filepath>')
+    @app.route('/api/files/download/<path:filepath>')
+    @require_login
     def download_file(filepath):
         """Download a file"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
         try:
-            # Determine source directory
+            # Determine file location
             if filepath.startswith('public/'):
-                base_path = get_public_data_path()
-                relative_path = filepath[7:]
+                base_path = app.config['PUBLIC_FOLDER']
+                rel_path = filepath[7:]
             else:
-                base_path = get_user_data_path()
-                relative_path = filepath
+                base_path = os.path.join(app.config['UPLOAD_FOLDER'], session['username'])
+                rel_path = filepath
 
-            if not base_path:
-                return jsonify({'error': 'User directory not accessible'}), 403
-
-            # Construct full path
-            full_path = os.path.join(base_path, relative_path)
+            file_path = os.path.join(base_path, rel_path)
 
             # Security check
-            full_path = os.path.abspath(full_path)
-            base_path = os.path.abspath(base_path)
+            if not os.path.abspath(file_path).startswith(os.path.abspath(base_path)):
+                abort(403)
 
-            if not full_path.startswith(base_path):
-                return jsonify({'error': 'Access denied'}), 403
+            if not os.path.exists(file_path) or os.path.isdir(file_path):
+                abort(404)
 
-            if not os.path.exists(full_path) or os.path.isdir(full_path):
+            return send_file(file_path, as_attachment=True)
+
+        except Exception as e:
+            print(f"❌ Download error: {e}")
+            abort(500)
+
+    @app.route('/api/files/delete', methods=['POST'])
+    @require_login
+    def delete_files():
+        """Delete file(s) or folder(s)"""
+        try:
+            data = request.get_json()
+            files_to_delete = data.get('files', [])
+            base_path_str = data.get('path', '')
+
+            if not files_to_delete:
+                return jsonify({'error': 'No files specified'}), 400
+
+            # Determine base path
+            if base_path_str.startswith('public/'):
+                if not is_admin():
+                    return jsonify({'error': 'Admin privileges required'}), 403
+                base_path = app.config['PUBLIC_FOLDER']
+                rel_base = base_path_str[7:]
+            else:
+                base_path = os.path.join(app.config['UPLOAD_FOLDER'], session['username'])
+                rel_base = base_path_str
+
+            if rel_base:
+                working_dir = os.path.join(base_path, rel_base)
+            else:
+                working_dir = base_path
+
+            deleted_files = []
+            failed_files = []
+
+            for filename in files_to_delete:
+                try:
+                    file_path = os.path.join(working_dir, filename)
+
+                    # Security check
+                    if not os.path.abspath(file_path).startswith(os.path.abspath(base_path)):
+                        failed_files.append({'name': filename, 'error': 'Access denied'})
+                        continue
+
+                    if not os.path.exists(file_path):
+                        failed_files.append({'name': filename, 'error': 'File not found'})
+                        continue
+
+                    if os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                    else:
+                        os.remove(file_path)
+
+                    deleted_files.append(filename)
+
+                except Exception as e:
+                    failed_files.append({'name': filename, 'error': str(e)})
+
+            return jsonify({
+                'success': True,
+                'deleted': deleted_files,
+                'failed': failed_files,
+                'message': f'Deleted {len(deleted_files)} item(s)'
+            })
+
+        except Exception as e:
+            print(f"❌ Delete error: {e}")
+            return jsonify({'error': f'Delete failed: {str(e)}'}), 500
+
+    @app.route('/api/files/create-folder', methods=['POST'])
+    @require_login
+    def create_folder():
+        """Create a new folder"""
+        try:
+            data = request.get_json()
+            folder_name = data.get('name', '').strip()
+            current_path = data.get('path', '')
+
+            if not folder_name:
+                return jsonify({'error': 'Folder name required'}), 400
+
+            # Secure folder name
+            folder_name = secure_filename(folder_name)
+            if not folder_name:
+                return jsonify({'error': 'Invalid folder name'}), 400
+
+            # Determine base path
+            if current_path.startswith('public/'):
+                if not is_admin():
+                    return jsonify({'error': 'Admin privileges required'}), 403
+                base_path = app.config['PUBLIC_FOLDER']
+                rel_path = current_path[7:]
+            else:
+                base_path = os.path.join(app.config['UPLOAD_FOLDER'], session['username'])
+                rel_path = current_path
+
+            if rel_path:
+                target_dir = os.path.join(base_path, rel_path)
+            else:
+                target_dir = base_path
+
+            folder_path = os.path.join(target_dir, folder_name)
+
+            # Security check
+            if not os.path.abspath(folder_path).startswith(os.path.abspath(base_path)):
+                return jsonify({'error': 'Invalid path'}), 403
+
+            if os.path.exists(folder_path):
+                return jsonify({'error': 'Folder already exists'}), 409
+
+            os.makedirs(folder_path, exist_ok=True)
+
+            return jsonify({
+                'success': True,
+                'name': folder_name,
+                'message': f'Folder "{folder_name}" created successfully'
+            })
+
+        except Exception as e:
+            print(f"❌ Create folder error: {e}")
+            return jsonify({'error': f'Failed to create folder: {str(e)}'}), 500
+
+    @app.route('/api/files/rename', methods=['POST'])
+    @require_login
+    def rename_file():
+        """Rename a file or folder"""
+        try:
+            data = request.get_json()
+            old_name = data.get('old_name', '').strip()
+            new_name = data.get('new_name', '').strip()
+            current_path = data.get('path', '')
+
+            if not old_name or not new_name:
+                return jsonify({'error': 'Both old and new names required'}), 400
+
+            # Secure new name
+            new_name = secure_filename(new_name)
+            if not new_name:
+                return jsonify({'error': 'Invalid new name'}), 400
+
+            # Determine base path
+            if current_path.startswith('public/'):
+                if not is_admin():
+                    return jsonify({'error': 'Admin privileges required'}), 403
+                base_path = app.config['PUBLIC_FOLDER']
+                rel_path = current_path[7:]
+            else:
+                base_path = os.path.join(app.config['UPLOAD_FOLDER'], session['username'])
+                rel_path = current_path
+
+            if rel_path:
+                target_dir = os.path.join(base_path, rel_path)
+            else:
+                target_dir = base_path
+
+            old_path = os.path.join(target_dir, old_name)
+            new_path = os.path.join(target_dir, new_name)
+
+            # Security checks
+            if not os.path.abspath(old_path).startswith(os.path.abspath(base_path)):
+                return jsonify({'error': 'Invalid old path'}), 403
+
+            if not os.path.abspath(new_path).startswith(os.path.abspath(base_path)):
+                return jsonify({'error': 'Invalid new path'}), 403
+
+            if not os.path.exists(old_path):
                 return jsonify({'error': 'File not found'}), 404
 
-            app.logger.info(f"📥 File downloaded: {filepath} by {session['username']}")
+            if os.path.exists(new_path):
+                return jsonify({'error': 'Target name already exists'}), 409
 
-            return send_file(full_path, as_attachment=True)
-
-        except Exception as e:
-            app.logger.error(f"Error downloading file: {e}")
-            return jsonify({'error': 'Failed to download file'}), 500
-
-    # =====================
-    # USER PREFERENCES API
-    # =====================
-
-    @app.route('/api/user/preferences', methods=['GET'])
-    def get_user_preferences():
-        """Get user preferences"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
-        try:
-            username = session['username']
-
-            # Default preferences
-            default_prefs = {
-                'theme': 'cyber-blue',
-                'wallpaper': 'gradient-1',
-                'wallpaperStyle': 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)',
-                'animationsEnabled': True,
-                'transparency': 0,
-                'blurEffects': True,
-                'fontFamily': 'Rajdhani',
-                'fontSize': 14,
-                'iconSize': 48,
-                'showIconLabels': True,
-                'iconShadows': True,
-                'taskbarPosition': 'bottom',
-                'autoHideTaskbar': False,
-                'showClock': True,
-                'snapWindows': True,
-                'restoreWindows': True,
-                'doubleClickAction': 'maximize',
-                'restoreSession': True,
-                'startupSound': False,
-                'sessionTimeout': 240,
-                'enableNotifications': True,
-                'notificationDuration': 4000,
-                'notificationPosition': 'top-right',
-                'hardwareAcceleration': True,
-                'animationQuality': 'high',
-                'maxWindows': 10,
-                'autoLogout': False,
-                'rememberLogin': True,
-                'windows': {}
-            }
-
-            # Load saved preferences
-            saved_prefs = load_user_data(username, 'preferences', {})
-            default_prefs.update(saved_prefs)
-
-            # User info
-            profile = load_user_data(username, 'profile', {})
-            user_info = {
-                'username': username,
-                'isAdmin': is_admin(username),
-                'createdAt': profile.get('created_at', '2024-01-01T00:00:00Z'),
-                'lastLogin': session.get('login_time', datetime.now().isoformat()),
-                'avatar': None
-            }
-
-            # Check for avatar
-            avatar_path = os.path.join(app.config['USERS_FOLDER'], f'{username}_avatar.jpg')
-            if os.path.exists(avatar_path):
-                user_info['avatar'] = f'{username}_avatar.jpg'
+            os.rename(old_path, new_path)
 
             return jsonify({
                 'success': True,
-                'preferences': default_prefs,
-                'user': user_info
+                'old_name': old_name,
+                'new_name': new_name,
+                'message': f'Renamed "{old_name}" to "{new_name}"'
             })
 
         except Exception as e:
-            app.logger.error(f"Error getting user preferences: {e}")
-            return jsonify({'success': False, 'error': 'Failed to load preferences'}), 500
-
-    @app.route('/api/user/preferences', methods=['POST'])
-    def save_user_preferences():
-        """Save user preferences"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
-        try:
-            username = session['username']
-            preferences = request.get_json()
-
-            if not preferences:
-                return jsonify({'success': False, 'error': 'No preferences provided'}), 400
-
-            # Save preferences
-            if save_user_data(username, 'preferences', preferences):
-                app.logger.info(f"💾 Preferences saved for {username}")
-                return jsonify({
-                    'success': True,
-                    'message': 'Preferences saved successfully'
-                })
-            else:
-                return jsonify({'success': False, 'error': 'Failed to save preferences'}), 500
-
-        except Exception as e:
-            app.logger.error(f"Error saving user preferences: {e}")
-            return jsonify({'success': False, 'error': 'Failed to save preferences'}), 500
-
-    @app.route('/api/user/avatar', methods=['POST'])
-    def upload_avatar():
-        """Upload user avatar"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
-        try:
-            if 'avatar' not in request.files:
-                return jsonify({'success': False, 'error': 'No avatar file provided'}), 400
-
-            file = request.files['avatar']
-            if file.filename == '':
-                return jsonify({'success': False, 'error': 'No file selected'}), 400
-
-            # Check file type
-            if not file.content_type.startswith('image/'):
-                return jsonify({'success': False, 'error': 'File must be an image'}), 400
-
-            username = session['username']
-
-            # Save avatar
-            avatar_filename = f'{username}_avatar.jpg'
-            avatar_path = os.path.join(app.config['USERS_FOLDER'], avatar_filename)
-            file.save(avatar_path)
-
-            app.logger.info(f"🖼️ Avatar uploaded for {username}")
-
-            return jsonify({
-                'success': True,
-                'message': 'Avatar uploaded successfully',
-                'avatar': avatar_filename
-            })
-
-        except Exception as e:
-            app.logger.error(f"Error uploading avatar: {e}")
-            return jsonify({'success': False, 'error': 'Failed to upload avatar'}), 500
-
-    @app.route('/api/user/avatar/<filename>')
-    def get_avatar(filename):
-        """Get user avatar"""
-        try:
-            avatar_path = os.path.join(app.config['USERS_FOLDER'], filename)
-            if os.path.exists(avatar_path):
-                return send_file(avatar_path, mimetype='image/jpeg')
-            else:
-                return jsonify({'error': 'Avatar not found'}), 404
-        except Exception as e:
-            app.logger.error(f"Error getting avatar: {e}")
-            return jsonify({'error': 'Failed to get avatar'}), 500
+            print(f"❌ Rename error: {e}")
+            return jsonify({'error': f'Rename failed: {str(e)}'}), 500
 
     # =====================
     # APPLICATION DISCOVERY API
     # =====================
 
     @app.route('/api/apps/available')
+    @require_login
     def get_available_apps():
         """Get list of available applications"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
         try:
-            # Define available applications
-            apps = [
+            # Scan for available apps in the static/js/apps directory
+            apps_dir = os.path.join(app.config['static_folder'], 'js', 'apps')
+            discovered_apps = []
+
+            if os.path.exists(apps_dir):
+                for filename in os.listdir(apps_dir):
+                    if filename.endswith('.js'):
+                        app_path = os.path.join(apps_dir, filename)
+                        app_info = parse_app_metadata(app_path)
+                        if app_info and app_info.get('enabled', True):
+                            app_info['id'] = filename[:-3]  # Remove .js extension
+                            discovered_apps.append(app_info)
+
+            # Add built-in apps if not discovered
+            builtin_apps = [
                 {
                     'id': 'file-manager',
                     'name': 'File Manager',
@@ -833,22 +758,12 @@ def create_app():
                     'enabled': True
                 },
                 {
-                    'id': 'terminal',
-                    'name': 'Terminal',
-                    'icon': 'fas fa-terminal',
-                    'description': 'Command line interface',
+                    'id': 'public-folder',
+                    'name': 'Public Files',
+                    'icon': 'fas fa-globe',
+                    'description': 'Access shared public files',
                     'category': 'System',
-                    'version': '1.2.0',
-                    'author': 'EmberFrame Team',
-                    'enabled': True
-                },
-                {
-                    'id': 'text-editor',
-                    'name': 'Text Editor',
-                    'icon': 'fas fa-edit',
-                    'description': 'Edit text files with syntax highlighting',
-                    'category': 'Productivity',
-                    'version': '1.2.0',
+                    'version': '1.0.0',
                     'author': 'EmberFrame Team',
                     'enabled': True
                 },
@@ -863,16 +778,6 @@ def create_app():
                     'enabled': True
                 },
                 {
-                    'id': 'media-player',
-                    'name': 'Media Player',
-                    'icon': 'fas fa-play',
-                    'description': 'Play audio and video files',
-                    'category': 'Media',
-                    'version': '1.1.0',
-                    'author': 'EmberFrame Team',
-                    'enabled': True
-                },
-                {
                     'id': 'task-manager',
                     'name': 'Task Manager',
                     'icon': 'fas fa-tasks',
@@ -883,20 +788,40 @@ def create_app():
                     'enabled': True
                 },
                 {
-                    'id': 'public-folder',
-                    'name': 'Public Files',
-                    'icon': 'fas fa-globe',
-                    'description': 'Access shared public files',
+                    'id': 'text-editor',
+                    'name': 'Text Editor',
+                    'icon': 'fas fa-edit',
+                    'description': 'Edit text files with syntax highlighting',
+                    'category': 'Productivity',
+                    'version': '1.2.0',
+                    'author': 'EmberFrame Team',
+                    'enabled': True
+                },
+                {
+                    'id': 'terminal',
+                    'name': 'Terminal',
+                    'icon': 'fas fa-terminal',
+                    'description': 'Command line interface',
                     'category': 'System',
+                    'version': '1.1.0',
+                    'author': 'EmberFrame Team',
+                    'enabled': True
+                },
+                {
+                    'id': 'media-player',
+                    'name': 'Media Player',
+                    'icon': 'fas fa-play-circle',
+                    'description': 'Play audio and video files',
+                    'category': 'Multimedia',
                     'version': '1.0.0',
                     'author': 'EmberFrame Team',
                     'enabled': True
                 }
             ]
 
-            # Add admin panel for admin users
+            # Add admin-only apps
             if is_admin():
-                apps.append({
+                builtin_apps.append({
                     'id': 'admin-panel',
                     'name': 'Admin Panel',
                     'icon': 'fas fa-shield-alt',
@@ -907,376 +832,462 @@ def create_app():
                     'enabled': True
                 })
 
-            return jsonify({
-                'success': True,
-                'apps': apps,
-                'count': len(apps)
-            })
+            # Merge discovered and builtin apps
+            app_ids = {app['id'] for app in discovered_apps}
+            for builtin_app in builtin_apps:
+                if builtin_app['id'] not in app_ids:
+                    discovered_apps.append(builtin_app)
+
+            # Sort by category and name
+            discovered_apps.sort(key=lambda x: (x.get('category', 'Other'), x.get('name', '')))
+
+            return jsonify({'success': True, 'apps': discovered_apps})
 
         except Exception as e:
-            app.logger.error(f"Error getting available apps: {e}")
-            return jsonify({'success': False, 'error': 'Failed to get applications'}), 500
+            print(f"❌ Error getting available apps: {e}")
+            return jsonify({'success': False, 'error': 'Failed to get applications'})
 
     # =====================
-    # SHORTCUTS API
+    # USER SHORTCUTS API
     # =====================
 
     @app.route('/api/shortcuts/desktop')
+    @require_login
     def get_desktop_shortcuts():
-        """Get desktop shortcuts"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
+        """Get user's desktop shortcuts"""
         try:
             username = session['username']
+            shortcuts = user_shortcuts.get(username, {}).get('desktop', [])
 
-            # Default shortcuts
-            default_shortcuts = [
-                {'app': 'file-manager', 'x': 20, 'y': 20},
-                {'app': 'terminal', 'x': 120, 'y': 20},
-                {'app': 'text-editor', 'x': 220, 'y': 20},
-                {'app': 'settings', 'x': 20, 'y': 120},
-                {'app': 'public-folder', 'x': 120, 'y': 120}
-            ]
+            # Provide default shortcuts if none exist
+            if not shortcuts:
+                shortcuts = [
+                    {'app': 'file-manager', 'x': 50, 'y': 50},
+                    {'app': 'public-folder', 'x': 50, 'y': 170},
+                    {'app': 'settings', 'x': 50, 'y': 290}
+                ]
 
-            # Add admin panel for admin users
-            if is_admin():
-                default_shortcuts.append({'app': 'admin-panel', 'x': 220, 'y': 120})
-
-            # Load saved shortcuts
-            shortcuts = load_user_data(username, 'desktop_shortcuts', default_shortcuts)
-
-            return jsonify({
-                'success': True,
-                'shortcuts': shortcuts
-            })
-
+            return jsonify({'shortcuts': shortcuts})
         except Exception as e:
-            app.logger.error(f"Error getting desktop shortcuts: {e}")
-            return jsonify({'success': False, 'error': 'Failed to get shortcuts'}), 500
+            print(f"❌ Error loading desktop shortcuts: {e}")
+            return jsonify({'error': 'Failed to load shortcuts'}), 500
 
     @app.route('/api/shortcuts/desktop', methods=['POST'])
+    @require_login
     def save_desktop_shortcuts():
-        """Save desktop shortcuts"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
+        """Save user's desktop shortcuts"""
         try:
+            data = request.get_json()
+            shortcuts = data.get('shortcuts', [])
             username = session['username']
-            shortcuts = request.get_json()
 
-            if not isinstance(shortcuts, list):
-                return jsonify({'success': False, 'error': 'Invalid shortcuts format'}), 400
+            if username not in user_shortcuts:
+                user_shortcuts[username] = {}
 
-            # Save shortcuts
-            if save_user_data(username, 'desktop_shortcuts', shortcuts):
-                return jsonify({
-                    'success': True,
-                    'message': 'Desktop shortcuts saved'
-                })
-            else:
-                return jsonify({'success': False, 'error': 'Failed to save shortcuts'}), 500
+            user_shortcuts[username]['desktop'] = shortcuts
+            save_user_shortcuts(username)
 
+            return jsonify({'success': True})
         except Exception as e:
-            app.logger.error(f"Error saving desktop shortcuts: {e}")
-            return jsonify({'success': False, 'error': 'Failed to save shortcuts'}), 500
+            print(f"❌ Error saving desktop shortcuts: {e}")
+            return jsonify({'error': 'Failed to save shortcuts'}), 500
 
     @app.route('/api/shortcuts/taskbar')
+    @require_login
     def get_taskbar_shortcuts():
-        """Get taskbar shortcuts"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
+        """Get user's taskbar shortcuts"""
         try:
             username = session['username']
+            shortcuts = user_shortcuts.get(username, {}).get('taskbar', [])
+            return jsonify({'shortcuts': shortcuts})
+        except Exception as e:
+            print(f"❌ Error loading taskbar shortcuts: {e}")
+            return jsonify({'error': 'Failed to load shortcuts'}), 500
 
-            # Default taskbar shortcuts
-            default_shortcuts = [
-                {'app': 'file-manager'},
-                {'app': 'terminal'},
-                {'app': 'text-editor'}
-            ]
+    @app.route('/api/shortcuts/taskbar', methods=['POST'])
+    @require_login
+    def save_taskbar_shortcuts():
+        """Save user's taskbar shortcuts"""
+        try:
+            data = request.get_json()
+            shortcuts = data.get('shortcuts', [])
+            username = session['username']
 
-            # Load saved shortcuts
-            shortcuts = load_user_data(username, 'taskbar_shortcuts', default_shortcuts)
+            if username not in user_shortcuts:
+                user_shortcuts[username] = {}
+
+            user_shortcuts[username]['taskbar'] = shortcuts
+            save_user_shortcuts(username)
+
+            return jsonify({'success': True})
+        except Exception as e:
+            print(f"❌ Error saving taskbar shortcuts: {e}")
+            return jsonify({'error': 'Failed to save shortcuts'}), 500
+
+    # =====================
+    # USER PREFERENCES API
+    # =====================
+
+    @app.route('/api/user/preferences')
+    @require_login
+    def get_user_preferences():
+        """Get user preferences"""
+        try:
+            username = session['username']
+            preferences = user_preferences.get(username, get_default_preferences())
+
+            user_info = {
+                'username': username,
+                'isAdmin': is_admin(),
+                'createdAt': session.get('login_time', datetime.now().isoformat()),
+                'lastLogin': datetime.now().isoformat(),
+                'avatar': get_user_avatar(username),
+                'sessionId': session.get('session_id'),
+                'loginTime': session.get('login_time')
+            }
 
             return jsonify({
                 'success': True,
-                'shortcuts': shortcuts
+                'preferences': preferences,
+                'user': user_info
             })
 
         except Exception as e:
-            app.logger.error(f"Error getting taskbar shortcuts: {e}")
-            return jsonify({'success': False, 'error': 'Failed to get shortcuts'}), 500
+            print(f"❌ Error getting user preferences: {e}")
+            return jsonify({'success': False, 'error': 'Failed to load preferences'})
 
-    @app.route('/api/shortcuts/taskbar', methods=['POST'])
-    def save_taskbar_shortcuts():
-        """Save taskbar shortcuts"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
+    @app.route('/api/user/preferences', methods=['POST'])
+    @require_login
+    def save_user_preferences():
+        """Save user preferences"""
         try:
+            data = request.get_json()
             username = session['username']
-            shortcuts = request.get_json()
 
-            if not isinstance(shortcuts, list):
-                return jsonify({'success': False, 'error': 'Invalid shortcuts format'}), 400
+            user_preferences[username] = data
+            save_user_preferences_to_file(username)
 
-            # Save shortcuts
-            if save_user_data(username, 'taskbar_shortcuts', shortcuts):
+            return jsonify({'success': True})
+        except Exception as e:
+            print(f"❌ Error saving user preferences: {e}")
+            return jsonify({'error': 'Failed to save preferences'}), 500
+
+    @app.route('/api/user/avatar', methods=['POST'])
+    @require_login
+    def upload_avatar():
+        """Upload user avatar"""
+        try:
+            if 'avatar' not in request.files:
+                return jsonify({'error': 'No avatar file provided'}), 400
+
+            file = request.files['avatar']
+            if file.filename == '':
+                return jsonify({'error': 'No file selected'}), 400
+
+            # Validate file type
+            if not file.content_type.startswith('image/'):
+                return jsonify({'error': 'File must be an image'}), 400
+
+            username = session['username']
+            filename = f"{username}_{int(time.time())}.jpg"
+            avatar_path = os.path.join(app.config['AVATAR_FOLDER'], filename)
+
+            # Resize and save image
+            try:
+                image = Image.open(file.stream)
+                image = image.convert('RGB')
+                image.thumbnail((150, 150), Image.Resampling.LANCZOS)
+                image.save(avatar_path, 'JPEG', quality=90)
+
+                # Update user preferences
+                if username not in user_preferences:
+                    user_preferences[username] = get_default_preferences()
+                user_preferences[username]['avatar'] = filename
+                save_user_preferences_to_file(username)
+
                 return jsonify({
                     'success': True,
-                    'message': 'Taskbar shortcuts saved'
+                    'avatar': filename,
+                    'message': 'Avatar updated successfully'
                 })
-            else:
-                return jsonify({'success': False, 'error': 'Failed to save shortcuts'}), 500
+            except Exception as e:
+                return jsonify({'error': f'Image processing failed: {str(e)}'}), 400
 
         except Exception as e:
-            app.logger.error(f"Error saving taskbar shortcuts: {e}")
-            return jsonify({'success': False, 'error': 'Failed to save shortcuts'}), 500
+            print(f"❌ Avatar upload error: {e}")
+            return jsonify({'error': 'Avatar upload failed'}), 500
+
+    @app.route('/api/user/avatar/<filename>')
+    def serve_avatar(filename):
+        """Serve user avatar"""
+        try:
+            avatar_path = os.path.join(app.config['AVATAR_FOLDER'], filename)
+            if os.path.exists(avatar_path):
+                return send_file(avatar_path)
+            else:
+                abort(404)
+        except Exception:
+            abort(404)
 
     # =====================
     # ADMIN API
     # =====================
 
     @app.route('/api/admin/check')
+    @require_login
     def check_admin_status():
-        """Check if current user is admin"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
+        """Check if user has admin privileges"""
+        return jsonify({'is_admin': is_admin()})
 
-        return jsonify({
-            'success': True,
-            'is_admin': is_admin(),
-            'username': session['username']
-        })
-
-    @app.route('/api/admin/public-files')
-    def list_public_files():
-        """List public files (admin only)"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
-        if not is_admin():
-            return jsonify({'success': False, 'error': 'Admin access required'}), 403
-
+    @app.route('/api/admin/users')
+    @require_admin
+    def list_users():
+        """List all users (admin only)"""
         try:
-            public_path = get_public_data_path()
-            files = []
+            users_dir = os.path.join(project_root, 'users')
+            users = []
 
-            if os.path.exists(public_path):
-                for item in os.listdir(public_path):
-                    if item.startswith('.'):
-                        continue
+            if os.path.exists(users_dir):
+                for filename in os.listdir(users_dir):
+                    if filename.endswith('.json'):
+                        try:
+                            with open(os.path.join(users_dir, filename), 'r') as f:
+                                user_data = json.load(f)
+                                users.append({
+                                    'username': user_data.get('username'),
+                                    'email': user_data.get('email'),
+                                    'created_at': user_data.get('created_at'),
+                                    'is_admin': user_data.get('is_admin', False),
+                                    'last_login': user_data.get('last_login')
+                                })
+                        except Exception as e:
+                            print(f"Error reading user file {filename}: {e}")
 
-                    item_path = os.path.join(public_path, item)
-                    file_info = format_file_info(item_path, public_path)
-                    if file_info:
-                        files.append(file_info)
-
-            files.sort(key=lambda x: (x['type'] != 'folder', x['name'].lower()))
-
-            return jsonify({
-                'success': True,
-                'files': files
-            })
-
+            return jsonify({'users': users})
         except Exception as e:
-            app.logger.error(f"Error listing public files: {e}")
-            return jsonify({'success': False, 'error': 'Failed to list public files'}), 500
+            return jsonify({'error': 'Failed to list users'}), 500
 
     @app.route('/api/admin/public-files/upload', methods=['POST'])
-    def upload_public_file():
-        """Upload file to public directory (admin only)"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
-        if not is_admin():
-            return jsonify({'success': False, 'error': 'Admin access required'}), 403
-
+    @require_admin
+    def admin_upload_public_files():
+        """Upload files to public directory (admin only)"""
         try:
             if 'file' not in request.files:
-                return jsonify({'success': False, 'error': 'No file provided'}), 400
+                return jsonify({'error': 'No file provided'}), 400
 
             file = request.files['file']
-            if file.filename == '':
-                return jsonify({'success': False, 'error': 'No file selected'}), 400
-
             directory = request.form.get('directory', 'shared')
+
+            if file.filename == '':
+                return jsonify({'error': 'No file selected'}), 400
 
             # Secure filename
             filename = secure_filename(file.filename)
             if not filename:
-                return jsonify({'success': False, 'error': 'Invalid filename'}), 400
+                filename = f"upload_{int(time.time())}"
 
-            # Create target directory
-            public_path = get_public_data_path()
-            target_dir = os.path.join(public_path, directory)
+            # Determine target directory
+            target_dir = os.path.join(app.config['PUBLIC_FOLDER'], directory)
             os.makedirs(target_dir, exist_ok=True)
 
-            # Save file
             file_path = os.path.join(target_dir, filename)
+
+            # Handle duplicate names
+            if os.path.exists(file_path):
+                name, ext = os.path.splitext(filename)
+                counter = 1
+                while os.path.exists(file_path):
+                    filename = f"{name}_{counter}{ext}"
+                    file_path = os.path.join(target_dir, filename)
+                    counter += 1
+
             file.save(file_path)
 
-            app.logger.info(f"📤 Public file uploaded: {filename} to {directory} by {session['username']}")
-
             return jsonify({
                 'success': True,
-                'message': f'File uploaded to public/{directory}',
-                'filename': filename
+                'filename': filename,
+                'directory': directory,
+                'message': f'File uploaded to {directory}'
             })
 
         except Exception as e:
-            app.logger.error(f"Error uploading public file: {e}")
-            return jsonify({'success': False, 'error': 'Failed to upload file'}), 500
+            print(f"❌ Admin upload error: {e}")
+            return jsonify({'error': 'Upload failed'}), 500
 
-    @app.route('/api/admin/public-files/<filename>', methods=['DELETE'])
+    @app.route('/api/admin/public-files')
+    @require_admin
+    def list_public_files():
+        """List public files (admin only)"""
+        try:
+            public_dir = app.config['PUBLIC_FOLDER']
+            files = []
+
+            for root, dirs, filenames in os.walk(public_dir):
+                for filename in filenames:
+                    if filename.startswith('.'):
+                        continue
+
+                    file_path = os.path.join(root, filename)
+                    rel_path = os.path.relpath(file_path, public_dir)
+                    stat = os.stat(file_path)
+
+                    files.append({
+                        'name': filename,
+                        'path': rel_path,
+                        'size': stat.st_size,
+                        'modified': stat.st_mtime,
+                        'type': 'file',
+                        'mime_type': mimetypes.guess_type(filename)[0]
+                    })
+
+            return jsonify({'files': files})
+        except Exception as e:
+            return jsonify({'error': 'Failed to list public files'}), 500
+
+    @app.route('/api/admin/public-files/<path:filename>', methods=['DELETE'])
+    @require_admin
     def delete_public_file(filename):
         """Delete public file (admin only)"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
-        if not is_admin():
-            return jsonify({'success': False, 'error': 'Admin access required'}), 403
-
         try:
-            public_path = get_public_data_path()
-            file_path = os.path.join(public_path, filename)
+            file_path = os.path.join(app.config['PUBLIC_FOLDER'], filename)
 
             # Security check
-            file_path = os.path.abspath(file_path)
-            public_path = os.path.abspath(public_path)
-
-            if not file_path.startswith(public_path):
-                return jsonify({'success': False, 'error': 'Access denied'}), 403
+            if not os.path.abspath(file_path).startswith(os.path.abspath(app.config['PUBLIC_FOLDER'])):
+                return jsonify({'error': 'Invalid file path'}), 403
 
             if not os.path.exists(file_path):
-                return jsonify({'success': False, 'error': 'File not found'}), 404
+                return jsonify({'error': 'File not found'}), 404
 
-            # Delete file
-            if os.path.isdir(file_path):
-                shutil.rmtree(file_path)
-            else:
-                os.unlink(file_path)
-
-            app.logger.info(f"🗑️ Public file deleted: {filename} by {session['username']}")
+            os.remove(file_path)
 
             return jsonify({
                 'success': True,
-                'message': f'Deleted: {filename}'
+                'message': f'File {filename} deleted successfully'
             })
-
         except Exception as e:
-            app.logger.error(f"Error deleting public file: {e}")
-            return jsonify({'success': False, 'error': 'Failed to delete file'}), 500
+            return jsonify({'error': 'Failed to delete file'}), 500
 
     # =====================
     # SYSTEM API
     # =====================
 
-    @app.route('/api/system/info')
-    def get_system_info():
-        """Get system information"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
+    @app.route('/api/system/stats')
+    @require_login
+    def get_system_stats():
+        """Get system statistics"""
         try:
-            # Count users
-            user_count = len([f for f in os.listdir(app.config['UPLOAD_FOLDER'])
-                              if os.path.isdir(os.path.join(app.config['UPLOAD_FOLDER'], f))])
-
-            return jsonify({
-                'success': True,
-                'system': {
-                    'name': 'EmberFrame',
-                    'version': '1.3.0',
-                    'build': '2024.12',
-                    'uptime': '24h 15m',  # Placeholder
-                    'users_total': user_count,
-                    'users_online': 1,  # Placeholder
-                    'apps_available': 7,
-                    'disk_usage': '45%'  # Placeholder
-                }
-            })
-        except Exception as e:
-            app.logger.error(f"Error getting system info: {e}")
-            return jsonify({'success': False, 'error': 'Failed to get system info'}), 500
-
-    # =====================
-    # WALLPAPER API
-    # =====================
-
-    @app.route('/api/wallpapers')
-    def get_wallpapers():
-        """Get available wallpapers"""
-        auth_error = require_auth()
-        if auth_error:
-            return auth_error
-
-        try:
-            wallpapers = {
-                'gradients': [
-                    {'id': 'gradient-1', 'name': 'Cyber Blue',
-                     'preview': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'},
-                    {'id': 'gradient-2', 'name': 'Sunset',
-                     'preview': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'},
-                    {'id': 'gradient-3', 'name': 'Ocean',
-                     'preview': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'},
-                    {'id': 'gradient-4', 'name': 'Forest',
-                     'preview': 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'},
-                    {'id': 'gradient-5', 'name': 'Warm',
-                     'preview': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'},
-                    {'id': 'gradient-6', 'name': 'Pastel',
-                     'preview': 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'},
-                ],
-                'images': []  # Can be populated with actual image files
+            stats = {
+                'active_sessions': len(active_sessions),
+                'total_users': len(os.listdir(os.path.join(project_root, 'users'))) if os.path.exists(
+                    os.path.join(project_root, 'users')) else 0,
+                'public_files': count_files_in_directory(app.config['PUBLIC_FOLDER']),
+                'uptime': get_system_uptime(),
+                'disk_usage': get_disk_usage(project_root),
+                'server_time': datetime.now().isoformat()
             }
 
-            return jsonify({
-                'success': True,
-                'wallpapers': wallpapers
-            })
+            # Add user-specific stats
+            user_dir = os.path.join(app.config['UPLOAD_FOLDER'], session['username'])
+            if os.path.exists(user_dir):
+                stats['user_files'] = count_files_in_directory(user_dir)
+                stats['user_storage'] = get_directory_size(user_dir)
 
+            return jsonify(stats)
         except Exception as e:
-            app.logger.error(f"Error getting wallpapers: {e}")
-            return jsonify({'success': False, 'error': 'Failed to get wallpapers'}), 500
+            return jsonify({'error': 'Failed to get system stats'}), 500
+
+    @app.route('/api/system/wallpapers')
+    @require_login
+    def get_wallpapers():
+        """Get available wallpapers"""
+        try:
+            wallpapers = []
+            wallpaper_dir = app.config['WALLPAPER_FOLDER']
+
+            if os.path.exists(wallpaper_dir):
+                for filename in os.listdir(wallpaper_dir):
+                    if filename.lower().endswith(('.jpg', '.jpeg', '.png', '.gif', '.svg')):
+                        wallpapers.append({
+                            'id': filename,
+                            'name': os.path.splitext(filename)[0],
+                            'url': url_for('static', filename=f'wallpapers/{filename}'),
+                            'type': 'image'
+                        })
+
+            # Add gradient wallpapers
+            gradients = [
+                {'id': 'gradient-1', 'name': 'Cyber Blue', 'css': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                 'type': 'gradient'},
+                {'id': 'gradient-2', 'name': 'Sunset', 'css': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                 'type': 'gradient'},
+                {'id': 'gradient-3', 'name': 'Ocean', 'css': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                 'type': 'gradient'},
+                {'id': 'gradient-4', 'name': 'Forest', 'css': 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                 'type': 'gradient'},
+                {'id': 'gradient-5', 'name': 'Fire', 'css': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                 'type': 'gradient'},
+                {'id': 'gradient-6', 'name': 'Ice', 'css': 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                 'type': 'gradient'}
+            ]
+
+            return jsonify({'wallpapers': wallpapers + gradients})
+        except Exception as e:
+            return jsonify({'error': 'Failed to get wallpapers'}), 500
 
     # =====================
-    # SOCKET.IO EVENTS
+    # WEBSOCKET EVENTS
     # =====================
 
     @socketio.on('connect')
     def handle_connect():
+        """Handle client connection"""
         if 'username' in session:
             username = session['username']
-            join_room(f"user_{username}")
-            emit('connected', {'message': f'Welcome {username}!'})
-            app.logger.info(f"🔌 User {username} connected via WebSocket")
-        else:
-            disconnect()
+            session_id = session.get('session_id')
+
+            join_room(f'user_{username}')
+
+            print(f"🔌 User {username} connected (session: {session_id})")
+
+            # Update last activity
+            if session_id in active_sessions:
+                active_sessions[session_id]['last_activity'] = datetime.now()
+
+            emit('connected', {
+                'username': username,
+                'session_id': session_id,
+                'server_time': datetime.now().isoformat()
+            })
 
     @socketio.on('disconnect')
     def handle_disconnect():
+        """Handle client disconnection"""
         if 'username' in session:
             username = session['username']
-            leave_room(f"user_{username}")
-            app.logger.info(f"🔌 User {username} disconnected from WebSocket")
+            leave_room(f'user_{username}')
+            print(f"🔌 User {username} disconnected")
+
+    @socketio.on('heartbeat')
+    def handle_heartbeat(data):
+        """Handle client heartbeat"""
+        if 'username' in session:
+            session_id = session.get('session_id')
+            if session_id in active_sessions:
+                active_sessions[session_id]['last_activity'] = datetime.now()
+
+            emit('heartbeat_response', {
+                'timestamp': datetime.now().isoformat(),
+                'status': 'ok'
+            })
 
     @socketio.on('user_activity')
     def handle_user_activity(data):
+        """Track user activity"""
         if 'username' in session:
-            username = session['username']
-            activity_type = data.get('type', 'unknown')
-            app.logger.debug(f"👤 User activity: {username} - {activity_type}")
+            session_id = session.get('session_id')
+            if session_id in active_sessions:
+                active_sessions[session_id]['last_activity'] = datetime.now()
+                active_sessions[session_id]['current_app'] = data.get('app')
 
     # =====================
     # ERROR HANDLERS
@@ -1284,97 +1295,293 @@ def create_app():
 
     @app.errorhandler(404)
     def not_found_error(error):
-        if request.path.startswith('/api/'):
-            return jsonify({'success': False, 'error': 'Endpoint not found'}), 404
-        return render_template('404.html'), 404
+        if request.is_json:
+            return jsonify({'error': 'Not found'}), 404
+        return render_template(
+            '404.html' if os.path.exists(os.path.join(template_dir, '404.html')) else 'login.html'), 404
+
+    @app.errorhandler(403)
+    def forbidden_error(error):
+        if request.is_json:
+            return jsonify({'error': 'Forbidden'}), 403
+        return render_template(
+            '403.html' if os.path.exists(os.path.join(template_dir, '403.html')) else 'login.html'), 403
 
     @app.errorhandler(500)
     def internal_error(error):
-        if request.path.startswith('/api/'):
-            return jsonify({'success': False, 'error': 'Internal server error'}), 500
-        return render_template('500.html'), 500
+        if request.is_json:
+            return jsonify({'error': 'Internal server error'}), 500
+        return render_template(
+            '500.html' if os.path.exists(os.path.join(template_dir, '500.html')) else 'login.html'), 500
 
     @app.errorhandler(413)
     def file_too_large(error):
-        return jsonify({'success': False, 'error': 'File too large. Maximum size is 16MB.'}), 413
+        return jsonify({'error': 'File too large'}), 413
 
     # =====================
-    # CONTEXT PROCESSORS
+    # REQUEST PROCESSORS
     # =====================
 
-    @app.context_processor
-    def inject_user():
-        """Inject user information into templates"""
-        return dict(
-            current_user=session.get('username'),
-            is_admin=session.get('is_admin', False),
-            login_time=session.get('login_time'),
-            session_id=session.get('session_id')
-        )
+    @app.before_request
+    def before_request():
+        """Process before each request"""
+        # Update session activity
+        session.permanent = True
 
-    # =====================
-    # STATIC FILE SERVING
-    # =====================
+        # Skip for static files
+        if request.endpoint and 'static' in request.endpoint:
+            return
 
-    @app.route('/wallpapers/<filename>')
-    def serve_wallpaper(filename):
-        """Serve wallpaper files"""
-        try:
-            return send_from_directory(app.config['WALLPAPER_FOLDER'], filename)
-        except FileNotFoundError:
-            abort(404)
+        # Update last activity for logged in users
+        if 'username' in session:
+            session_id = session.get('session_id')
+            if session_id in active_sessions:
+                active_sessions[session_id]['last_activity'] = datetime.now()
 
-    # =====================
-    # LOGGING SETUP
-    # =====================
+    @app.after_request
+    def after_request(response):
+        """Process after each request"""
+        # Add security headers
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
 
-    def setup_logging(app):
-        """Setup application logging"""
-        if not app.debug:
-            logs_dir = app.config['LOGS_FOLDER']
+        # CORS headers for API requests
+        if request.path.startswith('/api/'):
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
 
-            # File handler for general logs
-            file_handler = RotatingFileHandler(
-                os.path.join(logs_dir, 'emberframe.log'),
-                maxBytes=10240000,
-                backupCount=10
-            )
-            file_handler.setFormatter(logging.Formatter(
-                '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-            ))
-            file_handler.setLevel(logging.INFO)
-            app.logger.addHandler(file_handler)
+        return response
 
-            # File handler for errors
-            error_handler = RotatingFileHandler(
-                os.path.join(logs_dir, 'errors.log'),
-                maxBytes=10240000,
-                backupCount=10
-            )
-            error_handler.setFormatter(logging.Formatter(
-                '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-            ))
-            error_handler.setLevel(logging.ERROR)
-            app.logger.addHandler(error_handler)
-
-            app.logger.setLevel(logging.INFO)
-            app.logger.info('EmberFrame startup')
-
-    # =====================
-    # STARTUP SUMMARY
-    # =====================
-
-    app.logger.info("✅ EmberFrame app initialized successfully!")
-    app.logger.info(f"🔧 CSRF Protection: {'Enabled' if CSRF_AVAILABLE else 'Disabled'}")
-    app.logger.info(f"👤 Default admin username: 'admin'")
-    app.logger.info(f"📁 User data directory: {app.config['UPLOAD_FOLDER']}")
-    app.logger.info(f"🌐 Public data directory: {app.config['PUBLIC_FOLDER']}")
-    app.logger.info(f"👥 Users directory: {app.config['USERS_FOLDER']}")
-    app.logger.info(f"📊 Logs directory: {app.config['LOGS_FOLDER']}")
-
-    print("🔥 EmberFrame Complete Application Ready!")
-    print(f"📊 Total lines of code: ~{len(open(__file__).readlines()) if '__file__' in locals() else '700+'}")
-    print("🎯 All API endpoints implemented and ready")
-    print("🚀 Ready to launch with: python run.py")
-
+    print("✅ EmberFrame app initialized successfully!")
     return app
+
+
+# =====================
+# UTILITY FUNCTIONS
+# =====================
+
+def ensure_user_directory(username, base_path):
+    """Create user directory structure"""
+    user_dir = os.path.join(base_path, username)
+    os.makedirs(user_dir, exist_ok=True)
+
+    # Create default directories
+    default_dirs = ['Documents', 'Downloads', 'Pictures', 'Desktop', 'Videos', 'Music']
+    for dir_name in default_dirs:
+        os.makedirs(os.path.join(user_dir, dir_name), exist_ok=True)
+
+
+def get_file_icon(filename, is_dir):
+    """Get appropriate icon for file type"""
+    if is_dir:
+        return '📁'
+
+    ext = filename.lower().split('.')[-1] if '.' in filename else ''
+
+    icon_map = {
+        # Documents
+        'txt': '📄', 'md': '📝', 'doc': '📄', 'docx': '📄',
+        'pdf': '📕', 'rtf': '📄', 'odt': '📄',
+        # Images
+        'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️',
+        'bmp': '🖼️', 'svg': '🖼️', 'ico': '🖼️', 'webp': '🖼️',
+        # Audio
+        'mp3': '🎵', 'wav': '🎵', 'ogg': '🎵', 'flac': '🎵',
+        'aac': '🎵', 'm4a': '🎵', 'wma': '🎵',
+        # Video
+        'mp4': '🎬', 'avi': '🎬', 'mkv': '🎬', 'mov': '🎬',
+        'wmv': '🎬', 'flv': '🎬', 'webm': '🎬',
+        # Archives
+        'zip': '📦', 'rar': '📦', '7z': '📦', 'tar': '📦',
+        'gz': '📦', 'bz2': '📦', 'xz': '📦',
+        # Executables
+        'exe': '⚙️', 'msi': '⚙️', 'deb': '⚙️', 'rpm': '⚙️',
+        'dmg': '⚙️', 'app': '⚙️',
+        # Code
+        'js': '💻', 'py': '🐍', 'html': '🌐', 'css': '🎨',
+        'php': '🌐', 'java': '☕', 'cpp': '💻', 'c': '💻',
+        'cs': '💻', 'go': '💻', 'rs': '💻', 'swift': '💻',
+        # Data
+        'json': '📋', 'xml': '📋', 'csv': '📊', 'xlsx': '📊',
+        'xls': '📊', 'db': '🗄️', 'sql': '🗄️'
+    }
+
+    return icon_map.get(ext, '📄')
+
+
+def parse_app_metadata(app_path):
+    """Parse app metadata from JavaScript file"""
+    try:
+        with open(app_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+
+        # Look for APP_METADATA comment block
+        if 'APP_METADATA' in content:
+            lines = content.split('\n')
+            metadata = {}
+            in_metadata = False
+
+            for line in lines:
+                line = line.strip()
+                if 'APP_METADATA' in line:
+                    in_metadata = True
+                    continue
+                elif in_metadata and line.startswith('*/'):
+                    break
+                elif in_metadata and line.startswith('* @'):
+                    parts = line[3:].split(' ', 1)
+                    if len(parts) == 2:
+                        key, value = parts
+                        metadata[key] = value.strip()
+
+            return metadata
+    except Exception as e:
+        print(f"Error parsing app metadata from {app_path}: {e}")
+
+    return None
+
+
+def get_default_preferences():
+    """Get default user preferences"""
+    return {
+        'theme': 'cyber-blue',
+        'wallpaper': 'gradient-1',
+        'animationsEnabled': True,
+        'transparency': 0,
+        'blurEffects': True,
+        'fontFamily': 'Rajdhani',
+        'fontSize': 14,
+        'iconSize': 48,
+        'showIconLabels': True,
+        'iconShadows': True,
+        'taskbarPosition': 'bottom',
+        'autoHideTaskbar': False,
+        'showClock': True,
+        'snapWindows': True,
+        'restoreWindows': True,
+        'doubleClickAction': 'maximize',
+        'restoreSession': True,
+        'startupSound': False,
+        'sessionTimeout': 240,
+        'enableNotifications': True,
+        'notificationDuration': 4000,
+        'notificationPosition': 'top-right',
+        'hardwareAcceleration': True,
+        'animationQuality': 'high',
+        'maxWindows': 10,
+        'autoLogout': False,
+        'rememberLogin': True,
+        'avatar': None
+    }
+
+
+def load_user_preferences(username):
+    """Load user preferences from file"""
+    try:
+        prefs_file = os.path.join('users', f'{username}_preferences.json')
+        if os.path.exists(prefs_file):
+            with open(prefs_file, 'r') as f:
+                user_preferences[username] = json.load(f)
+        else:
+            user_preferences[username] = get_default_preferences()
+    except Exception as e:
+        print(f"Error loading preferences for {username}: {e}")
+        user_preferences[username] = get_default_preferences()
+
+
+def save_user_preferences_to_file(username):
+    """Save user preferences to file"""
+    try:
+        os.makedirs('users', exist_ok=True)
+        prefs_file = os.path.join('users', f'{username}_preferences.json')
+        with open(prefs_file, 'w') as f:
+            json.dump(user_preferences.get(username, {}), f, indent=2)
+    except Exception as e:
+        print(f"Error saving preferences for {username}: {e}")
+
+
+def load_user_shortcuts(username):
+    """Load user shortcuts from file"""
+    try:
+        shortcuts_file = os.path.join('users', f'{username}_shortcuts.json')
+        if os.path.exists(shortcuts_file):
+            with open(shortcuts_file, 'r') as f:
+                user_shortcuts[username] = json.load(f)
+        else:
+            user_shortcuts[username] = {'desktop': [], 'taskbar': []}
+    except Exception as e:
+        print(f"Error loading shortcuts for {username}: {e}")
+        user_shortcuts[username] = {'desktop': [], 'taskbar': []}
+
+
+def save_user_shortcuts(username):
+    """Save user shortcuts to file"""
+    try:
+        os.makedirs('users', exist_ok=True)
+        shortcuts_file = os.path.join('users', f'{username}_shortcuts.json')
+        with open(shortcuts_file, 'w') as f:
+            json.dump(user_shortcuts.get(username, {}), f, indent=2)
+    except Exception as e:
+        print(f"Error saving shortcuts for {username}: {e}")
+
+
+def get_user_avatar(username):
+    """Get user avatar filename"""
+    prefs = user_preferences.get(username, {})
+    return prefs.get('avatar')
+
+
+def count_files_in_directory(directory):
+    """Count files in directory recursively"""
+    try:
+        count = 0
+        for root, dirs, files in os.walk(directory):
+            count += len(files)
+        return count
+    except Exception:
+        return 0
+
+
+def get_directory_size(directory):
+    """Get total size of directory in bytes"""
+    try:
+        total_size = 0
+        for dirpath, dirnames, filenames in os.walk(directory):
+            for filename in filenames:
+                filepath = os.path.join(dirpath, filename)
+                try:
+                    total_size += os.path.getsize(filepath)
+                except (OSError, IOError):
+                    pass
+        return total_size
+    except Exception:
+        return 0
+
+
+def get_system_uptime():
+    """Get system uptime (simplified)"""
+    try:
+        with open('/proc/uptime', 'r') as f:
+            uptime_seconds = float(f.readline().split()[0])
+            return int(uptime_seconds)
+    except Exception:
+        return 0
+
+
+def get_disk_usage(path):
+    """Get disk usage for path"""
+    try:
+        statvfs = os.statvfs(path)
+        total = statvfs.f_frsize * statvfs.f_blocks
+        free = statvfs.f_frsize * statvfs.f_available
+        used = total - free
+        return {
+            'total': total,
+            'used': used,
+            'free': free,
+            'percent': (used / total) * 100 if total > 0 else 0
+        }
+    except Exception:
+        return {'total': 0, 'used': 0, 'free': 0, 'percent': 0}

@@ -9,6 +9,7 @@ import logging
 from datetime import datetime
 
 
+
 def setup_logging():
     """Setup basic logging"""
     logging.basicConfig(
