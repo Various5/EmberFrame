@@ -3,7 +3,7 @@
  * APP_METADATA
  * @name Media Player
  * @icon fas fa-music
- * @description Simple Media Player Application
+ * @description Simple Media Player
  * @category Media
  * @version 1.0.0
  * @author EmberFrame Team

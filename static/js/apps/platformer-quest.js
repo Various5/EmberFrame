@@ -2,7 +2,7 @@
  * APP_METADATA
  * @name PlatformerQuest
  * @icon fas fa-gamepad
- * @description A colorful, polished jump-and-run arcade game with dynamic parallax backgrounds, smooth animations, explosive effects, punch & shoot combat, collectible coins, and multi-level progression aiming for high scores. Enemies now attack only when the player is in range, and both player and enemy models have enhanced visuals.
+ * @description Jump-and-run arcade game
  * @category Games
  * @version 1.6.0
  * @author EmberFrame Team

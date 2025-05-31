@@ -2,7 +2,7 @@
  * APP_METADATA
  * @name MusicMaker
  * @icon fas fa-music
- * @description A professional-grade FL Studio–style DAW clone with multi-pattern sequencing, channel rack, improved mixer with adjustable effect parameters, piano roll editor for melodic plugins, pattern chaining, and optimized scheduling.
+ * @description Sequenzerstyle DAW clone with multi-pattern sequencing, channel rack, mixer, effect parameters, piano roll editor.
  * @category Music
  * @version 2.0.0
  * @author EmberFrame Team

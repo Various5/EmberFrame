@@ -2,7 +2,7 @@
  * APP_METADATA
  * @name Admin Panel
  * @icon fas fa-shield-alt
- * @description Comprehensive administrative tools for user and system management
+ * @description Administrative tools for user and system management
  * @category Administration
  * @version 2.0.0
  * @author EmberFrame Team

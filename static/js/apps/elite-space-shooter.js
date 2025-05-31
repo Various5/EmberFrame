@@ -2,7 +2,7 @@
  * APP_METADATA
  * @name Elite Space Shooter
  * @icon fas fa-rocket
- * @description Professional arcade space shooter with upgrades, levels, and epic battles
+ * @description Arcade Space Shooter
  * @category Games
  * @version 3.0.0
  * @author EmberFrame Team

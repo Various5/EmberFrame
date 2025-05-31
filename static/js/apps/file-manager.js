@@ -2,7 +2,7 @@
  * APP_METADATA
  * @name File Manager
  * @icon fas fa-folder
- * @description Advanced file manager with user home and public folder support
+ * @description Advanced file manager
  * @category System
  * @version 2.0.0
  * @author EmberFrame Team
