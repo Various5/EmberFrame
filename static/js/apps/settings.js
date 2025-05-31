@@ -280,12 +280,13 @@ class Settings {
                                     <div class="pattern-option" data-pattern="fractal">Fractal</div>
                                     <div class="pattern-option" data-pattern="noise">Perlin Noise</div>
                                 </div>
+                                
                                 <div class="control-row">
                                     <div class="control-item">
-                                        <label>Pattern Opacity</label>
+                                        <label>Pattern Visibility</label>
                                         <div class="slider-container">
-                                            <input type="range" id="pattern-opacity" min="5" max="80" value="20">
-                                            <span class="slider-value">20%</span>
+                                            <input type="range" id="pattern-visibility" min="0" max="100" value="30">
+                                            <span class="slider-value">30%</span>
                                         </div>
                                     </div>
                                     <div class="control-item">
@@ -338,6 +339,52 @@ class Settings {
                                         <span class="checkmark"></span>
                                         3D effect
                                     </label>
+                                </div>
+                            </div>
+
+                            <!-- Video Settings -->
+                            <div class="setting-group" id="video-settings" style="display: none;">
+                                <label>Video Background</label>
+                                <div class="video-controls">
+                                    <div class="control-item">
+                                        <label>Video URL or File</label>
+                                        <input type="text" id="video-url" placeholder="Enter video URL or upload file" class="video-input">
+                                        <input type="file" id="video-file" accept="video/*" style="display: none;">
+                                        <button id="video-browse" class="browse-btn">Browse Files</button>
+                                    </div>
+                                    <div class="control-row">
+                                        <div class="control-item">
+                                            <label>Video Opacity</label>
+                                            <div class="slider-container">
+                                                <input type="range" id="video-opacity" min="10" max="100" value="50">
+                                                <span class="slider-value">50%</span>
+                                            </div>
+                                        </div>
+                                        <div class="control-item">
+                                            <label>Playback Speed</label>
+                                            <div class="slider-container">
+                                                <input type="range" id="video-speed" min="0.25" max="2" value="1" step="0.25">
+                                                <span class="slider-value">1x</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" id="video-loop" checked>
+                                            <span class="checkmark"></span>
+                                            Loop video
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" id="video-muted" checked>
+                                            <span class="checkmark"></span>
+                                            Mute audio
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" id="video-blur">
+                                            <span class="checkmark"></span>
+                                            Blur effect
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -860,6 +907,24 @@ class Settings {
         this.windowElement.querySelector('#import-settings').addEventListener('click', () => {
             this.importSettings();
         });
+
+        // Video background controls
+        this.windowElement.querySelector('#video-browse').addEventListener('click', () => {
+            this.windowElement.querySelector('#video-file').click();
+        });
+
+        this.windowElement.querySelector('#video-file').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                this.windowElement.querySelector('#video-url').value = url;
+                this.applySetting('video-url', url);
+            }
+        });
+
+        this.windowElement.querySelector('#video-url').addEventListener('input', (e) => {
+            this.applySetting('video-url', e.target.value);
+        });
     }
 
     static setupAutoSave() {
@@ -1098,6 +1163,7 @@ class Settings {
         this.windowElement.querySelector('#gradient-settings').style.display = type === 'gradient' ? 'block' : 'none';
         this.windowElement.querySelector('#animated-settings').style.display = type === 'animated' ? 'block' : 'none';
         this.windowElement.querySelector('#pattern-settings').style.display = type === 'pattern' ? 'block' : 'none';
+        this.windowElement.querySelector('#video-settings').style.display = type === 'video' ? 'block' : 'none';
 
         this.updateBackground();
         this.saveSettings();
@@ -1167,7 +1233,7 @@ class Settings {
             case 'gradient-start':
             case 'gradient-end':
             case 'gradient-angle':
-            case 'pattern-opacity':
+            case 'pattern-visibility':
             case 'pattern-size':
             case 'pattern-color':
             case 'pattern-color2':
@@ -1177,6 +1243,16 @@ class Settings {
             case 'pattern-glow':
             case 'pattern-3d':
                 this.updateBackground();
+                break;
+            case 'video-url':
+            case 'video-opacity':
+            case 'video-speed':
+            case 'video-loop':
+            case 'video-muted':
+            case 'video-blur':
+                if (this.settings.backgroundType === 'video') {
+                    this.updateBackground();
+                }
                 break;
             case 'animation-speed':
             case 'animation-intensity':
@@ -1248,19 +1324,56 @@ class Settings {
 
         const type = this.settings.backgroundType;
 
+        // Clear previous background
+        this.wallpaperLayer.style.background = 'transparent';
+        this.wallpaperLayer.style.backgroundImage = '';
+        this.wallpaperLayer.innerHTML = '';
+
         if (type === 'gradient') {
             const start = this.settings['gradient-start'] || '#667eea';
             const end = this.settings['gradient-end'] || '#764ba2';
             const angle = this.settings['gradient-angle'] || 135;
 
             this.wallpaperLayer.style.background = `linear-gradient(${angle}deg, ${start}, ${end})`;
-            this.wallpaperLayer.style.backgroundImage = '';
         } else if (type === 'pattern') {
             this.generatePattern();
-        } else {
-            // Reset for other types
-            this.wallpaperLayer.style.background = 'transparent';
-            this.wallpaperLayer.style.backgroundImage = '';
+        } else if (type === 'video') {
+            this.setupVideoBackground();
+        }
+    }
+
+    static setupVideoBackground() {
+        const videoUrl = this.settings['video-url'];
+        const opacity = (this.settings['video-opacity'] || 50) / 100;
+        const speed = this.settings['video-speed'] || 1;
+        const loop = this.settings['video-loop'] !== false;
+        const muted = this.settings['video-muted'] !== false;
+        const blur = this.settings['video-blur'] || false;
+
+        if (videoUrl) {
+            const video = document.createElement('video');
+            video.style.cssText = `
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                opacity: ${opacity};
+                filter: ${blur ? 'blur(5px)' : 'none'};
+            `;
+
+            video.src = videoUrl;
+            video.loop = loop;
+            video.muted = muted;
+            video.autoplay = true;
+            video.playbackRate = speed;
+
+            // Handle video load errors
+            video.onerror = () => {
+                console.error('Failed to load video:', videoUrl);
+                this.wallpaperLayer.innerHTML = '<div style="color: #ff4444; text-align: center; padding: 50px;">Failed to load video</div>';
+            };
+
+            this.wallpaperLayer.appendChild(video);
+            this.currentVideo = video;
         }
     }
 
@@ -1443,26 +1556,40 @@ class Settings {
     }
 
     static initializeParticleSystem() {
-        this.destroyParticleSystem();
+        // Only destroy if already exists to avoid conflicts
+        if (this.particleSystem) {
+            this.destroyParticleSystem();
+        }
+
+        // Create new particle system with current settings
         this.particleSystem = new ParticleSystem(this.settings);
+        console.log('🎆 Advanced particle system initialized');
     }
 
     static destroyParticleSystem() {
         if (this.particleSystem) {
             this.particleSystem.destroy();
             this.particleSystem = null;
+            console.log('🚫 Advanced particle system destroyed');
         }
     }
 
     static initializeBackgroundSystem() {
-        this.destroyBackgroundSystem();
+        // Only destroy if already exists
+        if (this.backgroundSystem) {
+            this.destroyBackgroundSystem();
+        }
+
+        // Create new background system
         this.backgroundSystem = new BackgroundSystem(this.settings);
+        console.log('🎬 Animated background system initialized');
     }
 
     static destroyBackgroundSystem() {
         if (this.backgroundSystem) {
             this.backgroundSystem.destroy();
             this.backgroundSystem = null;
+            console.log('🚫 Animated background system destroyed');
         }
     }
 
@@ -1591,7 +1718,7 @@ class Settings {
             'animation-speed': 1,
             'animation-intensity': 1,
             backgroundPattern: 'dots',
-            'pattern-opacity': 20,
+            'pattern-visibility': 30,
             'pattern-size': 20,
             'pattern-color': '#00d4ff',
             'pattern-color2': '#ff00ff',
@@ -1600,6 +1727,12 @@ class Settings {
             'pattern-animate': false,
             'pattern-glow': false,
             'pattern-3d': false,
+            'video-url': '',
+            'video-opacity': 50,
+            'video-speed': 1,
+            'video-loop': true,
+            'video-muted': true,
+            'video-blur': false,
 
             // Particles
             'particles-enabled': true,
@@ -2172,6 +2305,40 @@ class Settings {
                     color: var(--accent-color, #00d4ff);
                 }
 
+                /* Video Controls */
+                .video-controls {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
+                .video-input {
+                    width: 100%;
+                    padding: 8px 12px;
+                    background: rgba(255, 255, 255, 0.1);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 6px;
+                    color: white;
+                    outline: none;
+                    margin-bottom: 10px;
+                }
+
+                .browse-btn {
+                    padding: 8px 16px;
+                    background: var(--accent-color, #00d4ff);
+                    color: #000;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    transition: all 0.3s ease;
+                }
+
+                .browse-btn:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+                }
+
                 /* Controls */
                 .particle-controls,
                 .font-controls {
@@ -2489,9 +2656,15 @@ class ParticleSystem {
 
     setBehavior(behavior) {
         this.settings.particleBehavior = behavior;
+        console.log(`🎯 Particle behavior changed to: ${behavior}`);
 
         if (behavior === 'sphere' || behavior === 'cube') {
             this.arrangeIn3D();
+        }
+
+        // Log mouse settings for debugging
+        if (behavior.includes('mouse')) {
+            console.log(`🖱️ Mouse settings - Force: ${this.settings['mouse-force']}, Range: ${this.settings['mouse-range']}`);
         }
     }
 
@@ -2961,7 +3134,7 @@ class ParticleSystem {
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Draw connections
+        // Draw connections first (behind particles)
         if (connect) {
             this.ctx.strokeStyle = color + '30';
             this.ctx.lineWidth = 1;
@@ -2981,17 +3154,29 @@ class ParticleSystem {
             });
         }
 
+        // Draw laser effects for laser behavior
+        if (this.settings.particleBehavior === 'laser') {
+            this.ctx.strokeStyle = color + '80';
+            this.ctx.lineWidth = 2;
+            this.particles.forEach(particle => {
+                this.ctx.beginPath();
+                this.ctx.moveTo(particle.x, particle.y);
+                this.ctx.lineTo(this.mouse.x, this.mouse.y);
+                this.ctx.stroke();
+            });
+        }
+
         // Draw particles
         this.particles.forEach(particle => {
-            // Draw trail
-            if (trails && particle.trail.length > 1) {
+            // Draw trail first
+            if (trails && particle.trail && particle.trail.length > 1) {
                 this.ctx.strokeStyle = color + '60';
-                this.ctx.lineWidth = size / 2;
+                this.ctx.lineWidth = Math.max(1, size / 2);
                 this.ctx.beginPath();
                 this.ctx.moveTo(particle.trail[0].x, particle.trail[0].y);
-                particle.trail.forEach(point => {
-                    this.ctx.lineTo(point.x, point.y);
-                });
+                for (let i = 1; i < particle.trail.length; i++) {
+                    this.ctx.lineTo(particle.trail[i].x, particle.trail[i].y);
+                }
                 this.ctx.stroke();
             }
 
@@ -2999,6 +3184,8 @@ class ParticleSystem {
             if (glow) {
                 this.ctx.shadowColor = color;
                 this.ctx.shadowBlur = size * 3;
+            } else {
+                this.ctx.shadowBlur = 0;
             }
 
             this.ctx.fillStyle = color;
@@ -3030,8 +3217,10 @@ class ParticleSystem {
             }
 
             this.ctx.fill();
-            this.ctx.shadowBlur = 0;
         });
+
+        // Reset shadow
+        this.ctx.shadowBlur = 0;
     }
 
     drawStar(x, y, size) {

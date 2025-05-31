@@ -1634,9 +1634,10 @@ class ReallyRacer {
   static _resetVehicle() {
     const vehicle = ReallyRacer._vehicle;
 
-    // Reset position
+    // Reset position - place vehicle above terrain
     vehicle.x = 100;
-    vehicle.y = 300;
+    const terrainHeight = ReallyRacer._getTerrainHeightAt(100);
+    vehicle.y = terrainHeight - vehicle.height - 20; // Position above terrain
     vehicle.angle = 0;
 
     // Reset physics
