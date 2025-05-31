@@ -2,9 +2,9 @@
  * APP_METADATA
  * @name Settings
  * @icon fas fa-cog
- * @description Comprehensive system settings and user preferences
+ * @description Comprehensive system settings and customization
  * @category System
- * @version 2.0.0
+ * @version 3.0.0
  * @author EmberFrame Team
  * @enabled true
  */
@@ -19,87 +19,565 @@ class Settings {
             content: `
                 <div class="settings-app">
                     <div class="settings-sidebar">
-                        <div class="settings-logo">
-                            <i class="fas fa-cog"></i>
-                            <span>Settings</span>
+                        <div class="sidebar-header">
+                            <h2>⚙️ Settings</h2>
+                            <p>Customize your EmberFrame experience</p>
                         </div>
                         
-                        <div class="settings-menu">
-                            <div class="settings-category active" data-category="appearance">
+                        <div class="settings-nav">
+                            <div class="nav-item active" data-section="appearance">
                                 <i class="fas fa-palette"></i>
                                 <span>Appearance</span>
                             </div>
-                            <div class="settings-category" data-category="desktop">
+                            <div class="nav-item" data-section="themes">
+                                <i class="fas fa-brush"></i>
+                                <span>Themes</span>
+                            </div>
+                            <div class="nav-item" data-section="backgrounds">
+                                <i class="fas fa-image"></i>
+                                <span>Backgrounds</span>
+                            </div>
+                            <div class="nav-item" data-section="desktop">
                                 <i class="fas fa-desktop"></i>
                                 <span>Desktop</span>
                             </div>
-                            <div class="settings-category" data-category="files">
-                                <i class="fas fa-folder"></i>
-                                <span>Files & Storage</span>
-                            </div>
-                            <div class="settings-category" data-category="system">
-                                <i class="fas fa-microchip"></i>
-                                <span>System</span>
-                            </div>
-                            <div class="settings-category" data-category="privacy">
-                                <i class="fas fa-shield-alt"></i>
-                                <span>Privacy</span>
-                            </div>
-                            <div class="settings-category" data-category="notifications">
+                            <div class="nav-item" data-section="notifications">
                                 <i class="fas fa-bell"></i>
                                 <span>Notifications</span>
                             </div>
-                            <div class="settings-category" data-category="keyboard">
-                                <i class="fas fa-keyboard"></i>
-                                <span>Keyboard</span>
+                            <div class="nav-item" data-section="performance">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Performance</span>
                             </div>
-                            <div class="settings-category" data-category="about">
-                                <i class="fas fa-info-circle"></i>
-                                <span>About</span>
+                            <div class="nav-item" data-section="accessibility">
+                                <i class="fas fa-universal-access"></i>
+                                <span>Accessibility</span>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="settings-content">
-                        <div class="settings-header">
-                            <h2 id="settings-title">Appearance</h2>
-                            <p id="settings-description">Customize the look and feel of your desktop</p>
-                        </div>
-
-                        <div class="settings-panel" id="settings-panel">
-                            <!-- Content will be loaded dynamically -->
+                            <div class="nav-item" data-section="system">
+                                <i class="fas fa-cogs"></i>
+                                <span>System</span>
+                            </div>
                         </div>
 
                         <div class="settings-footer">
                             <button class="btn btn-secondary" onclick="Settings.resetToDefaults()">
-                                <i class="fas fa-undo"></i> Reset to Defaults
-                            </button>
-                            <button class="btn btn-primary" onclick="Settings.saveSettings()">
-                                <i class="fas fa-save"></i> Save Changes
+                                <i class="fas fa-undo"></i> Reset All
                             </button>
                         </div>
                     </div>
-                </div>
 
-                <!-- Theme Preview Modal -->
-                <div class="modal" id="theme-preview-modal">
-                    <div class="modal-content theme-preview-content">
-                        <div class="modal-header">
-                            <h3>Theme Preview</h3>
-                            <button class="modal-close" onclick="Settings.closeThemePreview()">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="theme-preview" id="theme-preview-container">
-                                <!-- Theme preview will be generated here -->
+                    <div class="settings-content">
+                        <!-- Appearance Section -->
+                        <div class="settings-section active" id="appearance-section">
+                            <div class="section-header">
+                                <h3>🎨 Appearance Settings</h3>
+                                <p>Customize the visual appearance of your desktop</p>
+                            </div>
+
+                            <div class="settings-grid">
+                                <div class="setting-group">
+                                    <h4>💧 Transparency & Effects</h4>
+                                    
+                                    <div class="setting-item">
+                                        <label>Window Transparency</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="transparency-slider" min="0" max="50" value="5" class="slider">
+                                            <span class="slider-value" id="transparency-value">95%</span>
+                                        </div>
+                                        <small>Adjust window transparency (0% = fully opaque, 50% = semi-transparent)</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="blur-effects" checked>
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Blur Effects</span>
+                                        </label>
+                                        <small>Enable backdrop blur effects for windows and menus</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="icon-shadows" checked>
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Icon Shadows</span>
+                                        </label>
+                                        <small>Add shadow effects to desktop icons</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="animations-enabled" checked>
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Animations</span>
+                                        </label>
+                                        <small>Enable smooth animations and transitions</small>
+                                    </div>
+                                </div>
+
+                                <div class="setting-group">
+                                    <h4>📏 Size & Scaling</h4>
+                                    
+                                    <div class="setting-item">
+                                        <label>Desktop Icon Size</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="icon-size-slider" min="32" max="80" value="48" class="slider">
+                                            <span class="slider-value" id="icon-size-value">48px</span>
+                                        </div>
+                                        <small>Adjust the size of desktop icons</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label>Font Size</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="font-size-slider" min="12" max="20" value="14" class="slider">
+                                            <span class="slider-value" id="font-size-value">14px</span>
+                                        </div>
+                                        <small>Adjust system font size for better readability</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label>Font Family</label>
+                                        <select id="font-family-select" class="setting-select">
+                                            <option value="'Rajdhani', sans-serif">Rajdhani (Default)</option>
+                                            <option value="'Orbitron', monospace">Orbitron (Futuristic)</option>
+                                            <option value="'Segoe UI', sans-serif">Segoe UI (Modern)</option>
+                                            <option value="'Arial', sans-serif">Arial (Classic)</option>
+                                            <option value="'Helvetica', sans-serif">Helvetica (Clean)</option>
+                                            <option value="'Roboto', sans-serif">Roboto (Android)</option>
+                                            <option value="'Monaco', monospace">Monaco (Code)</option>
+                                        </select>
+                                        <small>Choose your preferred system font</small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-secondary" onclick="Settings.closeThemePreview()">Cancel</button>
-                            <button class="btn btn-primary" onclick="Settings.applyPreviewedTheme()">Apply Theme</button>
+
+                        <!-- Themes Section -->
+                        <div class="settings-section" id="themes-section">
+                            <div class="section-header">
+                                <h3>🎨 Theme Gallery</h3>
+                                <p>Choose from our collection of stunning themes</p>
+                            </div>
+
+                            <div class="themes-grid" id="themes-grid">
+                                <!-- Theme cards will be generated here -->
+                            </div>
+
+                            <div class="setting-group">
+                                <h4>🎨 Custom Theme Editor</h4>
+                                <div class="custom-theme-editor">
+                                    <div class="color-picker-group">
+                                        <label>Primary Color</label>
+                                        <input type="color" id="primary-color" value="#00d4ff">
+                                    </div>
+                                    <div class="color-picker-group">
+                                        <label>Secondary Color</label>
+                                        <input type="color" id="secondary-color" value="#0099cc">
+                                    </div>
+                                    <div class="color-picker-group">
+                                        <label>Accent Color</label>
+                                        <input type="color" id="accent-color" value="#00ffff">
+                                    </div>
+                                    <button class="btn btn-primary" onclick="Settings.applyCustomTheme()">
+                                        <i class="fas fa-palette"></i> Apply Custom Theme
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Backgrounds Section -->
+                        <div class="settings-section" id="backgrounds-section">
+                            <div class="section-header">
+                                <h3>🖼️ Dynamic Backgrounds</h3>
+                                <p>Select from beautiful animated and static backgrounds</p>
+                            </div>
+
+                            <div class="background-categories">
+                                <div class="bg-category active" data-category="dynamic">Dynamic</div>
+                                <div class="bg-category" data-category="gradients">Gradients</div>
+                                <div class="bg-category" data-category="patterns">Patterns</div>
+                                <div class="bg-category" data-category="space">Space</div>
+                                <div class="bg-category" data-category="nature">Nature</div>
+                                <div class="bg-category" data-category="abstract">Abstract</div>
+                            </div>
+
+                            <div class="backgrounds-grid" id="backgrounds-grid">
+                                <!-- Background options will be generated here -->
+                            </div>
+
+                            <div class="setting-group">
+                                <h4>🎬 Animation Settings</h4>
+                                <div class="setting-item">
+                                    <label>Animation Speed</label>
+                                    <div class="slider-container">
+                                        <input type="range" id="bg-speed-slider" min="1" max="10" value="5" class="slider">
+                                        <span class="slider-value" id="bg-speed-value">Normal</span>
+                                    </div>
+                                    <small>Control background animation speed</small>
+                                </div>
+
+                                <div class="setting-item">
+                                    <label class="toggle-label">
+                                        <input type="checkbox" id="bg-particles" checked>
+                                        <span class="toggle-slider"></span>
+                                        <span class="toggle-text">Floating Particles</span>
+                                    </label>
+                                    <small>Add animated particles to the background</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Desktop Section -->
+                        <div class="settings-section" id="desktop-section">
+                            <div class="section-header">
+                                <h3>🖥️ Desktop Behavior</h3>
+                                <p>Configure how your desktop works and looks</p>
+                            </div>
+
+                            <div class="settings-grid">
+                                <div class="setting-group">
+                                    <h4>📋 Taskbar Settings</h4>
+                                    
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="auto-hide-taskbar">
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Auto-hide Taskbar</span>
+                                        </label>
+                                        <small>Automatically hide taskbar when not needed</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="show-clock" checked>
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Show Clock</span>
+                                        </label>
+                                        <small>Display time in the system tray</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label>Taskbar Position</label>
+                                        <select id="taskbar-position" class="setting-select">
+                                            <option value="bottom">Bottom</option>
+                                            <option value="top">Top</option>
+                                            <option value="left">Left</option>
+                                            <option value="right">Right</option>
+                                        </select>
+                                        <small>Position of the taskbar on screen</small>
+                                    </div>
+                                </div>
+
+                                <div class="setting-group">
+                                    <h4>🏷️ Icon Settings</h4>
+                                    
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="show-icon-labels" checked>
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Show Icon Labels</span>
+                                        </label>
+                                        <small>Display text labels under desktop icons</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="snap-to-grid" checked>
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Snap Icons to Grid</span>
+                                        </label>
+                                        <small>Automatically align icons to an invisible grid</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label>Icon Arrangement</label>
+                                        <select id="icon-arrangement" class="setting-select">
+                                            <option value="auto">Auto Arrange</option>
+                                            <option value="manual">Manual</option>
+                                            <option value="columns">Columns</option>
+                                            <option value="rows">Rows</option>
+                                        </select>
+                                        <small>How desktop icons are arranged</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notifications Section -->
+                        <div class="settings-section" id="notifications-section">
+                            <div class="section-header">
+                                <h3>🔔 Notification Settings</h3>
+                                <p>Control how and when you receive notifications</p>
+                            </div>
+
+                            <div class="settings-grid">
+                                <div class="setting-group">
+                                    <h4>📍 Notification Position</h4>
+                                    
+                                    <div class="notification-positions">
+                                        <div class="position-grid">
+                                            <div class="position-option" data-position="top-left">
+                                                <div class="position-demo">
+                                                    <div class="demo-notification top-left"></div>
+                                                </div>
+                                                <span>Top Left</span>
+                                            </div>
+                                            <div class="position-option active" data-position="top-right">
+                                                <div class="position-demo">
+                                                    <div class="demo-notification top-right"></div>
+                                                </div>
+                                                <span>Top Right</span>
+                                            </div>
+                                            <div class="position-option" data-position="bottom-left">
+                                                <div class="position-demo">
+                                                    <div class="demo-notification bottom-left"></div>
+                                                </div>
+                                                <span>Bottom Left</span>
+                                            </div>
+                                            <div class="position-option" data-position="bottom-right">
+                                                <div class="position-demo">
+                                                    <div class="demo-notification bottom-right"></div>
+                                                </div>
+                                                <span>Bottom Right</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="setting-group">
+                                    <h4>⚙️ Behavior</h4>
+                                    
+                                    <div class="setting-item">
+                                        <label>Notification Duration</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="notification-duration" min="1" max="10" value="4" class="slider">
+                                            <span class="slider-value" id="notification-duration-value">4s</span>
+                                        </div>
+                                        <small>How long notifications stay visible</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="notification-sounds" checked>
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Notification Sounds</span>
+                                        </label>
+                                        <small>Play sound when notifications appear</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="do-not-disturb">
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Do Not Disturb</span>
+                                        </label>
+                                        <small>Temporarily disable all notifications</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Performance Section -->
+                        <div class="settings-section" id="performance-section">
+                            <div class="section-header">
+                                <h3>⚡ Performance Settings</h3>
+                                <p>Optimize EmberFrame for your system capabilities</p>
+                            </div>
+
+                            <div class="settings-grid">
+                                <div class="setting-group">
+                                    <h4>🎭 Animation Quality</h4>
+                                    
+                                    <div class="animation-quality-options">
+                                        <div class="quality-option active" data-quality="high">
+                                            <i class="fas fa-rocket"></i>
+                                            <span>High Quality</span>
+                                            <small>Full animations & effects</small>
+                                        </div>
+                                        <div class="quality-option" data-quality="medium">
+                                            <i class="fas fa-balance-scale"></i>
+                                            <span>Balanced</span>
+                                            <small>Reduced effects</small>
+                                        </div>
+                                        <div class="quality-option" data-quality="low">
+                                            <i class="fas fa-tachometer-alt"></i>
+                                            <span>Performance</span>
+                                            <small>Minimal effects</small>
+                                        </div>
+                                        <div class="quality-option" data-quality="none">
+                                            <i class="fas fa-ban"></i>
+                                            <span>Disabled</span>
+                                            <small>No animations</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="setting-group">
+                                    <h4>🔧 Advanced</h4>
+                                    
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="hardware-acceleration" checked>
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Hardware Acceleration</span>
+                                        </label>
+                                        <small>Use GPU acceleration for better performance</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="reduce-motion">
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Reduce Motion</span>
+                                        </label>
+                                        <small>Minimize animations for sensitive users</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label>Frame Rate Limit</label>
+                                        <select id="fps-limit" class="setting-select">
+                                            <option value="60">60 FPS (Smooth)</option>
+                                            <option value="30">30 FPS (Balanced)</option>
+                                            <option value="15">15 FPS (Battery Save)</option>
+                                        </select>
+                                        <small>Limit frame rate to save battery</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Accessibility Section -->
+                        <div class="settings-section" id="accessibility-section">
+                            <div class="section-header">
+                                <h3>♿ Accessibility</h3>
+                                <p>Make EmberFrame more accessible for everyone</p>
+                            </div>
+
+                            <div class="settings-grid">
+                                <div class="setting-group">
+                                    <h4>👁️ Visual Accessibility</h4>
+                                    
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="high-contrast">
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">High Contrast Mode</span>
+                                        </label>
+                                        <small>Increase contrast for better visibility</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="large-cursor">
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Large Cursor</span>
+                                        </label>
+                                        <small>Use a larger, more visible cursor</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label>UI Scale</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="ui-scale" min="80" max="150" value="100" class="slider">
+                                            <span class="slider-value" id="ui-scale-value">100%</span>
+                                        </div>
+                                        <small>Scale the entire interface for better readability</small>
+                                    </div>
+                                </div>
+
+                                <div class="setting-group">
+                                    <h4>⌨️ Keyboard & Motor</h4>
+                                    
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="sticky-keys">
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Sticky Keys</span>
+                                        </label>
+                                        <small>Allow modifier keys to be pressed one at a time</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="focus-indicators" checked>
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Enhanced Focus Indicators</span>
+                                        </label>
+                                        <small>Show clear outlines around focused elements</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Section -->
+                        <div class="settings-section" id="system-section">
+                            <div class="section-header">
+                                <h3>🔧 System Settings</h3>
+                                <p>Core system configuration and maintenance</p>
+                            </div>
+
+                            <div class="settings-grid">
+                                <div class="setting-group">
+                                    <h4>💾 Data & Storage</h4>
+                                    
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="auto-save" checked>
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Auto-save Preferences</span>
+                                        </label>
+                                        <small>Automatically save settings as you change them</small>
+                                    </div>
+
+                                    <div class="setting-item">
+                                        <label class="toggle-label">
+                                            <input type="checkbox" id="restore-windows" checked>
+                                            <span class="toggle-slider"></span>
+                                            <span class="toggle-text">Restore Windows on Login</span>
+                                        </label>
+                                        <small>Reopen windows from your last session</small>
+                                    </div>
+                                </div>
+
+                                <div class="setting-group">
+                                    <h4>🛠️ Maintenance</h4>
+                                    
+                                    <div class="maintenance-buttons">
+                                        <button class="btn btn-primary" onclick="Settings.exportSettings()">
+                                            <i class="fas fa-download"></i> Export Settings
+                                        </button>
+                                        <button class="btn btn-secondary" onclick="Settings.importSettings()">
+                                            <i class="fas fa-upload"></i> Import Settings
+                                        </button>
+                                        <button class="btn btn-warning" onclick="Settings.clearCache()">
+                                            <i class="fas fa-broom"></i> Clear Cache
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Action Bar -->
+                    <div class="settings-actions">
+                        <div class="action-left">
+                            <span class="save-status" id="save-status">✅ All changes saved</span>
+                        </div>
+                        <div class="action-right">
+                            <button class="btn btn-primary" onclick="Settings.saveSettings()">
+                                <i class="fas fa-save"></i> Save All Changes
+                            </button>
+                            <button class="btn btn-secondary" onclick="Settings.closeSettings()">
+                                <i class="fas fa-times"></i> Close
+                            </button>
                         </div>
                     </div>
                 </div>
-
+                
+                <!-- Hidden file input for importing settings -->
+                <input type="file" id="settings-import-input" accept=".json" style="display: none;">
+                
                 ${Settings.getStyles()}
             `,
             onInit: (windowElement) => {
@@ -114,355 +592,543 @@ class Settings {
                 .settings-app {
                     height: 100%;
                     display: flex;
-                    background: #f8f9fa;
+                    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
                     font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
                     color: #2c3e50;
+                    overflow: hidden;
                 }
 
                 .settings-sidebar {
-                    width: 250px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    width: 280px;
+                    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
                     color: white;
                     display: flex;
                     flex-direction: column;
-                    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+                    box-shadow: 2px 0 20px rgba(0,0,0,0.1);
                 }
 
-                .settings-logo {
-                    padding: 25px 20px;
+                .sidebar-header {
+                    padding: 30px 25px;
                     text-align: center;
                     border-bottom: 1px solid rgba(255,255,255,0.2);
-                    font-size: 20px;
+                }
+
+                .sidebar-header h2 {
+                    margin: 0 0 8px 0;
+                    font-size: 24px;
                     font-weight: 700;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 12px;
                     text-shadow: 0 2px 4px rgba(0,0,0,0.3);
                 }
 
-                .settings-logo i {
-                    font-size: 24px;
-                    animation: rotate 10s linear infinite;
+                .sidebar-header p {
+                    margin: 0;
+                    opacity: 0.9;
+                    font-size: 14px;
                 }
 
-                @keyframes rotate {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                }
-
-                .settings-menu {
+                .settings-nav {
                     flex: 1;
-                    padding: 20px 0;
+                    padding: 15px 0;
+                    overflow-y: auto;
                 }
 
-                .settings-category {
+                .nav-item {
                     display: flex;
                     align-items: center;
-                    gap: 15px;
+                    gap: 12px;
                     padding: 15px 25px;
                     cursor: pointer;
                     transition: all 0.3s ease;
-                    border-left: 4px solid transparent;
+                    border-left: 3px solid transparent;
                     font-weight: 500;
                 }
 
-                .settings-category:hover {
+                .nav-item:hover {
                     background: rgba(255,255,255,0.1);
-                    transform: translateX(5px);
+                    border-left-color: rgba(255,255,255,0.5);
                 }
 
-                .settings-category.active {
-                    background: rgba(255,255,255,0.2);
+                .nav-item.active {
+                    background: rgba(255,255,255,0.15);
                     border-left-color: #ffffff;
-                    box-shadow: inset 0 0 20px rgba(255,255,255,0.1);
+                    font-weight: 600;
                 }
 
-                .settings-category i {
-                    width: 20px;
+                .nav-item i {
+                    width: 18px;
                     text-align: center;
                     font-size: 16px;
+                }
+
+                .settings-footer {
+                    padding: 20px 25px;
+                    border-top: 1px solid rgba(255,255,255,0.2);
                 }
 
                 .settings-content {
                     flex: 1;
-                    display: flex;
-                    flex-direction: column;
-                    overflow: hidden;
+                    overflow-y: auto;
+                    background: #f8fafc;
                 }
 
-                .settings-header {
-                    padding: 30px 40px 20px;
-                    background: white;
-                    border-bottom: 1px solid #e9ecef;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                .settings-section {
+                    display: none;
+                    padding: 30px;
+                    max-width: 800px;
                 }
 
-                .settings-header h2 {
+                .settings-section.active {
+                    display: block;
+                }
+
+                .section-header {
+                    margin-bottom: 30px;
+                    padding-bottom: 20px;
+                    border-bottom: 2px solid #e2e8f0;
+                }
+
+                .section-header h3 {
                     margin: 0 0 8px 0;
-                    color: #2c3e50;
+                    color: #1a202c;
                     font-size: 28px;
                     font-weight: 700;
                 }
 
-                .settings-header p {
+                .section-header p {
                     margin: 0;
-                    color: #6c757d;
+                    color: #718096;
                     font-size: 16px;
                 }
 
-                .settings-panel {
-                    flex: 1;
-                    padding: 30px 40px;
-                    overflow-y: auto;
-                    background: #f8f9fa;
+                .settings-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                    gap: 25px;
                 }
 
-                .settings-section {
+                .setting-group {
                     background: white;
-                    border-radius: 12px;
+                    border-radius: 16px;
                     padding: 25px;
-                    margin-bottom: 20px;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                    border: 1px solid #e9ecef;
+                    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+                    border: 1px solid #e2e8f0;
+                    transition: all 0.3s ease;
                 }
 
-                .settings-section h3 {
+                .setting-group:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+                }
+
+                .setting-group h4 {
                     margin: 0 0 20px 0;
-                    color: #495057;
+                    color: #2d3748;
                     font-size: 18px;
                     font-weight: 600;
-                    border-bottom: 2px solid #e9ecef;
-                    padding-bottom: 10px;
+                    border-bottom: 2px solid #edf2f7;
+                    padding-bottom: 12px;
                 }
 
                 .setting-item {
                     margin-bottom: 20px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 20px;
-                    padding: 15px 0;
-                    border-bottom: 1px solid #f8f9fa;
                 }
 
                 .setting-item:last-child {
-                    border-bottom: none;
                     margin-bottom: 0;
                 }
 
-                .setting-info {
-                    flex: 1;
-                }
-
-                .setting-label {
+                .setting-item label {
+                    display: block;
+                    margin-bottom: 8px;
                     font-weight: 600;
-                    color: #495057;
-                    margin-bottom: 5px;
+                    color: #4a5568;
                     font-size: 14px;
                 }
 
-                .setting-description {
-                    color: #6c757d;
-                    font-size: 13px;
+                .setting-item small {
+                    display: block;
+                    margin-top: 6px;
+                    color: #a0aec0;
+                    font-size: 12px;
                     line-height: 1.4;
                 }
 
-                .setting-control {
+                /* Toggle Switches */
+                .toggle-label {
+                    display: flex !important;
+                    align-items: center;
+                    gap: 12px;
+                    cursor: pointer;
+                    margin-bottom: 0 !important;
+                }
+
+                .toggle-label input[type="checkbox"] {
+                    display: none;
+                }
+
+                .toggle-slider {
+                    width: 44px;
+                    height: 22px;
+                    background: #cbd5e0;
+                    border-radius: 22px;
+                    position: relative;
+                    transition: all 0.3s ease;
                     flex-shrink: 0;
                 }
 
+                .toggle-slider::before {
+                    content: '';
+                    position: absolute;
+                    width: 18px;
+                    height: 18px;
+                    background: white;
+                    border-radius: 50%;
+                    top: 2px;
+                    left: 2px;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+                }
+
+                .toggle-label input:checked + .toggle-slider {
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                }
+
+                .toggle-label input:checked + .toggle-slider::before {
+                    transform: translateX(22px);
+                }
+
+                .toggle-text {
+                    font-weight: 500;
+                    color: #4a5568;
+                }
+
+                /* Sliders */
+                .slider-container {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    margin: 8px 0;
+                }
+
+                .slider {
+                    flex: 1;
+                    height: 6px;
+                    border-radius: 3px;
+                    background: #e2e8f0;
+                    outline: none;
+                    -webkit-appearance: none;
+                    appearance: none;
+                    cursor: pointer;
+                }
+
+                .slider::-webkit-slider-thumb {
+                    -webkit-appearance: none;
+                    appearance: none;
+                    width: 18px;
+                    height: 18px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    cursor: pointer;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+                    transition: all 0.2s ease;
+                }
+
+                .slider::-webkit-slider-thumb:hover {
+                    transform: scale(1.1);
+                    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+                }
+
+                .slider::-moz-range-thumb {
+                    width: 18px;
+                    height: 18px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    cursor: pointer;
+                    border: none;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+                }
+
+                .slider-value {
+                    min-width: 50px;
+                    text-align: center;
+                    font-weight: 600;
+                    color: #667eea;
+                    background: #edf2f7;
+                    padding: 4px 8px;
+                    border-radius: 6px;
+                    font-size: 12px;
+                }
+
+                /* Select Dropdowns */
+                .setting-select {
+                    width: 100%;
+                    padding: 10px 12px;
+                    border: 2px solid #e2e8f0;
+                    border-radius: 8px;
+                    background: white;
+                    font-size: 14px;
+                    color: #4a5568;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+
+                .setting-select:focus {
+                    outline: none;
+                    border-color: #667eea;
+                    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+                }
+
                 /* Theme Grid */
-                .theme-grid {
+                .themes-grid {
                     display: grid;
-                    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
                     gap: 20px;
-                    margin-top: 20px;
+                    margin-bottom: 30px;
                 }
 
                 .theme-card {
-                    border: 2px solid #e9ecef;
+                    background: white;
                     border-radius: 12px;
                     overflow: hidden;
                     cursor: pointer;
                     transition: all 0.3s ease;
-                    background: white;
-                    position: relative;
+                    border: 3px solid transparent;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
                 }
 
                 .theme-card:hover {
-                    border-color: #667eea;
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
                 }
 
                 .theme-card.active {
                     border-color: #667eea;
-                    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+                    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.25);
                 }
 
-                .theme-preview-header {
-                    height: 60px;
+                .theme-preview {
+                    height: 100px;
                     position: relative;
                     overflow: hidden;
                 }
 
-                .theme-preview-content {
+                .theme-info {
                     padding: 15px;
                     text-align: center;
                 }
 
                 .theme-name {
                     font-weight: 600;
-                    color: #495057;
+                    color: #2d3748;
                     margin-bottom: 5px;
-                    font-size: 14px;
                 }
 
                 .theme-description {
-                    color: #6c757d;
                     font-size: 12px;
+                    color: #718096;
                 }
 
-                .theme-checkmark {
-                    position: absolute;
-                    top: 10px;
-                    right: 10px;
-                    width: 24px;
-                    height: 24px;
-                    background: #28a745;
-                    border-radius: 50%;
-                    display: none;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
+                /* Custom Theme Editor */
+                .custom-theme-editor {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                    gap: 15px;
+                    align-items: end;
+                }
+
+                .color-picker-group {
+                    text-align: center;
+                }
+
+                .color-picker-group label {
+                    display: block;
+                    margin-bottom: 8px;
                     font-size: 12px;
+                    font-weight: 500;
+                    color: #4a5568;
                 }
 
-                .theme-card.active .theme-checkmark {
-                    display: flex;
-                }
-
-                /* Form Controls */
-                .toggle-switch {
-                    position: relative;
-                    width: 50px;
-                    height: 26px;
-                    background: #ccc;
-                    border-radius: 13px;
+                .color-picker-group input[type="color"] {
+                    width: 100%;
+                    height: 40px;
+                    border: none;
+                    border-radius: 8px;
                     cursor: pointer;
-                    transition: background 0.3s ease;
+                    background: none;
                 }
 
-                .toggle-switch.active {
-                    background: #667eea;
-                }
-
-                .toggle-slider {
-                    position: absolute;
-                    top: 2px;
-                    left: 2px;
-                    width: 22px;
-                    height: 22px;
-                    background: white;
-                    border-radius: 50%;
-                    transition: transform 0.3s ease;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                }
-
-                .toggle-switch.active .toggle-slider {
-                    transform: translateX(24px);
-                }
-
-                .custom-select {
-                    padding: 8px 12px;
-                    border: 2px solid #e9ecef;
-                    border-radius: 6px;
-                    background: white;
-                    min-width: 150px;
-                    cursor: pointer;
-                    transition: border-color 0.3s ease;
-                }
-
-                .custom-select:focus {
-                    outline: none;
-                    border-color: #667eea;
-                }
-
-                .custom-slider {
-                    width: 150px;
-                    margin: 0 15px;
-                }
-
-                .custom-input {
-                    padding: 8px 12px;
-                    border: 2px solid #e9ecef;
-                    border-radius: 6px;
-                    background: white;
-                    min-width: 100px;
-                    transition: border-color 0.3s ease;
-                }
-
-                .custom-input:focus {
-                    outline: none;
-                    border-color: #667eea;
-                }
-
-                /* Color Picker */
-                .color-picker {
+                /* Background Categories */
+                .background-categories {
                     display: flex;
                     gap: 10px;
+                    margin-bottom: 25px;
                     flex-wrap: wrap;
                 }
 
-                .color-option {
-                    width: 40px;
-                    height: 40px;
+                .bg-category {
+                    padding: 8px 16px;
+                    background: white;
+                    border: 2px solid #e2e8f0;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: #4a5568;
+                    transition: all 0.3s ease;
+                }
+
+                .bg-category:hover {
+                    border-color: #667eea;
+                    color: #667eea;
+                }
+
+                .bg-category.active {
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    color: white;
+                    border-color: #667eea;
+                }
+
+                /* Background Grid */
+                .backgrounds-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                    gap: 15px;
+                    margin-bottom: 30px;
+                }
+
+                .background-option {
+                    aspect-ratio: 16/9;
                     border-radius: 8px;
                     cursor: pointer;
+                    overflow: hidden;
                     border: 3px solid transparent;
                     transition: all 0.3s ease;
                     position: relative;
                 }
 
-                .color-option:hover {
-                    transform: scale(1.1);
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                .background-option:hover {
+                    transform: scale(1.05);
+                    border-color: #667eea;
                 }
 
-                .color-option.active {
-                    border-color: #495057;
-                    transform: scale(1.1);
+                .background-option.active {
+                    border-color: #667eea;
+                    box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
                 }
 
-                .color-option::after {
-                    content: '✓';
+                .background-option::after {
+                    content: '';
                     position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    color: white;
-                    font-weight: bold;
-                    text-shadow: 0 0 3px rgba(0,0,0,0.8);
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    height: 30px;
+                    background: linear-gradient(transparent, rgba(0,0,0,0.7));
                     opacity: 0;
                     transition: opacity 0.3s ease;
                 }
 
-                .color-option.active::after {
+                .background-option:hover::after {
                     opacity: 1;
                 }
 
-                /* Footer */
-                .settings-footer {
-                    padding: 20px 40px;
-                    background: white;
-                    border-top: 1px solid #e9ecef;
-                    display: flex;
-                    justify-content: flex-end;
+                /* Notification Position Selector */
+                .position-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
                     gap: 15px;
-                    box-shadow: 0 -2px 4px rgba(0,0,0,0.1);
+                    margin-top: 15px;
                 }
 
+                .position-option {
+                    text-align: center;
+                    cursor: pointer;
+                    padding: 15px;
+                    border: 2px solid #e2e8f0;
+                    border-radius: 8px;
+                    transition: all 0.3s ease;
+                }
+
+                .position-option:hover {
+                    border-color: #667eea;
+                }
+
+                .position-option.active {
+                    border-color: #667eea;
+                    background: rgba(102, 126, 234, 0.1);
+                }
+
+                .position-demo {
+                    width: 80px;
+                    height: 60px;
+                    background: #f7fafc;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 4px;
+                    margin: 0 auto 10px;
+                    position: relative;
+                }
+
+                .demo-notification {
+                    width: 20px;
+                    height: 8px;
+                    background: #667eea;
+                    border-radius: 2px;
+                    position: absolute;
+                }
+
+                .demo-notification.top-left { top: 5px; left: 5px; }
+                .demo-notification.top-right { top: 5px; right: 5px; }
+                .demo-notification.bottom-left { bottom: 5px; left: 5px; }
+                .demo-notification.bottom-right { bottom: 5px; right: 5px; }
+
+                /* Animation Quality Options */
+                .animation-quality-options {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                    gap: 15px;
+                    margin-top: 15px;
+                }
+
+                .quality-option {
+                    text-align: center;
+                    padding: 20px 15px;
+                    border: 2px solid #e2e8f0;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    background: white;
+                }
+
+                .quality-option:hover {
+                    border-color: #667eea;
+                    transform: translateY(-2px);
+                }
+
+                .quality-option.active {
+                    border-color: #667eea;
+                    background: rgba(102, 126, 234, 0.1);
+                }
+
+                .quality-option i {
+                    font-size: 24px;
+                    color: #667eea;
+                    margin-bottom: 8px;
+                    display: block;
+                }
+
+                .quality-option span {
+                    display: block;
+                    font-weight: 600;
+                    color: #2d3748;
+                    margin-bottom: 4px;
+                }
+
+                .quality-option small {
+                    color: #718096;
+                    font-size: 11px;
+                }
+
+                /* Buttons */
                 .btn {
                     padding: 10px 20px;
                     border: none;
@@ -474,13 +1140,13 @@ class Settings {
                     display: inline-flex;
                     align-items: center;
                     gap: 8px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
+                    text-decoration: none;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
                 }
 
                 .btn:hover {
                     transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
                 }
 
                 .btn-primary {
@@ -489,165 +1155,50 @@ class Settings {
                 }
 
                 .btn-secondary {
-                    background: #6c757d;
+                    background: #718096;
                     color: white;
                 }
 
-                .btn-danger {
-                    background: #dc3545;
+                .btn-warning {
+                    background: #ed8936;
                     color: white;
                 }
 
-                /* Storage Info */
-                .storage-display {
-                    background: #f8f9fa;
-                    border-radius: 8px;
-                    padding: 20px;
-                    text-align: center;
-                }
-
-                .storage-circle {
-                    width: 100px;
-                    height: 100px;
-                    border-radius: 50%;
-                    background: conic-gradient(#667eea 0deg 120deg, #e9ecef 120deg 360deg);
+                /* Maintenance Buttons */
+                .maintenance-buttons {
                     display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin: 0 auto 15px;
-                    position: relative;
+                    gap: 10px;
+                    flex-wrap: wrap;
                 }
 
-                .storage-circle::before {
-                    content: '';
-                    position: absolute;
-                    width: 70px;
-                    height: 70px;
-                    background: #f8f9fa;
-                    border-radius: 50%;
-                }
-
-                .storage-text {
-                    position: relative;
-                    z-index: 1;
-                    font-weight: bold;
-                    color: #495057;
-                }
-
-                .storage-details {
-                    font-size: 14px;
-                    color: #6c757d;
-                }
-
-                /* Progress Bar */
-                .progress-bar {
-                    width: 100%;
-                    height: 8px;
-                    background: #e9ecef;
-                    border-radius: 4px;
-                    overflow: hidden;
-                    margin: 10px 0;
-                }
-
-                .progress-fill {
-                    height: 100%;
-                    background: linear-gradient(90deg, #667eea, #764ba2);
-                    transition: width 0.5s ease;
-                }
-
-                /* Modal Styles */
-                .modal {
-                    display: none;
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0,0,0,0.6);
-                    z-index: 10000;
-                    backdrop-filter: blur(5px);
-                }
-
-                .modal.show {
-                    display: flex;
-                    align-items: center;
+                .maintenance-buttons .btn {
+                    flex: 1;
+                    min-width: 150px;
                     justify-content: center;
                 }
 
-                .modal-content {
-                    background: white;
-                    border-radius: 12px;
-                    width: 90%;
-                    max-width: 600px;
-                    max-height: 90vh;
-                    overflow-y: auto;
-                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                }
-
-                .theme-preview-content {
-                    max-width: 800px;
-                }
-
-                .modal-header {
-                    padding: 20px;
-                    border-bottom: 1px solid #e9ecef;
+                /* Settings Actions */
+                .settings-actions {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                }
-
-                .modal-header h3 {
-                    margin: 0;
-                    color: #495057;
-                }
-
-                .modal-close {
-                    background: none;
-                    border: none;
-                    font-size: 24px;
-                    cursor: pointer;
-                    color: #6c757d;
-                }
-
-                .modal-body {
-                    padding: 20px;
-                }
-
-                .modal-footer {
-                    padding: 20px;
-                    border-top: 1px solid #e9ecef;
-                    display: flex;
-                    justify-content: flex-end;
-                    gap: 10px;
-                }
-
-                /* Statistics Cards */
-                .stats-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                    gap: 20px;
-                    margin-top: 20px;
-                }
-
-                .stat-card {
+                    padding: 20px 30px;
                     background: white;
-                    border: 1px solid #e9ecef;
-                    border-radius: 8px;
-                    padding: 20px;
-                    text-align: center;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    border-top: 1px solid #e2e8f0;
+                    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
                 }
 
-                .stat-value {
-                    font-size: 24px;
-                    font-weight: bold;
-                    color: #667eea;
-                    margin-bottom: 5px;
+                .action-left,
+                .action-right {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
                 }
 
-                .stat-label {
-                    color: #6c757d;
+                .save-status {
                     font-size: 14px;
+                    color: #38a169;
+                    font-weight: 500;
                 }
 
                 /* Responsive Design */
@@ -659,105 +1210,85 @@ class Settings {
                     .settings-sidebar {
                         width: 100%;
                         height: auto;
+                        order: 2;
                     }
 
-                    .settings-menu {
+                    .settings-nav {
                         display: flex;
                         overflow-x: auto;
                         padding: 10px;
-                        gap: 10px;
                     }
 
-                    .settings-category {
-                        flex-shrink: 0;
-                        min-width: 120px;
+                    .nav-item {
+                        white-space: nowrap;
+                        min-width: auto;
+                        padding: 10px 15px;
                         border-left: none;
                         border-bottom: 3px solid transparent;
-                        text-align: center;
-                        padding: 10px;
                     }
 
-                    .settings-category.active {
+                    .nav-item.active {
                         border-left: none;
                         border-bottom-color: #ffffff;
                     }
 
-                    .settings-header,
-                    .settings-panel,
-                    .settings-footer {
-                        padding-left: 20px;
-                        padding-right: 20px;
+                    .settings-content {
+                        order: 1;
                     }
 
-                    .theme-grid {
-                        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                    .settings-grid {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .themes-grid {
+                        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                    }
+
+                    .custom-theme-editor {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .position-grid {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .animation-quality-options {
+                        grid-template-columns: 1fr 1fr;
+                    }
+
+                    .maintenance-buttons {
+                        flex-direction: column;
+                    }
+
+                    .settings-actions {
+                        flex-direction: column;
                         gap: 15px;
                     }
 
-                    .setting-item {
-                        flex-direction: column;
-                        align-items: flex-start;
-                        gap: 10px;
-                    }
-
-                    .setting-control {
+                    .action-left,
+                    .action-right {
                         width: 100%;
-                        display: flex;
-                        justify-content: flex-end;
+                        justify-content: center;
                     }
                 }
 
-                /* Loading Animation */
-                .loading {
-                    text-align: center;
-                    padding: 40px;
-                    color: #6c757d;
+                /* Animation classes that will be applied */
+                .fade-in {
+                    animation: fadeIn 0.5s ease-out;
                 }
 
-                .spinner {
-                    width: 40px;
-                    height: 40px;
-                    border: 4px solid #e9ecef;
-                    border-top: 4px solid #667eea;
-                    border-radius: 50%;
-                    animation: spin 1s linear infinite;
-                    margin: 0 auto 20px;
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
                 }
 
-                @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
+                .slide-in {
+                    animation: slideIn 0.3s ease-out;
                 }
 
-                /* Success/Error Messages */
-                .message {
-                    padding: 12px 16px;
-                    border-radius: 8px;
-                    margin-bottom: 20px;
-                    display: none;
-                    font-weight: 500;
-                }
-
-                .message.success {
-                    background: #d4edda;
-                    color: #155724;
-                    border: 1px solid #c3e6cb;
-                }
-
-                .message.error {
-                    background: #f8d7da;
-                    color: #721c24;
-                    border: 1px solid #f5c6cb;
-                }
-
-                .message.show {
-                    display: block;
-                    animation: slideDown 0.3s ease-out;
-                }
-
-                @keyframes slideDown {
-                    from { transform: translateY(-20px); opacity: 0; }
-                    to { transform: translateY(0); opacity: 1; }
+                @keyframes slideIn {
+                    from { transform: translateX(-20px); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
                 }
             </style>
         `;
@@ -765,1117 +1296,215 @@ class Settings {
 
     static init(windowElement) {
         this.currentWindow = windowElement;
-        this.currentCategory = 'appearance';
-        this.settings = {};
-        this.originalSettings = {};
-        this.previewedTheme = null;
-        this.hasUnsavedChanges = false;
-
-        console.log('🔧 Initializing Settings app...');
+        this.currentPreferences = {};
+        this.themes = this.getThemeCollection();
+        this.backgrounds = this.getBackgroundCollection();
+        this.currentBgCategory = 'dynamic';
+        this.autoSave = true;
 
         this.setupEventListeners();
-        this.loadUserSettings();
+        this.loadCurrentSettings();
+        this.renderThemes();
+        this.renderBackgrounds();
+        this.updateAllValues();
     }
 
     static setupEventListeners() {
-        // Category navigation
-        const categories = this.currentWindow.querySelectorAll('.settings-category');
-        categories.forEach(category => {
-            category.addEventListener('click', () => {
-                const categoryName = category.dataset.category;
-                this.switchCategory(categoryName);
+        // Navigation
+        this.currentWindow.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.section;
+                this.switchSection(section);
             });
         });
 
-        // Prevent accidental window close if there are unsaved changes
-        window.addEventListener('beforeunload', (e) => {
-            if (this.hasUnsavedChanges) {
-                e.preventDefault();
-                e.returnValue = '';
+        // Sliders
+        this.setupSlider('transparency-slider', 'transparency-value', (value) => {
+            const opacity = (100 - value) / 100;
+            this.updateSetting('transparency', value);
+            document.documentElement.style.setProperty('--window-opacity', opacity);
+            return `${100 - value}%`;
+        });
+
+        this.setupSlider('icon-size-slider', 'icon-size-value', (value) => {
+            this.updateSetting('iconSize', value);
+            document.documentElement.style.setProperty('--icon-size', value + 'px');
+            return value + 'px';
+        });
+
+        this.setupSlider('font-size-slider', 'font-size-value', (value) => {
+            this.updateSetting('fontSize', value);
+            document.documentElement.style.setProperty('--base-font-size', value + 'px');
+            document.body.style.fontSize = value + 'px';
+            return value + 'px';
+        });
+
+        this.setupSlider('notification-duration', 'notification-duration-value', (value) => {
+            this.updateSetting('notificationDuration', value);
+            return value + 's';
+        });
+
+        this.setupSlider('bg-speed-slider', 'bg-speed-value', (value) => {
+            this.updateSetting('bgAnimationSpeed', value);
+            const speeds = ['Very Slow', 'Slow', 'Slow', 'Normal', 'Normal', 'Normal', 'Fast', 'Fast', 'Very Fast', 'Ultra Fast'];
+            return speeds[value - 1] || 'Normal';
+        });
+
+        this.setupSlider('ui-scale', 'ui-scale-value', (value) => {
+            this.updateSetting('uiScale', value);
+            document.documentElement.style.zoom = value + '%';
+            return value + '%';
+        });
+
+        // Toggle switches
+        this.setupToggle('blur-effects', (checked) => {
+            this.updateSetting('blurEffects', checked);
+            document.body.classList.toggle('no-blur', !checked);
+        });
+
+        this.setupToggle('icon-shadows', (checked) => {
+            this.updateSetting('iconShadows', checked);
+            document.body.classList.toggle('no-icon-shadows', !checked);
+        });
+
+        this.setupToggle('animations-enabled', (checked) => {
+            this.updateSetting('animationsEnabled', checked);
+            document.body.classList.toggle('no-animations', !checked);
+        });
+
+        this.setupToggle('auto-hide-taskbar', (checked) => {
+            this.updateSetting('autoHideTaskbar', checked);
+            const taskbar = document.querySelector('.taskbar');
+            if (taskbar) {
+                taskbar.classList.toggle('auto-hide', checked);
             }
         });
-    }
 
-    static switchCategory(categoryName) {
-        // Update active category in sidebar
-        this.currentWindow.querySelectorAll('.settings-category').forEach(cat => {
-            cat.classList.remove('active');
+        this.setupToggle('show-clock', (checked) => {
+            this.updateSetting('showClock', checked);
+            const clock = document.querySelector('.time-display');
+            if (clock) {
+                clock.style.display = checked ? 'block' : 'none';
+            }
         });
-        this.currentWindow.querySelector(`[data-category="${categoryName}"]`).classList.add('active');
 
-        // Update content
-        this.currentCategory = categoryName;
-        this.loadCategoryContent(categoryName);
-    }
-
-    static async loadUserSettings() {
-        try {
-            console.log('📥 Loading user settings...');
-
-            const response = await fetch('/api/user/preferences', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': this.getCSRFToken()
-                }
+        this.setupToggle('show-icon-labels', (checked) => {
+            this.updateSetting('showIconLabels', checked);
+            const labels = document.querySelectorAll('.icon-label');
+            labels.forEach(label => {
+                label.style.display = checked ? 'block' : 'none';
             });
+        });
 
-            if (response.ok) {
-                const data = await response.json();
-                this.settings = data.preferences || {};
-                this.originalSettings = JSON.parse(JSON.stringify(this.settings));
+        this.setupToggle('bg-particles', (checked) => {
+            this.updateSetting('bgParticles', checked);
+            this.updateParticleBackground();
+        });
 
-                console.log('✅ Settings loaded:', this.settings);
-
-                // Load initial category content
-                this.loadCategoryContent(this.currentCategory);
+        this.setupToggle('hardware-acceleration', (checked) => {
+            this.updateSetting('hardwareAcceleration', checked);
+            if (checked) {
+                document.body.style.transform = 'translateZ(0)';
             } else {
-                console.error('❌ Failed to load settings:', response.status);
-                this.showMessage('Failed to load settings. Using defaults.', 'error');
-                this.loadCategoryContent(this.currentCategory);
+                document.body.style.transform = '';
             }
-        } catch (error) {
-            console.error('❌ Error loading settings:', error);
-            this.showMessage('Error loading settings. Check your connection.', 'error');
-            this.loadCategoryContent(this.currentCategory);
+        });
+
+        this.setupToggle('high-contrast', (checked) => {
+            this.updateSetting('highContrast', checked);
+            document.body.classList.toggle('high-contrast', checked);
+        });
+
+        this.setupToggle('reduce-motion', (checked) => {
+            this.updateSetting('reduceMotion', checked);
+            document.body.classList.toggle('reduce-motion', checked);
+        });
+
+        // Select dropdowns
+        this.setupSelect('font-family-select', (value) => {
+            this.updateSetting('fontFamily', value);
+            document.documentElement.style.setProperty('--system-font', value);
+            document.body.style.fontFamily = value;
+        });
+
+        // Background categories
+        this.currentWindow.querySelectorAll('.bg-category').forEach(cat => {
+            cat.addEventListener('click', () => {
+                this.switchBackgroundCategory(cat.dataset.category);
+            });
+        });
+
+        // Notification position
+        this.currentWindow.querySelectorAll('.position-option').forEach(option => {
+            option.addEventListener('click', () => {
+                this.selectNotificationPosition(option.dataset.position);
+            });
+        });
+
+        // Animation quality
+        this.currentWindow.querySelectorAll('.quality-option').forEach(option => {
+            option.addEventListener('click', () => {
+                this.selectAnimationQuality(option.dataset.quality);
+            });
+        });
+    }
+
+    static setupSlider(sliderId, valueId, callback) {
+        const slider = this.currentWindow.querySelector(`#${sliderId}`);
+        const valueDisplay = this.currentWindow.querySelector(`#${valueId}`);
+
+        if (slider && valueDisplay) {
+            slider.addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                const displayValue = callback(value);
+                valueDisplay.textContent = displayValue;
+            });
         }
     }
 
-    static loadCategoryContent(category) {
-        const titleElement = this.currentWindow.querySelector('#settings-title');
-        const descriptionElement = this.currentWindow.querySelector('#settings-description');
-        const panelElement = this.currentWindow.querySelector('#settings-panel');
-
-        const categoryData = this.getCategoryData(category);
-
-        titleElement.textContent = categoryData.title;
-        descriptionElement.textContent = categoryData.description;
-        panelElement.innerHTML = categoryData.content;
-
-        // Initialize category-specific functionality
-        this.initializeCategoryFeatures(category);
+    static setupToggle(toggleId, callback) {
+        const toggle = this.currentWindow.querySelector(`#${toggleId}`);
+        if (toggle) {
+            toggle.addEventListener('change', (e) => {
+                callback(e.target.checked);
+            });
+        }
     }
 
-    static getCategoryData(category) {
-        const categories = {
-            appearance: {
-                title: 'Appearance',
-                description: 'Customize the look and feel of your desktop',
-                content: this.getAppearanceContent()
-            },
-            desktop: {
-                title: 'Desktop',
-                description: 'Configure desktop behavior and layout',
-                content: this.getDesktopContent()
-            },
-            files: {
-                title: 'Files & Storage',
-                description: 'Manage file system and storage settings',
-                content: this.getFilesContent()
-            },
-            system: {
-                title: 'System',
-                description: 'Performance and system configuration',
-                content: this.getSystemContent()
-            },
-            privacy: {
-                title: 'Privacy',
-                description: 'Control your privacy and data settings',
-                content: this.getPrivacyContent()
-            },
-            notifications: {
-                title: 'Notifications',
-                description: 'Configure how and when you receive notifications',
-                content: this.getNotificationsContent()
-            },
-            keyboard: {
-                title: 'Keyboard',
-                description: 'Customize keyboard shortcuts and input settings',
-                content: this.getKeyboardContent()
-            },
-            about: {
-                title: 'About',
-                description: 'System information and version details',
-                content: this.getAboutContent()
-            }
-        };
-
-        return categories[category] || categories.appearance;
+    static setupSelect(selectId, callback) {
+        const select = this.currentWindow.querySelector(`#${selectId}`);
+        if (select) {
+            select.addEventListener('change', (e) => {
+                callback(e.target.value);
+            });
+        }
     }
 
-    static getAppearanceContent() {
-        const currentTheme = this.settings.theme || 'cyber-blue';
-        const currentFont = this.settings.fontFamily || 'Rajdhani';
-        const fontSize = this.settings.fontSize || 14;
-        const transparency = this.settings.transparency || 0;
+    static switchSection(sectionName) {
+        // Update navigation
+        this.currentWindow.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        this.currentWindow.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
 
-        return `
-            <div class="settings-section">
-                <h3>🎨 Theme</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Color Theme</div>
-                        <div class="setting-description">Choose your preferred color scheme</div>
-                    </div>
-                </div>
-                <div class="theme-grid">
-                    ${this.getThemeCards(currentTheme)}
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>🔤 Typography</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Font Family</div>
-                        <div class="setting-description">Choose the font used throughout the interface</div>
-                    </div>
-                    <div class="setting-control">
-                        <select class="custom-select" id="font-family" onchange="Settings.updateSetting('fontFamily', this.value)">
-                            <option value="Rajdhani" ${currentFont === 'Rajdhani' ? 'selected' : ''}>Rajdhani (Default)</option>
-                            <option value="Orbitron" ${currentFont === 'Orbitron' ? 'selected' : ''}>Orbitron (Futuristic)</option>
-                            <option value="Arial" ${currentFont === 'Arial' ? 'selected' : ''}>Arial (Clean)</option>
-                            <option value="Georgia" ${currentFont === 'Georgia' ? 'selected' : ''}>Georgia (Classic)</option>
-                            <option value="Courier New" ${currentFont === 'Courier New' ? 'selected' : ''}>Courier New (Monospace)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Font Size</div>
-                        <div class="setting-description">Adjust the size of text (${fontSize}px)</div>
-                    </div>
-                    <div class="setting-control">
-                        <input type="range" class="custom-slider" min="12" max="20" value="${fontSize}" 
-                               id="font-size" oninput="Settings.updateSetting('fontSize', this.value); this.nextElementSibling.textContent = this.value + 'px'">
-                        <span>${fontSize}px</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>✨ Visual Effects</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Window Transparency</div>
-                        <div class="setting-description">Adjust window transparency (${transparency}%)</div>
-                    </div>
-                    <div class="setting-control">
-                        <input type="range" class="custom-slider" min="0" max="30" value="${transparency}"
-                               id="transparency" oninput="Settings.updateSetting('transparency', this.value); this.nextElementSibling.textContent = this.value + '%'">
-                        <span>${transparency}%</span>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Animations</div>
-                        <div class="setting-description">Enable smooth animations and transitions</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.animationsEnabled !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('animationsEnabled')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Blur Effects</div>
-                        <div class="setting-description">Enable backdrop blur effects</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.blurEffects !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('blurEffects')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Icon Shadows</div>
-                        <div class="setting-description">Add shadow effects to desktop icons</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.iconShadows !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('iconShadows')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>🖼️ Wallpaper</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Wallpaper Style</div>
-                        <div class="setting-description">Choose how the wallpaper is displayed</div>
-                    </div>
-                    <div class="setting-control">
-                        <select class="custom-select" id="wallpaper-style" onchange="Settings.updateSetting('wallpaperStyle', this.value)">
-                            <option value="gradient" ${(this.settings.wallpaperStyle || '').includes('gradient') ? 'selected' : ''}>Gradient</option>
-                            <option value="solid" ${(this.settings.wallpaperStyle || '').includes('solid') ? 'selected' : ''}>Solid Color</option>
-                            <option value="image" ${(this.settings.wallpaperStyle || '').includes('url') ? 'selected' : ''}>Custom Image</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Background Color</div>
-                        <div class="setting-description">Choose background color or accent</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="color-picker">
-                            ${this.getColorOptions()}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
+        // Update content
+        this.currentWindow.querySelectorAll('.settings-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        this.currentWindow.querySelector(`#${sectionName}-section`).classList.add('active');
     }
 
-    static getDesktopContent() {
-        return `
-            <div class="settings-section">
-                <h3>🖥️ Desktop Layout</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Icon Size</div>
-                        <div class="setting-description">Adjust the size of desktop icons (${this.settings.iconSize || 48}px)</div>
-                    </div>
-                    <div class="setting-control">
-                        <input type="range" class="custom-slider" min="32" max="64" value="${this.settings.iconSize || 48}"
-                               id="icon-size" oninput="Settings.updateSetting('iconSize', this.value); this.nextElementSibling.textContent = this.value + 'px'">
-                        <span>${this.settings.iconSize || 48}px</span>
-                    </div>
+    static renderThemes() {
+        const grid = this.currentWindow.querySelector('#themes-grid');
+        grid.innerHTML = this.themes.map(theme => `
+            <div class="theme-card ${theme.id === (this.currentPreferences.theme || 'cyber-blue') ? 'active' : ''}" 
+                 data-theme="${theme.id}" onclick="Settings.selectTheme('${theme.id}')">
+                <div class="theme-preview" style="background: ${theme.background}; ${theme.pattern || ''}">
+                    <div style="position: absolute; top: 10px; left: 10px; width: 20px; height: 3px; background: ${theme.primary}; border-radius: 2px;"></div>
+                    <div style="position: absolute; top: 20px; left: 10px; width: 30px; height: 3px; background: ${theme.secondary}; border-radius: 2px;"></div>
+                    <div style="position: absolute; bottom: 10px; right: 10px; width: 15px; height: 15px; background: ${theme.accent}; border-radius: 50%;"></div>
                 </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Show Icon Labels</div>
-                        <div class="setting-description">Display text labels under desktop icons</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.showIconLabels !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('showIconLabels')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Auto-arrange Icons</div>
-                        <div class="setting-description">Automatically organize desktop icons in a grid</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.autoArrangeIcons ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('autoArrangeIcons')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>📋 Taskbar</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Auto-hide Taskbar</div>
-                        <div class="setting-description">Hide taskbar when not in use</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.autoHideTaskbar ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('autoHideTaskbar')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Show Clock</div>
-                        <div class="setting-description">Display current time in the taskbar</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.showClock !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('showClock')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Taskbar Position</div>
-                        <div class="setting-description">Choose where the taskbar appears</div>
-                    </div>
-                    <div class="setting-control">
-                        <select class="custom-select" id="taskbar-position" onchange="Settings.updateSetting('taskbarPosition', this.value)">
-                            <option value="bottom" ${this.settings.taskbarPosition !== 'top' ? 'selected' : ''}>Bottom</option>
-                            <option value="top" ${this.settings.taskbarPosition === 'top' ? 'selected' : ''}>Top</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>🪟 Windows</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Restore Windows</div>
-                        <div class="setting-description">Restore open windows when logging in</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.restoreWindows ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('restoreWindows')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Window Snapping</div>
-                        <div class="setting-description">Snap windows to screen edges</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.windowSnapping !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('windowSnapping')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    static getFilesContent() {
-        return `
-            <div class="settings-section">
-                <h3>💾 Storage Information</h3>
-                <div class="storage-display">
-                    <div class="storage-circle">
-                        <div class="storage-text">
-                            <div>35%</div>
-                            <div style="font-size: 12px;">Used</div>
-                        </div>
-                    </div>
-                    <div class="storage-details">
-                        <div>Used: <strong>35 MB</strong> of 100 MB</div>
-                        <div style="margin-top: 10px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span>Documents</span>
-                                <span>15 MB</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 15%;"></div>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; margin-top: 10px;">
-                                <span>Pictures</span>
-                                <span>12 MB</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 12%;"></div>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px; margin-top: 10px;">
-                                <span>Other</span>
-                                <span>8 MB</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 8%;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>📁 File Handling</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Show Hidden Files</div>
-                        <div class="setting-description">Display files starting with a dot</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.showHiddenFiles ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('showHiddenFiles')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">File Extensions</div>
-                        <div class="setting-description">Always show file extensions</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.showFileExtensions !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('showFileExtensions')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Confirm File Deletion</div>
-                        <div class="setting-description">Ask for confirmation before deleting files</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.confirmFileDeletion !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('confirmFileDeletion')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>⬆️ Upload Settings</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Auto-extract Archives</div>
-                        <div class="setting-description">Automatically extract ZIP files when uploaded</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.autoExtractArchives ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('autoExtractArchives')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Upload Notifications</div>
-                        <div class="setting-description">Show notifications when uploads complete</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.uploadNotifications !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('uploadNotifications')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>🗂️ Storage Management</h3>
-                <div style="text-align: center;">
-                    <button class="btn btn-secondary" onclick="Settings.cleanupStorage()">
-                        <i class="fas fa-broom"></i> Clean Temporary Files
-                    </button>
-                    <button class="btn btn-primary" onclick="Settings.analyzeStorage()" style="margin-left: 10px;">
-                        <i class="fas fa-chart-pie"></i> Analyze Storage
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-
-    static getSystemContent() {
-        return `
-            <div class="settings-section">
-                <h3>⚡ Performance</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Hardware Acceleration</div>
-                        <div class="setting-description">Use GPU acceleration when available</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.hardwareAcceleration !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('hardwareAcceleration')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Animation Quality</div>
-                        <div class="setting-description">Adjust animation performance vs quality</div>
-                    </div>
-                    <div class="setting-control">
-                        <select class="custom-select" id="animation-quality" onchange="Settings.updateSetting('animationQuality', this.value)">
-                            <option value="high" ${this.settings.animationQuality !== 'medium' && this.settings.animationQuality !== 'low' ? 'selected' : ''}>High Quality</option>
-                            <option value="medium" ${this.settings.animationQuality === 'medium' ? 'selected' : ''}>Medium Quality</option>
-                            <option value="low" ${this.settings.animationQuality === 'low' ? 'selected' : ''}>Low Quality</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Reduce Motion</div>
-                        <div class="setting-description">Minimize animations for better performance</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.reduceMotion ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('reduceMotion')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>🔧 System Information</h3>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">v2.0.0</div>
-                        <div class="stat-label">EmberFrame Version</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">Chrome 120</div>
-                        <div class="stat-label">Browser</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">1920x1080</div>
-                        <div class="stat-label">Screen Resolution</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">8 GB</div>
-                        <div class="stat-label">Available Memory</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>📊 Usage Statistics</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Collect Usage Data</div>
-                        <div class="setting-description">Help improve EmberFrame by sharing anonymous usage statistics</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.collectUsageData ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('collectUsageData')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Crash Reports</div>
-                        <div class="setting-description">Automatically send crash reports to help fix bugs</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.sendCrashReports ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('sendCrashReports')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>🔄 Updates</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Auto-update Apps</div>
-                        <div class="setting-description">Automatically update built-in applications</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.autoUpdateApps !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('autoUpdateApps')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div style="text-align: center; margin-top: 20px;">
-                    <button class="btn btn-primary" onclick="Settings.checkForUpdates()">
-                        <i class="fas fa-download"></i> Check for Updates
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-
-    static getPrivacyContent() {
-        return `
-            <div class="settings-section">
-                <h3>🔒 Data Protection</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Private Browsing Mode</div>
-                        <div class="setting-description">Don't save browsing history or cache files</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.privateBrowsing ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('privateBrowsing')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Clear Data on Exit</div>
-                        <div class="setting-description">Clear temporary files when logging out</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.clearDataOnExit ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('clearDataOnExit')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Secure File Deletion</div>
-                        <div class="setting-description">Securely overwrite deleted files</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.secureFileDeletion ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('secureFileDeletion')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>👁️ Activity Logging</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Log File Access</div>
-                        <div class="setting-description">Keep a record of file operations</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.logFileAccess !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('logFileAccess')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Log Login Attempts</div>
-                        <div class="setting-description">Record successful and failed login attempts</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.logLoginAttempts !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('logLoginAttempts')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>🛡️ Security</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Session Timeout</div>
-                        <div class="setting-description">Automatically log out after inactivity (${this.settings.sessionTimeout || 60} minutes)</div>
-                    </div>
-                    <div class="setting-control">
-                        <input type="range" class="custom-slider" min="15" max="240" value="${this.settings.sessionTimeout || 60}"
-                               id="session-timeout" oninput="Settings.updateSetting('sessionTimeout', this.value); this.nextElementSibling.textContent = this.value + ' min'">
-                        <span>${this.settings.sessionTimeout || 60} min</span>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Lock Screen</div>
-                        <div class="setting-description">Require password to unlock after idle time</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.lockScreen ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('lockScreen')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>🧹 Privacy Tools</h3>
-                <div style="text-align: center;">
-                    <button class="btn btn-secondary" onclick="Settings.clearCache()">
-                        <i class="fas fa-trash"></i> Clear Cache
-                    </button>
-                    <button class="btn btn-secondary" onclick="Settings.clearHistory()" style="margin-left: 10px;">
-                        <i class="fas fa-history"></i> Clear History
-                    </button>
-                    <button class="btn btn-danger" onclick="Settings.clearAllData()" style="margin-left: 10px;">
-                        <i class="fas fa-exclamation-triangle"></i> Clear All Data
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-
-    static getNotificationsContent() {
-        return `
-            <div class="settings-section">
-                <h3>🔔 Notification Settings</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Enable Notifications</div>
-                        <div class="setting-description">Show system and app notifications</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.notificationsEnabled !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('notificationsEnabled')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Notification Position</div>
-                        <div class="setting-description">Where notifications appear on screen</div>
-                    </div>
-                    <div class="setting-control">
-                        <select class="custom-select" id="notification-position" onchange="Settings.updateSetting('notificationPosition', this.value)">
-                            <option value="top-right" ${this.settings.notificationPosition !== 'top-left' && this.settings.notificationPosition !== 'bottom-right' && this.settings.notificationPosition !== 'bottom-left' ? 'selected' : ''}>Top Right</option>
-                            <option value="top-left" ${this.settings.notificationPosition === 'top-left' ? 'selected' : ''}>Top Left</option>
-                            <option value="bottom-right" ${this.settings.notificationPosition === 'bottom-right' ? 'selected' : ''}>Bottom Right</option>
-                            <option value="bottom-left" ${this.settings.notificationPosition === 'bottom-left' ? 'selected' : ''}>Bottom Left</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Auto-hide Duration</div>
-                        <div class="setting-description">How long notifications stay visible (${this.settings.notificationDuration || 4} seconds)</div>
-                    </div>
-                    <div class="setting-control">
-                        <input type="range" class="custom-slider" min="2" max="10" value="${this.settings.notificationDuration || 4}"
-                               id="notification-duration" oninput="Settings.updateSetting('notificationDuration', this.value); this.nextElementSibling.textContent = this.value + 's'">
-                        <span>${this.settings.notificationDuration || 4}s</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>📱 Notification Types</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">File Operations</div>
-                        <div class="setting-description">Notify when files are uploaded, downloaded, or deleted</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.notifyFileOperations !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('notifyFileOperations')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">System Events</div>
-                        <div class="setting-description">Notify about system updates and maintenance</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.notifySystemEvents !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('notifySystemEvents')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Security Alerts</div>
-                        <div class="setting-description">Important security and privacy notifications</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.notifySecurityAlerts !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('notifySecurityAlerts')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Application Alerts</div>
-                        <div class="setting-description">Notifications from running applications</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.notifyAppAlerts !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('notifyAppAlerts')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>🔕 Do Not Disturb</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Do Not Disturb Mode</div>
-                        <div class="setting-description">Temporarily disable all notifications</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.doNotDisturb ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('doNotDisturb')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Scheduled Quiet Hours</div>
-                        <div class="setting-description">Automatically enable do not disturb during certain hours</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.scheduledQuietHours ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('scheduledQuietHours')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>🧪 Test Notifications</h3>
-                <div style="text-align: center;">
-                    <button class="btn btn-secondary" onclick="Settings.testNotification('info')">
-                        <i class="fas fa-info-circle"></i> Test Info
-                    </button>
-                    <button class="btn btn-primary" onclick="Settings.testNotification('success')" style="margin-left: 10px;">
-                        <i class="fas fa-check-circle"></i> Test Success
-                    </button>
-                    <button class="btn btn-danger" onclick="Settings.testNotification('error')" style="margin-left: 10px;">
-                        <i class="fas fa-exclamation-circle"></i> Test Error
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-
-    static getKeyboardContent() {
-        return `
-            <div class="settings-section">
-                <h3>⌨️ Keyboard Shortcuts</h3>
-                <div style="background: #f8f9fa; border-radius: 8px; padding: 20px;">
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 14px;">
-                        <div>
-                            <h4 style="margin-bottom: 15px; color: #495057;">General</h4>
-                            <div style="margin-bottom: 8px;"><strong>Ctrl + N</strong> - New File</div>
-                            <div style="margin-bottom: 8px;"><strong>Ctrl + O</strong> - Open File</div>
-                            <div style="margin-bottom: 8px;"><strong>Ctrl + S</strong> - Save File</div>
-                            <div style="margin-bottom: 8px;"><strong>F5</strong> - Refresh</div>
-                            <div style="margin-bottom: 8px;"><strong>F11</strong> - Fullscreen</div>
-                        </div>
-                        <div>
-                            <h4 style="margin-bottom: 15px; color: #495057;">File Manager</h4>
-                            <div style="margin-bottom: 8px;"><strong>Ctrl + A</strong> - Select All</div>
-                            <div style="margin-bottom: 8px;"><strong>Ctrl + C</strong> - Copy</div>
-                            <div style="margin-bottom: 8px;"><strong>Ctrl + X</strong> - Cut</div>
-                            <div style="margin-bottom: 8px;"><strong>Ctrl + V</strong> - Paste</div>
-                            <div style="margin-bottom: 8px;"><strong>Delete</strong> - Delete File</div>
-                            <div style="margin-bottom: 8px;"><strong>F2</strong> - Rename</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>🎛️ Input Settings</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Enable Global Shortcuts</div>
-                        <div class="setting-description">Allow keyboard shortcuts to work across all applications</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.globalShortcuts !== false ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('globalShortcuts')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Sticky Keys</div>
-                        <div class="setting-description">Press modifier keys one at a time for shortcuts</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.stickyKeys ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('stickyKeys')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Key Repeat Rate</div>
-                        <div class="setting-description">How fast keys repeat when held down</div>
-                    </div>
-                    <div class="setting-control">
-                        <select class="custom-select" id="key-repeat-rate" onchange="Settings.updateSetting('keyRepeatRate', this.value)">
-                            <option value="slow" ${this.settings.keyRepeatRate === 'slow' ? 'selected' : ''}>Slow</option>
-                            <option value="normal" ${this.settings.keyRepeatRate !== 'slow' && this.settings.keyRepeatRate !== 'fast' ? 'selected' : ''}>Normal</option>
-                            <option value="fast" ${this.settings.keyRepeatRate === 'fast' ? 'selected' : ''}>Fast</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>🖱️ Mouse Settings</h3>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Mouse Sensitivity</div>
-                        <div class="setting-description">Adjust mouse pointer speed</div>
-                    </div>
-                    <div class="setting-control">
-                        <select class="custom-select" id="mouse-sensitivity" onchange="Settings.updateSetting('mouseSensitivity', this.value)">
-                            <option value="low" ${this.settings.mouseSensitivity === 'low' ? 'selected' : ''}>Low</option>
-                            <option value="normal" ${this.settings.mouseSensitivity !== 'low' && this.settings.mouseSensitivity !== 'high' ? 'selected' : ''}>Normal</option>
-                            <option value="high" ${this.settings.mouseSensitivity === 'high' ? 'selected' : ''}>High</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Reverse Mouse Buttons</div>
-                        <div class="setting-description">Swap left and right mouse buttons</div>
-                    </div>
-                    <div class="setting-control">
-                        <div class="toggle-switch ${this.settings.reverseMouseButtons ? 'active' : ''}" 
-                             onclick="Settings.toggleSetting('reverseMouseButtons')">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="setting-item">
-                    <div class="setting-info">
-                        <div class="setting-label">Double-click Speed</div>
-                        <div class="setting-description">How fast you need to click for double-click</div>
-                    </div>
-                    <div class="setting-control">
-                        <select class="custom-select" id="double-click-speed" onchange="Settings.updateSetting('doubleClickSpeed', this.value)">
-                            <option value="slow" ${this.settings.doubleClickSpeed === 'slow' ? 'selected' : ''}>Slow</option>
-                            <option value="normal" ${this.settings.doubleClickSpeed !== 'slow' && this.settings.doubleClickSpeed !== 'fast' ? 'selected' : ''}>Normal</option>
-                            <option value="fast" ${this.settings.doubleClickSpeed === 'fast' ? 'selected' : ''}>Fast</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    static getAboutContent() {
-        return `
-            <div class="settings-section">
-                <h3>🔥 EmberFrame</h3>
-                <div style="text-align: center; padding: 20px;">
-                    <div style="font-size: 64px; margin-bottom: 20px; color: #667eea;">🔥</div>
-                    <h2 style="margin: 0 0 10px 0; color: #495057;">EmberFrame Desktop</h2>
-                    <p style="margin: 0 0 20px 0; color: #6c757d; font-size: 18px;">Version 2.0.0</p>
-                    <p style="color: #6c757d; max-width: 400px; margin: 0 auto; line-height: 1.6;">
-                        A modern, web-based desktop environment that brings the power of a traditional 
-                        operating system to your browser with a cyberpunk aesthetic.
-                    </p>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>ℹ️ System Information</h3>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 14px;">
-                    <div>
-                        <div style="margin-bottom: 12px;"><strong>Version:</strong> 2.0.0</div>
-                        <div style="margin-bottom: 12px;"><strong>Build:</strong> 2024.12.31</div>
-                        <div style="margin-bottom: 12px;"><strong>Platform:</strong> Web</div>
-                        <div style="margin-bottom: 12px;"><strong>Browser:</strong> ${navigator.userAgent.split(' ')[0]}</div>
-                    </div>
-                    <div>
-                        <div style="margin-bottom: 12px;"><strong>Screen:</strong> ${screen.width}x${screen.height}</div>
-                        <div style="margin-bottom: 12px;"><strong>Language:</strong> ${navigator.language}</div>
-                        <div style="margin-bottom: 12px;"><strong>Timezone:</strong> ${Intl.DateTimeFormat().resolvedOptions().timeZone}</div>
-                        <div style="margin-bottom: 12px;"><strong>Online:</strong> ${navigator.onLine ? 'Yes' : 'No'}</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>📄 Legal</h3>
-                <div style="text-align: center;">
-                    <button class="btn btn-secondary" onclick="Settings.showLicense()">
-                        <i class="fas fa-file-contract"></i> View License
-                    </button>
-                    <button class="btn btn-secondary" onclick="Settings.showPrivacyPolicy()" style="margin-left: 10px;">
-                        <i class="fas fa-shield-alt"></i> Privacy Policy
-                    </button>
-                    <button class="btn btn-secondary" onclick="Settings.showCredits()" style="margin-left: 10px;">
-                        <i class="fas fa-heart"></i> Credits
-                    </button>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>🔗 Links</h3>
-                <div style="text-align: center;">
-                    <button class="btn btn-primary" onclick="Settings.openLink('https://github.com/emberframe')">
-                        <i class="fab fa-github"></i> GitHub
-                    </button>
-                    <button class="btn btn-primary" onclick="Settings.openLink('https://emberframe.org')" style="margin-left: 10px;">
-                        <i class="fas fa-globe"></i> Website
-                    </button>
-                    <button class="btn btn-primary" onclick="Settings.openLink('https://docs.emberframe.org')" style="margin-left: 10px;">
-                        <i class="fas fa-book"></i> Documentation
-                    </button>
-                </div>
-            </div>
-
-            <div class="settings-section">
-                <h3>🛠️ Developer Tools</h3>
-                <div style="text-align: center;">
-                    <button class="btn btn-secondary" onclick="Settings.exportSettings()">
-                        <i class="fas fa-download"></i> Export Settings
-                    </button>
-                    <button class="btn btn-secondary" onclick="Settings.importSettings()" style="margin-left: 10px;">
-                        <i class="fas fa-upload"></i> Import Settings
-                    </button>
-                    <button class="btn btn-secondary" onclick="Settings.openConsole()" style="margin-left: 10px;">
-                        <i class="fas fa-terminal"></i> Console
-                    </button>
-                </div>
-            </div>
-        `;
-    }
-
-    static getThemeCards(currentTheme) {
-        const themes = [
-            {
-                id: 'cyber-blue',
-                name: 'Cyber Blue',
-                description: 'Classic cyberpunk aesthetics',
-                colors: ['#00ffff', '#0066ff', '#000033']
-            },
-            {
-                id: 'ember-red',
-                name: 'Ember Red',
-                description: 'Fiery red flames',
-                colors: ['#ff4500', '#dc143c', '#330000']
-            },
-            {
-                id: 'matrix-green',
-                name: 'Matrix Green',
-                description: 'Digital rain vibes',
-                colors: ['#00ff00', '#008800', '#001100']
-            },
-            {
-                id: 'neon-purple',
-                name: 'Neon Purple',
-                description: 'Electric purple glow',
-                colors: ['#8000ff', '#4000cc', '#200066']
-            },
-            {
-                id: 'ice-blue',
-                name: 'Ice Blue',
-                description: 'Cool arctic tones',
-                colors: ['#80e0ff', '#4080ff', '#002040']
-            },
-            {
-                id: 'ember-orange',
-                name: 'Ember Orange',
-                description: 'Warm sunset colors',
-                colors: ['#ff8c00', '#ff4500', '#331100']
-            }
-        ];
-
-        return themes.map(theme => `
-            <div class="theme-card ${currentTheme === theme.id ? 'active' : ''}" 
-                 onclick="Settings.selectTheme('${theme.id}')">
-                <div class="theme-preview-header" style="background: linear-gradient(135deg, ${theme.colors[0]}, ${theme.colors[1]});">
-                    <div class="theme-checkmark">✓</div>
-                </div>
-                <div class="theme-preview-content">
+                <div class="theme-info">
                     <div class="theme-name">${theme.name}</div>
                     <div class="theme-description">${theme.description}</div>
                 </div>
@@ -1883,465 +1512,595 @@ class Settings {
         `).join('');
     }
 
-    static getColorOptions() {
-        const colors = [
-            '#667eea', '#764ba2', '#f093fb', '#f5576c',
-            '#4facfe', '#00f2fe', '#a8edea', '#fed6e3',
-            '#ff9a9e', '#fecfef', '#ffecd2', '#fcb69f',
-            '#ff8a80', '#ff5722', '#8bc34a', '#4caf50',
-            '#00bcd4', '#2196f3', '#9c27b0', '#673ab7'
-        ];
+    static renderBackgrounds() {
+        const grid = this.currentWindow.querySelector('#backgrounds-grid');
+        const backgrounds = this.backgrounds[this.currentBgCategory] || [];
 
-        return colors.map(color => `
-            <div class="color-option" style="background: ${color};" 
-                 onclick="Settings.selectColor('${color}')"></div>
+        grid.innerHTML = backgrounds.map(bg => `
+            <div class="background-option ${bg.id === (this.currentPreferences.backgroundId || 'cyber-grid') ? 'active' : ''}" 
+                 data-bg="${bg.id}" onclick="Settings.selectBackground('${bg.id}')"
+                 style="background: ${bg.preview}; ${bg.animation || ''}">
+            </div>
         `).join('');
     }
 
-    static initializeCategoryFeatures(category) {
-        switch (category) {
-            case 'appearance':
-                this.updateColorSelection();
-                break;
-            case 'files':
-                this.loadStorageInfo();
-                break;
-            case 'system':
-                this.loadSystemInfo();
-                break;
-        }
-    }
+    static switchBackgroundCategory(category) {
+        this.currentBgCategory = category;
 
-    static updateColorSelection() {
-        // Update color selection based on current theme
-        const currentTheme = this.settings.theme || 'cyber-blue';
-        // You could implement logic to highlight the current color
-    }
+        // Update category buttons
+        this.currentWindow.querySelectorAll('.bg-category').forEach(cat => {
+            cat.classList.remove('active');
+        });
+        this.currentWindow.querySelector(`[data-category="${category}"]`).classList.add('active');
 
-    static async loadStorageInfo() {
-        try {
-            const response = await fetch('/api/files/storage-info', {
-                headers: { 'X-CSRFToken': this.getCSRFToken() }
-            });
-            if (response.ok) {
-                const data = await response.json();
-                // Update storage display with real data
-                console.log('Storage info loaded:', data);
-            }
-        } catch (error) {
-            console.error('Failed to load storage info:', error);
-        }
-    }
-
-    static loadSystemInfo() {
-        // Update system information with real browser/system data
-        const userAgent = navigator.userAgent;
-        const browserName = this.getBrowserName(userAgent);
-        // You could fetch more system info from the server
-    }
-
-    static getBrowserName(userAgent) {
-        if (userAgent.includes('Chrome')) return 'Chrome';
-        if (userAgent.includes('Firefox')) return 'Firefox';
-        if (userAgent.includes('Safari')) return 'Safari';
-        if (userAgent.includes('Edge')) return 'Edge';
-        return 'Unknown';
-    }
-
-    // Setting update methods
-    static updateSetting(key, value) {
-        this.settings[key] = value;
-        this.hasUnsavedChanges = true;
-        this.applySettingImmediately(key, value);
-        console.log(`Setting updated: ${key} = ${value}`);
-    }
-
-    static toggleSetting(key) {
-        const currentValue = this.settings[key];
-        this.settings[key] = !currentValue;
-        this.hasUnsavedChanges = true;
-        this.applySettingImmediately(key, this.settings[key]);
-
-        // Update UI
-        const toggle = this.currentWindow.querySelector(`[onclick*="${key}"]`);
-        if (toggle) {
-            if (this.settings[key]) {
-                toggle.classList.add('active');
-            } else {
-                toggle.classList.remove('active');
-            }
-        }
-
-        console.log(`Setting toggled: ${key} = ${this.settings[key]}`);
+        // Re-render backgrounds
+        this.renderBackgrounds();
     }
 
     static selectTheme(themeId) {
-        this.updateSetting('theme', themeId);
+        const theme = this.themes.find(t => t.id === themeId);
+        if (!theme) return;
 
         // Update UI
         this.currentWindow.querySelectorAll('.theme-card').forEach(card => {
             card.classList.remove('active');
         });
-        this.currentWindow.querySelector(`[onclick*="${themeId}"]`).classList.add('active');
+        this.currentWindow.querySelector(`[data-theme="${themeId}"]`).classList.add('active');
+
+        // Apply theme
+        this.applyTheme(theme);
+        this.updateSetting('theme', themeId);
+        this.showNotification(`${theme.name} theme applied!`, 'success');
     }
 
-    static selectColor(color) {
-        this.updateSetting('accentColor', color);
+    static selectBackground(bgId) {
+        const allBackgrounds = Object.values(this.backgrounds).flat();
+        const background = allBackgrounds.find(bg => bg.id === bgId);
+        if (!background) return;
 
         // Update UI
-        this.currentWindow.querySelectorAll('.color-option').forEach(option => {
+        this.currentWindow.querySelectorAll('.background-option').forEach(option => {
             option.classList.remove('active');
         });
-        event.target.classList.add('active');
+        this.currentWindow.querySelector(`[data-bg="${bgId}"]`).classList.add('active');
+
+        // Apply background
+        this.applyBackground(background);
+        this.updateSetting('backgroundId', bgId);
+        this.showNotification(`${background.name || 'Background'} applied!`, 'success');
     }
 
-    static applySettingImmediately(key, value) {
-        // Apply certain settings immediately for live preview
-        switch (key) {
-            case 'theme':
-                this.applyTheme(value);
-                break;
-            case 'fontFamily':
-                document.documentElement.style.setProperty('--system-font', value);
-                break;
-            case 'fontSize':
-                document.documentElement.style.setProperty('--base-font-size', value + 'px');
-                break;
-            case 'transparency':
-                const opacity = (100 - value) / 100;
-                document.documentElement.style.setProperty('--window-opacity', opacity);
-                break;
-            case 'animationsEnabled':
-                if (!value) {
-                    document.body.classList.add('no-animations');
-                } else {
-                    document.body.classList.remove('no-animations');
-                }
-                break;
-            case 'blurEffects':
-                if (!value) {
-                    document.body.classList.add('no-blur');
-                } else {
-                    document.body.classList.remove('no-blur');
-                }
-                break;
-            case 'iconShadows':
-                if (!value) {
-                    document.body.classList.add('no-icon-shadows');
-                } else {
-                    document.body.classList.remove('no-icon-shadows');
-                }
-                break;
-            case 'notificationPosition':
-                if (window.NotificationSystem?.container) {
-                    const container = window.NotificationSystem.container;
-                    container.className = container.className.replace(/top-\w+|bottom-\w+/g, '');
-                    container.classList.add(value);
-                }
-                break;
+    static selectNotificationPosition(position) {
+        // Update UI
+        this.currentWindow.querySelectorAll('.position-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        this.currentWindow.querySelector(`[data-position="${position}"]`).classList.add('active');
+
+        // Apply position
+        this.updateSetting('notificationPosition', position);
+        const container = document.querySelector('#notification-container');
+        if (container) {
+            container.className = container.className.replace(/top-\w+|bottom-\w+/g, '');
+            container.classList.add(position);
         }
     }
 
-    static applyTheme(themeName) {
-        const themes = {
-            'cyber-blue': {
-                primary: '#00ffff',
-                secondary: '#0066ff',
-                background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)'
-            },
-            'ember-red': {
-                primary: '#ff4500',
-                secondary: '#dc143c',
-                background: 'linear-gradient(135deg, #1a0a00 0%, #2d1a0a 100%)'
-            },
-            'matrix-green': {
-                primary: '#00ff00',
-                secondary: '#008800',
-                background: 'linear-gradient(135deg, #000000 0%, #001100 100%)'
-            },
-            'neon-purple': {
-                primary: '#8000ff',
-                secondary: '#4000cc',
-                background: 'linear-gradient(135deg, #0a0010 0%, #1a1030 100%)'
-            },
-            'ice-blue': {
-                primary: '#80e0ff',
-                secondary: '#4080ff',
-                background: 'linear-gradient(135deg, #050510 0%, #101530 100%)'
-            },
-            'ember-orange': {
-                primary: '#ff8c00',
-                secondary: '#ff4500',
-                background: 'linear-gradient(135deg, #1a1000 0%, #2d1a00 100%)'
-            }
-        };
+    static selectAnimationQuality(quality) {
+        // Update UI
+        this.currentWindow.querySelectorAll('.quality-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        this.currentWindow.querySelector(`[data-quality="${quality}"]`).classList.add('active');
 
-        const theme = themes[themeName] || themes['cyber-blue'];
+        // Apply quality
+        this.updateSetting('animationQuality', quality);
+        document.body.className = document.body.className.replace(/animation-quality-\w+/g, '');
+        if (quality !== 'high') {
+            document.body.classList.add(`animation-quality-${quality}`);
+        }
+    }
 
+    static applyTheme(theme) {
         document.documentElement.style.setProperty('--primary-blue', theme.primary);
-        document.documentElement.style.setProperty('--neon-cyan', theme.secondary);
+        document.documentElement.style.setProperty('--secondary-blue', theme.secondary);
+        document.documentElement.style.setProperty('--neon-cyan', theme.accent);
 
-        // Don't override background if user has custom wallpaper
-        if (!this.settings.wallpaperStyle || this.settings.wallpaperStyle === 'gradient') {
+        if (theme.textColor) {
+            document.documentElement.style.setProperty('--bright-white', theme.textColor);
+        }
+
+        if (theme.background && !this.currentPreferences.backgroundId) {
             document.body.style.background = theme.background;
         }
     }
 
-    // Save and reset methods
+    static applyBackground(background) {
+        document.body.style.background = background.style;
+
+        if (background.animation) {
+            document.body.style.animation = background.animation;
+        }
+
+        // Update particles if needed
+        this.updateParticleBackground();
+    }
+
+    static applyCustomTheme() {
+        const primary = this.currentWindow.querySelector('#primary-color').value;
+        const secondary = this.currentWindow.querySelector('#secondary-color').value;
+        const accent = this.currentWindow.querySelector('#accent-color').value;
+
+        const customTheme = {
+            id: 'custom',
+            name: 'Custom Theme',
+            primary: primary,
+            secondary: secondary,
+            accent: accent
+        };
+
+        this.applyTheme(customTheme);
+        this.updateSetting('customTheme', customTheme);
+        this.showNotification('Custom theme applied!', 'success');
+    }
+
+    static updateParticleBackground() {
+        const shouldShow = this.currentPreferences.bgParticles !== false;
+        let particleContainer = document.querySelector('.floating-particles');
+
+        if (shouldShow && !particleContainer) {
+            // Create particle container
+            particleContainer = document.createElement('div');
+            particleContainer.className = 'floating-particles';
+            particleContainer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: -1;
+                pointer-events: none;
+            `;
+
+            // Add particles
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.cssText = `
+                    position: absolute;
+                    width: 4px;
+                    height: 4px;
+                    background: var(--primary-blue);
+                    border-radius: 50%;
+                    animation: float-particle ${8 + Math.random() * 4}s infinite ease-in-out;
+                    animation-delay: -${Math.random() * 8}s;
+                    top: ${Math.random() * 100}%;
+                    left: ${Math.random() * 100}%;
+                `;
+                particleContainer.appendChild(particle);
+            }
+
+            document.body.appendChild(particleContainer);
+        } else if (!shouldShow && particleContainer) {
+            particleContainer.remove();
+        }
+    }
+
+    static loadCurrentSettings() {
+        try {
+            const stored = localStorage.getItem('emberframe-preferences');
+            this.currentPreferences = stored ? JSON.parse(stored) : {};
+        } catch {
+            this.currentPreferences = {};
+        }
+    }
+
+    static updateAllValues() {
+        // Update sliders
+        const updates = [
+            ['transparency-slider', 'transparency-value', this.currentPreferences.transparency || 5],
+            ['icon-size-slider', 'icon-size-value', this.currentPreferences.iconSize || 48],
+            ['font-size-slider', 'font-size-value', this.currentPreferences.fontSize || 14],
+            ['notification-duration', 'notification-duration-value', this.currentPreferences.notificationDuration || 4],
+            ['bg-speed-slider', 'bg-speed-value', this.currentPreferences.bgAnimationSpeed || 5],
+            ['ui-scale', 'ui-scale-value', this.currentPreferences.uiScale || 100]
+        ];
+
+        updates.forEach(([sliderId, valueId, defaultValue]) => {
+            const slider = this.currentWindow.querySelector(`#${sliderId}`);
+            const valueDisplay = this.currentWindow.querySelector(`#${valueId}`);
+            if (slider && valueDisplay) {
+                slider.value = defaultValue;
+                slider.dispatchEvent(new Event('input'));
+            }
+        });
+
+        // Update toggles
+        const toggles = [
+            ['blur-effects', this.currentPreferences.blurEffects !== false],
+            ['icon-shadows', this.currentPreferences.iconShadows !== false],
+            ['animations-enabled', this.currentPreferences.animationsEnabled !== false],
+            ['auto-hide-taskbar', this.currentPreferences.autoHideTaskbar || false],
+            ['show-clock', this.currentPreferences.showClock !== false],
+            ['show-icon-labels', this.currentPreferences.showIconLabels !== false],
+            ['bg-particles', this.currentPreferences.bgParticles !== false],
+            ['hardware-acceleration', this.currentPreferences.hardwareAcceleration !== false],
+            ['high-contrast', this.currentPreferences.highContrast || false],
+            ['reduce-motion', this.currentPreferences.reduceMotion || false]
+        ];
+
+        toggles.forEach(([toggleId, value]) => {
+            const toggle = this.currentWindow.querySelector(`#${toggleId}`);
+            if (toggle) {
+                toggle.checked = value;
+                toggle.dispatchEvent(new Event('change'));
+            }
+        });
+
+        // Update selects
+        const fontSelect = this.currentWindow.querySelector('#font-family-select');
+        if (fontSelect) {
+            fontSelect.value = this.currentPreferences.fontFamily || "'Rajdhani', sans-serif";
+        }
+
+        // Update notification position
+        const notifPos = this.currentPreferences.notificationPosition || 'top-right';
+        this.selectNotificationPosition(notifPos);
+
+        // Update animation quality
+        const animQuality = this.currentPreferences.animationQuality || 'high';
+        this.selectAnimationQuality(animQuality);
+    }
+
+    static updateSetting(key, value) {
+        this.currentPreferences[key] = value;
+
+        if (this.autoSave) {
+            this.saveSettings();
+        }
+    }
+
     static async saveSettings() {
         try {
-            this.showLoading('Saving settings...');
+            // Save to localStorage
+            localStorage.setItem('emberframe-preferences', JSON.stringify(this.currentPreferences));
 
+            // Save to server
             const response = await fetch('/api/user/preferences', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': this.getCSRFToken()
-                },
-                body: JSON.stringify({ preferences: this.settings })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ preferences: this.currentPreferences })
             });
 
             if (response.ok) {
-                this.originalSettings = JSON.parse(JSON.stringify(this.settings));
-                this.hasUnsavedChanges = false;
-                this.showMessage('Settings saved successfully!', 'success');
-                console.log('✅ Settings saved successfully');
-            } else {
-                const data = await response.json();
-                this.showMessage(data.error || 'Failed to save settings', 'error');
-                console.error('❌ Failed to save settings:', data.error);
+                this.updateSaveStatus('✅ All changes saved');
             }
         } catch (error) {
-            this.showMessage('Network error: ' + error.message, 'error');
-            console.error('❌ Network error saving settings:', error);
-        } finally {
-            this.hideLoading();
+            console.error('Failed to save settings:', error);
+            this.updateSaveStatus('⚠️ Save failed');
+        }
+    }
+
+    static updateSaveStatus(message) {
+        const status = this.currentWindow.querySelector('#save-status');
+        if (status) {
+            status.textContent = message;
         }
     }
 
     static resetToDefaults() {
-        if (!confirm('Reset all settings to defaults?\n\nThis will undo all your customizations.')) {
+        if (!confirm('Reset all settings to defaults?\n\nThis will restore all original settings and cannot be undone.')) {
             return;
         }
 
-        // Default settings
-        this.settings = {
-            theme: 'cyber-blue',
-            fontFamily: 'Rajdhani',
-            fontSize: 14,
-            transparency: 0,
-            animationsEnabled: true,
-            blurEffects: true,
-            iconShadows: true,
-            iconSize: 48,
-            showIconLabels: true,
-            autoArrangeIcons: false,
-            autoHideTaskbar: false,
-            showClock: true,
-            taskbarPosition: 'bottom',
-            restoreWindows: false,
-            windowSnapping: true,
-            notificationsEnabled: true,
-            notificationPosition: 'top-right',
-            notificationDuration: 4
+        this.currentPreferences = {};
+        this.updateAllValues();
+        this.saveSettings();
+        this.showNotification('Settings reset to defaults', 'success');
+    }
+
+    static exportSettings() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.currentPreferences, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", `emberframe-settings-${new Date().toISOString().split('T')[0]}.json`);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+        this.showNotification('Settings exported successfully', 'success');
+    }
+
+    static importSettings() {
+        const input = this.currentWindow.querySelector('#settings-import-input');
+        input.click();
+
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const imported = JSON.parse(event.target.result);
+                    this.currentPreferences = { ...this.currentPreferences, ...imported };
+                    this.updateAllValues();
+                    this.saveSettings();
+                    this.showNotification('Settings imported successfully', 'success');
+                } catch (error) {
+                    this.showNotification('Invalid settings file', 'error');
+                }
+            };
+            reader.readAsText(file);
         };
-
-        this.hasUnsavedChanges = true;
-
-        // Apply defaults immediately
-        Object.keys(this.settings).forEach(key => {
-            this.applySettingImmediately(key, this.settings[key]);
-        });
-
-        // Reload current category to update UI
-        this.loadCategoryContent(this.currentCategory);
-
-        this.showMessage('Settings reset to defaults. Remember to save your changes.', 'success');
-    }
-
-    // Action methods
-    static cleanupStorage() {
-        if (confirm('Clean up temporary files and cache?\n\nThis may free up storage space.')) {
-            this.showMessage('Storage cleanup completed!', 'success');
-        }
-    }
-
-    static analyzeStorage() {
-        this.showMessage('Storage analysis completed. Check the Files & Storage section for details.', 'info');
-    }
-
-    static checkForUpdates() {
-        this.showMessage('You are running the latest version of EmberFrame.', 'success');
     }
 
     static clearCache() {
-        if (confirm('Clear browser cache?\n\nThis may improve performance but will clear cached files.')) {
-            // Clear what we can
+        if (!confirm('Clear application cache?\n\nThis will remove temporary files and may improve performance.')) {
+            return;
+        }
+
+        try {
+            // Clear various caches
             if ('caches' in window) {
                 caches.keys().then(names => {
                     names.forEach(name => caches.delete(name));
                 });
             }
-            this.showMessage('Cache cleared successfully!', 'success');
+
+            // Clear some localStorage items
+            const keysToKeep = ['emberframe-preferences'];
+            Object.keys(localStorage).forEach(key => {
+                if (!keysToKeep.includes(key)) {
+                    localStorage.removeItem(key);
+                }
+            });
+
+            this.showNotification('Cache cleared successfully', 'success');
+        } catch (error) {
+            this.showNotification('Failed to clear cache', 'error');
         }
     }
 
-    static clearHistory() {
-        if (confirm('Clear browsing history?\n\nThis cannot be undone.')) {
-            this.showMessage('History cleared successfully!', 'success');
-        }
-    }
-
-    static clearAllData() {
-        if (confirm('Clear ALL user data?\n\nThis will remove all settings, files, and data. This cannot be undone.\n\nType "DELETE" to confirm.')) {
-            const confirmation = prompt('Type "DELETE" to confirm:');
-            if (confirmation === 'DELETE') {
-                this.showMessage('All data cleared. You will be logged out.', 'success');
-                setTimeout(() => {
-                    window.location.href = '/logout';
-                }, 2000);
+    static closeSettings() {
+        if (window.WindowManager) {
+            const windowElement = this.currentWindow.closest('.window');
+            if (windowElement) {
+                window.WindowManager.closeWindow(windowElement.dataset.app);
             }
         }
     }
 
-    static testNotification(type) {
-        const messages = {
-            info: 'This is a test information notification.',
-            success: 'This is a test success notification.',
-            error: 'This is a test error notification.',
-            warning: 'This is a test warning notification.'
-        };
-
-        if (window.Notification) {
-            window.Notification[type](messages[type] || messages.info);
-        } else {
-            alert(`Test ${type} notification: ${messages[type]}`);
-        }
-    }
-
-    static showLicense() {
-        alert('EmberFrame is released under the MIT License.\n\nFor full license text, visit: https://github.com/emberframe/license');
-    }
-
-    static showPrivacyPolicy() {
-        alert('EmberFrame Privacy Policy\n\nWe respect your privacy and do not collect personal data without your consent.\n\nFor full policy, visit: https://emberframe.org/privacy');
-    }
-
-    static showCredits() {
-        alert('EmberFrame Credits\n\n• Built with Flask and modern web technologies\n• Icons by Font Awesome\n• Fonts by Google Fonts\n\nThanks to all contributors!');
-    }
-
-    static openLink(url) {
-        window.open(url, '_blank');
-    }
-
-    static exportSettings() {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.settings, null, 2));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "emberframe-settings.json");
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-        this.showMessage('Settings exported successfully!', 'success');
-    }
-
-    static importSettings() {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.json';
-        input.onchange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const importedSettings = JSON.parse(e.target.result);
-                        this.settings = { ...this.settings, ...importedSettings };
-                        this.hasUnsavedChanges = true;
-                        this.loadCategoryContent(this.currentCategory);
-                        this.showMessage('Settings imported successfully! Remember to save changes.', 'success');
-                    } catch (error) {
-                        this.showMessage('Invalid settings file format.', 'error');
-                    }
-                };
-                reader.readAsText(file);
-            }
-        };
-        input.click();
-    }
-
-    static openConsole() {
-        console.log('EmberFrame Settings Debug Info:', {
-            currentSettings: this.settings,
-            originalSettings: this.originalSettings,
-            hasUnsavedChanges: this.hasUnsavedChanges,
-            currentCategory: this.currentCategory
-        });
-        alert('Debug information logged to browser console.\n\nOpen Developer Tools (F12) to view.');
-    }
-
-    // Utility methods
-    static getCSRFToken() {
-        const token = document.querySelector('meta[name="csrf-token"]');
-        return token ? token.getAttribute('content') : '';
-    }
-
-    static showMessage(message, type = 'info') {
-        // Create or update message element
-        let messageEl = this.currentWindow.querySelector('.message');
-        if (!messageEl) {
-            messageEl = document.createElement('div');
-            messageEl.className = 'message';
-            const panel = this.currentWindow.querySelector('.settings-panel');
-            panel.insertBefore(messageEl, panel.firstChild);
-        }
-
-        messageEl.className = `message ${type} show`;
-        messageEl.textContent = message;
-
-        // Auto-hide after 5 seconds
-        setTimeout(() => {
-            messageEl.classList.remove('show');
-        }, 5000);
-
-        // Also use global notification system if available
+    static showNotification(message, type = 'info') {
         if (window.Notification) {
             window.Notification[type](message);
         }
     }
 
-    static showLoading(message) {
-        const panel = this.currentWindow.querySelector('.settings-panel');
-        panel.innerHTML = `
-            <div class="loading">
-                <div class="spinner"></div>
-                ${message}
-            </div>
-        `;
+    static getThemeCollection() {
+        return [
+            {
+                id: 'cyber-blue',
+                name: 'Cyber Blue',
+                description: 'Classic cyberpunk with electric blues',
+                primary: '#00d4ff',
+                secondary: '#0099cc',
+                accent: '#00ffff',
+                background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)'
+            },
+            {
+                id: 'ember-red',
+                name: 'Ember Red',
+                description: 'Fiery reds and warm oranges',
+                primary: '#ff4500',
+                secondary: '#dc143c',
+                accent: '#ff6b47',
+                background: 'linear-gradient(135deg, #1a0a00 0%, #2d1a0a 100%)'
+            },
+            {
+                id: 'matrix-green',
+                name: 'Matrix Green',
+                description: 'Digital rain inspired theme',
+                primary: '#00ff00',
+                secondary: '#008800',
+                accent: '#39ff14',
+                background: 'linear-gradient(135deg, #000000 0%, #001100 100%)'
+            },
+            {
+                id: 'neon-purple',
+                name: 'Neon Purple',
+                description: 'Vibrant purples and magentas',
+                primary: '#8000ff',
+                secondary: '#4000cc',
+                accent: '#ff00ff',
+                background: 'linear-gradient(135deg, #0a0010 0%, #1a1030 100%)'
+            },
+            {
+                id: 'tokyo-night',
+                name: 'Tokyo Night',
+                description: 'Dark theme inspired by Tokyo nightlife',
+                primary: '#7aa2f7',
+                secondary: '#bb9af7',
+                accent: '#73daca',
+                background: 'linear-gradient(135deg, #1a1b26 0%, #24283b 100%)'
+            },
+            {
+                id: 'sunset-orange',
+                name: 'Sunset Orange',
+                description: 'Warm sunset colors',
+                primary: '#ff8c00',
+                secondary: '#ff4500',
+                accent: '#ffd700',
+                background: 'linear-gradient(135deg, #1a1000 0%, #2d1a00 100%)'
+            },
+            {
+                id: 'arctic-blue',
+                name: 'Arctic Blue',
+                description: 'Cool ice blue theme',
+                primary: '#87ceeb',
+                secondary: '#4682b4',
+                accent: '#b0e0e6',
+                background: 'linear-gradient(135deg, #0f1419 0%, #1a2332 100%)'
+            },
+            {
+                id: 'forest-green',
+                name: 'Forest Green',
+                description: 'Natural green theme',
+                primary: '#32cd32',
+                secondary: '#228b22',
+                accent: '#90ee90',
+                background: 'linear-gradient(135deg, #0a1a0a 0%, #1a2e1a 100%)'
+            },
+            {
+                id: 'royal-purple',
+                name: 'Royal Purple',
+                description: 'Elegant purple theme',
+                primary: '#9370db',
+                secondary: '#663399',
+                accent: '#dda0dd',
+                background: 'linear-gradient(135deg, #1a0a1a 0%, #2e1a2e 100%)'
+            },
+            {
+                id: 'golden-hour',
+                name: 'Golden Hour',
+                description: 'Warm golden theme',
+                primary: '#ffd700',
+                secondary: '#ffb347',
+                accent: '#ffe135',
+                background: 'linear-gradient(135deg, #1a1a0a 0%, #2e2e1a 100%)'
+            }
+        ];
     }
 
-    static hideLoading() {
-        this.loadCategoryContent(this.currentCategory);
-    }
-
-    static closeThemePreview() {
-        this.currentWindow.querySelector('#theme-preview-modal').classList.remove('show');
-    }
-
-    static applyPreviewedTheme() {
-        if (this.previewedTheme) {
-            this.selectTheme(this.previewedTheme);
-            this.closeThemePreview();
-        }
+    static getBackgroundCollection() {
+        return {
+            dynamic: [
+                {
+                    id: 'cyber-grid',
+                    name: 'Cyber Grid',
+                    style: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)',
+                    preview: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)',
+                    animation: 'background-size: 400% 400%; animation: gradientShift 15s ease infinite;'
+                },
+                {
+                    id: 'digital-waves',
+                    name: 'Digital Waves',
+                    style: 'linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c)',
+                    preview: 'linear-gradient(-45deg, #667eea, #764ba2, #f093fb, #f5576c)',
+                    animation: 'background-size: 400% 400%; animation: gradientShift 15s ease infinite;'
+                },
+                {
+                    id: 'neon-pulse',
+                    name: 'Neon Pulse',
+                    style: 'radial-gradient(circle at 50% 50%, #ff006e, #8338ec, #3a86ff)',
+                    preview: 'radial-gradient(circle at 50% 50%, #ff006e, #8338ec, #3a86ff)',
+                    animation: 'background-size: 200% 200%; animation: pulse 8s ease infinite;'
+                }
+            ],
+            gradients: [
+                {
+                    id: 'aurora',
+                    name: 'Aurora',
+                    style: 'linear-gradient(135deg, #00c9ff 0%, #92fe9d 100%)',
+                    preview: 'linear-gradient(135deg, #00c9ff 0%, #92fe9d 100%)'
+                },
+                {
+                    id: 'sunset',
+                    name: 'Sunset',
+                    style: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                    preview: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+                },
+                {
+                    id: 'ocean',
+                    name: 'Ocean',
+                    style: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    preview: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                }
+            ],
+            patterns: [
+                {
+                    id: 'circuit',
+                    name: 'Circuit',
+                    style: '#0a0a0f',
+                    preview: '#0a0a0f',
+                    pattern: 'background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,212,255,0.1) 10px, rgba(0,212,255,0.1) 20px);'
+                },
+                {
+                    id: 'hexagon',
+                    name: 'Hexagon',
+                    style: '#1a1a2e',
+                    preview: '#1a1a2e',
+                    pattern: 'background-image: repeating-conic-gradient(from 30deg, #667eea 0deg 60deg, transparent 60deg 120deg);'
+                }
+            ],
+            space: [
+                {
+                    id: 'nebula',
+                    name: 'Nebula',
+                    style: 'radial-gradient(ellipse at center, #ff006e 0%, #8338ec 35%, #3a86ff 100%)',
+                    preview: 'radial-gradient(ellipse at center, #ff006e 0%, #8338ec 35%, #3a86ff 100%)'
+                },
+                {
+                    id: 'galaxy',
+                    name: 'Galaxy',
+                    style: 'linear-gradient(180deg, #000000 0%, #1a1a2e 50%, #667eea 100%)',
+                    preview: 'linear-gradient(180deg, #000000 0%, #1a1a2e 50%, #667eea 100%)'
+                }
+            ],
+            nature: [
+                {
+                    id: 'forest',
+                    name: 'Forest',
+                    style: 'linear-gradient(135deg, #134e5e 0%, #71b280 100%)',
+                    preview: 'linear-gradient(135deg, #134e5e 0%, #71b280 100%)'
+                },
+                {
+                    id: 'mountain',
+                    name: 'Mountain',
+                    style: 'linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%)',
+                    preview: 'linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%)'
+                }
+            ],
+            abstract: [
+                {
+                    id: 'geometric',
+                    name: 'Geometric',
+                    style: 'conic-gradient(from 180deg at 50% 50%, #667eea 0deg, #764ba2 180deg, #667eea 360deg)',
+                    preview: 'conic-gradient(from 180deg at 50% 50%, #667eea 0deg, #764ba2 180deg, #667eea 360deg)'
+                },
+                {
+                    id: 'flow',
+                    name: 'Flow',
+                    style: 'linear-gradient(45deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%)',
+                    preview: 'linear-gradient(45deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%)'
+                }
+            ]
+        };
     }
 
     static onClose(windowElement) {
-        if (this.hasUnsavedChanges) {
-            return confirm('You have unsaved changes. Are you sure you want to close?');
-        }
         return true;
     }
 }
+
+// Add necessary CSS animations
+const settingsAnimations = document.createElement('style');
+settingsAnimations.textContent = `
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { background-size: 100% 100%; }
+        50% { background-size: 150% 150%; }
+    }
+    
+    @keyframes float-particle {
+        0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+        50% { transform: translateY(-50px) rotate(180deg); opacity: 0.3; }
+    }
+`;
+document.head.appendChild(settingsAnimations);
 
 window.Settings = Settings;

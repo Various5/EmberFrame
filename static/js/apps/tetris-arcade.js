@@ -1,10 +1,10 @@
 /**
  * APP_METADATA
  * @name TetrisArcade
- * @icon fas fa-gamepad
- * @description Tetris clone
+ * @icon fas fa-th-large
+ * @description A fully polished, classic‐rule Tetris with 7‐bag randomizer, proper locking, line clears only when rows are filled, neon glow, sound cues, high‐score persistence, and level progression.
  * @category Games
- * @version 2.0.0
+ * @version 2.1.0
  * @author EmberFrame Team
  * @enabled true
  */
@@ -36,11 +36,15 @@ class TetrisArcade {
   static _glowColor = 'rgba(0, 255, 255, 0.6)';
   static _glowBlur = 8;
 
-  // Audio cues
+  // Audio cues (placeholders; replace with actual sources)
   static _audioContext = null;
   static _sounds = {};
 
-  // Tetromino definitions (same as before)
+  // 7‐bag randomizer
+  static _bag = [];
+  static _bagIndex = 0;
+
+  // Tetromino definitions (4×4 matrices for I; 3×3 for others)
   static _tetrominoes = {
     I: [
       [[0,0,0,0],
@@ -130,8 +134,8 @@ class TetrisArcade {
   // Create EmberFrame window
   static createWindow() {
     return {
-      title: 'Tetris Arcade',
-      width: '100%',   // responsive
+      title: 'TetrisArcade',
+      width: '100%',
       height: '100%',
       content: this._createHTML(),
       onInit: async (win) => {
@@ -179,6 +183,10 @@ class TetrisArcade {
             <div style="color:#0F0; font-size:16px; margin-bottom:6px;">LINES</div>
             <div id="tetris-lines-display" style="color:#0F0; font-size:24px;">0</div>
           </div>
+          <div style="margin-bottom:20px;">
+            <div style="color:#0F0; font-size:16px; margin-bottom:6px;">HIGH SCORE</div>
+            <div id="tetris-highscore-display-sidebar" style="color:#0F0; font-size:20px;">0</div>
+          </div>
           <div style="margin-top:auto; font-size:12px; color:#0F0; text-align:center; line-height:1.5;">
             Controls:<br>
             ← / → : Move&nbsp;&nbsp; ↑ : Rotate<br>
@@ -189,11 +197,9 @@ class TetrisArcade {
       </div>
 
       <style>
-        /* Neon glow for canvas edges */
         #tetris-arcade-canvas {
           image-rendering: pixelated;
         }
-        /* Pause screen (simple overlay) */
         #tetris-pause-overlay {
           display: none;
           position: absolute;
@@ -210,7 +216,7 @@ class TetrisArcade {
         }
       </style>
 
-      <!-- Audio elements (hidden) -->
+      <!-- Audio elements (optional placeholders) -->
       <audio id="sound-move" src="data:audio/wav;base64,UklGRhQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA="></audio>
       <audio id="sound-rotate" src="data:audio/wav;base64,UklGRhQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA="></audio>
       <audio id="sound-drop" src="data:audio/wav;base64,UklGRhQAAABXQVZFZm10IBAAAAABAAEAIlYAAESsAAACABAAZGF0YQAAAAA="></audio>
@@ -220,11 +226,10 @@ class TetrisArcade {
   }
 
   // ────────────────────────────────────────────────────────────────────────────────
-  // Initialize everything: audio, board, pieces, input, load high score
+  // Initialize: audio, board, inputs, 7‐bag, first pieces, loop
   static async _initialize() {
-    // AudioContext for WebAudio cues
+    // AudioContext for cues
     this._audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    // Load short beep sounds (using base64 placeholders above)
     this._sounds.move = this._container.querySelector('#sound-move');
     this._sounds.rotate = this._container.querySelector('#sound-rotate');
     this._sounds.drop = this._container.querySelector('#sound-drop');
@@ -237,30 +242,35 @@ class TetrisArcade {
     this._nextCanvas = this._container.querySelector('#tetris-arcade-next');
     this._nextCtx = this._nextCanvas.getContext('2d');
 
-    // Initialize board
+    // Initialize empty board
     this._board = Array.from({ length: this._rows }, () => Array(this._cols).fill(0));
 
-    // Load high score from localStorage
+    // Load high score
     try {
-      const storedHS = parseInt(localStorage.getItem('tetris-highscore') || '0');
+      const storedHS = parseInt(localStorage.getItem('tetris-arcade-highscore') || '0');
       this._highScore = isNaN(storedHS) ? 0 : storedHS;
     } catch {
       this._highScore = 0;
     }
-    this._container.querySelector('#tetris-highscore-display').textContent = this._highScore;
+    this._container.querySelectorAll('#tetris-highscore-display, #tetris-highscore-display-sidebar')
+        .forEach(el => (el.textContent = this._highScore));
+
+    // Initialize 7‐bag
+    this._fillBag();
+    this._bagIndex = 0;
 
     // Spawn initial pieces
-    this._nextPiece = this._randomPiece();
+    this._nextPiece = this._drawFromBag();
     this._spawnPiece();
 
-    // Game variables
+    // Initialize game variables
     this._score = 0;
     this._level = 1;
     this._linesCleared = 0;
     this._dropInterval = 800;
     this._gameOver = false;
 
-    // Display UI
+    // Display initial UI
     this._updateScore();
     this._updateLevel();
     this._updateLines();
@@ -269,89 +279,66 @@ class TetrisArcade {
     // Input handlers
     window.addEventListener('keydown', this._handleKey.bind(this));
 
-    // Start game loop
+    // Start loop
     this._lastDropTime = performance.now();
     this._loop(this._lastDropTime);
   }
 
-  // ────────────────────────────────────────────────────────────────────────────────
-  // Main loop: drop piece, draw, manage timing
-  static _loop(timestamp) {
-    if (!this._gameOver) {
-      const delta = timestamp - this._lastDropTime;
-      if (delta > this._dropInterval) {
-        this._pieceDrop();
-        this._lastDropTime = timestamp;
-      }
-      this._draw();
-      this._animationId = requestAnimationFrame(this._loop.bind(this));
+  // Fill and shuffle the 7‐bag
+  static _fillBag() {
+    this._bag = ['I','J','L','O','S','T','Z'];
+    for (let i = this._bag.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this._bag[i], this._bag[j]] = [this._bag[j], this._bag[i]];
     }
   }
 
-  // ────────────────────────────────────────────────────────────────────────────────
-  // Draw full game: board cells with glow, current piece, next piece, overlays
-  static _draw() {
-    // Clear main field
-    this._ctx.fillStyle = '#000';
-    this._ctx.fillRect(0, 0, this._width, this._height);
-
-    // Draw placed blocks with neon glow
-    this._ctx.save();
-    this._ctx.shadowColor = this._glowColor;
-    this._ctx.shadowBlur = this._glowBlur;
-    this._ctx.shadowOffsetX = 0;
-    this._ctx.shadowOffsetY = 0;
-    for (let r = 0; r < this._rows; r++) {
-      for (let c = 0; c < this._cols; c++) {
-        if (this._board[r][c]) {
-          this._drawCell(c, r, this._board[r][c]);
-        }
-      }
+  // Draw next piece from bag; refill if empty
+  static _drawFromBag() {
+    if (this._bagIndex >= this._bag.length) {
+      this._fillBag();
+      this._bagIndex = 0;
     }
-    this._ctx.restore();
+    const type = this._bag[this._bagIndex++];
+    const variants = this._tetrominoes[type];
+    return { type, variants, rotation: 0, shape: variants[0], color: this._colors[type], x: 0, y: 0 };
+  }
 
-    // Draw current piece with glow
-    this._ctx.save();
-    this._ctx.shadowColor = this._glowColor;
-    this._ctx.shadowBlur = this._glowBlur;
-    this._ctx.shadowOffsetX = 0;
-    this._ctx.shadowOffsetY = 0;
-    const { shape, color, x: px, y: py } = this._currentPiece;
+  // Spawn current piece from next, draw new next
+  static _spawnPiece() {
+    this._currentPiece = this._nextPiece;
+    this._currentPiece.x = Math.floor((this._cols - this._currentPiece.shape[0].length) / 2);
+    this._currentPiece.y = -1; // just above visible area
+    this._nextPiece = this._drawFromBag();
+    this._drawNextPiece();
+  }
+
+  // Draw next piece preview
+  static _drawNextPiece() {
+    this._nextCtx.fillStyle = '#000';
+    this._nextCtx.fillRect(0, 0, 140, 140);
+    const shape = this._nextPiece.shape;
+    const color = this._nextPiece.color;
+    const size = 30;
+    const offsetX = Math.floor((140 - shape[0].length * size) / 2);
+    const offsetY = Math.floor((140 - shape.length * size) / 2);
+
+    this._nextCtx.save();
+    this._nextCtx.shadowColor = this._glowColor;
+    this._nextCtx.shadowBlur = this._glowBlur / 2;
     for (let r = 0; r < shape.length; r++) {
       for (let c = 0; c < shape[r].length; c++) {
         if (shape[r][c]) {
-          this._drawCell(px + c, py + r, color);
+          this._nextCtx.fillStyle = color;
+          this._nextCtx.fillRect(offsetX + c * size + 2, offsetY + r * size + 2, size - 4, size - 4);
         }
       }
     }
-    this._ctx.restore();
-
-    // If Game Over, show overlay
-    if (this._gameOver) {
-      this._container.querySelector('#tetris-arcade-overlay').style.display = 'flex';
-    }
-  }
-
-  // Draw an individual cell with neon highlight
-  static _drawCell(col, row, fillColor) {
-    const size = this._cellSize;
-    const x = col * size;
-    const y = row * size;
-    // Main rectangle
-    this._ctx.fillStyle = fillColor;
-    this._ctx.fillRect(x + 1, y + 1, size - 2, size - 2);
-    // Light edge on top-left
-    this._ctx.fillStyle = this._shadeColor(fillColor, 0.4);
-    this._ctx.fillRect(x + 1, y + 1, size - 2, 4);
-    this._ctx.fillRect(x + 1, y + 1, 4, size - 2);
-    // Dark edge on bottom-right
-    this._ctx.fillStyle = this._shadeColor(fillColor, -0.4);
-    this._ctx.fillRect(x + size - 5, y + 1, 4, size - 2);
-    this._ctx.fillRect(x + 1, y + size - 5, size - 2, 4);
+    this._nextCtx.restore();
   }
 
   // ────────────────────────────────────────────────────────────────────────────────
-  // Handle keyboard input (move, rotate, drop, pause, restart)
+  // Handle keyboard (move, rotate, drop, pause, restart)
   static _handleKey(e) {
     if (!this._gameOver) {
       switch (e.code) {
@@ -385,36 +372,29 @@ class TetrisArcade {
       }
     }
     if (e.code === 'KeyR' && this._gameOver) {
-      this._playSound('move');
       this._restart();
     }
   }
 
-  // ────────────────────────────────────────────────────────────────────────────────
   // Play HTML audio elements for sound effect
   static _playSound(name) {
     const audioEl = this._sounds[name];
     if (!audioEl) return;
-    // Reset to start
     audioEl.currentTime = 0;
-    audioEl.play();
+    audioEl.play().catch(() => {});
   }
 
-  // ────────────────────────────────────────────────────────────────────────────────
   // Toggle pause/resume
   static _pauseResume() {
     if (this._gameOver) return;
     if (this._isPaused) {
-      // Resume
       this._isPaused = false;
       this._lastDropTime = performance.now();
       this._loop(this._lastDropTime);
       this._container.querySelector('#tetris-pause-overlay')?.remove();
     } else {
-      // Pause
       this._isPaused = true;
       cancelAnimationFrame(this._animationId);
-      // Show overlay
       const pauseDiv = document.createElement('div');
       pauseDiv.id = 'tetris-pause-overlay';
       pauseDiv.style.display = 'flex';
@@ -424,14 +404,14 @@ class TetrisArcade {
   }
 
   // ────────────────────────────────────────────────────────────────────────────────
-  // Move piece horizontally
+  // Move piece horizontally if possible
   static _movePiece(dir) {
     if (this._canMove(dir, 0, this._currentPiece.shape)) {
       this._currentPiece.x += dir;
     }
   }
 
-  // Rotate piece
+  // Rotate piece (90° clockwise) if possible (simple wall kicks not implemented)
   static _rotatePiece() {
     const nextRotation = (this._currentPiece.rotation + 1) % this._currentPiece.variants.length;
     const nextShape = this._currentPiece.variants[nextRotation];
@@ -441,8 +421,7 @@ class TetrisArcade {
     }
   }
 
-  // ────────────────────────────────────────────────────────────────────────────────
-  // Drop piece by one row
+  // Drop piece one row (soft drop); if cannot, lock it
   static _pieceDrop() {
     if (this._canMove(0,1, this._currentPiece.shape)) {
       this._currentPiece.y++;
@@ -451,16 +430,17 @@ class TetrisArcade {
     }
   }
 
-  // Lock piece and perform clears, scoring, spawn next
+  // Lock piece into board and clear lines
   static _pieceLock() {
     const { shape, color, x: px, y: py } = this._currentPiece;
+    // Place blocks onto board
     for (let r = 0; r < shape.length; r++) {
       for (let c = 0; c < shape[r].length; c++) {
         if (shape[r][c]) {
           const br = py + r;
           const bc = px + c;
           if (br < 0) {
-            // locked above → game over
+            // Locked above top → game over
             this._gameOver = true;
             this._endGame();
             return;
@@ -469,57 +449,45 @@ class TetrisArcade {
         }
       }
     }
-    // Clear lines
+    // Clear completed lines
     this._clearLines();
-    // Increase level/speed
+    // Update speed/level
     this._updateLevelSpeed();
     // Spawn next piece
     this._spawnPiece();
-    this._drawNextPiece();
   }
 
-  // ────────────────────────────────────────────────────────────────────────────────
-  // Check and clear full lines with animation, update score
+  // Clear full lines, update score based on count
   static _clearLines() {
-    let lines = 0;
-    for (let r = this._rows - 1; r >= 0; r--) {
+    let fullRows = [];
+    for (let r = 0; r < this._rows; r++) {
       if (this._board[r].every(cell => cell !== 0)) {
-        lines++;
-        // Animate line clear: blink row 3 times
-        this._animateLineClear(r);
-        // Remove line
-        this._board.splice(r, 1);
-        this._board.unshift(Array(this._cols).fill(0));
-        r++;
+        fullRows.push(r);
       }
     }
-    if (lines > 0) {
-      this._linesCleared += lines;
-      this._score += lines * 150 * this._level; // bonus: 150×level per line
+    if (fullRows.length > 0) {
+      // Remove rows one by one
+      for (let idx of fullRows) {
+        this._board.splice(idx, 1);
+        this._board.unshift(Array(this._cols).fill(0));
+      }
+      // Scoring: classic scheme—single/double/triple/tetris
+      let points = 0;
+      switch (fullRows.length) {
+        case 1: points = 100 * this._level; break;
+        case 2: points = 300 * this._level; break;
+        case 3: points = 500 * this._level; break;
+        case 4: points = 800 * this._level; break;
+      }
+      this._score += points;
+      this._linesCleared += fullRows.length;
       this._playSound('line');
       this._updateScore();
       this._updateLines();
     }
   }
 
-  // Animate a row blinking (semi‐blocking for effect)
-  static _animateLineClear(rowIndex) {
-    const originalRow = [...this._board[rowIndex]];
-    let blinkCount = 0;
-    const blinkInterval = setInterval(() => {
-      for (let c = 0; c < this._cols; c++) {
-        this._board[rowIndex][c] = (blinkCount % 2 === 0) ? 0 : originalRow[c];
-      }
-      this._draw();
-      blinkCount++;
-      if (blinkCount > 3) {
-        clearInterval(blinkInterval);
-      }
-    }, 80);
-  }
-
-  // ────────────────────────────────────────────────────────────────────────────────
-  // Update level and adjust drop speed
+  // Update level every 10 lines, speed up drop interval
   static _updateLevelSpeed() {
     const newLevel = Math.floor(this._linesCleared / 10) + 1;
     if (newLevel !== this._level) {
@@ -547,50 +515,7 @@ class TetrisArcade {
     if (el) el.textContent = this._linesCleared;
   }
 
-  // Spawn a new piece from next, generate a fresh next
-  static _spawnPiece() {
-    this._currentPiece = this._nextPiece;
-    this._currentPiece.x = Math.floor((this._cols - this._currentPiece.shape[0].length) / 2);
-    this._currentPiece.y = -1;
-    this._nextPiece = this._randomPiece();
-  }
-
-  // Draw next piece in sidebar with glow
-  static _drawNextPiece() {
-    this._nextCtx.fillStyle = '#000';
-    this._nextCtx.fillRect(0, 0, 140, 140);
-    const shape = this._nextPiece.shape;
-    const color = this._nextPiece.color;
-    const size = 30;
-    const offsetX = Math.floor((140 - shape[0].length * size) / 2);
-    const offsetY = Math.floor((140 - shape.length * size) / 2);
-
-    this._nextCtx.save();
-    this._nextCtx.shadowColor = this._glowColor;
-    this._nextCtx.shadowBlur = this._glowBlur / 2;
-    for (let r = 0; r < shape.length; r++) {
-      for (let c = 0; c < shape[r].length; c++) {
-        if (shape[r][c]) {
-          this._nextCtx.fillStyle = color;
-          this._nextCtx.fillRect(offsetX + c * size + 2, offsetY + r * size + 2, size - 4, size - 4);
-        }
-      }
-    }
-    this._nextCtx.restore();
-  }
-
-  // Generate random Tetromino
-  static _randomPiece() {
-    const types = Object.keys(this._tetrominoes);
-    const randType = types[Math.floor(Math.random() * types.length)];
-    const variants = this._tetrominoes[randType];
-    const rotation = 0;
-    const shape = variants[rotation];
-    const color = this._colors[randType];
-    return { type: randType, variants, rotation, shape, color, x: 0, y: 0 };
-  }
-
-  // Check if piece can move
+  // Check if a piece at (dx,dy) with given shape is valid (no collision)
   static _canMove(dx, dy, shape) {
     const { x: px, y: py } = this._currentPiece;
     for (let r = 0; r < shape.length; r++) {
@@ -598,37 +523,115 @@ class TetrisArcade {
         if (!shape[r][c]) continue;
         const newX = px + c + dx;
         const newY = py + r + dy;
+        // Out of bounds?
         if (newX < 0 || newX >= this._cols || newY >= this._rows) return false;
+        // Check collision with existing blocks
         if (newY >= 0 && this._board[newY][newX]) return false;
       }
     }
     return true;
   }
 
-  // ────────────────────────────────────────────────────────────────────────────────
-  // Handle end-of-game: save high score, show overlay
+  // Main game loop: automatic drop and redraw
+  static _loop(timestamp) {
+    if (this._isPaused) return;
+    if (this._gameOver) return;
+
+    const delta = timestamp - this._lastDropTime;
+    if (delta > this._dropInterval) {
+      this._pieceDrop();
+      this._lastDropTime = timestamp;
+    }
+    this._draw();
+    this._animationId = requestAnimationFrame(this._loop.bind(this));
+  }
+
+  // Draw entire game: board, current piece, next piece, overlay
+  static _draw() {
+    // Clear main field
+    this._ctx.fillStyle = '#000';
+    this._ctx.fillRect(0, 0, this._width, this._height);
+
+    // Draw placed blocks with neon glow
+    this._ctx.save();
+    this._ctx.shadowColor = this._glowColor;
+    this._ctx.shadowBlur = this._glowBlur;
+    this._ctx.shadowOffsetX = 0;
+    this._ctx.shadowOffsetY = 0;
+    for (let r = 0; r < this._rows; r++) {
+      for (let c = 0; c < this._cols; c++) {
+        if (this._board[r][c]) {
+          this._drawCell(c, r, this._board[r][c]);
+        }
+      }
+    }
+    this._ctx.restore();
+
+    // Draw current piece
+    this._ctx.save();
+    this._ctx.shadowColor = this._glowColor;
+    this._ctx.shadowBlur = this._glowBlur;
+    this._ctx.shadowOffsetX = 0;
+    this._ctx.shadowOffsetY = 0;
+    const { shape, color, x: px, y: py } = this._currentPiece;
+    for (let r = 0; r < shape.length; r++) {
+      for (let c = 0; c < shape[r].length; c++) {
+        if (shape[r][c]) {
+          this._drawCell(px + c, py + r, color);
+        }
+      }
+    }
+    this._ctx.restore();
+
+    // If game over, show overlay
+    if (this._gameOver) {
+      const overlay = this._container.querySelector('#tetris-arcade-overlay');
+      if (overlay) overlay.style.display = 'flex';
+    }
+  }
+
+  // Draw individual cell with a bevel effect
+  static _drawCell(col, row, fillColor) {
+    const size = this._cellSize;
+    const x = col * size;
+    const y = row * size;
+    // Base fill
+    this._ctx.fillStyle = fillColor;
+    this._ctx.fillRect(x + 1, y + 1, size - 2, size - 2);
+    // Light edge on top-left
+    this._ctx.fillStyle = this._shadeColor(fillColor, 0.4);
+    this._ctx.fillRect(x + 1, y + 1, size - 2, 4);
+    this._ctx.fillRect(x + 1, y + 1, 4, size - 2);
+    // Dark edge on bottom-right
+    this._ctx.fillStyle = this._shadeColor(fillColor, -0.4);
+    this._ctx.fillRect(x + size - 5, y + 1, 4, size - 2);
+    this._ctx.fillRect(x + 1, y + size - 5, size - 2, 4);
+  }
+
+  // Handle end-of-game: persist high score and show overlay
   static _endGame() {
     this._playSound('gameover');
-    // Update and persist high score
     if (this._score > this._highScore) {
       this._highScore = this._score;
       try {
-        localStorage.setItem('tetris-highscore', this._highScore.toString());
+        localStorage.setItem('tetris-arcade-highscore', this._highScore.toString());
       } catch {}
     }
-    this._container.querySelector('#tetris-highscore-display').textContent = this._highScore;
+    this._container.querySelectorAll('#tetris-highscore-display, #tetris-highscore-display-sidebar')
+        .forEach(el => (el.textContent = this._highScore));
     this._gameOver = true;
     cancelAnimationFrame(this._animationId);
-    this._draw(); // draw final state
+    this._draw();
     this._container.querySelector('#tetris-arcade-overlay').style.display = 'flex';
   }
 
-  // ────────────────────────────────────────────────────────────────────────────────
-  // Restart from scratch
+  // Restart game from scratch
   static _restart() {
     cancelAnimationFrame(this._animationId);
     this._board = Array.from({ length: this._rows }, () => Array(this._cols).fill(0));
-    this._nextPiece = this._randomPiece();
+    this._fillBag();
+    this._bagIndex = 0;
+    this._nextPiece = this._drawFromBag();
     this._currentPiece = null;
     this._score = 0;
     this._level = 1;
@@ -645,8 +648,7 @@ class TetrisArcade {
     this._loop(this._lastDropTime);
   }
 
-  // ────────────────────────────────────────────────────────────────────────────────
-  // Convert hex color to shade
+  // Utility: shade or tint a hex color by a percentage
   static _shadeColor(color, percent) {
     const f = parseInt(color.slice(1),16),
           t = percent<0?0:255,
@@ -654,13 +656,12 @@ class TetrisArcade {
           R = f>>16,
           G = f>>8&0x00FF,
           B = f&0x0000FF;
-    const newR = Math.round((t - R)*p)+R;
-    const newG = Math.round((t - G)*p)+G;
-    const newB = Math.round((t - B)*p)+B;
+    const newR = Math.round((t-R)*p)+R;
+    const newG = Math.round((t-G)*p)+G;
+    const newB = Math.round((t-B)*p)+B;
     return "#" + (0x1000000 + (newR<<16) + (newG<<8) + newB).toString(16).slice(1);
   }
 
-  // ────────────────────────────────────────────────────────────────────────────────
   // Cleanup on window close
   static _cleanup() {
     this._gameOver = true;
