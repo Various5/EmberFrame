@@ -1,4 +1,4 @@
-# app/__init__.py - Complete EmberFrame Application (Fixed Version)
+# app/__init__.py - Complete EmberFrame Application (Fixed CSRF Version)
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_file, send_from_directory, \
     abort, flash
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -25,12 +25,16 @@ import magic
 
 # Try to import CSRF protection, but make it optional
 try:
-    from flask_wtf.csrf import CSRFProtect
+    from flask_wtf.csrf import CSRFProtect, validate_csrf, generate_csrf
+    from flask_wtf import FlaskForm
+    from wtforms import StringField, PasswordField, HiddenField
+    from wtforms.validators import DataRequired, Length
 
     CSRF_AVAILABLE = True
 except ImportError:
     print("Warning: Flask-WTF not available, CSRF protection disabled")
     CSRFProtect = None
+    FlaskForm = None
     CSRF_AVAILABLE = False
 
 socketio = SocketIO()
@@ -76,6 +80,7 @@ def create_app():
         MAX_CONTENT_LENGTH=32 * 1024 * 1024,  # 32MB max file size
         WTF_CSRF_ENABLED=CSRF_AVAILABLE,
         WTF_CSRF_TIME_LIMIT=None,
+        WTF_CSRF_SSL_STRICT=False,  # For development - set to True in production with HTTPS
         SESSION_PERMANENT=False,
         PERMANENT_SESSION_LIFETIME=timedelta(hours=24),
         SEND_FILE_MAX_AGE_DEFAULT=timedelta(hours=1),
@@ -87,6 +92,7 @@ def create_app():
     socketio.init_app(app, cors_allowed_origins="*", async_mode='threading')
 
     # Initialize CSRF protection if available
+    csrf = None
     if CSRF_AVAILABLE:
         csrf = CSRFProtect(app)
         print("✅ CSRF protection enabled")
@@ -94,14 +100,69 @@ def create_app():
         @app.template_global()
         def csrf_token():
             try:
-                from flask_wtf.csrf import generate_csrf
+                return generate_csrf()
+            except Exception as e:
+                print(f"Error generating CSRF token: {e}")
+                return ""
+
+        @app.template_filter('csrf_token')
+        def csrf_token_filter(s):
+            try:
                 return generate_csrf()
             except Exception:
                 return ""
+
     else:
         @app.template_global()
         def csrf_token():
             return ""
+
+        @app.template_filter('csrf_token')
+        def csrf_token_filter(s):
+            return ""
+
+    # CSRF exemption decorator
+    def csrf_exempt(f):
+        """Decorator to exempt routes from CSRF protection"""
+        if CSRF_AVAILABLE and csrf:
+            return csrf.exempt(f)
+        return f
+
+    # CSRF validation helper
+    def validate_csrf_token():
+        """Validate CSRF token for API requests"""
+        if not CSRF_AVAILABLE:
+            return True
+
+        try:
+            # Check for CSRF token in headers (preferred for AJAX)
+            token = request.headers.get('X-CSRFToken') or request.headers.get('X-CSRF-Token')
+
+            # Fallback to form data
+            if not token:
+                token = request.form.get('csrf_token') or request.json.get('csrf_token') if request.is_json else None
+
+            if token:
+                validate_csrf(token)
+                return True
+            else:
+                return False
+        except Exception as e:
+            print(f"CSRF validation failed: {e}")
+            return False
+
+    # API CSRF validation decorator
+    def require_csrf_for_api(f):
+        """Decorator that validates CSRF for API routes"""
+
+        def decorated_function(*args, **kwargs):
+            if request.method in ['POST', 'PUT', 'DELETE', 'PATCH']:
+                if not validate_csrf_token():
+                    return jsonify({'error': 'CSRF token missing or invalid'}), 403
+            return f(*args, **kwargs)
+
+        decorated_function.__name__ = f.__name__
+        return decorated_function
 
     # Create necessary directories
     directories_to_create = [
@@ -219,6 +280,7 @@ def create_app():
         return render_template('login.html')
 
     @app.route('/login', methods=['POST'])
+    @require_csrf_for_api
     def login_submit():
         """Handle login form submission"""
         try:
@@ -273,6 +335,7 @@ def create_app():
         return render_template('register.html')
 
     @app.route('/register', methods=['POST'])
+    @require_csrf_for_api
     def register_submit():
         """Handle registration form submission"""
         try:
@@ -336,6 +399,24 @@ def create_app():
         print(f"👋 Logout: {username}")
         flash('You have been logged out successfully', 'info')
         return redirect(url_for('login_page'))
+
+    # =====================
+    # API CSRF TOKEN ENDPOINT
+    # =====================
+
+    @app.route('/api/csrf-token')
+    @require_login
+    def get_csrf_token():
+        """Get CSRF token for JavaScript requests"""
+        if CSRF_AVAILABLE:
+            try:
+                token = generate_csrf()
+                return jsonify({'csrf_token': token})
+            except Exception as e:
+                print(f"Error generating CSRF token: {e}")
+                return jsonify({'csrf_token': ''})
+        else:
+            return jsonify({'csrf_token': ''})
 
     # =====================
     # FILE MANAGEMENT API
@@ -427,6 +508,7 @@ def create_app():
 
     @app.route('/api/files/upload', methods=['POST'])
     @require_login
+    @require_csrf_for_api
     def upload_file():
         """Upload file(s)"""
         try:
@@ -546,6 +628,7 @@ def create_app():
 
     @app.route('/api/files/delete', methods=['POST'])
     @require_login
+    @require_csrf_for_api
     def delete_files():
         """Delete file(s) or folder(s)"""
         try:
@@ -610,6 +693,7 @@ def create_app():
 
     @app.route('/api/files/create-folder', methods=['POST'])
     @require_login
+    @require_csrf_for_api
     def create_folder():
         """Create a new folder"""
         try:
@@ -663,6 +747,7 @@ def create_app():
 
     @app.route('/api/files/rename', methods=['POST'])
     @require_login
+    @require_csrf_for_api
     def rename_file():
         """Rename a file or folder"""
         try:
@@ -874,6 +959,7 @@ def create_app():
 
     @app.route('/api/shortcuts/desktop', methods=['POST'])
     @require_login
+    @require_csrf_for_api
     def save_desktop_shortcuts():
         """Save user's desktop shortcuts"""
         try:
@@ -906,6 +992,7 @@ def create_app():
 
     @app.route('/api/shortcuts/taskbar', methods=['POST'])
     @require_login
+    @require_csrf_for_api
     def save_taskbar_shortcuts():
         """Save user's taskbar shortcuts"""
         try:
@@ -958,6 +1045,7 @@ def create_app():
 
     @app.route('/api/user/preferences', methods=['POST'])
     @require_login
+    @require_csrf_for_api
     def save_user_preferences():
         """Save user preferences"""
         try:
@@ -974,6 +1062,7 @@ def create_app():
 
     @app.route('/api/user/avatar', methods=['POST'])
     @require_login
+    @csrf_exempt  # File uploads handle CSRF differently
     def upload_avatar():
         """Upload user avatar"""
         try:
@@ -1069,6 +1158,7 @@ def create_app():
 
     @app.route('/api/admin/public-files/upload', methods=['POST'])
     @require_admin
+    @csrf_exempt  # File uploads handle CSRF differently
     def admin_upload_public_files():
         """Upload files to public directory (admin only)"""
         try:
@@ -1146,6 +1236,7 @@ def create_app():
 
     @app.route('/api/admin/public-files/<path:filename>', methods=['DELETE'])
     @require_admin
+    @require_csrf_for_api
     def delete_public_file(filename):
         """Delete public file (admin only)"""
         try:
@@ -1350,11 +1441,11 @@ def create_app():
         if request.path.startswith('/api/'):
             response.headers['Access-Control-Allow-Origin'] = '*'
             response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-CSRFToken, X-CSRF-Token'
 
         return response
 
-    print("✅ EmberFrame app initialized successfully!")
+    print("✅ EmberFrame app initialized successfully with proper CSRF protection!")
     return app
 
 

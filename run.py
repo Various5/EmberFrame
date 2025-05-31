@@ -118,7 +118,8 @@ def main():
             port=port,
             debug=debug,
             use_reloader=debug,
-            log_output=True
+            log_output=True,
+            allow_unsafe_werkzeug=True  # Add this line
         )
 
     except KeyboardInterrupt:
