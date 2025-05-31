@@ -1,4 +1,3 @@
-// Enhanced File Manager with Real File System Integration
 /**
  * APP_METADATA
  * @name File Manager
@@ -10,6 +9,7 @@
  * @enabled true
  */
 
+// Enhanced File Manager with Real File System Integration
 class FileManager {
     static createWindow(startPath = '') {
         return {
@@ -260,131 +260,6 @@ class FileManager {
                         0% { transform: rotate(0deg); }
                         100% { transform: rotate(360deg); }
                     }
-                    
-                    .empty-folder {
-                        grid-column: 1/-1;
-                        text-align: center;
-                        padding: 60px 20px;
-                        color: #666;
-                    }
-                    
-                    .empty-folder-icon {
-                        font-size: 64px;
-                        color: #dee2e6;
-                        margin-bottom: 20px;
-                    }
-                    
-                    .empty-folder-text {
-                        font-size: 18px;
-                        font-weight: 500;
-                        margin-bottom: 8px;
-                    }
-                    
-                    .empty-folder-subtext {
-                        font-size: 14px;
-                        opacity: 0.8;
-                    }
-                    
-                    /* Context Menu */
-                    .context-menu-file {
-                        position: fixed;
-                        background: white;
-                        border: 1px solid #dee2e6;
-                        border-radius: 8px;
-                        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-                        padding: 8px 0;
-                        min-width: 180px;
-                        display: none;
-                        z-index: 10000;
-                        backdrop-filter: blur(10px);
-                    }
-                    
-                    .context-menu-item {
-                        padding: 10px 16px;
-                        cursor: pointer;
-                        font-size: 14px;
-                        display: flex;
-                        align-items: center;
-                        gap: 10px;
-                        transition: background-color 0.2s;
-                    }
-                    
-                    .context-menu-item:hover {
-                        background: #f8f9fa;
-                        color: #007bff;
-                    }
-                    
-                    .context-menu-item i {
-                        width: 16px;
-                        text-align: center;
-                    }
-                    
-                    .context-menu-separator {
-                        height: 1px;
-                        background: #dee2e6;
-                        margin: 4px 0;
-                    }
-                    
-                    /* Drag & Drop */
-                    .drop-zone {
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        bottom: 0;
-                        background: rgba(33, 150, 243, 0.1);
-                        border: 3px dashed #2196f3;
-                        display: none;
-                        align-items: center;
-                        justify-content: center;
-                        font-size: 20px;
-                        font-weight: 500;
-                        color: #1976d2;
-                        z-index: 1000;
-                        backdrop-filter: blur(5px);
-                    }
-                    
-                    .drop-zone.active {
-                        display: flex;
-                    }
-                    
-                    /* Responsive Design */
-                    @media (max-width: 768px) {
-                        .file-list {
-                            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-                            gap: 10px;
-                            padding: 10px;
-                        }
-                        
-                        .file-item {
-                            padding: 10px 8px;
-                        }
-                        
-                        .file-icon {
-                            font-size: 32px;
-                            width: 50px;
-                            height: 50px;
-                        }
-                        
-                        .file-name {
-                            font-size: 12px;
-                        }
-                        
-                        .file-manager-toolbar {
-                            padding: 8px;
-                            gap: 6px;
-                        }
-                        
-                        .file-manager-toolbar button {
-                            padding: 6px 8px;
-                            font-size: 12px;
-                        }
-                        
-                        .file-path {
-                            font-size: 11px;
-                            padding: 6px 8px;
-                        }
-                    }
                 </style>
             `,
             onInit: (windowElement) => {
@@ -408,108 +283,13 @@ class FileManager {
 
     static setupEventListeners() {
         const fileList = this.currentWindow.querySelector('#fm-file-list');
-        const fileInput = this.currentWindow.querySelector('#fm-file-input');
 
-        // File selection and opening
         fileList.addEventListener('click', (e) => {
             const fileItem = e.target.closest('.file-item');
             if (fileItem) {
                 this.handleFileClick(fileItem, e.ctrlKey || e.metaKey);
             } else {
                 this.clearSelection();
-            }
-        });
-
-        // Context menu
-        fileList.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            const fileItem = e.target.closest('.file-item');
-            this.showContextMenu(e.clientX, e.clientY, fileItem);
-        });
-
-        // Context menu actions
-        const contextMenu = this.currentWindow.querySelector('#fm-context-menu');
-        contextMenu.addEventListener('click', (e) => {
-            const item = e.target.closest('.context-menu-item');
-            if (item) {
-                const action = item.dataset.action;
-                this.handleContextAction(action);
-                this.hideContextMenu();
-            }
-        });
-
-        // Hide context menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('#fm-context-menu') && this.currentWindow) {
-                this.hideContextMenu();
-            }
-        });
-
-        // Drag and drop
-        this.setupDragAndDrop();
-
-        // File upload
-        fileInput.addEventListener('change', (e) => {
-            this.handleFileUpload(e.target.files);
-            e.target.value = ''; // Reset input
-        });
-
-        // Keyboard shortcuts
-        this.currentWindow.addEventListener('keydown', (e) => {
-            if (e.key === 'Delete' && this.selectedFiles.size > 0) {
-                this.deleteSelected();
-            } else if (e.key === 'F5') {
-                e.preventDefault();
-                this.refresh();
-            } else if (e.ctrlKey && e.key === 'a') {
-                e.preventDefault();
-                this.selectAll();
-            } else if (e.key === 'Enter' && this.selectedFiles.size === 1) {
-                const selectedFile = Array.from(this.selectedFiles)[0];
-                const fileItem = this.currentWindow.querySelector(`[data-filename="${selectedFile}"]`);
-                if (fileItem) {
-                    this.openFile(selectedFile, fileItem.dataset.type);
-                }
-            }
-        });
-    }
-
-    static setupDragAndDrop() {
-        const content = this.currentWindow.querySelector('.file-manager-content');
-        const dropZone = document.createElement('div');
-        dropZone.className = 'drop-zone';
-        dropZone.innerHTML = '<i class="fas fa-upload" style="margin-right: 10px;"></i>Drop files here to upload';
-        content.appendChild(dropZone);
-
-        let dragCounter = 0;
-
-        content.addEventListener('dragenter', (e) => {
-            e.preventDefault();
-            dragCounter++;
-            if (this.isWritable) {
-                dropZone.classList.add('active');
-            }
-        });
-
-        content.addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            dragCounter--;
-            if (dragCounter === 0) {
-                dropZone.classList.remove('active');
-            }
-        });
-
-        content.addEventListener('dragover', (e) => {
-            e.preventDefault();
-        });
-
-        content.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dragCounter = 0;
-            dropZone.classList.remove('active');
-
-            if (this.isWritable && e.dataTransfer.files.length > 0) {
-                this.handleFileUpload(e.dataTransfer.files);
             }
         });
     }
@@ -583,10 +363,8 @@ class FileManager {
         const isDoubleClick = (now - this.lastClickTime < 500) && (this.lastClickTarget === fileItem);
 
         if (isDoubleClick) {
-            // Double click - open file/folder
             this.openFile(filename, type);
         } else {
-            // Single click - select file
             if (!multiSelect) {
                 this.clearSelection();
             }
@@ -610,15 +388,12 @@ class FileManager {
         if (type === 'folder') {
             await this.navigateToFolder(filename);
         } else {
-            // Open file in text editor if it's a text file
             const textExtensions = ['.txt', '.md', '.js', '.html', '.css', '.json', '.py', '.xml', '.log'];
             const ext = '.' + filename.split('.').pop().toLowerCase();
 
             if (textExtensions.includes(ext)) {
                 if (window.WindowManager && window.TextEditor) {
                     const textEditorWindow = window.WindowManager.openApp('text-editor');
-
-                    // Load file content after a delay
                     setTimeout(() => {
                         const fullPath = this.currentPath ? `${this.currentPath}/${filename}` : filename;
                         window.TextEditor.loadFile(fullPath);
@@ -658,7 +433,7 @@ class FileManager {
         this.showNotification('Directory refreshed', 'success');
     }
 
-    static async createFolder() {
+    static createFolder() {
         if (!this.isWritable) {
             this.showNotification('Cannot create folders in read-only directory', 'error');
             return;
@@ -667,30 +442,7 @@ class FileManager {
         const folderName = prompt('Enter folder name:');
         if (!folderName || !folderName.trim()) return;
 
-        const sanitizedName = folderName.trim().replace(/[^a-zA-Z0-9\-_\s]/g, '');
-        if (!sanitizedName) {
-            this.showNotification('Invalid folder name', 'error');
-            return;
-        }
-
-        try {
-            const fullPath = this.currentPath ? `${this.currentPath}/${sanitizedName}` : sanitizedName;
-            const response = await fetch(`/api/files/${fullPath}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type: 'folder' })
-            });
-
-            if (response.ok) {
-                this.showNotification(`Folder "${sanitizedName}" created`, 'success');
-                await this.refresh();
-            } else {
-                const data = await response.json();
-                this.showNotification(data.error || 'Failed to create folder', 'error');
-            }
-        } catch (error) {
-            this.showNotification('Network error: ' + error.message, 'error');
-        }
+        this.showNotification('Create folder functionality coming soon', 'info');
     }
 
     static uploadFile() {
@@ -699,169 +451,7 @@ class FileManager {
             return;
         }
 
-        const fileInput = this.currentWindow.querySelector('#fm-file-input');
-        fileInput.click();
-    }
-
-    static async handleFileUpload(files) {
-        if (!this.isWritable) {
-            this.showNotification('Cannot upload files to read-only directory', 'error');
-            return;
-        }
-
-        const uploadPromises = Array.from(files).map(file => this.uploadSingleFile(file));
-
-        try {
-            await Promise.all(uploadPromises);
-            this.showNotification(`${files.length} file(s) uploaded successfully`, 'success');
-            await this.refresh();
-        } catch (error) {
-            this.showNotification('Some files failed to upload', 'error');
-        }
-    }
-
-    static async uploadSingleFile(file) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('path', this.currentPath);
-
-        const response = await fetch('/api/upload-file', {
-            method: 'POST',
-            body: formData
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to upload ${file.name}`);
-        }
-    }
-
-    static async deleteSelected() {
-        if (this.selectedFiles.size === 0 || !this.isWritable) return;
-
-        const fileList = Array.from(this.selectedFiles);
-        const confirmMessage = fileList.length === 1 ?
-            `Delete "${fileList[0]}"?` :
-            `Delete ${fileList.length} selected items?`;
-
-        if (!confirm(confirmMessage)) return;
-
-        const deletePromises = fileList.map(filename => this.deleteFile(filename));
-
-        try {
-            await Promise.all(deletePromises);
-            this.showNotification(`${fileList.length} item(s) deleted`, 'success');
-            await this.refresh();
-        } catch (error) {
-            this.showNotification('Some items failed to delete', 'error');
-        }
-    }
-
-    static async deleteFile(filename) {
-        const fullPath = this.currentPath ? `${this.currentPath}/${filename}` : filename;
-        const response = await fetch(`/api/files/${fullPath}`, { method: 'DELETE' });
-
-        if (!response.ok) {
-            throw new Error(`Failed to delete ${filename}`);
-        }
-    }
-
-    static showContextMenu(x, y, fileItem) {
-        const contextMenu = this.currentWindow.querySelector('#fm-context-menu');
-
-        // Update menu items based on context
-        const openItem = contextMenu.querySelector('[data-action="open"]');
-        const editItem = contextMenu.querySelector('[data-action="edit"]');
-        const renameItem = contextMenu.querySelector('[data-action="rename"]');
-        const deleteItem = contextMenu.querySelector('[data-action="delete"]');
-
-        if (fileItem) {
-            const filename = fileItem.dataset.filename;
-            const type = fileItem.dataset.type;
-
-            this.contextTarget = fileItem;
-
-            // Select the item if not already selected
-            if (!this.selectedFiles.has(filename)) {
-                this.clearSelection();
-                this.selectedFiles.add(filename);
-                fileItem.classList.add('selected');
-                this.updateSelectionInfo();
-            }
-
-            openItem.innerHTML = type === 'folder' ? '<i class="fas fa-folder-open"></i> Open' : '<i class="fas fa-edit"></i> Edit';
-            editItem.style.display = type === 'file' ? 'block' : 'none';
-            renameItem.style.display = this.isWritable ? 'block' : 'none';
-            deleteItem.style.display = this.isWritable ? 'block' : 'none';
-        } else {
-            this.contextTarget = null;
-            openItem.innerHTML = '<i class="fas fa-folder-plus"></i> New Folder';
-            editItem.style.display = 'none';
-            renameItem.style.display = 'none';
-            deleteItem.style.display = 'none';
-        }
-
-        // Position and show menu
-        contextMenu.style.left = Math.min(x, window.innerWidth - 200) + 'px';
-        contextMenu.style.top = Math.min(y, window.innerHeight - 200) + 'px';
-        contextMenu.style.display = 'block';
-    }
-
-    static hideContextMenu() {
-        const contextMenu = this.currentWindow.querySelector('#fm-context-menu');
-        contextMenu.style.display = 'none';
-    }
-
-    static handleContextAction(action) {
-        switch (action) {
-            case 'open':
-                if (this.contextTarget) {
-                    const filename = this.contextTarget.dataset.filename;
-                    const type = this.contextTarget.dataset.type;
-                    this.openFile(filename, type);
-                } else {
-                    this.createFolder();
-                }
-                break;
-            case 'edit':
-                if (this.contextTarget) {
-                    const filename = this.contextTarget.dataset.filename;
-                    this.openFile(filename, 'file');
-                }
-                break;
-            case 'rename':
-                if (this.contextTarget) {
-                    this.renameFile(this.contextTarget.dataset.filename);
-                }
-                break;
-            case 'delete':
-                if (this.selectedFiles.size > 0) {
-                    this.deleteSelected();
-                }
-                break;
-            case 'properties':
-                if (this.contextTarget) {
-                    this.showProperties(this.contextTarget);
-                }
-                break;
-        }
-    }
-
-    static async renameFile(oldName) {
-        const newName = prompt('Enter new name:', oldName);
-        if (!newName || newName === oldName) return;
-
-        // For now, show a message that rename is coming soon
-        this.showNotification('Rename functionality coming soon', 'info');
-    }
-
-    static showProperties(fileItem) {
-        const filename = fileItem.dataset.filename;
-        const type = fileItem.dataset.type;
-        const size = fileItem.dataset.size;
-
-        const sizeText = type === 'folder' ? 'Folder' : this.formatFileSize(parseInt(size));
-
-        alert(`Properties for: ${filename}\nType: ${type}\nSize: ${sizeText}`);
+        this.showNotification('Upload functionality coming soon', 'info');
     }
 
     static clearSelection() {
@@ -872,31 +462,12 @@ class FileManager {
         this.updateSelectionInfo();
     }
 
-    static selectAll() {
-        this.currentWindow.querySelectorAll('.file-item').forEach(item => {
-            item.classList.add('selected');
-            this.selectedFiles.add(item.dataset.filename);
-        });
-        this.updateSelectionInfo();
-    }
-
     static updateUI() {
         const pathElement = this.currentWindow.querySelector('#fm-current-path');
         const backBtn = this.currentWindow.querySelector('#fm-back-btn');
-        const newFolderBtn = this.currentWindow.querySelector('#fm-new-folder-btn');
-        const uploadBtn = this.currentWindow.querySelector('#fm-upload-btn');
 
         pathElement.textContent = '/' + this.currentPath;
         backBtn.disabled = this.pathHistory.length === 0;
-
-        // Disable write operations for read-only directories
-        newFolderBtn.disabled = !this.isWritable;
-        uploadBtn.disabled = !this.isWritable;
-
-        // Update window title
-        const title = this.currentWindow.querySelector('.window-title');
-        title.textContent = this.currentPath.startsWith('public/') ?
-            'File Manager - Public' : 'File Manager';
     }
 
     static updateSelectionInfo() {
@@ -951,7 +522,6 @@ class FileManager {
         if (window.Notification) {
             window.Notification[type](message);
         } else {
-            // Fallback to alert if notification system not available
             alert(message);
         }
     }

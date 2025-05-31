@@ -793,15 +793,15 @@
     </div>
 
     <div class="context-menu" id="app-context-menu">
+        <div class="context-menu-item" data-action="open">
+            <i class="fas fa-play"></i> Open
+        </div>
+        <div class="context-menu-separator"></div>
         <div class="context-menu-item" data-action="add-desktop">
             <i class="fas fa-plus"></i> Add to Desktop
         </div>
         <div class="context-menu-item" data-action="add-taskbar">
             <i class="fas fa-thumbtack"></i> Pin to Taskbar
-        </div>
-        <div class="context-menu-separator"></div>
-        <div class="context-menu-item" data-action="open">
-            <i class="fas fa-play"></i> Open
         </div>
     </div>
 
@@ -1069,48 +1069,55 @@
                 }
             }
 
-static getFallbackApps() {
-    // Minimal fallback if server discovery fails
-    const fallbackApps = [
-        {
-            id: 'file-manager',
-            name: 'File Manager',
-            icon: 'fas fa-folder',
-            description: 'Browse and manage your files',
-            category: 'System'
-        },
-        {
-            id: 'terminal',
-            name: 'Terminal',
-            icon: 'fas fa-terminal',
-            description: 'Command line interface',
-            category: 'System'
-        },
-        {
-            id: 'settings',
-            name: 'Settings',
-            icon: 'fas fa-cog',
-            description: 'Customize your experience',
-            category: 'System'
-        },
-        {
-            id: 'task-manager',
-            name: 'Task Manager',
-            icon: 'fas fa-tasks',
-            description: 'Monitor running applications',
-            category: 'System'
+            static getFallbackApps() {
+                const fallbackApps = [
+                    {
+                        id: 'file-manager',
+                        name: 'File Manager',
+                        icon: 'fas fa-folder',
+                        description: 'Browse and manage your files',
+                        category: 'System'
+                    },
+                    {
+                        id: 'public-folder',
+                        name: 'Public Files',
+                        icon: 'fas fa-globe',
+                        description: 'Access shared public files',
+                        category: 'System'
+                    },
+                    {
+                        id: 'terminal',
+                        name: 'Terminal',
+                        icon: 'fas fa-terminal',
+                        description: 'Command line interface',
+                        category: 'System'
+                    },
+                    {
+                        id: 'settings',
+                        name: 'Settings',
+                        icon: 'fas fa-cog',
+                        description: 'Customize your experience',
+                        category: 'System'
+                    },
+                    {
+                        id: 'task-manager',
+                        name: 'Task Manager',
+                        icon: 'fas fa-tasks',
+                        description: 'Monitor running applications',
+                        category: 'System'
+                    }
+                ];
+
+                window.EmberFrame.availableApps = new Map();
+                fallbackApps.forEach(app => {
+                    window.EmberFrame.availableApps.set(app.id, app);
+                });
+
+                return window.EmberFrame.availableApps;
+            }
         }
-    ];
 
-    window.EmberFrame.availableApps = new Map();
-    fallbackApps.forEach(app => {
-        window.EmberFrame.availableApps.set(app.id, app);
-    });
-
-    return window.EmberFrame.availableApps;
-}
-
-        // Shortcut Management System
+        // Enhanced Shortcut Management System
         class ShortcutManager {
             static async loadShortcuts() {
                 try {
@@ -1119,6 +1126,13 @@ static getFallbackApps() {
                     if (desktopResponse.ok) {
                         const data = await desktopResponse.json();
                         window.EmberFrame.desktopShortcuts = data.shortcuts || [];
+                    } else {
+                        // Use default shortcuts if API fails
+                        window.EmberFrame.desktopShortcuts = [
+                            { app: 'file-manager', x: 50, y: 50 },
+                            { app: 'public-folder', x: 50, y: 170 },
+                            { app: 'settings', x: 50, y: 290 }
+                        ];
                     }
 
                     // Load taskbar shortcuts
@@ -1126,6 +1140,8 @@ static getFallbackApps() {
                     if (taskbarResponse.ok) {
                         const data = await taskbarResponse.json();
                         window.EmberFrame.taskbarShortcuts = data.shortcuts || [];
+                    } else {
+                        window.EmberFrame.taskbarShortcuts = [];
                     }
 
                     console.log('📌 Shortcuts loaded:', {
@@ -1134,14 +1150,21 @@ static getFallbackApps() {
                     });
                 } catch (error) {
                     console.error('Failed to load shortcuts:', error);
-                    window.EmberFrame.desktopShortcuts = [];
+                    // Fallback to default shortcuts
+                    window.EmberFrame.desktopShortcuts = [
+                        { app: 'file-manager', x: 50, y: 50 },
+                        { app: 'public-folder', x: 50, y: 170 },
+                        { app: 'settings', x: 50, y: 290 }
+                    ];
                     window.EmberFrame.taskbarShortcuts = [];
                 }
             }
 
             static updateDesktopShortcuts() {
+                const desktop = document.getElementById('desktop');
+
                 // Clear existing icons
-                document.querySelectorAll('.desktop-icon').forEach(icon => icon.remove());
+                desktop.querySelectorAll('.desktop-icon').forEach(icon => icon.remove());
 
                 // Create icons from shortcuts
                 window.EmberFrame.desktopShortcuts.forEach(shortcut => {
@@ -1174,11 +1197,43 @@ static getFallbackApps() {
 
             static setupIconEvents(icon) {
                 let clickCount = 0;
+                let isDragging = false;
+                let dragStartX, dragStartY;
 
+                // Mouse events for desktop interactions
+                icon.addEventListener('mousedown', (e) => {
+                    if (e.button !== 0) return; // Only left click
+
+                    dragStartX = e.clientX - icon.offsetLeft;
+                    dragStartY = e.clientY - icon.offsetTop;
+
+                    const startDrag = (e) => {
+                        isDragging = true;
+                        icon.classList.add('dragging');
+                        this.moveIcon(icon, e, dragStartX, dragStartY);
+                    };
+
+                    const stopDrag = () => {
+                        if (isDragging) {
+                            isDragging = false;
+                            icon.classList.remove('dragging');
+                            this.saveIconPosition(icon);
+                        }
+                        document.removeEventListener('mousemove', startDrag);
+                        document.removeEventListener('mouseup', stopDrag);
+                    };
+
+                    document.addEventListener('mousemove', startDrag);
+                    document.addEventListener('mouseup', stopDrag);
+                });
+
+                // Click handler for selection and opening
                 icon.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    clickCount++;
 
+                    if (isDragging) return;
+
+                    clickCount++;
                     setTimeout(() => {
                         if (clickCount === 1) {
                             this.selectIcon(icon);
@@ -1197,6 +1252,60 @@ static getFallbackApps() {
                     e.preventDefault();
                     ContextMenuManager.show('icon', e.clientX, e.clientY, { app: icon.dataset.app });
                 });
+
+                // Touch events for mobile
+                if (window.innerWidth <= 768) {
+                    icon.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        const appId = icon.dataset.app;
+                        if (window.WindowManager) {
+                            window.WindowManager.openApp(appId);
+                        }
+                    });
+                }
+            }
+
+            static moveIcon(icon, e, offsetX, offsetY) {
+                const desktop = document.getElementById('desktop');
+                const desktopRect = desktop.getBoundingClientRect();
+
+                let newX = e.clientX - offsetX;
+                let newY = e.clientY - offsetY;
+
+                // Constrain to desktop bounds
+                newX = Math.max(0, Math.min(newX, desktopRect.width - icon.offsetWidth));
+                newY = Math.max(0, Math.min(newY, desktopRect.height - icon.offsetHeight));
+
+                icon.style.left = newX + 'px';
+                icon.style.top = newY + 'px';
+            }
+
+            static saveIconPosition(icon) {
+                const appId = icon.dataset.app;
+                const x = parseInt(icon.style.left);
+                const y = parseInt(icon.style.top);
+
+                // Update in memory
+                const shortcut = window.EmberFrame.desktopShortcuts.find(s => s.app === appId);
+                if (shortcut) {
+                    shortcut.x = x;
+                    shortcut.y = y;
+
+                    // Save to server
+                    this.saveShortcutsToServer();
+                }
+            }
+
+            static async saveShortcutsToServer() {
+                try {
+                    await fetch('/api/shortcuts/desktop', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ shortcuts: window.EmberFrame.desktopShortcuts })
+                    });
+                } catch (error) {
+                    console.error('Failed to save shortcuts:', error);
+                }
             }
 
             static selectIcon(icon) {
@@ -1206,6 +1315,8 @@ static getFallbackApps() {
 
             static updateTaskbarShortcuts() {
                 const container = document.getElementById('taskbar-shortcuts');
+                if (!container) return;
+
                 container.innerHTML = '';
 
                 window.EmberFrame.taskbarShortcuts.forEach(shortcut => {
@@ -1224,12 +1335,120 @@ static getFallbackApps() {
                         }
                     });
 
+                    // Context menu for removing
+                    button.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        ContextMenuManager.show('taskbar', e.clientX, e.clientY, { app: shortcut.app });
+                    });
+
                     container.appendChild(button);
                 });
             }
+
+            // Add shortcut to desktop
+            static async addDesktopShortcut(appId) {
+                const app = window.EmberFrame.availableApps.get(appId);
+                if (!app) return;
+
+                // Check if already exists
+                if (window.EmberFrame.desktopShortcuts.some(s => s.app === appId)) {
+                    if (window.Notification) {
+                        window.Notification.warning(`${app.name} is already on the desktop`);
+                    }
+                    return;
+                }
+
+                // Find a good position
+                const x = 50 + (window.EmberFrame.desktopShortcuts.length % 8) * 100;
+                const y = 50 + Math.floor(window.EmberFrame.desktopShortcuts.length / 8) * 120;
+
+                const shortcut = { app: appId, x, y };
+                window.EmberFrame.desktopShortcuts.push(shortcut);
+
+                this.createDesktopIcon(shortcut);
+                await this.saveShortcutsToServer();
+
+                if (window.Notification) {
+                    window.Notification.success(`${app.name} added to desktop`);
+                }
+            }
+
+            // Remove shortcut from desktop
+            static async removeDesktopShortcut(appId) {
+                const app = window.EmberFrame.availableApps.get(appId);
+
+                window.EmberFrame.desktopShortcuts = window.EmberFrame.desktopShortcuts.filter(s => s.app !== appId);
+
+                // Remove from DOM
+                const icon = document.querySelector(`.desktop-icon[data-app="${appId}"]`);
+                if (icon) {
+                    icon.remove();
+                }
+
+                await this.saveShortcutsToServer();
+
+                if (window.Notification) {
+                    window.Notification.success(`${app?.name || 'App'} removed from desktop`);
+                }
+            }
+
+            // Add shortcut to taskbar
+            static async addTaskbarShortcut(appId) {
+                const app = window.EmberFrame.availableApps.get(appId);
+                if (!app) return;
+
+                // Check if already exists
+                if (window.EmberFrame.taskbarShortcuts.some(s => s.app === appId)) {
+                    if (window.Notification) {
+                        window.Notification.warning(`${app.name} is already pinned to taskbar`);
+                    }
+                    return;
+                }
+
+                window.EmberFrame.taskbarShortcuts.push({ app: appId });
+                this.updateTaskbarShortcuts();
+
+                // Save to server
+                try {
+                    await fetch('/api/shortcuts/taskbar', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ shortcuts: window.EmberFrame.taskbarShortcuts })
+                    });
+                } catch (error) {
+                    console.error('Failed to save taskbar shortcuts:', error);
+                }
+
+                if (window.Notification) {
+                    window.Notification.success(`${app.name} pinned to taskbar`);
+                }
+            }
+
+            // Remove shortcut from taskbar
+            static async removeTaskbarShortcut(appId) {
+                const app = window.EmberFrame.availableApps.get(appId);
+
+                window.EmberFrame.taskbarShortcuts = window.EmberFrame.taskbarShortcuts.filter(s => s.app !== appId);
+                this.updateTaskbarShortcuts();
+
+                // Save to server
+                try {
+                    await fetch('/api/shortcuts/taskbar', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ shortcuts: window.EmberFrame.taskbarShortcuts })
+                    });
+                } catch (error) {
+                    console.error('Failed to save taskbar shortcuts:', error);
+                }
+
+                if (window.Notification) {
+                    window.Notification.success(`${app?.name || 'App'} unpinned from taskbar`);
+                }
+            }
         }
 
-        // Context Menu Management - Simplified for compatibility
+        // Enhanced Context Menu Management
         class ContextMenuManager {
             static currentMenu = null;
 
@@ -1246,7 +1465,10 @@ static getFallbackApps() {
                 menu.style.top = Math.min(y, window.innerHeight - 200) + 'px';
                 menu.style.display = 'block';
 
-                // Simple click handler
+                // Update menu items based on context
+                this.updateMenuItems(type, context);
+
+                // Click handler
                 menu.addEventListener('click', (e) => {
                     const item = e.target.closest('.context-menu-item');
                     if (item) {
@@ -1260,6 +1482,34 @@ static getFallbackApps() {
                 setTimeout(() => {
                     document.addEventListener('click', () => this.hide(), { once: true });
                 }, 100);
+            }
+
+            static updateMenuItems(type, context) {
+                const menu = this.currentMenu;
+                if (!menu) return;
+
+                // Update menu items based on type and context
+                if (type === 'icon' && context.app) {
+                    // Show remove option for desktop icons
+                    const removeItem = menu.querySelector('[data-action="remove"]');
+                    if (removeItem) {
+                        removeItem.style.display = 'block';
+                    }
+                } else if (type === 'app' && context.app) {
+                    // Show add to desktop/taskbar options for start menu apps
+                    const addDesktopItem = menu.querySelector('[data-action="add-desktop"]');
+                    const addTaskbarItem = menu.querySelector('[data-action="add-taskbar"]');
+
+                    if (addDesktopItem) {
+                        const isOnDesktop = window.EmberFrame.desktopShortcuts.some(s => s.app === context.app);
+                        addDesktopItem.style.display = isOnDesktop ? 'none' : 'block';
+                    }
+
+                    if (addTaskbarItem) {
+                        const isOnTaskbar = window.EmberFrame.taskbarShortcuts.some(s => s.app === context.app);
+                        addTaskbarItem.style.display = isOnTaskbar ? 'none' : 'block';
+                    }
+                }
             }
 
             static hide() {
@@ -1276,6 +1526,26 @@ static getFallbackApps() {
                     case 'open':
                         if (context.app && window.WindowManager) {
                             window.WindowManager.openApp(context.app);
+                        }
+                        break;
+                    case 'add-desktop':
+                        if (context.app) {
+                            ShortcutManager.addDesktopShortcut(context.app);
+                        }
+                        break;
+                    case 'add-taskbar':
+                        if (context.app) {
+                            ShortcutManager.addTaskbarShortcut(context.app);
+                        }
+                        break;
+                    case 'remove':
+                        if (context.app) {
+                            ShortcutManager.removeDesktopShortcut(context.app);
+                        }
+                        break;
+                    case 'unpin':
+                        if (context.app) {
+                            ShortcutManager.removeTaskbarShortcut(context.app);
                         }
                         break;
                     case 'settings':
@@ -1295,7 +1565,7 @@ static getFallbackApps() {
             }
         }
 
-        // Desktop Manager
+        // Enhanced Desktop Manager
         class DesktopManager {
             static init() {
                 this.setupEventListeners();
@@ -1412,6 +1682,12 @@ static getFallbackApps() {
                             window.WindowManager.openApp(appId);
                         }
                         this.closeStartMenu();
+                    });
+
+                    // Right-click for context menu
+                    app.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        ContextMenuManager.show('app', e.clientX, e.clientY, { app: app.dataset.app });
                     });
                 });
             }
@@ -1578,7 +1854,8 @@ static getFallbackApps() {
     <script src="{{ url_for('static', filename='js/apps/text-editor.js') }}"></script>
     <script src="{{ url_for('static', filename='js/apps/media-player.js') }}"></script>
     <script src="{{ url_for('static', filename='js/apps/settings.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/admin-panel.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/apps/admin-panel.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/apps/task-manager.js') }}"></script>
 
     <script>
         console.log('🔥 All systems loaded - Personalized EmberFrame ready');

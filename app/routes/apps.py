@@ -11,32 +11,134 @@ def get_available_apps():
     """Automatically discover all apps in the static/js/apps folder"""
     try:
         apps = []
-        apps_folder = Path('static/js/apps')
 
-        if not apps_folder.exists():
-            return jsonify({'success': False, 'error': 'Apps folder not found'})
+        # Define apps manually for now since file parsing might be complex
+        app_definitions = [
+            {
+                'id': 'file-manager',
+                'name': 'File Manager',
+                'icon': 'fas fa-folder',
+                'description': 'Browse and manage your files and folders',
+                'category': 'System',
+                'version': '1.3.0',
+                'author': 'EmberFrame Team',
+                'enabled': True
+            },
+            {
+                'id': 'public-folder',
+                'name': 'Public Files',
+                'icon': 'fas fa-globe',
+                'description': 'Access shared public files',
+                'category': 'System',
+                'version': '1.0.0',
+                'author': 'EmberFrame Team',
+                'enabled': True
+            },
+            {
+                'id': 'terminal',
+                'name': 'Terminal',
+                'icon': 'fas fa-terminal',
+                'description': 'Command line interface with Unix-like commands',
+                'category': 'System',
+                'version': '1.1.0',
+                'author': 'EmberFrame Team',
+                'enabled': True
+            },
+            {
+                'id': 'text-editor',
+                'name': 'Text Editor',
+                'icon': 'fas fa-file-alt',
+                'description': 'Create and edit text documents',
+                'category': 'Productivity',
+                'version': '1.2.0',
+                'author': 'EmberFrame Team',
+                'enabled': True
+            },
+            {
+                'id': 'settings',
+                'name': 'Settings',
+                'icon': 'fas fa-cog',
+                'description': 'Customize your EmberFrame experience',
+                'category': 'System',
+                'version': '1.3.0',
+                'author': 'EmberFrame Team',
+                'enabled': True
+            },
+            {
+                'id': 'task-manager',
+                'name': 'Task Manager',
+                'icon': 'fas fa-tasks',
+                'description': 'Monitor and manage running applications',
+                'category': 'System',
+                'version': '1.0.0',
+                'author': 'EmberFrame Team',
+                'enabled': True
+            },
+            {
+                'id': 'media-player',
+                'name': 'Media Player',
+                'icon': 'fas fa-play',
+                'description': 'Play audio and video files',
+                'category': 'Media',
+                'version': '1.0.0',
+                'author': 'EmberFrame Team',
+                'enabled': True
+            },
+            {
+                'id': 'admin-panel',
+                'name': 'Admin Panel',
+                'icon': 'fas fa-shield-alt',
+                'description': 'Administrative tools and file management',
+                'category': 'Administration',
+                'version': '1.0.0',
+                'author': 'EmberFrame Team',
+                'enabled': True
+            }
+        ]
 
-        # Scan all .js files in the apps folder
-        for app_file in apps_folder.glob('*.js'):
-            app_id = app_file.stem  # filename without .js
-
-            # Read the app file to extract metadata
-            try:
-                with open(app_file, 'r', encoding='utf-8') as f:
-                    content = f.read()
-
-                # Extract metadata from the app file
-                metadata = extract_app_metadata(content, app_id)
-                if metadata:
-                    apps.append(metadata)
-
-            except Exception as e:
-                print(f"Error reading app {app_file}: {e}")
-                continue
+        # Filter enabled apps
+        apps = [app for app in app_definitions if app.get('enabled', True)]
 
         return jsonify({
             'success': True,
             'apps': apps
+        })
+
+    except Exception as e:
+        print(f"Error in get_available_apps: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
+
+
+@apps_bp.route('/api/shortcuts/desktop', methods=['GET'])
+def get_desktop_shortcuts():
+    """Get desktop shortcuts for current user"""
+    try:
+        # For now, return default shortcuts
+        # In a real app, you'd load from database per user
+        default_shortcuts = [
+            {
+                'app': 'file-manager',
+                'x': 50,
+                'y': 50
+            },
+            {
+                'app': 'public-folder',
+                'x': 50,
+                'y': 170
+            },
+            {
+                'app': 'settings',
+                'x': 50,
+                'y': 290
+            }
+        ]
+
+        return jsonify({
+            'success': True,
+            'shortcuts': default_shortcuts
         })
 
     except Exception as e:
@@ -46,51 +148,47 @@ def get_available_apps():
         })
 
 
-def extract_app_metadata(content, app_id):
-    """Extract metadata from app file comments or static properties"""
+@apps_bp.route('/api/shortcuts/desktop', methods=['POST'])
+def save_desktop_shortcuts():
+    """Save desktop shortcuts for current user"""
+    try:
+        # In a real app, you'd save to database per user
+        # For now, just return success
+        return jsonify({'success': True})
 
-    # Default values
-    metadata = {
-        'id': app_id,
-        'name': app_id.replace('-', ' ').title(),
-        'icon': 'fas fa-window-maximize',
-        'description': f'{app_id.replace("-", " ").title()} application',
-        'category': 'Applications',
-        'version': '1.0.0',
-        'author': 'EmberFrame',
-        'enabled': True
-    }
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
 
-    # Look for metadata in comments at the top of the file
-    metadata_pattern = r'/\*\*\s*APP_METADATA\s*(.*?)\s*\*/'
-    match = re.search(metadata_pattern, content, re.DOTALL)
 
-    if match:
-        try:
-            # Parse the metadata block
-            metadata_text = match.group(1)
+@apps_bp.route('/api/shortcuts/taskbar', methods=['GET'])
+def get_taskbar_shortcuts():
+    """Get taskbar shortcuts for current user"""
+    try:
+        # Return empty by default - user can add via context menu
+        return jsonify({
+            'success': True,
+            'shortcuts': []
+        })
 
-            # Extract individual properties
-            patterns = {
-                'name': r'@name\s+(.+)',
-                'icon': r'@icon\s+(.+)',
-                'description': r'@description\s+(.+)',
-                'category': r'@category\s+(.+)',
-                'version': r'@version\s+(.+)',
-                'author': r'@author\s+(.+)',
-                'enabled': r'@enabled\s+(.+)'
-            }
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
 
-            for key, pattern in patterns.items():
-                prop_match = re.search(pattern, metadata_text)
-                if prop_match:
-                    value = prop_match.group(1).strip()
-                    if key == 'enabled':
-                        metadata[key] = value.lower() in ['true', '1', 'yes']
-                    else:
-                        metadata[key] = value
 
-        except Exception as e:
-            print(f"Error parsing metadata for {app_id}: {e}")
+@apps_bp.route('/api/shortcuts/taskbar', methods=['POST'])
+def save_taskbar_shortcuts():
+    """Save taskbar shortcuts for current user"""
+    try:
+        # In a real app, you'd save to database per user
+        return jsonify({'success': True})
 
-    return metadata if metadata['enabled'] else None
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
