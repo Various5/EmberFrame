@@ -1,1824 +1,2202 @@
 /**
  * APP_METADATA
- * @name Appmaker
- * @icon fas fa-hammer
- * @description Interactive application builder with wizard and tutorials
- * @category Utilities
- * @version 1.0.0
+ * @name AppMaker
+ * @icon fas fa-code
+ * @description Create custom applications with templates and live preview
+ * @category Development
+ * @version 2.0.0
  * @author EmberFrame Team
  * @enabled true
  */
 
-class Appmaker {
+class AppMaker {
     static createWindow() {
         return {
-            title: 'EmberFrame Appmaker',
-            width: '1200px',
-            height: '800px',
+            title: 'App Maker - Create Custom Apps',
+            width: '1100px',
+            height: '700px',
             autoSize: false,
             content: `
-                <div class="appmaker">
-                    <!-- Header -->
-                    <div class="appmaker-header">
-                        <div class="header-left">
-                            <h1><i class="fas fa-hammer"></i> EmberFrame Appmaker</h1>
-                            <p>Build custom applications with visual tools and wizards</p>
+                <div class="app-maker">
+                    <div class="app-maker-header">
+                        <h2>🚀 App Maker Studio</h2>
+                        <p>Create custom applications with templates and live preview</p>
+                        <div class="header-stats">
+                            <span class="stat-item">
+                                <i class="fas fa-code"></i>
+                                <span id="am-line-count">0</span> lines
+                            </span>
+                            <span class="stat-item">
+                                <i class="fas fa-file"></i>
+                                <span id="am-file-size">0 KB</span>
+                            </span>
                         </div>
-                        <div class="header-right">
-                            <button class="btn btn-secondary" onclick="Appmaker.showHelp()">
-                                <i class="fas fa-question-circle"></i> Help
+                    </div>
+
+                    <div class="app-maker-toolbar">
+                        <div class="toolbar-left">
+                            <select id="am-template-select" onchange="AppMaker.loadTemplate()">
+                                <option value="">Choose Template...</option>
+                                <option value="calculator">🧮 Calculator App</option>
+                                <option value="todo">📋 Todo List App</option>
+                                <option value="weather">🌤️ Weather Widget</option>
+                                <option value="game-snake">🐍 Snake Game</option>
+                                <option value="game-memory">🧠 Memory Game</option>
+                                <option value="chat">💬 Chat Interface</option>
+                                <option value="dashboard">📊 Dashboard</option>
+                                <option value="music-player">🎵 Music Player</option>
+                                <option value="image-editor">🖼️ Image Editor</option>
+                                <option value="blank">📄 Blank App</option>
+                            </select>
+                            <button onclick="AppMaker.newApp()" title="New App">
+                                <i class="fas fa-plus"></i> New
                             </button>
-                            <button class="btn btn-primary" onclick="Appmaker.newApp()">
-                                <i class="fas fa-plus"></i> New App
+                            <button onclick="AppMaker.saveApp()" title="Save App">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                            <button onclick="AppMaker.loadApp()" title="Load App">
+                                <i class="fas fa-folder-open"></i> Load
+                            </button>
+                        </div>
+
+                        <div class="toolbar-center">
+                            <input type="text" id="am-app-name" placeholder="My Awesome App" class="app-name-input">
+                        </div>
+
+                        <div class="toolbar-right">
+                            <button onclick="AppMaker.previewApp()" class="preview-btn">
+                                <i class="fas fa-play"></i> Preview
+                            </button>
+                            <button onclick="AppMaker.installApp()" class="install-btn">
+                                <i class="fas fa-download"></i> Install
+                            </button>
+                            <button onclick="AppMaker.exportApp()" title="Export App">
+                                <i class="fas fa-file-export"></i> Export
                             </button>
                         </div>
                     </div>
 
-                    <!-- Main Navigation -->
-                    <div class="appmaker-nav">
-                        <button class="nav-btn active" onclick="Appmaker.switchTab('welcome')" data-tab="welcome">
-                            <i class="fas fa-home"></i> Welcome
-                        </button>
-                        <button class="nav-btn" onclick="Appmaker.switchTab('wizard')" data-tab="wizard">
-                            <i class="fas fa-magic"></i> App Wizard
-                        </button>
-                        <button class="nav-btn" onclick="Appmaker.switchTab('designer')" data-tab="designer">
-                            <i class="fas fa-paint-brush"></i> Visual Designer
-                        </button>
-                        <button class="nav-btn" onclick="Appmaker.switchTab('code')" data-tab="code">
-                            <i class="fas fa-code"></i> Code Editor
-                        </button>
-                        <button class="nav-btn" onclick="Appmaker.switchTab('preview')" data-tab="preview">
-                            <i class="fas fa-eye"></i> Preview
-                        </button>
-                        <button class="nav-btn" onclick="Appmaker.switchTab('export')" data-tab="export">
-                            <i class="fas fa-download"></i> Export
-                        </button>
-                    </div>
-
-                    <!-- Content Area -->
-                    <div class="appmaker-content">
-                        
-                        <!-- Welcome Tab -->
-                        <div class="tab-content active" id="welcome-tab">
-                            <div class="welcome-section">
-                                <div class="welcome-hero">
-                                    <h2>🚀 Welcome to EmberFrame Appmaker</h2>
-                                    <p>Create powerful applications with our intuitive visual tools and step-by-step wizards.</p>
-                                </div>
-
-                                <div class="quick-start-grid">
-                                    <div class="quick-card" onclick="Appmaker.startWizard()">
-                                        <div class="card-icon">🧙‍♂️</div>
-                                        <h3>Start with Wizard</h3>
-                                        <p>Guided step-by-step app creation process</p>
-                                        <div class="card-action">Get Started →</div>
-                                    </div>
-
-                                    <div class="quick-card" onclick="Appmaker.useTemplate()">
-                                        <div class="card-icon">📋</div>
-                                        <h3>Use Template</h3>
-                                        <p>Start from pre-built app templates</p>
-                                        <div class="card-action">Browse Templates →</div>
-                                    </div>
-
-                                    <div class="quick-card" onclick="Appmaker.startTutorial()">
-                                        <div class="card-icon">🎓</div>
-                                        <h3>Learn Tutorial</h3>
-                                        <p>Interactive tutorials and examples</p>
-                                        <div class="card-action">Start Learning →</div>
-                                    </div>
-
-                                    <div class="quick-card" onclick="Appmaker.importApp()">
-                                        <div class="card-icon">📥</div>
-                                        <h3>Import App</h3>
-                                        <p>Load existing app for editing</p>
-                                        <div class="card-action">Import →</div>
+                    <div class="app-maker-main">
+                        <div class="templates-sidebar" id="am-templates-sidebar">
+                            <div class="sidebar-header">
+                                <h4>📁 Templates</h4>
+                                <button onclick="AppMaker.toggleSidebar()" class="sidebar-toggle">
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="template-categories">
+                                <div class="template-category">
+                                    <h5>🎮 Games</h5>
+                                    <div class="template-list">
+                                        <div class="template-item" onclick="AppMaker.selectTemplate('game-snake')">
+                                            <div class="template-icon">🐍</div>
+                                            <div class="template-info">
+                                                <div class="template-name">Snake Game</div>
+                                                <div class="template-desc">Classic snake game</div>
+                                            </div>
+                                        </div>
+                                        <div class="template-item" onclick="AppMaker.selectTemplate('game-memory')">
+                                            <div class="template-icon">🧠</div>
+                                            <div class="template-info">
+                                                <div class="template-name">Memory Game</div>
+                                                <div class="template-desc">Card matching game</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
+                                <div class="template-category">
+                                    <h5>🔧 Tools</h5>
+                                    <div class="template-list">
+                                        <div class="template-item" onclick="AppMaker.selectTemplate('calculator')">
+                                            <div class="template-icon">🧮</div>
+                                            <div class="template-info">
+                                                <div class="template-name">Calculator</div>
+                                                <div class="template-desc">Scientific calculator</div>
+                                            </div>
+                                        </div>
+                                        <div class="template-item" onclick="AppMaker.selectTemplate('todo')">
+                                            <div class="template-icon">📋</div>
+                                            <div class="template-info">
+                                                <div class="template-name">Todo List</div>
+                                                <div class="template-desc">Task management</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="template-category">
+                                    <h5>🎨 UI Components</h5>
+                                    <div class="template-list">
+                                        <div class="template-item" onclick="AppMaker.selectTemplate('dashboard')">
+                                            <div class="template-icon">📊</div>
+                                            <div class="template-info">
+                                                <div class="template-name">Dashboard</div>
+                                                <div class="template-desc">Data visualization</div>
+                                            </div>
+                                        </div>
+                                        <div class="template-item" onclick="AppMaker.selectTemplate('weather')">
+                                            <div class="template-icon">🌤️</div>
+                                            <div class="template-info">
+                                                <div class="template-name">Weather Widget</div>
+                                                <div class="template-desc">Weather display</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="sidebar-footer">
                                 <div class="recent-apps">
-                                    <h3>Recent Applications</h3>
-                                    <div class="recent-list" id="recent-apps-list">
+                                    <h5>📜 Recent</h5>
+                                    <div id="am-recent-apps" class="recent-list">
                                         <!-- Recent apps will be populated here -->
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Wizard Tab -->
-                        <div class="tab-content" id="wizard-tab">
-                            <div class="wizard-container">
-                                <div class="wizard-progress">
-                                    <div class="progress-step active" data-step="1">1. Basic Info</div>
-                                    <div class="progress-step" data-step="2">2. App Type</div>
-                                    <div class="progress-step" data-step="3">3. Features</div>
-                                    <div class="progress-step" data-step="4">4. Design</div>
-                                    <div class="progress-step" data-step="5">5. Review</div>
+                        <div class="code-editor-panel">
+                            <div class="editor-tabs">
+                                <div class="editor-tab active" data-tab="javascript">
+                                    <i class="fab fa-js-square"></i> JavaScript
+                                </div>
+                                <div class="editor-tab" data-tab="html">
+                                    <i class="fab fa-html5"></i> HTML
+                                </div>
+                                <div class="editor-tab" data-tab="css">
+                                    <i class="fab fa-css3-alt"></i> CSS
+                                </div>
+                                <div class="editor-tab" data-tab="metadata">
+                                    <i class="fas fa-info"></i> Metadata
+                                </div>
+                            </div>
+
+                            <div class="editor-content">
+                                <div class="editor-container active" data-content="javascript">
+                                    <div class="editor-header">
+                                        <span class="file-indicator">📄 app.js</span>
+                                        <div class="editor-tools">
+                                            <button onclick="AppMaker.formatCode('javascript')" title="Format Code">
+                                                <i class="fas fa-magic"></i>
+                                            </button>
+                                            <button onclick="AppMaker.validateCode()" title="Validate Code">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <textarea id="am-javascript-editor" class="code-editor" placeholder="// Write your JavaScript code here..."></textarea>
                                 </div>
 
-                                <div class="wizard-content">
-                                    <!-- Step 1: Basic Info -->
-                                    <div class="wizard-step active" data-step="1">
-                                        <h2>📝 Basic Application Information</h2>
-                                        <div class="form-grid">
-                                            <div class="form-group">
-                                                <label for="app-name">Application Name *</label>
-                                                <input type="text" id="app-name" placeholder="My Awesome App" required>
-                                                <small>This will be displayed in the start menu</small>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="app-id">App ID *</label>
-                                                <input type="text" id="app-id" placeholder="my-awesome-app" required>
-                                                <small>Unique identifier (lowercase, dashes only)</small>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="app-description">Description</label>
-                                                <textarea id="app-description" placeholder="Brief description of your app"></textarea>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="app-icon">Icon</label>
-                                                <select id="app-icon">
-                                                    <option value="fas fa-star">⭐ Star</option>
-                                                    <option value="fas fa-rocket">🚀 Rocket</option>
-                                                    <option value="fas fa-heart">❤️ Heart</option>
-                                                    <option value="fas fa-cog">⚙️ Gear</option>
-                                                    <option value="fas fa-file">📄 File</option>
-                                                    <option value="fas fa-chart-bar">📊 Chart</option>
-                                                    <option value="fas fa-calculator">🧮 Calculator</option>
-                                                    <option value="fas fa-gamepad">🎮 Game</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="app-category">Category</label>
-                                                <select id="app-category">
-                                                    <option value="Productivity">Productivity</option>
-                                                    <option value="Entertainment">Entertainment</option>
-                                                    <option value="Utilities">Utilities</option>
-                                                    <option value="Games">Games</option>
-                                                    <option value="Development">Development</option>
-                                                    <option value="Education">Education</option>
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="app-author">Author</label>
-                                                <input type="text" id="app-author" placeholder="Your Name">
-                                            </div>
+                                <div class="editor-container" data-content="html">
+                                    <div class="editor-header">
+                                        <span class="file-indicator">📄 app.html</span>
+                                        <div class="editor-tools">
+                                            <button onclick="AppMaker.formatCode('html')" title="Format HTML">
+                                                <i class="fas fa-magic"></i>
+                                            </button>
                                         </div>
                                     </div>
-
-                                    <!-- Step 2: App Type -->
-                                    <div class="wizard-step" data-step="2">
-                                        <h2>🎯 Choose Application Type</h2>
-                                        <div class="app-type-grid">
-                                            <div class="type-card" onclick="Appmaker.selectAppType('form')" data-type="form">
-                                                <div class="type-icon">📝</div>
-                                                <h3>Form Application</h3>
-                                                <p>Create forms, surveys, data input apps</p>
-                                                <ul>
-                                                    <li>Input fields and validation</li>
-                                                    <li>Data submission</li>
-                                                    <li>User-friendly forms</li>
-                                                </ul>
-                                            </div>
-
-                                            <div class="type-card" onclick="Appmaker.selectAppType('dashboard')" data-type="dashboard">
-                                                <div class="type-icon">📊</div>
-                                                <h3>Dashboard</h3>
-                                                <p>Display data, charts, and metrics</p>
-                                                <ul>
-                                                    <li>Data visualization</li>
-                                                    <li>Real-time updates</li>
-                                                    <li>Interactive charts</li>
-                                                </ul>
-                                            </div>
-
-                                            <div class="type-card" onclick="Appmaker.selectAppType('tool')" data-type="tool">
-                                                <div class="type-icon">🔧</div>
-                                                <h3>Utility Tool</h3>
-                                                <p>Calculators, converters, utilities</p>
-                                                <ul>
-                                                    <li>Custom calculations</li>
-                                                    <li>Data processing</li>
-                                                    <li>Quick utilities</li>
-                                                </ul>
-                                            </div>
-
-                                            <div class="type-card" onclick="Appmaker.selectAppType('game')" data-type="game">
-                                                <div class="type-icon">🎮</div>
-                                                <h3>Simple Game</h3>
-                                                <p>Interactive games and puzzles</p>
-                                                <ul>
-                                                    <li>Game mechanics</li>
-                                                    <li>Score tracking</li>
-                                                    <li>Interactive elements</li>
-                                                </ul>
-                                            </div>
-
-                                            <div class="type-card" onclick="Appmaker.selectAppType('viewer')" data-type="viewer">
-                                                <div class="type-icon">👁️</div>
-                                                <h3>Content Viewer</h3>
-                                                <p>Display content, galleries, readers</p>
-                                                <ul>
-                                                    <li>Content display</li>
-                                                    <li>Navigation</li>
-                                                    <li>Media support</li>
-                                                </ul>
-                                            </div>
-
-                                            <div class="type-card" onclick="Appmaker.selectAppType('custom')" data-type="custom">
-                                                <div class="type-icon">🎨</div>
-                                                <h3>Custom App</h3>
-                                                <p>Start from scratch with full control</p>
-                                                <ul>
-                                                    <li>Complete customization</li>
-                                                    <li>Advanced features</li>
-                                                    <li>No limitations</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Step 3: Features -->
-                                    <div class="wizard-step" data-step="3">
-                                        <h2>⚡ Select Features</h2>
-                                        <div class="features-section" id="features-section">
-                                            <!-- Features will be populated based on app type -->
-                                        </div>
-                                    </div>
-
-                                    <!-- Step 4: Design -->
-                                    <div class="wizard-step" data-step="4">
-                                        <h2>🎨 Choose Design Theme</h2>
-                                        <div class="theme-grid">
-                                            <div class="theme-card" onclick="Appmaker.selectTheme('modern')" data-theme="modern">
-                                                <div class="theme-preview modern-theme"></div>
-                                                <h3>Modern</h3>
-                                                <p>Clean, minimalist design</p>
-                                            </div>
-                                            <div class="theme-card" onclick="Appmaker.selectTheme('dark')" data-theme="dark">
-                                                <div class="theme-preview dark-theme"></div>
-                                                <h3>Dark</h3>
-                                                <p>Dark mode interface</p>
-                                            </div>
-                                            <div class="theme-card" onclick="Appmaker.selectTheme('colorful')" data-theme="colorful">
-                                                <div class="theme-preview colorful-theme"></div>
-                                                <h3>Colorful</h3>
-                                                <p>Vibrant and engaging</p>
-                                            </div>
-                                            <div class="theme-card" onclick="Appmaker.selectTheme('classic')" data-theme="classic">
-                                                <div class="theme-preview classic-theme"></div>
-                                                <h3>Classic</h3>
-                                                <p>Traditional interface</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="layout-options">
-                                            <h3>Layout Options</h3>
-                                            <div class="layout-grid">
-                                                <div class="layout-option" onclick="Appmaker.selectLayout('single')" data-layout="single">
-                                                    <div class="layout-preview">
-                                                        <div class="layout-box single"></div>
-                                                    </div>
-                                                    <span>Single Page</span>
-                                                </div>
-                                                <div class="layout-option" onclick="Appmaker.selectLayout('tabs')" data-layout="tabs">
-                                                    <div class="layout-preview">
-                                                        <div class="layout-box tabs"></div>
-                                                    </div>
-                                                    <span>Tabbed</span>
-                                                </div>
-                                                <div class="layout-option" onclick="Appmaker.selectLayout('sidebar')" data-layout="sidebar">
-                                                    <div class="layout-preview">
-                                                        <div class="layout-box sidebar"></div>
-                                                    </div>
-                                                    <span>Sidebar</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Step 5: Review -->
-                                    <div class="wizard-step" data-step="5">
-                                        <h2>📋 Review & Generate</h2>
-                                        <div class="review-section">
-                                            <div class="review-card">
-                                                <h3>App Summary</h3>
-                                                <div id="app-summary">
-                                                    <!-- Summary will be populated -->
-                                                </div>
-                                            </div>
-                                            <div class="review-actions">
-                                                <button class="btn btn-primary btn-large" onclick="Appmaker.generateApp()">
-                                                    <i class="fas fa-magic"></i> Generate Application
-                                                </button>
-                                                <p>Your app will be created and opened in the designer for further customization.</p>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <textarea id="am-html-editor" class="code-editor" placeholder="<!-- Write your HTML structure here... -->"></textarea>
                                 </div>
 
-                                <div class="wizard-navigation">
-                                    <button class="btn btn-secondary" onclick="Appmaker.prevStep()" id="prev-btn" disabled>
-                                        <i class="fas fa-arrow-left"></i> Previous
+                                <div class="editor-container" data-content="css">
+                                    <div class="editor-header">
+                                        <span class="file-indicator">📄 app.css</span>
+                                        <div class="editor-tools">
+                                            <button onclick="AppMaker.formatCode('css')" title="Format CSS">
+                                                <i class="fas fa-magic"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <textarea id="am-css-editor" class="code-editor" placeholder="/* Write your CSS styles here... */"></textarea>
+                                </div>
+
+                                <div class="editor-container" data-content="metadata">
+                                    <div class="editor-header">
+                                        <span class="file-indicator">📄 metadata.js</span>
+                                    </div>
+                                    <textarea id="am-metadata-editor" class="code-editor" placeholder="// App metadata and configuration..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="preview-panel" id="am-preview-panel">
+                            <div class="preview-header">
+                                <h4>👁️ Live Preview</h4>
+                                <div class="preview-controls">
+                                    <button onclick="AppMaker.refreshPreview()" title="Refresh Preview">
+                                        <i class="fas fa-sync-alt"></i>
                                     </button>
-                                    <button class="btn btn-primary" onclick="Appmaker.nextStep()" id="next-btn">
-                                        Next <i class="fas fa-arrow-right"></i>
+                                    <button onclick="AppMaker.togglePreviewMode()" title="Toggle Preview Mode" id="am-preview-mode">
+                                        <i class="fas fa-desktop"></i>
                                     </button>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Designer Tab -->
-                        <div class="tab-content" id="designer-tab">
-                            <div class="designer-layout">
-                                <div class="designer-sidebar">
-                                    <div class="sidebar-section">
-                                        <h3>Components</h3>
-                                        <div class="component-palette">
-                                            <div class="component-item" draggable="true" data-component="text">
-                                                <i class="fas fa-font"></i> Text
-                                            </div>
-                                            <div class="component-item" draggable="true" data-component="input">
-                                                <i class="fas fa-edit"></i> Input
-                                            </div>
-                                            <div class="component-item" draggable="true" data-component="button">
-                                                <i class="fas fa-square"></i> Button
-                                            </div>
-                                            <div class="component-item" draggable="true" data-component="select">
-                                                <i class="fas fa-list"></i> Select
-                                            </div>
-                                            <div class="component-item" draggable="true" data-component="checkbox">
-                                                <i class="fas fa-check-square"></i> Checkbox
-                                            </div>
-                                            <div class="component-item" draggable="true" data-component="image">
-                                                <i class="fas fa-image"></i> Image
-                                            </div>
-                                            <div class="component-item" draggable="true" data-component="table">
-                                                <i class="fas fa-table"></i> Table
-                                            </div>
-                                            <div class="component-item" draggable="true" data-component="card">
-                                                <i class="fas fa-id-card"></i> Card
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="designer-main">
-                                    <div class="designer-toolbar">
-                                        <div class="toolbar-group">
-                                            <button class="btn btn-sm" onclick="Appmaker.undo()">
-                                                <i class="fas fa-undo"></i>
-                                            </button>
-                                            <button class="btn btn-sm" onclick="Appmaker.redo()">
-                                                <i class="fas fa-redo"></i>
-                                            </button>
-                                        </div>
-                                        <div class="toolbar-group">
-                                            <button class="btn btn-sm" onclick="Appmaker.zoomOut()">
-                                                <i class="fas fa-search-minus"></i>
-                                            </button>
-                                            <span id="zoom-level">100%</span>
-                                            <button class="btn btn-sm" onclick="Appmaker.zoomIn()">
-                                                <i class="fas fa-search-plus"></i>
-                                            </button>
-                                        </div>
-                                        <div class="toolbar-group">
-                                            <button class="btn btn-sm" onclick="Appmaker.previewDesign()">
-                                                <i class="fas fa-eye"></i> Preview
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    <div class="design-canvas" id="design-canvas">
-                                        <div class="canvas-placeholder">
-                                            <div class="placeholder-content">
-                                                <i class="fas fa-mouse-pointer"></i>
-                                                <h3>Drag components here to start designing</h3>
-                                                <p>Use the component palette on the left to add elements to your app</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="designer-properties">
-                                    <div class="sidebar-section">
-                                        <h3>Properties</h3>
-                                        <div class="properties-panel" id="properties-panel">
-                                            <div class="no-selection">
-                                                <p>Select a component to edit its properties</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="preview-content">
+                                <iframe id="am-preview-iframe" src="about:blank"></iframe>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Code Editor Tab -->
-                        <div class="tab-content" id="code-tab">
-                            <div class="code-editor-layout">
-                                <div class="code-toolbar">
-                                    <div class="toolbar-left">
-                                        <button class="btn btn-sm" onclick="Appmaker.formatCode()">
-                                            <i class="fas fa-indent"></i> Format
-                                        </button>
-                                        <button class="btn btn-sm" onclick="Appmaker.validateCode()">
-                                            <i class="fas fa-check"></i> Validate
-                                        </button>
-                                    </div>
-                                    <div class="toolbar-right">
-                                        <button class="btn btn-sm" onclick="Appmaker.insertSnippet()">
-                                            <i class="fas fa-code"></i> Snippets
-                                        </button>
-                                        <button class="btn btn-sm" onclick="Appmaker.showCodeHelp()">
-                                            <i class="fas fa-question"></i> Help
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="code-content">
-                                    <div class="code-editor">
-                                        <textarea id="code-editor" placeholder="// Your app code will appear here
-// You can edit it directly or use the visual designer
-
-/**
- * APP_METADATA
- * @name My App
- * @icon fas fa-star
- * @description My custom application
- * @category Custom
- * @version 1.0.0
- * @author Your Name
- * @enabled true
- */
-
-class MyApp {
-    static createWindow() {
-        return {
-            title: 'My App',
-            width: '600px',
-            height: '400px',
-            content: \`
-                <div class='my-app'>
-                    <h1>Hello World!</h1>
-                    <p>Welcome to my custom app.</p>
-                </div>
-            \`,
-            onInit: (windowElement) => {
-                MyApp.init(windowElement);
-            }
-        };
-    }
-
-    static init(windowElement) {
-        console.log('My app initialized!');
-    }
-}
-
-window.MyApp = MyApp;"></textarea>
-                                    </div>
-                                    <div class="code-sidebar">
-                                        <div class="code-panel">
-                                            <h4>Code Structure</h4>
-                                            <div class="code-outline">
-                                                <div class="outline-item">
-                                                    <i class="fas fa-info-circle"></i> Metadata
-                                                </div>
-                                                <div class="outline-item">
-                                                    <i class="fas fa-cube"></i> Class Definition
-                                                </div>
-                                                <div class="outline-item">
-                                                    <i class="fas fa-window-maximize"></i> createWindow()
-                                                </div>
-                                                <div class="outline-item">
-                                                    <i class="fas fa-cog"></i> init() method
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="code-panel">
-                                            <h4>Quick Actions</h4>
-                                            <button class="action-btn" onclick="Appmaker.addEvent()">
-                                                <i class="fas fa-bolt"></i> Add Event Handler
-                                            </button>
-                                            <button class="action-btn" onclick="Appmaker.addStyle()">
-                                                <i class="fas fa-palette"></i> Add Styling
-                                            </button>
-                                            <button class="action-btn" onclick="Appmaker.addMethod()">
-                                                <i class="fas fa-plus"></i> Add Method
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="app-maker-footer">
+                        <div class="footer-left">
+                            <span id="am-status">Ready</span>
+                        </div>
+                        <div class="footer-center">
+                            <div class="validation-status" id="am-validation">
+                                <i class="fas fa-check-circle" style="color: #28a745;"></i>
+                                <span>Code is valid</span>
                             </div>
                         </div>
-
-                        <!-- Preview Tab -->
-                        <div class="tab-content" id="preview-tab">
-                            <div class="preview-layout">
-                                <div class="preview-toolbar">
-                                    <div class="toolbar-left">
-                                        <button class="btn btn-primary" onclick="Appmaker.refreshPreview()">
-                                            <i class="fas fa-sync"></i> Refresh Preview
-                                        </button>
-                                        <button class="btn btn-secondary" onclick="Appmaker.testApp()">
-                                            <i class="fas fa-play"></i> Test App
-                                        </button>
-                                    </div>
-                                    <div class="toolbar-center">
-                                        <div class="device-selector">
-                                            <button class="device-btn active" data-device="desktop" onclick="Appmaker.changeDevice('desktop')">
-                                                <i class="fas fa-desktop"></i>
-                                            </button>
-                                            <button class="device-btn" data-device="tablet" onclick="Appmaker.changeDevice('tablet')">
-                                                <i class="fas fa-tablet-alt"></i>
-                                            </button>
-                                            <button class="device-btn" data-device="mobile" onclick="Appmaker.changeDevice('mobile')">
-                                                <i class="fas fa-mobile-alt"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="toolbar-right">
-                                        <button class="btn btn-secondary" onclick="Appmaker.sharePreview()">
-                                            <i class="fas fa-share"></i> Share
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="preview-container">
-                                    <div class="preview-frame" id="preview-frame">
-                                        <div class="preview-window desktop" id="preview-window">
-                                            <div class="preview-header">
-                                                <div class="preview-title">App Preview</div>
-                                                <div class="preview-controls">
-                                                    <div class="control minimize"></div>
-                                                    <div class="control maximize"></div>
-                                                    <div class="control close"></div>
-                                                </div>
-                                            </div>
-                                            <div class="preview-content" id="preview-content">
-                                                <div class="preview-placeholder">
-                                                    <i class="fas fa-eye"></i>
-                                                    <h3>App Preview</h3>
-                                                    <p>Your app will appear here when you refresh the preview</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Export Tab -->
-                        <div class="tab-content" id="export-tab">
-                            <div class="export-section">
-                                <div class="export-header">
-                                    <h2>📦 Export Your Application</h2>
-                                    <p>Download your completed app to install in EmberFrame</p>
-                                </div>
-
-                                <div class="export-options">
-                                    <div class="export-card">
-                                        <div class="export-icon">💾</div>
-                                        <h3>Save to EmberFrame</h3>
-                                        <p>Install directly to your EmberFrame apps folder</p>
-                                        <button class="btn btn-primary" onclick="Appmaker.saveToEmberFrame()">
-                                            <i class="fas fa-save"></i> Save to Apps
-                                        </button>
-                                    </div>
-
-                                    <div class="export-card">
-                                        <div class="export-icon">📥</div>
-                                        <h3>Download File</h3>
-                                        <p>Download as .js file for manual installation</p>
-                                        <button class="btn btn-secondary" onclick="Appmaker.downloadFile()">
-                                            <i class="fas fa-download"></i> Download
-                                        </button>
-                                    </div>
-
-                                    <div class="export-card">
-                                        <div class="export-icon">📋</div>
-                                        <h3>Copy Code</h3>
-                                        <p>Copy code to clipboard for sharing</p>
-                                        <button class="btn btn-secondary" onclick="Appmaker.copyCode()">
-                                            <i class="fas fa-copy"></i> Copy
-                                        </button>
-                                    </div>
-
-                                    <div class="export-card">
-                                        <div class="export-icon">🔗</div>
-                                        <h3>Share Link</h3>
-                                        <p>Generate shareable link for others</p>
-                                        <button class="btn btn-secondary" onclick="Appmaker.shareLink()">
-                                            <i class="fas fa-link"></i> Share
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="export-info">
-                                    <h3>📋 Installation Instructions</h3>
-                                    <div class="instructions">
-                                        <ol>
-                                            <li><strong>Save to EmberFrame:</strong> Your app will be automatically installed and available in the start menu</li>
-                                            <li><strong>Download File:</strong> Save the .js file to the <code>static/js/apps/</code> folder in your EmberFrame installation</li>
-                                            <li><strong>Manual Install:</strong> Add the script tag to your <code>templates/desktop.html</code> file</li>
-                                            <li><strong>Restart:</strong> Refresh EmberFrame to see your new app in the start menu</li>
-                                        </ol>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="footer-right">
+                            <span>Lines: <span id="am-cursor-line">1</span></span>
+                            <span>Columns: <span id="am-cursor-col">1</span></span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Modals and Overlays -->
-                <div class="modal" id="help-modal">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3>📚 Appmaker Help</h3>
-                            <button class="modal-close" onclick="Appmaker.closeModal()">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="help-tabs">
-                                <button class="help-tab active" onclick="Appmaker.showHelpTab('getting-started')">Getting Started</button>
-                                <button class="help-tab" onclick="Appmaker.showHelpTab('components')">Components</button>
-                                <button class="help-tab" onclick="Appmaker.showHelpTab('code')">Code Reference</button>
-                                <button class="help-tab" onclick="Appmaker.showHelpTab('examples')">Examples</button>
-                            </div>
-                            <div class="help-content" id="help-content">
-                                <!-- Help content will be populated -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                ${Appmaker.getStyles()}
-            `,
-            onInit: (windowElement) => {
-                Appmaker.init(windowElement);
-            }
-        };
-    }
-
-    static getStyles() {
-        return `
-            <style>
-                .appmaker {
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-                    color: #333;
-                }
-
-                .appmaker-header {
-                    background: rgba(255, 255, 255, 0.95);
-                    padding: 20px 30px;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    border-bottom: 2px solid rgba(102, 126, 234, 0.2);
-                    backdrop-filter: blur(10px);
-                }
-
-                .header-left h1 {
-                    margin: 0 0 5px 0;
-                    color: #667eea;
-                    font-size: 24px;
-                    font-weight: 700;
-                }
-
-                .header-left p {
-                    margin: 0;
-                    color: #666;
-                    font-size: 14px;
-                }
-
-                .header-right {
-                    display: flex;
-                    gap: 12px;
-                }
-
-                .appmaker-nav {
-                    background: rgba(255, 255, 255, 0.9);
-                    display: flex;
-                    border-bottom: 1px solid rgba(102, 126, 234, 0.2);
-                    backdrop-filter: blur(10px);
-                }
-
-                .nav-btn {
-                    flex: 1;
-                    padding: 16px 20px;
-                    border: none;
-                    background: transparent;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 8px;
-                    color: #666;
-                    font-weight: 500;
-                    border-bottom: 3px solid transparent;
-                }
-
-                .nav-btn:hover {
-                    background: rgba(102, 126, 234, 0.1);
-                    color: #667eea;
-                }
-
-                .nav-btn.active {
-                    color: #667eea;
-                    border-bottom-color: #667eea;
-                    background: rgba(102, 126, 234, 0.1);
-                }
-
-                .appmaker-content {
-                    flex: 1;
-                    overflow: hidden;
-                    position: relative;
-                }
-
-                .tab-content {
-                    height: 100%;
-                    overflow-y: auto;
-                    display: none;
-                    background: #f8f9fa;
-                }
-
-                .tab-content.active {
-                    display: block;
-                }
-
-                /* Welcome Tab Styles */
-                .welcome-section {
-                    padding: 40px;
-                    max-width: 1000px;
-                    margin: 0 auto;
-                }
-
-                .welcome-hero {
-                    text-align: center;
-                    margin-bottom: 50px;
-                }
-
-                .welcome-hero h2 {
-                    font-size: 36px;
-                    margin-bottom: 15px;
-                    color: #2d3748;
-                }
-
-                .welcome-hero p {
-                    font-size: 18px;
-                    color: #666;
-                    max-width: 600px;
-                    margin: 0 auto;
-                }
-
-                .quick-start-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                    gap: 25px;
-                    margin-bottom: 50px;
-                }
-
-                .quick-card {
-                    background: white;
-                    border-radius: 16px;
-                    padding: 30px;
-                    text-align: center;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    border: 2px solid transparent;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-                }
-
-                .quick-card:hover {
-                    transform: translateY(-5px);
-                    border-color: #667eea;
-                    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
-                }
-
-                .quick-card .card-icon {
-                    font-size: 48px;
-                    margin-bottom: 20px;
-                }
-
-                .quick-card h3 {
-                    margin: 0 0 12px 0;
-                    color: #2d3748;
-                    font-size: 20px;
-                }
-
-                .quick-card p {
-                    color: #666;
-                    margin-bottom: 20px;
-                    line-height: 1.5;
-                }
-
-                .quick-card .card-action {
-                    color: #667eea;
-                    font-weight: 600;
-                    font-size: 14px;
-                }
-
-                .recent-apps h3 {
-                    margin-bottom: 20px;
-                    color: #2d3748;
-                }
-
-                .recent-list {
-                    background: white;
-                    border-radius: 12px;
-                    padding: 20px;
-                    min-height: 100px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: #666;
-                    font-style: italic;
-                }
-
-                /* Wizard Styles */
-                .wizard-container {
-                    padding: 40px;
-                    max-width: 900px;
-                    margin: 0 auto;
-                }
-
-                .wizard-progress {
-                    display: flex;
-                    justify-content: center;
-                    margin-bottom: 40px;
-                    gap: 20px;
-                }
-
-                .progress-step {
-                    padding: 12px 20px;
-                    background: #e2e8f0;
-                    border-radius: 25px;
-                    font-size: 14px;
-                    color: #666;
-                    transition: all 0.3s ease;
-                }
-
-                .progress-step.active {
-                    background: #667eea;
-                    color: white;
-                }
-
-                .wizard-content {
-                    background: white;
-                    border-radius: 16px;
-                    padding: 40px;
-                    margin-bottom: 30px;
-                    min-height: 500px;
-                }
-
-                .wizard-step {
-                    display: none;
-                }
-
-                .wizard-step.active {
-                    display: block;
-                }
-
-                .wizard-step h2 {
-                    margin: 0 0 30px 0;
-                    color: #2d3748;
-                    font-size: 28px;
-                }
-
-                .form-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                    gap: 25px;
-                }
-
-                .form-group {
-                    display: flex;
-                    flex-direction: column;
-                }
-
-                .form-group label {
-                    margin-bottom: 8px;
-                    font-weight: 600;
-                    color: #2d3748;
-                }
-
-                .form-group input,
-                .form-group textarea,
-                .form-group select {
-                    padding: 12px 16px;
-                    border: 2px solid #e2e8f0;
-                    border-radius: 8px;
-                    font-size: 14px;
-                    transition: border-color 0.3s ease;
-                }
-
-                .form-group input:focus,
-                .form-group textarea:focus,
-                .form-group select:focus {
-                    outline: none;
-                    border-color: #667eea;
-                }
-
-                .form-group small {
-                    margin-top: 5px;
-                    color: #666;
-                    font-size: 12px;
-                }
-
-                .app-type-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-                    gap: 20px;
-                }
-
-                .type-card {
-                    background: #f8f9fa;
-                    border: 2px solid #e2e8f0;
-                    border-radius: 12px;
-                    padding: 25px;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                }
-
-                .type-card:hover,
-                .type-card.selected {
-                    border-color: #667eea;
-                    background: rgba(102, 126, 234, 0.05);
-                }
-
-                .type-card .type-icon {
-                    font-size: 36px;
-                    margin-bottom: 15px;
-                }
-
-                .type-card h3 {
-                    margin: 0 0 10px 0;
-                    color: #2d3748;
-                }
-
-                .type-card p {
-                    color: #666;
-                    margin-bottom: 15px;
-                }
-
-                .type-card ul {
-                    list-style: none;
-                    padding: 0;
-                    margin: 0;
-                }
-
-                .type-card li {
-                    padding: 4px 0;
-                    color: #666;
-                    font-size: 13px;
-                }
-
-                .type-card li:before {
-                    content: "✓ ";
-                    color: #28a745;
-                    font-weight: bold;
-                }
-
-                .theme-grid {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                    gap: 20px;
-                    margin-bottom: 30px;
-                }
-
-                .theme-card {
-                    background: white;
-                    border: 2px solid #e2e8f0;
-                    border-radius: 12px;
-                    padding: 20px;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    text-align: center;
-                }
-
-                .theme-card:hover,
-                .theme-card.selected {
-                    border-color: #667eea;
-                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
-                }
-
-                .theme-preview {
-                    width: 100%;
-                    height: 80px;
-                    border-radius: 8px;
-                    margin-bottom: 15px;
-                    background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
-                }
-
-                .theme-preview.modern-theme {
-                    background: linear-gradient(45deg, #667eea, #764ba2);
-                }
-
-                .theme-preview.dark-theme {
-                    background: linear-gradient(45deg, #2d3748, #4a5568);
-                }
-
-                .theme-preview.colorful-theme {
-                    background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
-                }
-
-                .theme-preview.classic-theme {
-                    background: linear-gradient(45deg, #e3f2fd, #bbdefb);
-                }
-
-                .layout-options h3 {
-                    margin-bottom: 20px;
-                    color: #2d3748;
-                }
-
-                .layout-grid {
-                    display: flex;
-                    gap: 20px;
-                    justify-content: center;
-                }
-
-                .layout-option {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 10px;
-                    cursor: pointer;
-                    padding: 15px;
-                    border-radius: 8px;
-                    transition: all 0.3s ease;
-                }
-
-                .layout-option:hover,
-                .layout-option.selected {
-                    background: rgba(102, 126, 234, 0.1);
-                }
-
-                .layout-preview {
-                    width: 60px;
-                    height: 40px;
-                    border: 2px solid #e2e8f0;
-                    border-radius: 4px;
-                    position: relative;
-                }
-
-                .layout-box {
-                    width: 100%;
-                    height: 100%;
-                    background: #f0f0f0;
-                    border-radius: 2px;
-                }
-
-                .layout-box.tabs::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    height: 8px;
-                    background: #667eea;
-                    border-radius: 2px 2px 0 0;
-                }
-
-                .layout-box.sidebar::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 15px;
-                    bottom: 0;
-                    background: #667eea;
-                    border-radius: 2px 0 0 2px;
-                }
-
-                .wizard-navigation {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-
-                /* Button Styles */
-                .btn {
-                    padding: 10px 20px;
-                    border: none;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    font-size: 14px;
-                    font-weight: 600;
-                    transition: all 0.3s ease;
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 8px;
-                    text-decoration: none;
-                }
-
-                .btn-primary {
-                    background: #667eea;
-                    color: white;
-                }
-
-                .btn-primary:hover {
-                    background: #5a67d8;
-                    transform: translateY(-1px);
-                }
-
-                .btn-secondary {
-                    background: #e2e8f0;
-                    color: #2d3748;
-                }
-
-                .btn-secondary:hover {
-                    background: #cbd5e0;
-                }
-
-                .btn-large {
-                    padding: 16px 32px;
-                    font-size: 16px;
-                }
-
-                .btn-sm {
-                    padding: 6px 12px;
-                    font-size: 12px;
-                }
-
-                .btn:disabled {
-                    opacity: 0.5;
-                    cursor: not-allowed;
-                    transform: none;
-                }
-
-                /* Designer Styles */
-                .designer-layout {
-                    height: 100%;
-                    display: flex;
-                }
-
-                .designer-sidebar {
-                    width: 250px;
-                    background: white;
-                    border-right: 1px solid #e2e8f0;
-                    overflow-y: auto;
-                }
-
-                .designer-main {
-                    flex: 1;
-                    display: flex;
-                    flex-direction: column;
-                    background: #f8f9fa;
-                }
-
-                .designer-properties {
-                    width: 300px;
-                    background: white;
-                    border-left: 1px solid #e2e8f0;
-                    overflow-y: auto;
-                }
-
-                .sidebar-section {
-                    padding: 20px;
-                    border-bottom: 1px solid #e2e8f0;
-                }
-
-                .sidebar-section h3 {
-                    margin: 0 0 15px 0;
-                    color: #2d3748;
-                    font-size: 16px;
-                }
-
-                .component-palette {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 10px;
-                }
-
-                .component-item {
-                    padding: 12px;
-                    background: #f8f9fa;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 8px;
-                    cursor: grab;
-                    transition: all 0.3s ease;
-                    text-align: center;
-                    font-size: 12px;
-                }
-
-                .component-item:hover {
-                    background: #e2e8f0;
-                    transform: scale(1.05);
-                }
-
-                .component-item:active {
-                    cursor: grabbing;
-                }
-
-                .designer-toolbar {
-                    background: white;
-                    border-bottom: 1px solid #e2e8f0;
-                    padding: 12px 20px;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-
-                .toolbar-group {
-                    display: flex;
-                    gap: 8px;
-                    align-items: center;
-                }
-
-                .design-canvas {
-                    flex: 1;
-                    background: #ffffff;
-                    margin: 20px;
-                    border-radius: 12px;
-                    border: 2px dashed #e2e8f0;
-                    position: relative;
-                    overflow: auto;
-                }
-
-                .canvas-placeholder {
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    text-align: center;
-                    color: #666;
-                }
-
-                .placeholder-content i {
-                    font-size: 48px;
-                    margin-bottom: 20px;
-                    opacity: 0.3;
-                }
-
-                /* Code Editor Styles */
-                .code-editor-layout {
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                }
-
-                .code-toolbar {
-                    background: white;
-                    border-bottom: 1px solid #e2e8f0;
-                    padding: 12px 20px;
-                    display: flex;
-                    justify-content: space-between;
-                }
-
-                .toolbar-left,
-                .toolbar-right {
-                    display: flex;
-                    gap: 8px;
-                }
-
-                .code-content {
-                    flex: 1;
-                    display: flex;
-                    overflow: hidden;
-                }
-
-                .code-editor {
-                    flex: 1;
-                    background: #282c34;
-                    position: relative;
-                }
-
-                .code-editor textarea {
-                    width: 100%;
-                    height: 100%;
-                    background: #282c34;
-                    color: #abb2bf;
-                    border: none;
-                    padding: 20px;
-                    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-                    font-size: 13px;
-                    line-height: 1.5;
-                    resize: none;
-                    outline: none;
-                }
-
-                .code-sidebar {
-                    width: 300px;
-                    background: white;
-                    border-left: 1px solid #e2e8f0;
-                    display: flex;
-                    flex-direction: column;
-                }
-
-                .code-panel {
-                    padding: 20px;
-                    border-bottom: 1px solid #e2e8f0;
-                }
-
-                .code-panel h4 {
-                    margin: 0 0 15px 0;
-                    color: #2d3748;
-                    font-size: 14px;
-                }
-
-                .code-outline {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 8px;
-                }
-
-                .outline-item {
-                    padding: 8px 12px;
-                    background: #f8f9fa;
-                    border-radius: 6px;
-                    font-size: 12px;
-                    color: #666;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                }
-
-                .action-btn {
-                    width: 100%;
-                    padding: 10px;
-                    background: #f8f9fa;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    margin-bottom: 8px;
-                    font-size: 12px;
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    transition: all 0.3s ease;
-                }
-
-                .action-btn:hover {
-                    background: #e2e8f0;
-                }
-
-                /* Preview Styles */
-                .preview-layout {
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    background: #f0f0f0;
-                }
-
-                .preview-toolbar {
-                    background: white;
-                    border-bottom: 1px solid #e2e8f0;
-                    padding: 12px 20px;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-
-                .device-selector {
-                    display: flex;
-                    gap: 8px;
-                    background: #f8f9fa;
-                    padding: 4px;
-                    border-radius: 8px;
-                }
-
-                .device-btn {
-                    padding: 8px 12px;
-                    border: none;
-                    background: transparent;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                }
-
-                .device-btn.active,
-                .device-btn:hover {
-                    background: white;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                }
-
-                .preview-container {
-                    flex: 1;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 40px;
-                }
-
-                .preview-frame {
-                    background: transparent;
-                    transition: all 0.3s ease;
-                }
-
-                .preview-window {
-                    background: white;
-                    border-radius: 12px;
-                    overflow: hidden;
-                    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-                    transition: all 0.3s ease;
-                }
-
-                .preview-window.desktop {
-                    width: 800px;
-                    height: 600px;
-                }
-
-                .preview-window.tablet {
-                    width: 768px;
-                    height: 1024px;
-                }
-
-                .preview-window.mobile {
-                    width: 375px;
-                    height: 667px;
-                }
-
-                .preview-header {
-                    background: #f8f9fa;
-                    padding: 12px 16px;
-                    border-bottom: 1px solid #e2e8f0;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-
-                .preview-title {
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: #2d3748;
-                }
-
-                .preview-controls {
-                    display: flex;
-                    gap: 6px;
-                }
-
-                .control {
-                    width: 12px;
-                    height: 12px;
-                    border-radius: 50%;
-                }
-
-                .control.minimize {
-                    background: #ffc107;
-                }
-
-                .control.maximize {
-                    background: #28a745;
-                }
-
-                .control.close {
-                    background: #dc3545;
-                }
-
-                .preview-content {
-                    height: calc(100% - 45px);
-                    overflow: auto;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-
-                .preview-placeholder {
-                    text-align: center;
-                    color: #666;
-                }
-
-                .preview-placeholder i {
-                    font-size: 48px;
-                    margin-bottom: 20px;
-                    opacity: 0.3;
-                }
-
-                /* Export Styles */
-                .export-section {
-                    padding: 40px;
-                    max-width: 1000px;
-                    margin: 0 auto;
-                }
-
-                .export-header {
-                    text-align: center;
-                    margin-bottom: 50px;
-                }
-
-                .export-header h2 {
-                    margin: 0 0 15px 0;
-                    color: #2d3748;
-                    font-size: 32px;
-                }
-
-                .export-header p {
-                    color: #666;
-                    font-size: 16px;
-                }
-
-                .export-options {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                    gap: 25px;
-                    margin-bottom: 50px;
-                }
-
-                .export-card {
-                    background: white;
-                    border-radius: 16px;
-                    padding: 30px;
-                    text-align: center;
-                    border: 2px solid #e2e8f0;
-                    transition: all 0.3s ease;
-                }
-
-                .export-card:hover {
-                    border-color: #667eea;
-                    transform: translateY(-5px);
-                    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
-                }
-
-                .export-card .export-icon {
-                    font-size: 48px;
-                    margin-bottom: 20px;
-                }
-
-                .export-card h3 {
-                    margin: 0 0 12px 0;
-                    color: #2d3748;
-                }
-
-                .export-card p {
-                    color: #666;
-                    margin-bottom: 20px;
-                    line-height: 1.5;
-                }
-
-                .export-info {
-                    background: white;
-                    border-radius: 16px;
-                    padding: 30px;
-                    border: 2px solid #e2e8f0;
-                }
-
-                .export-info h3 {
-                    margin: 0 0 20px 0;
-                    color: #2d3748;
-                }
-
-                .instructions ol {
-                    margin: 0;
-                    padding-left: 20px;
-                    line-height: 1.6;
-                }
-
-                .instructions li {
-                    margin-bottom: 12px;
-                    color: #666;
-                }
-
-                .instructions code {
-                    background: #f8f9fa;
-                    padding: 2px 6px;
-                    border-radius: 4px;
-                    font-family: monospace;
-                    color: #e83e8c;
-                }
-
-                /* Modal Styles */
-                .modal {
-                    display: none;
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0,0,0,0.5);
-                    z-index: 10000;
-                    backdrop-filter: blur(5px);
-                }
-
-                .modal.show {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-
-                .modal-content {
-                    background: white;
-                    border-radius: 16px;
-                    width: 90%;
-                    max-width: 800px;
-                    max-height: 90vh;
-                    overflow-y: auto;
-                    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                }
-
-                .modal-header {
-                    padding: 25px 30px;
-                    border-bottom: 1px solid #e2e8f0;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-
-                .modal-header h3 {
-                    margin: 0;
-                    color: #2d3748;
-                    font-size: 20px;
-                }
-
-                .modal-close {
-                    background: none;
-                    border: none;
-                    font-size: 24px;
-                    cursor: pointer;
-                    color: #6c757d;
-                    padding: 5px;
-                }
-
-                .modal-body {
-                    padding: 30px;
-                }
-
-                .help-tabs {
-                    display: flex;
-                    gap: 10px;
-                    margin-bottom: 25px;
-                    border-bottom: 2px solid #e2e8f0;
-                }
-
-                .help-tab {
-                    padding: 12px 20px;
-                    border: none;
-                    background: transparent;
-                    cursor: pointer;
-                    border-bottom: 3px solid transparent;
-                    transition: all 0.3s ease;
-                }
-
-                .help-tab.active,
-                .help-tab:hover {
-                    color: #667eea;
-                    border-bottom-color: #667eea;
-                }
-
-                /* Responsive Design */
-                @media (max-width: 768px) {
-                    .appmaker-header {
+                <style>
+                    .app-maker {
+                        height: 100%;
+                        display: flex;
                         flex-direction: column;
-                        gap: 15px;
+                        background: #1e1e1e;
+                        color: #d4d4d4;
+                        font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+                    }
+
+                    .app-maker-header {
+                        padding: 20px;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        color: white;
+                        text-align: center;
+                        border-bottom: 3px solid #5a67d8;
+                    }
+
+                    .app-maker-header h2 {
+                        margin: 0 0 8px 0;
+                        font-size: 24px;
+                        font-weight: 700;
+                    }
+
+                    .app-maker-header p {
+                        margin: 0 0 15px 0;
+                        opacity: 0.9;
+                    }
+
+                    .header-stats {
+                        display: flex;
+                        justify-content: center;
+                        gap: 30px;
+                    }
+
+                    .stat-item {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 14px;
+                    }
+
+                    .app-maker-toolbar {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        padding: 12px 20px;
+                        background: #2d2d30;
+                        border-bottom: 1px solid #3e3e42;
+                    }
+
+                    .toolbar-left,
+                    .toolbar-right {
+                        display: flex;
+                        gap: 10px;
+                        align-items: center;
+                    }
+
+                    .toolbar-center {
+                        flex: 1;
+                        max-width: 300px;
+                        margin: 0 20px;
+                    }
+
+                    .app-name-input {
+                        width: 100%;
+                        padding: 8px 12px;
+                        background: #1e1e1e;
+                        border: 1px solid #3e3e42;
+                        border-radius: 6px;
+                        color: #d4d4d4;
+                        font-size: 14px;
+                        text-align: center;
+                        font-weight: 600;
+                    }
+
+                    .app-name-input:focus {
+                        outline: none;
+                        border-color: #007acc;
+                        box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.2);
+                    }
+
+                    .app-maker-toolbar button,
+                    .app-maker-toolbar select {
+                        padding: 8px 16px;
+                        background: #0e639c;
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        transition: all 0.2s;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                    }
+
+                    .app-maker-toolbar button:hover {
+                        background: #1177bb;
+                        transform: translateY(-1px);
+                    }
+
+                    .preview-btn {
+                        background: #28a745 !important;
+                    }
+
+                    .preview-btn:hover {
+                        background: #218838 !important;
+                    }
+
+                    .install-btn {
+                        background: #dc3545 !important;
+                    }
+
+                    .install-btn:hover {
+                        background: #c82333 !important;
+                    }
+
+                    .app-maker-main {
+                        flex: 1;
+                        display: flex;
+                        overflow: hidden;
+                    }
+
+                    .templates-sidebar {
+                        width: 280px;
+                        background: #252526;
+                        border-right: 1px solid #3e3e42;
+                        display: flex;
+                        flex-direction: column;
+                        transition: margin-left 0.3s ease;
+                    }
+
+                    .templates-sidebar.collapsed {
+                        margin-left: -280px;
+                    }
+
+                    .sidebar-header {
+                        padding: 15px;
+                        border-bottom: 1px solid #3e3e42;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        background: #2d2d30;
+                    }
+
+                    .sidebar-header h4 {
+                        margin: 0;
+                        color: #cccccc;
+                        font-size: 16px;
+                    }
+
+                    .sidebar-toggle {
+                        background: none;
+                        border: none;
+                        color: #cccccc;
+                        cursor: pointer;
+                        padding: 4px;
+                        border-radius: 4px;
+                    }
+
+                    .sidebar-toggle:hover {
+                        background: #3e3e42;
+                    }
+
+                    .template-categories {
+                        flex: 1;
+                        overflow-y: auto;
+                        padding: 15px;
+                    }
+
+                    .template-category {
+                        margin-bottom: 25px;
+                    }
+
+                    .template-category h5 {
+                        margin: 0 0 10px 0;
+                        color: #569cd6;
+                        font-size: 14px;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+
+                    .template-item {
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        padding: 12px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        margin-bottom: 8px;
+                        background: #2d2d30;
+                        border: 1px solid transparent;
+                    }
+
+                    .template-item:hover {
+                        background: #094771;
+                        border-color: #007acc;
+                        transform: translateX(4px);
+                    }
+
+                    .template-icon {
+                        font-size: 24px;
+                        width: 32px;
                         text-align: center;
                     }
 
-                    .appmaker-nav {
+                    .template-info {
+                        flex: 1;
+                    }
+
+                    .template-name {
+                        font-weight: 600;
+                        color: #cccccc;
+                        font-size: 14px;
+                        margin-bottom: 2px;
+                    }
+
+                    .template-desc {
+                        font-size: 12px;
+                        color: #969696;
+                    }
+
+                    .sidebar-footer {
+                        border-top: 1px solid #3e3e42;
+                        padding: 15px;
+                    }
+
+                    .recent-apps h5 {
+                        margin: 0 0 10px 0;
+                        color: #569cd6;
+                        font-size: 14px;
+                    }
+
+                    .recent-list {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 5px;
+                    }
+
+                    .recent-item {
+                        padding: 8px 12px;
+                        background: #2d2d30;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-size: 12px;
+                        transition: background 0.2s;
+                    }
+
+                    .recent-item:hover {
+                        background: #094771;
+                    }
+
+                    .code-editor-panel {
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                        background: #1e1e1e;
+                    }
+
+                    .editor-tabs {
+                        display: flex;
+                        background: #2d2d30;
+                        border-bottom: 1px solid #3e3e42;
+                    }
+
+                    .editor-tab {
+                        padding: 12px 20px;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        color: #969696;
+                        border-bottom: 3px solid transparent;
+                        transition: all 0.2s;
+                        font-size: 14px;
+                    }
+
+                    .editor-tab:hover {
+                        color: #cccccc;
+                        background: rgba(255, 255, 255, 0.05);
+                    }
+
+                    .editor-tab.active {
+                        color: #007acc;
+                        border-bottom-color: #007acc;
+                        background: #1e1e1e;
+                    }
+
+                    .editor-content {
+                        flex: 1;
+                        position: relative;
+                    }
+
+                    .editor-container {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        display: none;
                         flex-direction: column;
                     }
 
-                    .nav-btn {
-                        justify-content: flex-start;
-                        padding-left: 30px;
+                    .editor-container.active {
+                        display: flex;
                     }
 
-                    .quick-start-grid {
-                        grid-template-columns: 1fr;
+                    .editor-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 10px 15px;
+                        background: #252526;
+                        border-bottom: 1px solid #3e3e42;
                     }
 
-                    .wizard-container {
-                        padding: 20px;
+                    .file-indicator {
+                        font-size: 12px;
+                        color: #cccccc;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
                     }
 
-                    .form-grid {
-                        grid-template-columns: 1fr;
+                    .editor-tools {
+                        display: flex;
+                        gap: 8px;
                     }
 
-                    .app-type-grid {
-                        grid-template-columns: 1fr;
+                    .editor-tools button {
+                        padding: 6px 10px;
+                        background: #0e639c;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 12px;
+                        transition: background 0.2s;
                     }
 
-                    .theme-grid {
-                        grid-template-columns: repeat(2, 1fr);
+                    .editor-tools button:hover {
+                        background: #1177bb;
                     }
 
-                    .designer-layout {
+                    .code-editor {
+                        flex: 1;
+                        background: #1e1e1e;
+                        color: #d4d4d4;
+                        border: none;
+                        padding: 15px;
+                        font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+                        font-size: 14px;
+                        line-height: 1.5;
+                        resize: none;
+                        outline: none;
+                        tab-size: 4;
+                    }
+
+                    .code-editor:focus {
+                        background: #1f1f1f;
+                    }
+
+                    .preview-panel {
+                        width: 400px;
+                        background: #252526;
+                        border-left: 1px solid #3e3e42;
+                        display: flex;
                         flex-direction: column;
                     }
 
-                    .designer-sidebar,
-                    .designer-properties {
+                    .preview-header {
+                        padding: 12px 15px;
+                        background: #2d2d30;
+                        border-bottom: 1px solid #3e3e42;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                    }
+
+                    .preview-header h4 {
+                        margin: 0;
+                        color: #cccccc;
+                        font-size: 14px;
+                    }
+
+                    .preview-controls {
+                        display: flex;
+                        gap: 8px;
+                    }
+
+                    .preview-controls button {
+                        padding: 6px 10px;
+                        background: #0e639c;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 12px;
+                    }
+
+                    .preview-controls button:hover {
+                        background: #1177bb;
+                    }
+
+                    .preview-content {
+                        flex: 1;
+                        position: relative;
+                    }
+
+                    #am-preview-iframe {
                         width: 100%;
-                        height: auto;
-                        max-height: 200px;
+                        height: 100%;
+                        border: none;
+                        background: white;
                     }
 
-                    .code-content {
-                        flex-direction: column;
+                    .app-maker-footer {
+                        padding: 8px 20px;
+                        background: #007acc;
+                        color: white;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        font-size: 12px;
                     }
 
-                    .code-sidebar {
-                        width: 100%;
-                        height: auto;
-                        max-height: 300px;
+                    .footer-center {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
                     }
 
-                    .preview-window.desktop {
-                        width: 100%;
-                        max-width: 400px;
-                        height: 300px;
+                    .validation-status {
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
                     }
 
-                    .export-options {
-                        grid-template-columns: 1fr;
+                    .footer-right {
+                        display: flex;
+                        gap: 15px;
                     }
-                }
-            </style>
-        `;
+
+                    /* Responsive */
+                    @media (max-width: 1024px) {
+                        .templates-sidebar {
+                            width: 250px;
+                        }
+
+                        .preview-panel {
+                            width: 350px;
+                        }
+                    }
+
+                    @media (max-width: 768px) {
+                        .templates-sidebar {
+                            width: 200px;
+                        }
+
+                        .preview-panel {
+                            display: none;
+                        }
+
+                        .toolbar-center {
+                            max-width: 200px;
+                        }
+                    }
+                </style>
+            `,
+            onInit: (windowElement) => {
+                AppMaker.init(windowElement);
+            }
+        };
     }
 
     static init(windowElement) {
         this.currentWindow = windowElement;
-        this.currentStep = 1;
+        this.currentTemplate = null;
         this.appData = {
-            name: '',
-            id: '',
-            description: '',
-            icon: 'fas fa-star',
-            category: 'Productivity',
-            author: '',
-            type: '',
-            features: [],
-            theme: 'modern',
-            layout: 'single'
+            name: 'My App',
+            javascript: '',
+            html: '',
+            css: '',
+            metadata: this.getDefaultMetadata()
         };
-        this.generatedCode = '';
+
         this.setupEventListeners();
         this.loadRecentApps();
-        this.updateWizardStep();
+        this.updateStats();
+        this.loadTemplate('calculator'); // Load calculator template by default
     }
 
     static setupEventListeners() {
-        // Auto-generate app ID from name
-        const nameInput = this.currentWindow.querySelector('#app-name');
-        const idInput = this.currentWindow.querySelector('#app-id');
+        // Tab switching
+        const tabs = this.currentWindow.querySelectorAll('.editor-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                this.switchTab(tab.dataset.tab);
+            });
+        });
 
-        if (nameInput && idInput) {
-            nameInput.addEventListener('input', (e) => {
-                const name = e.target.value;
-                const id = name.toLowerCase()
-                    .replace(/[^a-z0-9\s]/g, '')
-                    .replace(/\s+/g, '-')
-                    .replace(/^-+|-+$/g, '');
-                idInput.value = id;
+        // Code editors
+        const editors = ['javascript', 'html', 'css', 'metadata'];
+        editors.forEach(editorType => {
+            const editor = this.currentWindow.querySelector(`#am-${editorType}-editor`);
+            if (editor) {
+                editor.addEventListener('input', () => {
+                    this.appData[editorType] = editor.value;
+                    this.updateStats();
+                    this.autoPreview();
+                });
+
+                editor.addEventListener('keydown', (e) => {
+                    this.handleEditorKeydown(e, editor);
+                });
+
+                editor.addEventListener('scroll', () => {
+                    this.updateCursorPosition(editor);
+                });
+            }
+        });
+
+        // App name input
+        const nameInput = this.currentWindow.querySelector('#am-app-name');
+        nameInput.addEventListener('input', (e) => {
+            this.appData.name = e.target.value || 'My App';
+            this.updateMetadata();
+        });
+    }
+
+    static switchTab(tabName) {
+        // Update tab appearance
+        this.currentWindow.querySelectorAll('.editor-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        this.currentWindow.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+        // Update editor content
+        this.currentWindow.querySelectorAll('.editor-container').forEach(container => {
+            container.classList.remove('active');
+        });
+        this.currentWindow.querySelector(`[data-content="${tabName}"]`).classList.add('active');
+    }
+
+    static getDefaultMetadata() {
+        return `/**
+ * APP_METADATA
+ * @name ${this.appData?.name || 'My App'}
+ * @icon fas fa-star
+ * @description A custom app created with App Maker
+ * @category Custom
+ * @version 1.0.0
+ * @author ${window.EmberFrame?.currentUser || 'User'}
+ * @enabled true
+ */`;
+    }
+
+    static updateMetadata() {
+        const metadataEditor = this.currentWindow.querySelector('#am-metadata-editor');
+        const currentMetadata = metadataEditor.value;
+
+        // Update the name in metadata if it exists
+        const nameRegex = /@name\s+(.+)/;
+        if (nameRegex.test(currentMetadata)) {
+            metadataEditor.value = currentMetadata.replace(nameRegex, `@name ${this.appData.name}`);
+        } else {
+            metadataEditor.value = this.getDefaultMetadata();
+        }
+        this.appData.metadata = metadataEditor.value;
+    }
+
+    static loadTemplate(templateType) {
+        if (!templateType) return;
+
+        this.currentTemplate = templateType;
+        const templates = this.getTemplates();
+        const template = templates[templateType];
+
+        if (!template) return;
+
+        // Update app data
+        this.appData = {
+            name: template.name,
+            javascript: template.javascript,
+            html: template.html,
+            css: template.css,
+            metadata: template.metadata
+        };
+
+        // Update UI
+        this.currentWindow.querySelector('#am-app-name').value = template.name;
+        this.currentWindow.querySelector('#am-javascript-editor').value = template.javascript;
+        this.currentWindow.querySelector('#am-html-editor').value = template.html;
+        this.currentWindow.querySelector('#am-css-editor').value = template.css;
+        this.currentWindow.querySelector('#am-metadata-editor').value = template.metadata;
+
+        // Update template selector
+        this.currentWindow.querySelector('#am-template-select').value = templateType;
+
+        this.updateStats();
+        this.refreshPreview();
+        this.updateStatus(`Loaded template: ${template.name}`);
+    }
+
+    static selectTemplate(templateType) {
+        this.loadTemplate(templateType);
+    }
+
+    static getTemplates() {
+        return {
+            calculator: {
+                name: 'Calculator App',
+                metadata: `/**
+ * APP_METADATA
+ * @name Calculator App
+ * @icon fas fa-calculator
+ * @description Scientific calculator with history
+ * @category Tools
+ * @version 1.0.0
+ * @author App Maker
+ * @enabled true
+ */`,
+                javascript: `class Calculator {
+    static createWindow() {
+        return {
+            title: 'Calculator',
+            width: '300px',
+            height: '400px',
+            content: document.getElementById('calculator-content').innerHTML,
+            onInit: (windowElement) => {
+                Calculator.init(windowElement);
+            }
+        };
+    }
+
+    static init(windowElement) {
+        this.display = windowElement.querySelector('#calc-display');
+        this.currentInput = '0';
+        this.operator = null;
+        this.waitingForInput = false;
+        this.previousInput = null;
+
+        this.setupEventListeners(windowElement);
+    }
+
+    static setupEventListeners(windowElement) {
+        const buttons = windowElement.querySelectorAll('.calc-btn');
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                this.handleInput(button.dataset.value, button.dataset.type);
+            });
+        });
+
+        // Keyboard support
+        windowElement.addEventListener('keydown', (e) => {
+            this.handleKeyboard(e);
+        });
+        
+        windowElement.tabIndex = 0;
+        windowElement.focus();
+    }
+
+    static handleInput(value, type) {
+        switch(type) {
+            case 'number':
+                this.inputNumber(value);
+                break;
+            case 'operator':
+                this.inputOperator(value);
+                break;
+            case 'action':
+                this.handleAction(value);
+                break;
+        }
+        this.updateDisplay();
+    }
+
+    static inputNumber(num) {
+        if (this.waitingForInput) {
+            this.currentInput = num;
+            this.waitingForInput = false;
+        } else {
+            this.currentInput = this.currentInput === '0' ? num : this.currentInput + num;
+        }
+    }
+
+    static inputOperator(op) {
+        if (this.operator && !this.waitingForInput) {
+            this.calculate();
+        }
+        
+        this.previousInput = this.currentInput;
+        this.operator = op;
+        this.waitingForInput = true;
+    }
+
+    static handleAction(action) {
+        switch(action) {
+            case 'clear':
+                this.clear();
+                break;
+            case 'equals':
+                this.calculate();
+                break;
+            case 'decimal':
+                this.inputDecimal();
+                break;
+            case 'sign':
+                this.toggleSign();
+                break;
+            case 'percent':
+                this.percent();
+                break;
+        }
+    }
+
+    static calculate() {
+        if (!this.operator || this.waitingForInput) return;
+
+        const prev = parseFloat(this.previousInput);
+        const current = parseFloat(this.currentInput);
+        let result;
+
+        switch(this.operator) {
+            case '+':
+                result = prev + current;
+                break;
+            case '-':
+                result = prev - current;
+                break;
+            case '*':
+                result = prev * current;
+                break;
+            case '/':
+                result = current !== 0 ? prev / current : 'Error';
+                break;
+        }
+
+        this.currentInput = result.toString();
+        this.operator = null;
+        this.waitingForInput = true;
+    }
+
+    static clear() {
+        this.currentInput = '0';
+        this.operator = null;
+        this.previousInput = null;
+        this.waitingForInput = false;
+    }
+
+    static inputDecimal() {
+        if (this.waitingForInput) {
+            this.currentInput = '0.';
+            this.waitingForInput = false;
+        } else if (this.currentInput.indexOf('.') === -1) {
+            this.currentInput += '.';
+        }
+    }
+
+    static toggleSign() {
+        this.currentInput = (parseFloat(this.currentInput) * -1).toString();
+    }
+
+    static percent() {
+        this.currentInput = (parseFloat(this.currentInput) / 100).toString();
+    }
+
+    static updateDisplay() {
+        this.display.textContent = this.currentInput;
+    }
+
+    static handleKeyboard(e) {
+        e.preventDefault();
+        const key = e.key;
+        
+        if ('0123456789'.includes(key)) {
+            this.handleInput(key, 'number');
+        } else if ('+-*/'.includes(key)) {
+            this.handleInput(key, 'operator');
+        } else if (key === 'Enter' || key === '=') {
+            this.handleInput('equals', 'action');
+        } else if (key === 'Escape' || key === 'c' || key === 'C') {
+            this.handleInput('clear', 'action');
+        } else if (key === '.') {
+            this.handleInput('decimal', 'action');
+        }
+    }
+}
+
+window.Calculator = Calculator;`,
+                html: `<div id="calculator-content">
+    <div class="calculator">
+        <div class="calc-display">
+            <div id="calc-display">0</div>
+        </div>
+        <div class="calc-buttons">
+            <button class="calc-btn action" data-value="clear" data-type="action">C</button>
+            <button class="calc-btn action" data-value="sign" data-type="action">±</button>
+            <button class="calc-btn action" data-value="percent" data-type="action">%</button>
+            <button class="calc-btn operator" data-value="/" data-type="operator">÷</button>
+            
+            <button class="calc-btn number" data-value="7" data-type="number">7</button>
+            <button class="calc-btn number" data-value="8" data-type="number">8</button>
+            <button class="calc-btn number" data-value="9" data-type="number">9</button>
+            <button class="calc-btn operator" data-value="*" data-type="operator">×</button>
+            
+            <button class="calc-btn number" data-value="4" data-type="number">4</button>
+            <button class="calc-btn number" data-value="5" data-type="number">5</button>
+            <button class="calc-btn number" data-value="6" data-type="number">6</button>
+            <button class="calc-btn operator" data-value="-" data-type="operator">−</button>
+            
+            <button class="calc-btn number" data-value="1" data-type="number">1</button>
+            <button class="calc-btn number" data-value="2" data-type="number">2</button>
+            <button class="calc-btn number" data-value="3" data-type="number">3</button>
+            <button class="calc-btn operator" data-value="+" data-type="operator">+</button>
+            
+            <button class="calc-btn number zero" data-value="0" data-type="number">0</button>
+            <button class="calc-btn action" data-value="decimal" data-type="action">.</button>
+            <button class="calc-btn equals" data-value="equals" data-type="action">=</button>
+        </div>
+    </div>
+</div>`,
+                css: `.calculator {
+    background: linear-gradient(145deg, #2c3e50, #34495e);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.calc-display {
+    background: #1a1a1a;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    text-align: right;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+}
+
+#calc-display {
+    color: #00ff88;
+    font-size: 32px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(0,255,136,0.5);
+    min-height: 40px;
+    line-height: 40px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.calc-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.calc-btn {
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    background: linear-gradient(145deg, #3498db, #2980b9);
+    color: white;
+}
+
+.calc-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+}
+
+.calc-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.calc-btn.operator {
+    background: linear-gradient(145deg, #e74c3c, #c0392b);
+}
+
+.calc-btn.action {
+    background: linear-gradient(145deg, #f39c12, #d68910);
+}
+
+.calc-btn.equals {
+    background: linear-gradient(145deg, #27ae60, #229954);
+}
+
+.calc-btn.zero {
+    grid-column: span 2;
+}
+
+@media (max-width: 400px) {
+    .calculator {
+        padding: 15px;
+    }
+    
+    .calc-btn {
+        padding: 12px;
+        font-size: 18px;
+    }
+    
+    #calc-display {
+        font-size: 28px;
+    }
+}`
+            },
+
+            'game-snake': {
+                name: 'Snake Game',
+                metadata: `/**
+ * APP_METADATA
+ * @name Snake Game
+ * @icon fas fa-gamepad
+ * @description Classic snake game with score tracking
+ * @category Games
+ * @version 1.0.0
+ * @author App Maker
+ * @enabled true
+ */`,
+                javascript: `class SnakeGame {
+    static createWindow() {
+        return {
+            title: 'Snake Game',
+            width: '500px',
+            height: '600px',
+            content: document.getElementById('snake-content').innerHTML,
+            onInit: (windowElement) => {
+                SnakeGame.init(windowElement);
+            }
+        };
+    }
+
+    static init(windowElement) {
+        this.canvas = windowElement.querySelector('#game-canvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.scoreElement = windowElement.querySelector('#score');
+        this.highScoreElement = windowElement.querySelector('#high-score');
+        
+        this.gridSize = 20;
+        this.snake = [{x: 200, y: 200}];
+        this.direction = {x: 0, y: 0};
+        this.food = this.generateFood();
+        this.score = 0;
+        this.highScore = parseInt(localStorage.getItem('snake-high-score') || '0');
+        this.gameRunning = false;
+        
+        this.updateScore();
+        this.setupEventListeners(windowElement);
+        this.draw();
+    }
+
+    static setupEventListeners(windowElement) {
+        const startBtn = windowElement.querySelector('#start-btn');
+        const pauseBtn = windowElement.querySelector('#pause-btn');
+        const resetBtn = windowElement.querySelector('#reset-btn');
+
+        startBtn.addEventListener('click', () => this.startGame());
+        pauseBtn.addEventListener('click', () => this.pauseGame());
+        resetBtn.addEventListener('click', () => this.resetGame());
+
+        // Keyboard controls
+        windowElement.addEventListener('keydown', (e) => {
+            this.handleKeyPress(e);
+        });
+        
+        windowElement.tabIndex = 0;
+        windowElement.focus();
+    }
+
+    static handleKeyPress(e) {
+        if (!this.gameRunning) return;
+        
+        switch(e.key) {
+            case 'ArrowUp':
+                if (this.direction.y === 0) {
+                    this.direction = {x: 0, y: -this.gridSize};
+                }
+                break;
+            case 'ArrowDown':
+                if (this.direction.y === 0) {
+                    this.direction = {x: 0, y: this.gridSize};
+                }
+                break;
+            case 'ArrowLeft':
+                if (this.direction.x === 0) {
+                    this.direction = {x: -this.gridSize, y: 0};
+                }
+                break;
+            case 'ArrowRight':
+                if (this.direction.x === 0) {
+                    this.direction = {x: this.gridSize, y: 0};
+                }
+                break;
+        }
+    }
+
+    static startGame() {
+        if (!this.gameRunning) {
+            this.gameRunning = true;
+            this.gameLoop();
+        }
+    }
+
+    static pauseGame() {
+        this.gameRunning = false;
+    }
+
+    static resetGame() {
+        this.gameRunning = false;
+        this.snake = [{x: 200, y: 200}];
+        this.direction = {x: 0, y: 0};
+        this.food = this.generateFood();
+        this.score = 0;
+        this.updateScore();
+        this.draw();
+    }
+
+    static gameLoop() {
+        if (!this.gameRunning) return;
+
+        this.update();
+        this.draw();
+
+        setTimeout(() => this.gameLoop(), 150);
+    }
+
+    static update() {
+        if (this.direction.x === 0 && this.direction.y === 0) return;
+
+        const head = {
+            x: this.snake[0].x + this.direction.x,
+            y: this.snake[0].y + this.direction.y
+        };
+
+        // Check wall collision
+        if (head.x < 0 || head.x >= this.canvas.width || 
+            head.y < 0 || head.y >= this.canvas.height) {
+            this.gameOver();
+            return;
+        }
+
+        // Check self collision
+        if (this.snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+            this.gameOver();
+            return;
+        }
+
+        this.snake.unshift(head);
+
+        // Check food collision
+        if (head.x === this.food.x && head.y === this.food.y) {
+            this.score += 10;
+            this.updateScore();
+            this.food = this.generateFood();
+        } else {
+            this.snake.pop();
+        }
+    }
+
+    static generateFood() {
+        let food;
+        do {
+            food = {
+                x: Math.floor(Math.random() * (this.canvas.width / this.gridSize)) * this.gridSize,
+                y: Math.floor(Math.random() * (this.canvas.height / this.gridSize)) * this.gridSize
+            };
+        } while (this.snake.some(segment => segment.x === food.x && segment.y === food.y));
+        
+        return food;
+    }
+
+    static draw() {
+        // Clear canvas
+        this.ctx.fillStyle = '#000';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Draw snake
+        this.ctx.fillStyle = '#0f0';
+        this.snake.forEach((segment, index) => {
+            this.ctx.fillStyle = index === 0 ? '#0f0' : '#090';
+            this.ctx.fillRect(segment.x, segment.y, this.gridSize - 2, this.gridSize - 2);
+        });
+
+        // Draw food
+        this.ctx.fillStyle = '#f00';
+        this.ctx.fillRect(this.food.x, this.food.y, this.gridSize - 2, this.gridSize - 2);
+
+        // Draw grid
+        this.ctx.strokeStyle = '#333';
+        this.ctx.lineWidth = 1;
+        for (let x = 0; x <= this.canvas.width; x += this.gridSize) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, 0);
+            this.ctx.lineTo(x, this.canvas.height);
+            this.ctx.stroke();
+        }
+        for (let y = 0; y <= this.canvas.height; y += this.gridSize) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, y);
+            this.ctx.lineTo(this.canvas.width, y);
+            this.ctx.stroke();
+        }
+    }
+
+    static updateScore() {
+        this.scoreElement.textContent = this.score;
+        this.highScoreElement.textContent = this.highScore;
+        
+        if (this.score > this.highScore) {
+            this.highScore = this.score;
+            this.highScoreElement.textContent = this.highScore;
+            localStorage.setItem('snake-high-score', this.highScore.toString());
+        }
+    }
+
+    static gameOver() {
+        this.gameRunning = false;
+        alert(\`Game Over! Score: \${this.score}\`);
+    }
+}
+
+window.SnakeGame = SnakeGame;`,
+                html: `<div id="snake-content">
+    <div class="snake-game">
+        <div class="game-header">
+            <div class="score-display">
+                <div>Score: <span id="score">0</span></div>
+                <div>High Score: <span id="high-score">0</span></div>
+            </div>
+            <div class="game-controls">
+                <button id="start-btn">Start</button>
+                <button id="pause-btn">Pause</button>
+                <button id="reset-btn">Reset</button>
+            </div>
+        </div>
+        <canvas id="game-canvas" width="480" height="480"></canvas>
+        <div class="instructions">
+            <p>Use arrow keys to control the snake</p>
+            <p>Eat the red food to grow and score points</p>
+        </div>
+    </div>
+</div>`,
+                css: `.snake-game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(145deg, #1e3c72, #2a5298);
+    color: white;
+    font-family: 'Arial', sans-serif;
+    height: 100%;
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 480px;
+    margin-bottom: 20px;
+}
+
+.score-display {
+    display: flex;
+    gap: 20px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.game-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.game-controls button {
+    padding: 8px 16px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.game-controls button:hover {
+    background: #45a049;
+}
+
+#game-canvas {
+    border: 3px solid #fff;
+    border-radius: 10px;
+    background: #000;
+    box-shadow: 0 0 20px rgba(0,255,0,0.3);
+}
+
+.instructions {
+    margin-top: 20px;
+    text-align: center;
+    opacity: 0.8;
+}
+
+.instructions p {
+    margin: 5px 0;
+    font-size: 14px;
+}`
+            },
+
+            todo: {
+                name: 'Todo List App',
+                metadata: `/**
+ * APP_METADATA
+ * @name Todo List App
+ * @icon fas fa-tasks
+ * @description Organize your tasks and boost productivity
+ * @category Productivity
+ * @version 1.0.0
+ * @author App Maker
+ * @enabled true
+ */`,
+                javascript: `class TodoApp {
+    static createWindow() {
+        return {
+            title: 'Todo List',
+            width: '400px',
+            height: '600px',
+            content: document.getElementById('todo-content').innerHTML,
+            onInit: (windowElement) => {
+                TodoApp.init(windowElement);
+            }
+        };
+    }
+
+    static init(windowElement) {
+        this.windowElement = windowElement;
+        this.todos = JSON.parse(localStorage.getItem('todos') || '[]');
+        this.nextId = Math.max(...this.todos.map(t => t.id), 0) + 1;
+        
+        this.setupEventListeners();
+        this.render();
+    }
+
+    static setupEventListeners() {
+        const addBtn = this.windowElement.querySelector('#add-todo-btn');
+        const input = this.windowElement.querySelector('#todo-input');
+        const clearCompleted = this.windowElement.querySelector('#clear-completed');
+        const filterBtns = this.windowElement.querySelectorAll('.filter-btn');
+
+        addBtn.addEventListener('click', () => this.addTodo());
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.addTodo();
+        });
+        clearCompleted.addEventListener('click', () => this.clearCompleted());
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => this.setFilter(btn.dataset.filter));
+        });
+    }
+
+    static addTodo() {
+        const input = this.windowElement.querySelector('#todo-input');
+        const text = input.value.trim();
+        
+        if (!text) return;
+
+        const todo = {
+            id: this.nextId++,
+            text: text,
+            completed: false,
+            createdAt: new Date().toISOString()
+        };
+
+        this.todos.push(todo);
+        this.saveTodos();
+        this.render();
+        input.value = '';
+    }
+
+    static toggleTodo(id) {
+        const todo = this.todos.find(t => t.id === id);
+        if (todo) {
+            todo.completed = !todo.completed;
+            this.saveTodos();
+            this.render();
+        }
+    }
+
+    static deleteTodo(id) {
+        this.todos = this.todos.filter(t => t.id !== id);
+        this.saveTodos();
+        this.render();
+    }
+
+    static clearCompleted() {
+        this.todos = this.todos.filter(t => !t.completed);
+        this.saveTodos();
+        this.render();
+    }
+
+    static setFilter(filter) {
+        this.currentFilter = filter;
+        this.windowElement.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.filter === filter);
+        });
+        this.render();
+    }
+
+    static getFilteredTodos() {
+        switch(this.currentFilter) {
+            case 'active':
+                return this.todos.filter(t => !t.completed);
+            case 'completed':
+                return this.todos.filter(t => t.completed);
+            default:
+                return this.todos;
+        }
+    }
+
+    static render() {
+        const todoList = this.windowElement.querySelector('#todo-list');
+        const filtered = this.getFilteredTodos();
+
+        if (filtered.length === 0) {
+            todoList.innerHTML = '<div class="empty-state">No tasks to show</div>';
+            return;
+        }
+
+        todoList.innerHTML = filtered.map(todo => \`
+            <div class="todo-item \${todo.completed ? 'completed' : ''}">
+                <input type="checkbox" \${todo.completed ? 'checked' : ''} 
+                       onchange="TodoApp.toggleTodo(\${todo.id})">
+                <span class="todo-text">\${todo.text}</span>
+                <button class="delete-btn" onclick="TodoApp.deleteTodo(\${todo.id})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        \`).join('');
+
+        this.updateStats();
+    }
+
+    static updateStats() {
+        const total = this.todos.length;
+        const completed = this.todos.filter(t => t.completed).length;
+        const remaining = total - completed;
+
+        this.windowElement.querySelector('#todo-stats').textContent = 
+            \`\${remaining} remaining, \${completed} completed\`;
+    }
+
+    static saveTodos() {
+        localStorage.setItem('todos', JSON.stringify(this.todos));
+    }
+}
+
+TodoApp.currentFilter = 'all';
+window.TodoApp = TodoApp;`,
+                html: `<div id="todo-content">
+    <div class="todo-app">
+        <div class="todo-header">
+            <h2>📋 My Tasks</h2>
+            <div class="add-todo">
+                <input type="text" id="todo-input" placeholder="What needs to be done?">
+                <button id="add-todo-btn">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="todo-filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="active">Active</button>
+            <button class="filter-btn" data-filter="completed">Completed</button>
+        </div>
+
+        <div class="todo-list" id="todo-list">
+            <!-- Todos will be rendered here -->
+        </div>
+
+        <div class="todo-footer">
+            <div id="todo-stats" class="todo-stats">0 remaining, 0 completed</div>
+            <button id="clear-completed" class="clear-btn">Clear Completed</button>
+        </div>
+    </div>
+</div>`,
+                css: `.todo-app {
+    max-width: 400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.todo-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    color: white;
+}
+
+.todo-header h2 {
+    margin: 0 0 20px 0;
+    text-align: center;
+    font-size: 24px;
+}
+
+.add-todo {
+    display: flex;
+    gap: 10px;
+}
+
+#todo-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+}
+
+#add-todo-btn {
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.3s;
+}
+
+#add-todo-btn:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.05);
+}
+
+.todo-filters {
+    display: flex;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.filter-btn {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6c757d;
+    transition: all 0.3s;
+}
+
+.filter-btn:hover {
+    background: #e9ecef;
+}
+
+.filter-btn.active {
+    color: #667eea;
+    background: white;
+    border-bottom: 2px solid #667eea;
+}
+
+.todo-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.todo-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #f1f3f4;
+    transition: all 0.3s;
+}
+
+.todo-item:hover {
+    background: #f8f9fa;
+}
+
+.todo-item.completed {
+    opacity: 0.6;
+}
+
+.todo-item.completed .todo-text {
+    text-decoration: line-through;
+    color: #6c757d;
+}
+
+.todo-item input[type="checkbox"] {
+    margin-right: 15px;
+    transform: scale(1.2);
+    cursor: pointer;
+}
+
+.todo-text {
+    flex: 1;
+    font-size: 16px;
+    color: #333;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 3px;
+    opacity: 0;
+    transition: all 0.3s;
+}
+
+.todo-item:hover .delete-btn {
+    opacity: 1;
+}
+
+.delete-btn:hover {
+    background: #f8d7da;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.todo-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+.todo-stats {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.clear-btn {
+    padding: 8px 16px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.3s;
+}
+
+.clear-btn:hover {
+    background: #c82333;
+}`
+            },
+
+            blank: {
+                name: 'Blank App',
+                metadata: `/**
+ * APP_METADATA
+ * @name My Custom App
+ * @icon fas fa-star
+ * @description A blank template to start building your app
+ * @category Custom
+ * @version 1.0.0
+ * @author App Maker
+ * @enabled true
+ */`,
+                javascript: `class MyCustomApp {
+    static createWindow() {
+        return {
+            title: 'My Custom App',
+            width: '500px',
+            height: '400px',
+            content: document.getElementById('app-content').innerHTML,
+            onInit: (windowElement) => {
+                MyCustomApp.init(windowElement);
+            }
+        };
+    }
+
+    static init(windowElement) {
+        this.windowElement = windowElement;
+        this.setupEventListeners();
+        
+        // Initialize your app here
+        console.log('My Custom App initialized!');
+    }
+
+    static setupEventListeners() {
+        // Add your event listeners here
+        const button = this.windowElement.querySelector('#my-button');
+        if (button) {
+            button.addEventListener('click', () => {
+                this.handleButtonClick();
             });
         }
     }
 
-    static switchTab(tabName) {
-        // Update navigation
-        this.currentWindow.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        this.currentWindow.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    static handleButtonClick() {
+        // Handle button click
+        alert('Button clicked! Customize this behavior.');
+    }
+}
 
-        // Update content
-        this.currentWindow.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.remove('active');
-        });
-        this.currentWindow.querySelector(`#${tabName}-tab`).classList.add('active');
+window.MyCustomApp = MyCustomApp;`,
+                html: `<div id="app-content">
+    <div class="my-app">
+        <div class="app-header">
+            <h2>🌟 My Custom App</h2>
+            <p>Start building your amazing app here!</p>
+        </div>
+        
+        <div class="app-content">
+            <p>This is a blank template. Replace this content with your app's UI.</p>
+            
+            <button id="my-button" class="app-button">
+                Click Me!
+            </button>
+            
+            <div class="app-section">
+                <h3>Features to add:</h3>
+                <ul>
+                    <li>Custom functionality</li>
+                    <li>User interface elements</li>
+                    <li>Data management</li>
+                    <li>Responsive design</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>`,
+                css: `.my-app {
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100%;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 10px;
+}
 
-        // Load tab-specific content
-        switch(tabName) {
-            case 'code':
-                this.updateCodeEditor();
-                break;
-            case 'preview':
-                this.refreshPreview();
-                break;
+.app-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.app-header h2 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 28px;
+}
+
+.app-header p {
+    margin: 0;
+    color: #666;
+    font-size: 16px;
+}
+
+.app-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.app-button {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s;
+    margin: 20px 0;
+}
+
+.app-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.app-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.app-section h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 18px;
+}
+
+.app-section ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #666;
+}
+
+.app-section li {
+    margin-bottom: 8px;
+}`
+            }
+        };
+    }
+
+    static updateStats() {
+        const jsCode = this.appData.javascript;
+        const htmlCode = this.appData.html;
+        const cssCode = this.appData.css;
+
+        const totalLines = (jsCode.split('\n').length) +
+                          (htmlCode.split('\n').length) +
+                          (cssCode.split('\n').length);
+
+        const totalSize = new Blob([jsCode + htmlCode + cssCode]).size;
+
+        this.currentWindow.querySelector('#am-line-count').textContent = totalLines;
+        this.currentWindow.querySelector('#am-file-size').textContent = (totalSize / 1024).toFixed(1);
+    }
+
+    static autoPreview() {
+        clearTimeout(this.previewTimeout);
+        this.previewTimeout = setTimeout(() => {
+            this.refreshPreview();
+        }, 1000);
+    }
+
+    static refreshPreview() {
+        const iframe = this.currentWindow.querySelector('#am-preview-iframe');
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>${this.appData.css}</style>
+            </head>
+            <body>
+                ${this.appData.html}
+                <script>${this.appData.javascript}</script>
+            </body>
+            </html>
+        `;
+
+        iframe.srcdoc = html;
+    }
+
+    static previewApp() {
+        this.refreshPreview();
+        this.updateStatus('Preview updated');
+    }
+
+    static validateCode() {
+        try {
+            // Basic JavaScript validation
+            new Function(this.appData.javascript);
+
+            const validation = this.currentWindow.querySelector('#am-validation');
+            validation.innerHTML = '<i class="fas fa-check-circle" style="color: #28a745;"></i><span>Code is valid</span>';
+            this.updateStatus('Code validation passed');
+        } catch (error) {
+            const validation = this.currentWindow.querySelector('#am-validation');
+            validation.innerHTML = '<i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i><span>Syntax error found</span>';
+            this.updateStatus('Validation failed: ' + error.message);
         }
     }
 
-    static startWizard() {
-        this.switchTab('wizard');
-        this.currentStep = 1;
-        this.updateWizardStep();
+    static formatCode(type) {
+        // Basic code formatting
+        const editor = this.currentWindow.querySelector(`#am-${type}-editor`);
+        let code = editor.value;
+
+        if (type === 'javascript') {
+            // Basic JS formatting
+            code = code.replace(/;/g, ';\n').replace(/{/g, '{\n').replace(/}/g, '\n}');
+        }
+
+        editor.value = code;
+        this.appData[type] = code;
+        this.updateStatus(`${type} code formatted`);
     }
 
-    static useTemplate() {
-        this.showNotification('Template browser coming soon!', 'info');
+    static handleEditorKeydown(e, editor) {
+        // Tab support
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(end);
+            editor.selectionStart = editor.selectionEnd = start + 4;
+        }
     }
 
-    static startTutorial() {
-        this.showHelp();
-        this.showHelpTab('getting-started');
+    static async saveApp() {
+        const appName = this.appData.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+        const appData = {
+            ...this.appData,
+            savedAt: new Date().toISOString()
+        };
+
+        try {
+            // Save to localStorage for now
+            localStorage.setItem(`app-maker-${appName}`, JSON.stringify(appData));
+            this.addToRecentApps(appName, this.appData.name);
+            this.updateStatus(`App "${this.appData.name}" saved successfully`);
+
+            if (window.Notification) {
+                window.Notification.success(`App "${this.appData.name}" saved!`);
+            }
+        } catch (error) {
+            this.updateStatus('Failed to save app: ' + error.message);
+            if (window.Notification) {
+                window.Notification.error('Failed to save app');
+            }
+        }
     }
 
-    static importApp() {
+    static async installApp() {
+        if (!this.appData.name || !this.appData.javascript) {
+            this.updateStatus('Please add app name and JavaScript code before installing');
+            return;
+        }
+
+        const appId = this.appData.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+        const appCode = `${this.appData.metadata}
+
+${this.appData.javascript}
+
+window.${this.getAppClassName()} = ${this.getAppClassName()};`;
+
+        try {
+            // Create blob and download as .js file
+            const blob = new Blob([appCode], { type: 'text/javascript' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${appId}.js`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            this.updateStatus(`App "${this.appData.name}" exported for installation`);
+
+            if (window.Notification) {
+                window.Notification.success(`App exported! Place ${appId}.js in your apps folder to install.`);
+            }
+        } catch (error) {
+            this.updateStatus('Failed to export app: ' + error.message);
+        }
+    }
+
+    static getAppClassName() {
+        return this.appData.name.replace(/[^a-zA-Z0-9]/g, '').replace(/^./, c => c.toUpperCase());
+    }
+
+    static exportApp() {
+        const appData = {
+            ...this.appData,
+            exportedAt: new Date().toISOString(),
+            version: '1.0.0'
+        };
+
+        const blob = new Blob([JSON.stringify(appData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${this.appData.name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        this.updateStatus('App exported as JSON');
+    }
+
+    static newApp() {
+        if (confirm('Create a new app? Unsaved changes will be lost.')) {
+            this.appData = {
+                name: 'My New App',
+                javascript: '',
+                html: '',
+                css: '',
+                metadata: this.getDefaultMetadata()
+            };
+
+            this.currentWindow.querySelector('#am-app-name').value = this.appData.name;
+            this.currentWindow.querySelector('#am-javascript-editor').value = '';
+            this.currentWindow.querySelector('#am-html-editor').value = '';
+            this.currentWindow.querySelector('#am-css-editor').value = '';
+            this.currentWindow.querySelector('#am-metadata-editor').value = this.appData.metadata;
+            this.currentWindow.querySelector('#am-template-select').value = '';
+
+            this.updateStats();
+            this.updateStatus('New app created');
+        }
+    }
+
+    static loadApp() {
         const input = document.createElement('input');
         input.type = 'file';
-        input.accept = '.js';
+        input.accept = '.json';
         input.onchange = (e) => {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    this.loadAppFromCode(e.target.result);
+                    try {
+                        const appData = JSON.parse(e.target.result);
+                        this.appData = appData;
+
+                        this.currentWindow.querySelector('#am-app-name').value = appData.name;
+                        this.currentWindow.querySelector('#am-javascript-editor').value = appData.javascript;
+                        this.currentWindow.querySelector('#am-html-editor').value = appData.html;
+                        this.currentWindow.querySelector('#am-css-editor').value = appData.css;
+                        this.currentWindow.querySelector('#am-metadata-editor').value = appData.metadata;
+
+                        this.updateStats();
+                        this.refreshPreview();
+                        this.updateStatus(`App "${appData.name}" loaded`);
+                    } catch (error) {
+                        this.updateStatus('Failed to load app: ' + error.message);
+                    }
                 };
                 reader.readAsText(file);
             }
@@ -1826,1242 +2204,85 @@ window.MyApp = MyApp;"></textarea>
         input.click();
     }
 
-    static newApp() {
-        this.appData = {
-            name: '',
-            id: '',
-            description: '',
-            icon: 'fas fa-star',
-            category: 'Productivity',
-            author: '',
-            type: '',
-            features: [],
-            theme: 'modern',
-            layout: 'single'
-        };
-        this.currentStep = 1;
-        this.updateWizardStep();
-        this.switchTab('wizard');
-    }
-
-    static nextStep() {
-        if (this.validateCurrentStep()) {
-            if (this.currentStep < 5) {
-                this.currentStep++;
-                this.updateWizardStep();
-            }
-        }
-    }
-
-    static prevStep() {
-        if (this.currentStep > 1) {
-            this.currentStep--;
-            this.updateWizardStep();
-        }
-    }
-
-    static updateWizardStep() {
-        // Update progress indicators
-        this.currentWindow.querySelectorAll('.progress-step').forEach(step => {
-            const stepNum = parseInt(step.dataset.step);
-            if (stepNum <= this.currentStep) {
-                step.classList.add('active');
-            } else {
-                step.classList.remove('active');
-            }
-        });
-
-        // Update step content
-        this.currentWindow.querySelectorAll('.wizard-step').forEach(step => {
-            step.classList.remove('active');
-        });
-        this.currentWindow.querySelector(`.wizard-step[data-step="${this.currentStep}"]`).classList.add('active');
-
-        // Update navigation buttons
-        const prevBtn = this.currentWindow.querySelector('#prev-btn');
-        const nextBtn = this.currentWindow.querySelector('#next-btn');
-
-        prevBtn.disabled = this.currentStep === 1;
-
-        if (this.currentStep === 5) {
-            nextBtn.textContent = 'Generate App';
-            nextBtn.onclick = () => this.generateApp();
-        } else {
-            nextBtn.innerHTML = 'Next <i class="fas fa-arrow-right"></i>';
-            nextBtn.onclick = () => this.nextStep();
-        }
-
-        // Load step-specific content
-        this.loadStepContent();
-    }
-
-    static loadStepContent() {
-        switch(this.currentStep) {
-            case 3:
-                this.loadFeatures();
-                break;
-            case 5:
-                this.loadReview();
-                break;
-        }
-    }
-
-    static validateCurrentStep() {
-        switch(this.currentStep) {
-            case 1:
-                const name = this.currentWindow.querySelector('#app-name').value.trim();
-                const id = this.currentWindow.querySelector('#app-id').value.trim();
-
-                if (!name || !id) {
-                    this.showNotification('Please fill in required fields', 'error');
-                    return false;
-                }
-
-                this.appData.name = name;
-                this.appData.id = id;
-                this.appData.description = this.currentWindow.querySelector('#app-description').value.trim();
-                this.appData.icon = this.currentWindow.querySelector('#app-icon').value;
-                this.appData.category = this.currentWindow.querySelector('#app-category').value;
-                this.appData.author = this.currentWindow.querySelector('#app-author').value.trim();
-                break;
-
-            case 2:
-                if (!this.appData.type) {
-                    this.showNotification('Please select an application type', 'error');
-                    return false;
-                }
-                break;
-        }
-        return true;
-    }
-
-    static selectAppType(type) {
-        this.appData.type = type;
-        this.currentWindow.querySelectorAll('.type-card').forEach(card => {
-            card.classList.remove('selected');
-        });
-        this.currentWindow.querySelector(`[data-type="${type}"]`).classList.add('selected');
-    }
-
-    static loadFeatures() {
-        const featuresSection = this.currentWindow.querySelector('#features-section');
-        const features = this.getAvailableFeatures(this.appData.type);
-
-        featuresSection.innerHTML = features.map(feature => `
-            <div class="feature-item">
-                <label class="feature-label">
-                    <input type="checkbox" value="${feature.id}" onchange="Appmaker.toggleFeature('${feature.id}')">
-                    <span class="checkmark"></span>
-                    <div class="feature-info">
-                        <h4>${feature.name}</h4>
-                        <p>${feature.description}</p>
-                    </div>
-                </label>
-            </div>
-        `).join('');
-    }
-
-    static getAvailableFeatures(appType) {
-        const featureMap = {
-            form: [
-                { id: 'validation', name: 'Form Validation', description: 'Real-time input validation and error messages' },
-                { id: 'save', name: 'Save Data', description: 'Save form data to local storage' },
-                { id: 'reset', name: 'Reset Form', description: 'Clear all form fields' },
-                { id: 'export', name: 'Export Data', description: 'Export form data as JSON or CSV' }
-            ],
-            dashboard: [
-                { id: 'charts', name: 'Charts & Graphs', description: 'Interactive data visualization' },
-                { id: 'realtime', name: 'Real-time Updates', description: 'Live data updates' },
-                { id: 'filters', name: 'Data Filters', description: 'Filter and search data' },
-                { id: 'export', name: 'Export Reports', description: 'Export charts and data' }
-            ],
-            tool: [
-                { id: 'calculator', name: 'Calculator Functions', description: 'Math and calculation features' },
-                { id: 'history', name: 'Calculation History', description: 'Keep track of previous calculations' },
-                { id: 'units', name: 'Unit Conversion', description: 'Convert between different units' },
-                { id: 'copy', name: 'Copy Results', description: 'Copy results to clipboard' }
-            ],
-            game: [
-                { id: 'score', name: 'Score Tracking', description: 'Keep track of player scores' },
-                { id: 'levels', name: 'Multiple Levels', description: 'Progressive difficulty levels' },
-                { id: 'sound', name: 'Sound Effects', description: 'Audio feedback and music' },
-                { id: 'save', name: 'Save Progress', description: 'Save game state and progress' }
-            ],
-            viewer: [
-                { id: 'navigation', name: 'Navigation Controls', description: 'Navigate through content' },
-                { id: 'search', name: 'Search Content', description: 'Search and filter content' },
-                { id: 'zoom', name: 'Zoom Controls', description: 'Zoom in and out of content' },
-                { id: 'fullscreen', name: 'Fullscreen Mode', description: 'View content in fullscreen' }
-            ],
-            custom: [
-                { id: 'storage', name: 'Data Storage', description: 'Local data storage capabilities' },
-                { id: 'api', name: 'API Integration', description: 'Connect to external APIs' },
-                { id: 'notifications', name: 'Notifications', description: 'Show user notifications' },
-                { id: 'shortcuts', name: 'Keyboard Shortcuts', description: 'Custom keyboard shortcuts' }
-            ]
-        };
-
-        return featureMap[appType] || featureMap.custom;
-    }
-
-    static toggleFeature(featureId) {
-        const index = this.appData.features.indexOf(featureId);
-        if (index > -1) {
-            this.appData.features.splice(index, 1);
-        } else {
-            this.appData.features.push(featureId);
-        }
-    }
-
-    static selectTheme(theme) {
-        this.appData.theme = theme;
-        this.currentWindow.querySelectorAll('.theme-card').forEach(card => {
-            card.classList.remove('selected');
-        });
-        this.currentWindow.querySelector(`[data-theme="${theme}"]`).classList.add('selected');
-    }
-
-    static selectLayout(layout) {
-        this.appData.layout = layout;
-        this.currentWindow.querySelectorAll('.layout-option').forEach(option => {
-            option.classList.remove('selected');
-        });
-        this.currentWindow.querySelector(`[data-layout="${layout}"]`).classList.add('selected');
-    }
-
-    static loadReview() {
-        const summary = this.currentWindow.querySelector('#app-summary');
-        summary.innerHTML = `
-            <div class="summary-grid">
-                <div class="summary-item">
-                    <strong>Name:</strong> ${this.appData.name}
-                </div>
-                <div class="summary-item">
-                    <strong>Type:</strong> ${this.appData.type}
-                </div>
-                <div class="summary-item">
-                    <strong>Category:</strong> ${this.appData.category}
-                </div>
-                <div class="summary-item">
-                    <strong>Features:</strong> ${this.appData.features.length} selected
-                </div>
-                <div class="summary-item">
-                    <strong>Theme:</strong> ${this.appData.theme}
-                </div>
-                <div class="summary-item">
-                    <strong>Layout:</strong> ${this.appData.layout}
-                </div>
-            </div>
-        `;
-    }
-
-    static generateApp() {
-        this.showNotification('Generating application...', 'info');
-
-        setTimeout(() => {
-            this.generatedCode = this.createAppCode();
-            this.switchTab('code');
-            this.updateCodeEditor();
-            this.showNotification('Application generated successfully!', 'success');
-
-            // Save to recent apps
-            this.saveToRecentApps();
-        }, 1500);
-    }
-
-    static createAppCode() {
-        const metadata = `/**
- * APP_METADATA
- * @name ${this.appData.name}
- * @icon ${this.appData.icon}
- * @description ${this.appData.description || 'Generated with EmberFrame Appmaker'}
- * @category ${this.appData.category}
- * @version 1.0.0
- * @author ${this.appData.author || 'Appmaker User'}
- * @enabled true
- */`;
-
-        const className = this.toPascalCase(this.appData.id);
-
-        const content = this.generateAppContent();
-        const styles = this.generateAppStyles();
-        const methods = this.generateAppMethods();
-
-        return `${metadata}
-
-class ${className} {
-    static createWindow() {
-        return {
-            title: '${this.appData.name}',
-            width: '600px',
-            height: '400px',
-            content: \`
-                ${content}
-                ${styles}
-            \`,
-            onInit: (windowElement) => {
-                ${className}.init(windowElement);
-            }
-        };
-    }
-
-    static init(windowElement) {
-        this.currentWindow = windowElement;
-        console.log('${this.appData.name} initialized!');
-        
-        // Initialize features
-        ${this.generateInitCode()}
-    }
-
-    ${methods}
-}
-
-window.${className} = ${className};`;
-    }
-
-    static generateAppContent() {
-        const layouts = {
-            single: this.generateSinglePageContent(),
-            tabs: this.generateTabbedContent(),
-            sidebar: this.generateSidebarContent()
-        };
-
-        return layouts[this.appData.layout] || layouts.single;
-    }
-
-    static generateSinglePageContent() {
-        const typeContent = {
-            form: `
-                <div class="app-container">
-                    <div class="app-header">
-                        <h1>${this.appData.name}</h1>
-                        <p>${this.appData.description}</p>
-                    </div>
-                    <div class="app-content">
-                        <form class="app-form" id="main-form">
-                            <div class="form-group">
-                                <label for="name">Name:</label>
-                                <input type="text" id="name" name="name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="email">Email:</label>
-                                <input type="email" id="email" name="email" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="message">Message:</label>
-                                <textarea id="message" name="message" rows="4"></textarea>
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">Submit</button>
-                                <button type="reset" class="btn btn-secondary">Reset</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>`,
-
-            dashboard: `
-                <div class="app-container">
-                    <div class="app-header">
-                        <h1>${this.appData.name}</h1>
-                        <div class="dashboard-controls">
-                            <button class="btn btn-primary" onclick="${this.toPascalCase(this.appData.id)}.refreshData()">
-                                <i class="fas fa-sync"></i> Refresh
-                            </button>
-                        </div>
-                    </div>
-                    <div class="dashboard-grid">
-                        <div class="dashboard-card">
-                            <h3>Metric 1</h3>
-                            <div class="metric-value" id="metric-1">0</div>
-                        </div>
-                        <div class="dashboard-card">
-                            <h3>Metric 2</h3>
-                            <div class="metric-value" id="metric-2">0</div>
-                        </div>
-                        <div class="dashboard-card">
-                            <h3>Chart</h3>
-                            <div class="chart-container" id="chart-1">
-                                <div class="chart-placeholder">Chart will appear here</div>
-                            </div>
-                        </div>
-                        <div class="dashboard-card">
-                            <h3>Status</h3>
-                            <div class="status-indicator" id="status">Ready</div>
-                        </div>
-                    </div>
-                </div>`,
-
-            tool: `
-                <div class="app-container">
-                    <div class="app-header">
-                        <h1>${this.appData.name}</h1>
-                        <p>${this.appData.description}</p>
-                    </div>
-                    <div class="tool-interface">
-                        <div class="tool-input">
-                            <label for="input-value">Input:</label>
-                            <input type="text" id="input-value" placeholder="Enter value">
-                            <button class="btn btn-primary" onclick="${this.toPascalCase(this.appData.id)}.calculate()">
-                                Calculate
-                            </button>
-                        </div>
-                        <div class="tool-output">
-                            <label>Result:</label>
-                            <div class="result-display" id="result">-</div>
-                        </div>
-                        <div class="tool-history" id="history">
-                            <h3>History</h3>
-                            <div class="history-list" id="history-list">
-                                <div class="no-history">No calculations yet</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>`,
-
-            game: `
-                <div class="app-container">
-                    <div class="game-header">
-                        <h1>${this.appData.name}</h1>
-                        <div class="game-stats">
-                            <span>Score: <span id="score">0</span></span>
-                            <span>Level: <span id="level">1</span></span>
-                        </div>
-                    </div>
-                    <div class="game-area" id="game-area">
-                        <div class="game-content">
-                            <h2>Game Area</h2>
-                            <p>Your game content goes here</p>
-                            <button class="btn btn-primary" onclick="${this.toPascalCase(this.appData.id)}.startGame()">
-                                Start Game
-                            </button>
-                        </div>
-                    </div>
-                    <div class="game-controls">
-                        <button class="btn btn-secondary" onclick="${this.toPascalCase(this.appData.id)}.pauseGame()">
-                            Pause
-                        </button>
-                        <button class="btn btn-secondary" onclick="${this.toPascalCase(this.appData.id)}.resetGame()">
-                            Reset
-                        </button>
-                    </div>
-                </div>`,
-
-            viewer: `
-                <div class="app-container">
-                    <div class="viewer-header">
-                        <h1>${this.appData.name}</h1>
-                        <div class="viewer-controls">
-                            <button class="btn btn-secondary" onclick="${this.toPascalCase(this.appData.id)}.previousItem()">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <span id="item-counter">1 / 1</span>
-                            <button class="btn btn-secondary" onclick="${this.toPascalCase(this.appData.id)}.nextItem()">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="viewer-content" id="viewer-content">
-                        <div class="content-placeholder">
-                            <i class="fas fa-file"></i>
-                            <h3>No content loaded</h3>
-                            <p>Click "Load Content" to get started</p>
-                            <button class="btn btn-primary" onclick="${this.toPascalCase(this.appData.id)}.loadContent()">
-                                Load Content
-                            </button>
-                        </div>
-                    </div>
-                </div>`,
-
-            custom: `
-                <div class="app-container">
-                    <div class="app-header">
-                        <h1>${this.appData.name}</h1>
-                        <p>${this.appData.description}</p>
-                    </div>
-                    <div class="app-content">
-                        <div class="welcome-message">
-                            <h2>Welcome to your custom app!</h2>
-                            <p>This is a starting point for your custom application.</p>
-                            <p>Customize the content, add features, and make it your own.</p>
-                            <button class="btn btn-primary" onclick="${this.toPascalCase(this.appData.id)}.customAction()">
-                                Get Started
-                            </button>
-                        </div>
-                    </div>
-                </div>`
-        };
-
-        return typeContent[this.appData.type] || typeContent.custom;
-    }
-
-    static generateTabbedContent() {
-        return `
-            <div class="app-container tabbed">
-                <div class="app-header">
-                    <h1>${this.appData.name}</h1>
-                </div>
-                <div class="tab-navigation">
-                    <button class="tab-btn active" onclick="${this.toPascalCase(this.appData.id)}.switchTab('tab1')">Tab 1</button>
-                    <button class="tab-btn" onclick="${this.toPascalCase(this.appData.id)}.switchTab('tab2')">Tab 2</button>
-                    <button class="tab-btn" onclick="${this.toPascalCase(this.appData.id)}.switchTab('tab3')">Tab 3</button>
-                </div>
-                <div class="tab-content active" id="tab1">
-                    <h2>Tab 1 Content</h2>
-                    <p>This is the content for the first tab.</p>
-                </div>
-                <div class="tab-content" id="tab2">
-                    <h2>Tab 2 Content</h2>
-                    <p>This is the content for the second tab.</p>
-                </div>
-                <div class="tab-content" id="tab3">
-                    <h2>Tab 3 Content</h2>
-                    <p>This is the content for the third tab.</p>
-                </div>
-            </div>`;
-    }
-
-    static generateSidebarContent() {
-        return `
-            <div class="app-container sidebar-layout">
-                <div class="app-sidebar">
-                    <h3>Navigation</h3>
-                    <ul class="sidebar-menu">
-                        <li><a href="#" onclick="${this.toPascalCase(this.appData.id)}.showSection('home')">Home</a></li>
-                        <li><a href="#" onclick="${this.toPascalCase(this.appData.id)}.showSection('data')">Data</a></li>
-                        <li><a href="#" onclick="${this.toPascalCase(this.appData.id)}.showSection('settings')">Settings</a></li>
-                    </ul>
-                </div>
-                <div class="app-main">
-                    <div class="app-header">
-                        <h1>${this.appData.name}</h1>
-                    </div>
-                    <div class="main-content" id="main-content">
-                        <h2>Welcome</h2>
-                        <p>Select an option from the sidebar to get started.</p>
-                    </div>
-                </div>
-            </div>`;
-    }
-
-    static generateAppStyles() {
-        const themes = {
-            modern: `
-                <style>
-                    .app-container {
-                        height: 100%;
-                        display: flex;
-                        flex-direction: column;
-                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-                        color: #333;
-                    }
-                    .app-header {
-                        background: rgba(255, 255, 255, 0.95);
-                        padding: 20px 30px;
-                        backdrop-filter: blur(10px);
-                        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-                    }
-                    .app-header h1 {
-                        margin: 0 0 5px 0;
-                        color: #2d3748;
-                        font-size: 24px;
-                    }
-                    .app-content {
-                        flex: 1;
-                        padding: 30px;
-                        background: rgba(255, 255, 255, 0.9);
-                        overflow-y: auto;
-                    }
-                    .btn {
-                        padding: 10px 20px;
-                        border: none;
-                        border-radius: 8px;
-                        cursor: pointer;
-                        font-weight: 600;
-                        transition: all 0.3s ease;
-                    }
-                    .btn-primary {
-                        background: #667eea;
-                        color: white;
-                    }
-                    .btn-primary:hover {
-                        background: #5a67d8;
-                        transform: translateY(-1px);
-                    }
-                    .btn-secondary {
-                        background: #e2e8f0;
-                        color: #2d3748;
-                    }
-                </style>`,
-
-            dark: `
-                <style>
-                    .app-container {
-                        height: 100%;
-                        display: flex;
-                        flex-direction: column;
-                        background: #1a202c;
-                        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-                        color: #e2e8f0;
-                    }
-                    .app-header {
-                        background: #2d3748;
-                        padding: 20px 30px;
-                        border-bottom: 1px solid #4a5568;
-                    }
-                    .app-header h1 {
-                        margin: 0 0 5px 0;
-                        color: #f7fafc;
-                        font-size: 24px;
-                    }
-                    .app-content {
-                        flex: 1;
-                        padding: 30px;
-                        background: #2d3748;
-                        overflow-y: auto;
-                    }
-                    .btn {
-                        padding: 10px 20px;
-                        border: none;
-                        border-radius: 8px;
-                        cursor: pointer;
-                        font-weight: 600;
-                        transition: all 0.3s ease;
-                    }
-                    .btn-primary {
-                        background: #4299e1;
-                        color: white;
-                    }
-                    .btn-primary:hover {
-                        background: #3182ce;
-                    }
-                    .btn-secondary {
-                        background: #4a5568;
-                        color: #e2e8f0;
-                    }
-                </style>`,
-
-            colorful: `
-                <style>
-                    .app-container {
-                        height: 100%;
-                        display: flex;
-                        flex-direction: column;
-                        background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
-                        background-size: 300% 300%;
-                        animation: gradientShift 8s ease infinite;
-                        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-                        color: #333;
-                    }
-                    @keyframes gradientShift {
-                        0%, 100% { background-position: 0% 50%; }
-                        50% { background-position: 100% 50%; }
-                    }
-                    .app-header {
-                        background: rgba(255, 255, 255, 0.9);
-                        padding: 20px 30px;
-                        backdrop-filter: blur(10px);
-                    }
-                    .app-header h1 {
-                        margin: 0 0 5px 0;
-                        color: #2d3748;
-                        font-size: 24px;
-                    }
-                    .app-content {
-                        flex: 1;
-                        padding: 30px;
-                        background: rgba(255, 255, 255, 0.95);
-                        overflow-y: auto;
-                    }
-                    .btn {
-                        padding: 10px 20px;
-                        border: none;
-                        border-radius: 20px;
-                        cursor: pointer;
-                        font-weight: 600;
-                        transition: all 0.3s ease;
-                        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-                    }
-                    .btn-primary {
-                        background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-                        color: white;
-                    }
-                    .btn-primary:hover {
-                        transform: translateY(-2px);
-                        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-                    }
-                </style>`,
-
-            classic: `
-                <style>
-                    .app-container {
-                        height: 100%;
-                        display: flex;
-                        flex-direction: column;
-                        background: #f5f5f5;
-                        font-family: Arial, sans-serif;
-                        color: #333;
-                        border: 2px solid #ccc;
-                    }
-                    .app-header {
-                        background: #e9e9e9;
-                        padding: 15px 20px;
-                        border-bottom: 1px solid #ccc;
-                    }
-                    .app-header h1 {
-                        margin: 0 0 5px 0;
-                        color: #333;
-                        font-size: 20px;
-                    }
-                    .app-content {
-                        flex: 1;
-                        padding: 20px;
-                        background: white;
-                        overflow-y: auto;
-                    }
-                    .btn {
-                        padding: 8px 16px;
-                        border: 1px solid #ccc;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        font-weight: normal;
-                        background: #f0f0f0;
-                        color: #333;
-                    }
-                    .btn-primary {
-                        background: #0066cc;
-                        color: white;
-                        border-color: #0056b3;
-                    }
-                    .btn-primary:hover {
-                        background: #0056b3;
-                    }
-                </style>`
-        };
-
-        return themes[this.appData.theme] || themes.modern;
-    }
-
-    static generateAppMethods() {
-        const featureMethods = this.appData.features.map(feature => {
-            return this.generateFeatureMethod(feature);
-        }).join('\n\n    ');
-
-        const typeMethods = this.generateTypeSpecificMethods();
-
-        return `${typeMethods}${featureMethods ? '\n\n    ' + featureMethods : ''}`;
-    }
-
-    static generateTypeSpecificMethods() {
-        const methods = {
-            form: `
-    static validateForm() {
-        const form = this.currentWindow.querySelector('#main-form');
-        const inputs = form.querySelectorAll('input[required]');
-        let isValid = true;
-        
-        inputs.forEach(input => {
-            if (!input.value.trim()) {
-                isValid = false;
-                input.style.borderColor = '#e53e3e';
-            } else {
-                input.style.borderColor = '#e2e8f0';
-            }
-        });
-        
-        return isValid;
-    }
-
-    static submitForm() {
-        if (this.validateForm()) {
-            const formData = new FormData(this.currentWindow.querySelector('#main-form'));
-            const data = Object.fromEntries(formData.entries());
-            console.log('Form submitted:', data);
-            alert('Form submitted successfully!');
-        } else {
-            alert('Please fill in all required fields.');
-        }
-    }`,
-
-            dashboard: `
-    static refreshData() {
-        // Simulate loading new data
-        const metric1 = Math.floor(Math.random() * 1000);
-        const metric2 = Math.floor(Math.random() * 100);
-        
-        this.currentWindow.querySelector('#metric-1').textContent = metric1;
-        this.currentWindow.querySelector('#metric-2').textContent = metric2 + '%';
-        this.currentWindow.querySelector('#status').textContent = 'Updated';
-        
-        console.log('Dashboard data refreshed');
-    }`,
-
-            tool: `
-    static calculate() {
-        const input = this.currentWindow.querySelector('#input-value').value;
-        const result = this.currentWindow.querySelector('#result');
-        
-        // Simple calculation example (double the input)
-        if (input && !isNaN(input)) {
-            const calculatedResult = parseFloat(input) * 2;
-            result.textContent = calculatedResult;
-            this.addToHistory(input, calculatedResult);
-        } else {
-            result.textContent = 'Invalid input';
-        }
-    }
-
-    static addToHistory(input, result) {
-        const historyList = this.currentWindow.querySelector('#history-list');
-        const noHistory = historyList.querySelector('.no-history');
-        
-        if (noHistory) {
-            noHistory.remove();
-        }
-        
-        const historyItem = document.createElement('div');
-        historyItem.className = 'history-item';
-        historyItem.textContent = \`\${input} → \${result}\`;
-        historyList.appendChild(historyItem);
-    }`,
-
-            game: `
-    static startGame() {
-        this.score = 0;
-        this.level = 1;
-        this.gameRunning = true;
-        
-        this.updateScore();
-        console.log('Game started!');
-    }
-
-    static pauseGame() {
-        this.gameRunning = false;
-        console.log('Game paused');
-    }
-
-    static resetGame() {
-        this.score = 0;
-        this.level = 1;
-        this.gameRunning = false;
-        
-        this.updateScore();
-        console.log('Game reset');
-    }
-
-    static updateScore() {
-        this.currentWindow.querySelector('#score').textContent = this.score || 0;
-        this.currentWindow.querySelector('#level').textContent = this.level || 1;
-    }`,
-
-            viewer: `
-    static loadContent() {
-        // Simulate loading content
-        const content = this.currentWindow.querySelector('#viewer-content');
-        content.innerHTML = \`
-            <div class="content-item">
-                <h2>Sample Content</h2>
-                <p>This is sample content loaded in the viewer.</p>
-                <p>You can customize this to display any type of content.</p>
-            </div>
-        \`;
-        
-        this.currentWindow.querySelector('#item-counter').textContent = '1 / 1';
-    }
-
-    static previousItem() {
-        console.log('Previous item');
-    }
-
-    static nextItem() {
-        console.log('Next item');
-    }`,
-
-            custom: `
-    static customAction() {
-        alert('Hello from your custom app!');
-        console.log('Custom action triggered');
-    }`
-        };
-
-        return methods[this.appData.type] || methods.custom;
-    }
-
-    static generateFeatureMethod(featureId) {
-        const methods = {
-            validation: `static enableValidation() {
-        // Enable real-time validation
-        const inputs = this.currentWindow.querySelectorAll('input');
-        inputs.forEach(input => {
-            input.addEventListener('blur', () => this.validateField(input));
-        });
-    }`,
-
-            save: `static saveData() {
-        const data = this.getCurrentData();
-        localStorage.setItem('${this.appData.id}_data', JSON.stringify(data));
-        console.log('Data saved to local storage');
-    }`,
-
-            export: `static exportData() {
-        const data = this.getCurrentData();
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = '${this.appData.id}_export.json';
-        a.click();
-        URL.revokeObjectURL(url);
-    }`,
-
-            notifications: `static showNotification(message, type = 'info') {
-        if (window.Notification && window.Notification[type]) {
-            window.Notification[type](message);
-        } else {
-            alert(message);
-        }
-    }`
-        };
-
-        return methods[featureId] || '';
-    }
-
-    static generateInitCode() {
-        let initCode = '';
-
-        if (this.appData.features.includes('validation')) {
-            initCode += '        this.enableValidation();\n';
-        }
-
-        if (this.appData.type === 'form') {
-            initCode += `        this.currentWindow.querySelector('#main-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.submitForm();
-        });\n`;
-        }
-
-        if (this.appData.type === 'dashboard') {
-            initCode += '        this.refreshData();\n';
-        }
-
-        return initCode || '        // App initialization complete';
-    }
-
-    static updateCodeEditor() {
-        const codeEditor = this.currentWindow.querySelector('#code-editor');
-        if (this.generatedCode) {
-            codeEditor.value = this.generatedCode;
-        }
-    }
-
-    static refreshPreview() {
-        const previewContent = this.currentWindow.querySelector('#preview-content');
-
-        if (this.generatedCode) {
-            try {
-                // Create a safe preview of the app
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = this.extractContentFromCode(this.generatedCode);
-                previewContent.innerHTML = tempDiv.innerHTML;
-            } catch (error) {
-                previewContent.innerHTML = `
-                    <div class="preview-error">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Preview Error</h3>
-                        <p>Unable to generate preview. Check your code for errors.</p>
-                    </div>
-                `;
-            }
-        }
-    }
-
-    static extractContentFromCode(code) {
-        // Extract the content from the generated code for preview
-        const contentMatch = code.match(/content: `([\s\S]*?)`,/);
-        if (contentMatch) {
-            return contentMatch[1].trim();
-        }
-        return '<div>No preview available</div>';
-    }
-
-    static changeDevice(device) {
-        this.currentWindow.querySelectorAll('.device-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        this.currentWindow.querySelector(`[data-device="${device}"]`).classList.add('active');
-
-        const previewWindow = this.currentWindow.querySelector('#preview-window');
-        previewWindow.className = `preview-window ${device}`;
-    }
-
-    static saveToEmberFrame() {
-        if (!this.generatedCode) {
-            this.showNotification('No app code to save. Please generate an app first.', 'error');
-            return;
-        }
-
-        // Simulate saving to EmberFrame
-        this.showNotification('Saving to EmberFrame...', 'info');
-
-        setTimeout(() => {
-            this.showNotification('App saved successfully! It will appear in your start menu after refresh.', 'success');
-            this.saveToRecentApps();
-        }, 2000);
-    }
-
-    static downloadFile() {
-        if (!this.generatedCode) {
-            this.showNotification('No app code to download. Please generate an app first.', 'error');
-            return;
-        }
-
-        const blob = new Blob([this.generatedCode], { type: 'text/javascript' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${this.appData.id}.js`;
-        a.click();
-        URL.revokeObjectURL(url);
-
-        this.showNotification('App downloaded successfully!', 'success');
-    }
-
-    static copyCode() {
-        if (!this.generatedCode) {
-            this.showNotification('No app code to copy. Please generate an app first.', 'error');
-            return;
-        }
-
-        navigator.clipboard.writeText(this.generatedCode).then(() => {
-            this.showNotification('App code copied to clipboard!', 'success');
-        }).catch(() => {
-            // Fallback for older browsers
-            const textArea = document.createElement('textarea');
-            textArea.value = this.generatedCode;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            this.showNotification('App code copied to clipboard!', 'success');
-        });
-    }
-
-    static shareLink() {
-        this.showNotification('Share link feature coming soon!', 'info');
-    }
-
-    static showHelp() {
-        const modal = this.currentWindow.querySelector('#help-modal');
-        modal.classList.add('show');
-        this.showHelpTab('getting-started');
-    }
-
-    static closeModal() {
-        this.currentWindow.querySelectorAll('.modal').forEach(modal => {
-            modal.classList.remove('show');
-        });
-    }
-
-    static showHelpTab(tabName) {
-        this.currentWindow.querySelectorAll('.help-tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        this.currentWindow.querySelector(`[onclick*="${tabName}"]`).classList.add('active');
-
-        const content = this.currentWindow.querySelector('#help-content');
-        const helpContent = {
-            'getting-started': `
-                <h3>Getting Started with Appmaker</h3>
-                <p>Welcome to the EmberFrame Appmaker! Here's how to create your first app:</p>
-                <ol>
-                    <li><strong>Use the Wizard:</strong> Click "Start with Wizard" for step-by-step guidance</li>
-                    <li><strong>Choose App Type:</strong> Select from form, dashboard, tool, game, viewer, or custom</li>
-                    <li><strong>Select Features:</strong> Add functionality like validation, data export, etc.</li>
-                    <li><strong>Pick a Theme:</strong> Choose a visual style that fits your app</li>
-                    <li><strong>Generate Code:</strong> Let Appmaker create your app automatically</li>
-                    <li><strong>Customize:</strong> Use the visual designer or code editor to refine</li>
-                    <li><strong>Export:</strong> Save your app to EmberFrame or download the file</li>
-                </ol>
-                <h4>Tips for Success:</h4>
-                <ul>
-                    <li>Start with the wizard - it guides you through all the essential steps</li>
-                    <li>Choose features that match your app's purpose</li>
-                    <li>Preview your app frequently to see how it looks</li>
-                    <li>Don't forget to test your app before exporting</li>
-                </ul>
-            `,
-
-            'components': `
-                <h3>Available Components</h3>
-                <p>Appmaker provides various components you can use in your apps:</p>
-                <h4>Form Components:</h4>
-                <ul>
-                    <li><strong>Text Input:</strong> Single-line text entry</li>
-                    <li><strong>Textarea:</strong> Multi-line text entry</li>
-                    <li><strong>Select:</strong> Dropdown selection</li>
-                    <li><strong>Checkbox:</strong> Boolean options</li>
-                    <li><strong>Radio:</strong> Single choice from multiple options</li>
-                    <li><strong>Button:</strong> Action triggers</li>
-                </ul>
-                <h4>Display Components:</h4>
-                <ul>
-                    <li><strong>Text:</strong> Static text and headings</li>
-                    <li><strong>Image:</strong> Pictures and graphics</li>
-                    <li><strong>Table:</strong> Structured data display</li>
-                    <li><strong>Card:</strong> Grouped content containers</li>
-                    <li><strong>Chart:</strong> Data visualization</li>
-                </ul>
-                <h4>Layout Components:</h4>
-                <ul>
-                    <li><strong>Container:</strong> Group related elements</li>
-                    <li><strong>Grid:</strong> Responsive layout system</li>
-                    <li><strong>Tabs:</strong> Organize content in tabs</li>
-                    <li><strong>Sidebar:</strong> Navigation and controls</li>
-                </ul>
-            `,
-
-            'code': `
-                <h3>Code Reference</h3>
-                <p>Understanding the generated code structure:</p>
-                <h4>App Structure:</h4>
-                <pre><code>class MyApp {
-    static createWindow() {
-        return {
-            title: 'App Title',
-            width: '600px',
-            height: '400px',
-            content: \`HTML content\`,
-            onInit: (windowElement) => {
-                MyApp.init(windowElement);
-            }
-        };
-    }
-    
-    static init(windowElement) {
-        // App initialization
-    }
-}</code></pre>
-                <h4>Key Methods:</h4>
-                <ul>
-                    <li><strong>createWindow():</strong> Defines the app window properties</li>
-                    <li><strong>init():</strong> Called when the app starts</li>
-                    <li><strong>this.currentWindow:</strong> Reference to the app's DOM element</li>
-                </ul>
-                <h4>Adding Event Handlers:</h4>
-                <pre><code>// In your init method:
-const button = this.currentWindow.querySelector('#my-button');
-button.addEventListener('click', () => {
-    this.handleButtonClick();
-});</code></pre>
-                <h4>EmberFrame Integration:</h4>
-                <ul>
-                    <li>Apps are automatically registered when loaded</li>
-                    <li>Use <code>window.Notification</code> for user notifications</li>
-                    <li>Access other apps via <code>window.AppName</code></li>
-                </ul>
-            `,
-
-            'examples': `
-                <h3>Example Applications</h3>
-                <h4>Simple Calculator:</h4>
-                <p>A basic calculator with number input and operation buttons. Features include calculation history and result copying.</p>
-                
-                <h4>Todo List:</h4>
-                <p>Task management app with add, complete, and delete functionality. Includes local storage for persistence.</p>
-                
-                <h4>Weather Dashboard:</h4>
-                <p>Displays weather information with charts and metrics. Features real-time updates and multiple locations.</p>
-                
-                <h4>Image Gallery:</h4>
-                <p>Photo viewer with navigation controls, zoom functionality, and slideshow mode.</p>
-                
-                <h4>Contact Form:</h4>
-                <p>Professional contact form with validation, required fields, and data export capabilities.</p>
-                
-                <h4>Memory Game:</h4>
-                <p>Classic memory matching game with score tracking, levels, and high score storage.</p>
-                
-                <p><strong>Tip:</strong> Start with these examples and modify them to create your own unique applications!</p>
-            `
-        };
-
-        content.innerHTML = helpContent[tabName] || '<p>Help content not found.</p>';
-    }
-
-    // Utility methods
-    static toPascalCase(str) {
-        return str.split('-').map(word =>
-            word.charAt(0).toUpperCase() + word.slice(1)
-        ).join('');
-    }
-
-    static saveToRecentApps() {
-        // Simulate saving to recent apps list
-        const recentApps = JSON.parse(localStorage.getItem('appmaker_recent') || '[]');
-
-        const appInfo = {
-            name: this.appData.name,
-            id: this.appData.id,
-            type: this.appData.type,
-            created: new Date().toISOString()
-        };
-
-        // Add to beginning of list
-        recentApps.unshift(appInfo);
-
-        // Keep only 5 most recent
-        if (recentApps.length > 5) {
-            recentApps.splice(5);
-        }
-
-        localStorage.setItem('appmaker_recent', JSON.stringify(recentApps));
+    static addToRecentApps(appId, appName) {
+        let recent = JSON.parse(localStorage.getItem('app-maker-recent') || '[]');
+        recent = recent.filter(app => app.id !== appId);
+        recent.unshift({ id: appId, name: appName, savedAt: new Date().toISOString() });
+        recent = recent.slice(0, 5);
+        localStorage.setItem('app-maker-recent', JSON.stringify(recent));
         this.loadRecentApps();
     }
 
     static loadRecentApps() {
-        const recentList = this.currentWindow.querySelector('#recent-apps-list');
-        const recentApps = JSON.parse(localStorage.getItem('appmaker_recent') || '[]');
+        const recent = JSON.parse(localStorage.getItem('app-maker-recent') || '[]');
+        const container = this.currentWindow.querySelector('#am-recent-apps');
 
-        if (recentApps.length === 0) {
-            recentList.innerHTML = '<div class="no-recent">No recent apps yet. Create your first app to get started!</div>';
+        if (recent.length === 0) {
+            container.innerHTML = '<div style="text-align: center; color: #666; font-style: italic;">No recent apps</div>';
             return;
         }
 
-        recentList.innerHTML = recentApps.map(app => `
-            <div class="recent-app-item">
-                <div class="recent-app-info">
-                    <h4>${app.name}</h4>
-                    <p>Type: ${app.type} • Created: ${new Date(app.created).toLocaleDateString()}</p>
-                </div>
-                <button class="btn btn-sm btn-secondary" onclick="Appmaker.loadRecentApp('${app.id}')">
-                    Open
-                </button>
+        container.innerHTML = recent.map(app => `
+            <div class="recent-item" onclick="AppMaker.loadRecentApp('${app.id}')">
+                <div style="font-weight: 500;">${app.name}</div>
+                <div style="font-size: 10px; opacity: 0.7;">${new Date(app.savedAt).toLocaleDateString()}</div>
             </div>
         `).join('');
     }
 
     static loadRecentApp(appId) {
-        this.showNotification('Loading recent app feature coming soon!', 'info');
-    }
-
-    static loadAppFromCode(code) {
         try {
-            // Parse the app metadata and code
-            this.generatedCode = code;
-            this.switchTab('code');
-            this.updateCodeEditor();
-            this.showNotification('App imported successfully!', 'success');
+            const appData = JSON.parse(localStorage.getItem(`app-maker-${appId}`) || '{}');
+            if (appData.name) {
+                this.appData = appData;
+
+                this.currentWindow.querySelector('#am-app-name').value = appData.name;
+                this.currentWindow.querySelector('#am-javascript-editor').value = appData.javascript || '';
+                this.currentWindow.querySelector('#am-html-editor').value = appData.html || '';
+                this.currentWindow.querySelector('#am-css-editor').value = appData.css || '';
+                this.currentWindow.querySelector('#am-metadata-editor').value = appData.metadata || '';
+
+                this.updateStats();
+                this.refreshPreview();
+                this.updateStatus(`Loaded "${appData.name}"`);
+            }
         } catch (error) {
-            this.showNotification('Failed to import app: ' + error.message, 'error');
+            this.updateStatus('Failed to load recent app');
         }
     }
 
-    static showNotification(message, type = 'info') {
-        if (window.Notification) {
-            window.Notification[type](message);
+    static toggleSidebar() {
+        const sidebar = this.currentWindow.querySelector('#am-templates-sidebar');
+        sidebar.classList.toggle('collapsed');
+    }
+
+    static togglePreviewMode() {
+        const previewPanel = this.currentWindow.querySelector('#am-preview-panel');
+        const button = this.currentWindow.querySelector('#am-preview-mode');
+
+        if (previewPanel.style.display === 'none') {
+            previewPanel.style.display = 'flex';
+            button.innerHTML = '<i class="fas fa-desktop"></i>';
         } else {
-            console.log(`[${type.toUpperCase()}] ${message}`);
+            previewPanel.style.display = 'none';
+            button.innerHTML = '<i class="fas fa-eye-slash"></i>';
         }
+    }
+
+    static updateStatus(message) {
+        this.currentWindow.querySelector('#am-status').textContent = message;
+        setTimeout(() => {
+            this.currentWindow.querySelector('#am-status').textContent = 'Ready';
+        }, 3000);
+    }
+
+    static updateCursorPosition(editor) {
+        const lines = editor.value.substr(0, editor.selectionStart).split('\n');
+        const line = lines.length;
+        const col = lines[lines.length - 1].length + 1;
+
+        this.currentWindow.querySelector('#am-cursor-line').textContent = line;
+        this.currentWindow.querySelector('#am-cursor-col').textContent = col;
     }
 
     static onClose(windowElement) {
@@ -3069,4 +2290,4 @@ button.addEventListener('click', () => {
     }
 }
 
-window.Appmaker = Appmaker;
+window.AppMaker = AppMaker;
