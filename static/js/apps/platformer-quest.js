@@ -2,9 +2,9 @@
  * APP_METADATA
  * @name PlatformerQuest
  * @icon fas fa-gamepad
- * @description A colorful, polished jump-and-run arcade game with dynamic parallax backgrounds, smooth animations, explosive effects, punch & shoot combat, collectible coins, and multi-level progression aiming for high scores.
+ * @description A colorful, polished jump-and-run arcade game with dynamic parallax backgrounds, smooth animations, explosive effects, punch & shoot combat, collectible coins, and multi-level progression aiming for high scores. Enemies now attack only when the player is in range, and both player and enemy models have enhanced visuals.
  * @category Games
- * @version 1.5.0
+ * @version 1.6.0
  * @author EmberFrame Team
  * @enabled true
  */
@@ -24,6 +24,7 @@ class PlatformerQuest {
   // Parallax background layers
   static _bgLayers = [];
   static _clouds = [];
+  static _stars = [];
 
   // Player properties
   static _player = {
@@ -34,8 +35,9 @@ class PlatformerQuest {
     vx: 0,
     vy: 0,
     speed: 240,          // horizontal speed (pixels/sec)
-    jumpStrength: 620,   // increased jump to reach platforms easily
-    color: '#2196F3',
+    jumpStrength: 620,   // jump strength
+    bodyColor: '#2196F3',
+    highlightColor: '#42A5F5',
     onGround: false,
     facing: 1,           // 1 = right, -1 = left
     isAttacking: false,
@@ -85,11 +87,12 @@ class PlatformerQuest {
         { x:1600, y: 360, width: 150,  height: 20, color: '#8B4513' }
       ],
       enemies: [
-        { x: 400, y: 398, width: 32, height: 32, alive: true, color: '#E74C3C', patrolMin: 350, patrolMax: 450, dir: 1, speed: 80, bulletTimer: 0, bulletInterval: 2000 },
-        { x: 650, y: 348, width: 32, height: 32, alive: true, color: '#E74C3C', patrolMin: 600, patrolMax: 700, dir: 1, speed: 90, bulletTimer: 0, bulletInterval: 1800 },
-        { x:1100, y: 398, width: 32, height: 32, alive: true, color: '#E74C3C', patrolMin: 1050, patrolMax: 1150, dir: 1, speed: 85, bulletTimer: 0, bulletInterval: 2200 },
-        { x:1400, y: 348, width: 32, height: 32, alive: true, color: '#E74C3C', patrolMin: 1350, patrolMax: 1450, dir: 1, speed: 95, bulletTimer: 0, bulletInterval: 2000 },
-        { x:1750, y: 448, width: 32, height: 32, alive: true, color: '#E74C3C', patrolMin: 1700, patrolMax: 1800, dir: 1, speed: 100, bulletTimer: 0, bulletInterval: 2500 }
+        // Enemies fire only when player within 300px
+        { x: 400, y: 398, width: 32, height: 32, alive: true, bodyColor: '#E74C3C', eyeColor: '#FFF', patrolMin: 350, patrolMax: 450, dir: 1, speed: 80, bulletTimer: 0, bulletInterval: 2000 },
+        { x: 650, y: 348, width: 32, height: 32, alive: true, bodyColor: '#E74C3C', eyeColor: '#FFF', patrolMin: 600, patrolMax: 700, dir: 1, speed: 90, bulletTimer: 0, bulletInterval: 1800 },
+        { x:1100, y: 398, width: 32, height: 32, alive: true, bodyColor: '#E74C3C', eyeColor: '#FFF', patrolMin: 1050, patrolMax: 1150, dir: 1, speed: 85, bulletTimer: 0, bulletInterval: 2200 },
+        { x:1400, y: 348, width: 32, height: 32, alive: true, bodyColor: '#E74C3C', eyeColor: '#FFF', patrolMin: 1350, patrolMax: 1450, dir: 1, speed: 95, bulletTimer: 0, bulletInterval: 2000 },
+        { x:1750, y: 448, width: 32, height: 32, alive: true, bodyColor: '#E74C3C', eyeColor: '#FFF', patrolMin: 1700, patrolMax: 1800, dir: 1, speed: 100, bulletTimer: 0, bulletInterval: 2500 }
       ],
       coins: [
         { x: 350, y: 368, radius: 8, collected: false },
@@ -115,13 +118,13 @@ class PlatformerQuest {
         { x:2050, y: 360, width: 200,  height: 20, color: '#A0522D' }
       ],
       enemies: [
-        { x: 300, y: 398, width: 32, height: 32, alive: true, color: '#8E44AD', patrolMin: 250, patrolMax: 350, dir: 1, speed: 90, bulletTimer: 0, bulletInterval: 1800 },
-        { x: 600, y: 348, width: 32, height: 32, alive: true, color: '#8E44AD', patrolMin: 550, patrolMax: 650, dir: 1, speed: 100, bulletTimer: 0, bulletInterval: 2000 },
-        { x: 900, y: 298, width: 32, height: 32, alive: true, color: '#8E44AD', patrolMin: 850, patrolMax: 950, dir: 1, speed: 95, bulletTimer: 0, bulletInterval: 2200 },
-        { x:1200, y: 348, width: 32, height: 32, alive: true, color: '#8E44AD', patrolMin: 1150, patrolMax: 1250, dir: 1, speed: 100, bulletTimer: 0, bulletInterval: 2000 },
-        { x:1500, y: 398, width: 32, height: 32, alive: true, color: '#8E44AD', patrolMin: 1450, patrolMax: 1550, dir: 1, speed: 105, bulletTimer: 0, bulletInterval: 2400 },
-        { x:1800, y: 348, width: 32, height: 32, alive: true, color: '#8E44AD', patrolMin: 1750, patrolMax: 1850, dir: 1, speed: 110, bulletTimer: 0, bulletInterval: 2600 },
-        { x:2100, y: 398, width: 32, height: 32, alive: true, color: '#8E44AD', patrolMin: 2050, patrolMax: 2150, dir: 1, speed: 95, bulletTimer: 0, bulletInterval: 2200 }
+        { x: 300, y: 398, width: 32, height: 32, alive: true, bodyColor: '#8E44AD', eyeColor: '#FFF', patrolMin: 250, patrolMax: 350, dir: 1, speed: 90, bulletTimer: 0, bulletInterval: 1800 },
+        { x: 600, y: 348, width: 32, height: 32, alive: true, bodyColor: '#8E44AD', eyeColor: '#FFF', patrolMin: 550, patrolMax: 650, dir: 1, speed: 100, bulletTimer: 0, bulletInterval: 2000 },
+        { x: 900, y: 298, width: 32, height: 32, alive: true, bodyColor: '#8E44AD', eyeColor: '#FFF', patrolMin: 850, patrolMax: 950, dir: 1, speed: 95, bulletTimer: 0, bulletInterval: 2200 },
+        { x:1200, y: 348, width: 32, height: 32, alive: true, bodyColor: '#8E44AD', eyeColor: '#FFF', patrolMin: 1150, patrolMax: 1250, dir: 1, speed: 100, bulletTimer: 0, bulletInterval: 2000 },
+        { x:1500, y: 398, width: 32, height: 32, alive: true, bodyColor: '#8E44AD', eyeColor: '#FFF', patrolMin: 1450, patrolMax: 1550, dir: 1, speed: 105, bulletTimer: 0, bulletInterval: 2400 },
+        { x:1800, y: 348, width: 32, height: 32, alive: true, bodyColor: '#8E44AD', eyeColor: '#FFF', patrolMin: 1750, patrolMax: 1850, dir: 1, speed: 110, bulletTimer: 0, bulletInterval: 2600 },
+        { x:2100, y: 398, width: 32, height: 32, alive: true, bodyColor: '#8E44AD', eyeColor: '#FFF', patrolMin: 2050, patrolMax: 2150, dir: 1, speed: 95, bulletTimer: 0, bulletInterval: 2200 }
       ],
       coins: [
         { x: 280, y: 368, radius: 8, collected: false },
@@ -151,15 +154,15 @@ class PlatformerQuest {
         { x:2600,  y: 360, width: 200,  height: 20, color: '#4682B4' }
       ],
       enemies: [
-        { x: 220,  y: 348, width: 32, height: 32, alive: true, color: '#F39C12', patrolMin: 170, patrolMax: 270, dir: 1, speed: 100, bulletTimer: 0, bulletInterval: 1800 },
-        { x: 550,  y: 298, width: 32, height: 32, alive: true, color: '#F39C12', patrolMin: 500, patrolMax: 600, dir: 1, speed: 110, bulletTimer: 0, bulletInterval: 2000 },
-        { x: 820,  y: 248, width: 32, height: 32, alive: true, color: '#F39C12', patrolMin: 770, patrolMax: 870, dir: 1, speed: 120, bulletTimer: 0, bulletInterval: 2200 },
-        { x:1120,  y: 298, width: 32, height: 32, alive: true, color: '#F39C12', patrolMin: 1070, patrolMax: 1170, dir: 1, speed: 115, bulletTimer: 0, bulletInterval: 2000 },
-        { x:1420,  y: 348, width: 32, height: 32, alive: true, color: '#F39C12', patrolMin: 1370, patrolMax: 1470, dir: 1, speed: 125, bulletTimer: 0, bulletInterval: 2400 },
-        { x:1720,  y: 298, width: 32, height: 32, alive: true, color: '#F39C12', patrolMin: 1670, patrolMax: 1770, dir: 1, speed: 130, bulletTimer: 0, bulletInterval: 2600 },
-        { x:2020,  y: 248, width: 32, height: 32, alive: true, color: '#F39C12', patrolMin: 1970, patrolMax: 2070, dir: 1, speed: 135, bulletTimer: 0, bulletInterval: 2200 },
-        { x:2320,  y: 298, width: 32, height: 32, alive: true, color: '#F39C12', patrolMin: 2270, patrolMax: 2370, dir: 1, speed: 140, bulletTimer: 0, bulletInterval: 2000 },
-        { x:2620,  y: 348, width: 32, height: 32, alive: true, color: '#F39C12', patrolMin: 2570, patrolMax: 2670, dir: 1, speed: 145, bulletTimer: 0, bulletInterval: 2400 }
+        { x: 220,  y: 348, width: 32, height: 32, alive: true, bodyColor: '#F39C12', eyeColor: '#FFF', patrolMin: 170, patrolMax: 270, dir: 1, speed: 100, bulletTimer: 0, bulletInterval: 1800 },
+        { x: 550,  y: 298, width: 32, height: 32, alive: true, bodyColor: '#F39C12', eyeColor: '#FFF', patrolMin: 500, patrolMax: 600, dir: 1, speed: 110, bulletTimer: 0, bulletInterval: 2000 },
+        { x: 820,  y: 248, width: 32, height: 32, alive: true, bodyColor: '#F39C12', eyeColor: '#FFF', patrolMin: 770, patrolMax: 870, dir: 1, speed: 120, bulletTimer: 0, bulletInterval: 2200 },
+        { x:1120,  y: 298, width: 32, height: 32, alive: true, bodyColor: '#F39C12', eyeColor: '#FFF', patrolMin: 1070, patrolMax: 1170, dir: 1, speed: 115, bulletTimer: 0, bulletInterval: 2000 },
+        { x:1420,  y: 348, width: 32, height: 32, alive: true, bodyColor: '#F39C12', eyeColor: '#FFF', patrolMin: 1370, patrolMax: 1470, dir: 1, speed: 125, bulletTimer: 0, bulletInterval: 2400 },
+        { x:1720,  y: 298, width: 32, height: 32, alive: true, bodyColor: '#F39C12', eyeColor: '#FFF', patrolMin: 1670, patrolMax: 1770, dir: 1, speed: 130, bulletTimer: 0, bulletInterval: 2600 },
+        { x:2020,  y: 248, width: 32, height: 32, alive: true, bodyColor: '#F39C12', eyeColor: '#FFF', patrolMin: 1970, patrolMax: 2070, dir: 1, speed: 135, bulletTimer: 0, bulletInterval: 2200 },
+        { x:2320,  y: 298, width: 32, height: 32, alive: true, bodyColor: '#F39C12', eyeColor: '#FFF', patrolMin: 2270, patrolMax: 2370, dir: 1, speed: 140, bulletTimer: 0, bulletInterval: 2000 },
+        { x:2620,  y: 348, width: 32, height: 32, alive: true, bodyColor: '#F39C12', eyeColor: '#FFF', patrolMin: 2570, patrolMax: 2670, dir: 1, speed: 145, bulletTimer: 0, bulletInterval: 2400 }
       ],
       coins: [
         { x: 180,  y: 350, radius: 8, collected: false },
@@ -418,33 +421,58 @@ class PlatformerQuest {
     this._container.tabIndex = 0;
     this._container.focus();
 
-    console.log('🎮 PlatformerQuest v1.5.0 initialized successfully');
+    console.log('🎮 PlatformerQuest v1.6.0 initialized successfully');
   }
 
   // ────────────────────────────────────────────────────────────────
-  // Initialize parallax background layers and clouds
+  // Initialize parallax background layers, clouds, and stars
   static _initParallax() {
-    // Layers: { image: optional, speedFactor, drawFunction }
-    // For simplicity, we draw colored shapes
+    // Layers: { drawFunction, speedFactor }
     this._bgLayers = [
-      { speed: 0.1, draw: this._drawDistantHills.bind(this) },
-      { speed: 0.3, draw: this._drawForests.bind(this) }
+      { draw: this._drawStars.bind(this), speed: 0 },       // static stars
+      { draw: this._drawDistantHills.bind(this), speed: 0.05 },
+      { draw: this._drawForests.bind(this), speed: 0.15 }
     ];
     // Initialize moving clouds
     this._clouds = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 6; i++) {
       this._clouds.push({
         x: Math.random() * this._width,
-        y: 50 + Math.random() * 50,
+        y: 30 + Math.random() * 40,
         scale: 0.5 + Math.random() * 0.5,
         speed: 20 + Math.random() * 20
       });
     }
+    // Initialize stars for nighttime levels
+    this._stars = [];
+    for (let i = 0; i < 50; i++) {
+      this._stars.push({
+        x: Math.random() * this._width,
+        y: Math.random() * this._height * 0.5,
+        radius: Math.random() * 1.5 + 0.5,
+        twinkle: Math.random() * Math.PI * 2
+      });
+    }
   }
 
-  // Draw distant hills for layer 0
+  // Draw static stars for nighttime
+  static _drawStars(ctx, camX) {
+    // Only draw on dark backgrounds (levels 2 & 3)
+    if (this._levelIndex < 2) return;
+    ctx.fillStyle = '#FFF';
+    this._stars.forEach(s => {
+      const alpha = 0.5 + Math.sin(Date.now() * 0.005 + s.twinkle) * 0.5;
+      ctx.globalAlpha = alpha;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  // Draw distant hills for layer 1
   static _drawDistantHills(ctx, camX) {
-    const offset = camX * 0.1;
+    const offset = camX * 0.05;
     ctx.fillStyle = '#3E5641';
     ctx.beginPath();
     ctx.moveTo(0, this._height * 0.7);
@@ -458,9 +486,9 @@ class PlatformerQuest {
     ctx.fill();
   }
 
-  // Draw nearer forests for layer 1
+  // Draw nearer forests for layer 2
   static _drawForests(ctx, camX) {
-    const offset = camX * 0.3;
+    const offset = camX * 0.15;
     for (let i = -1; i < 6; i++) {
       const treeX = i * 200 - (offset % 200);
       this._drawTree(ctx, treeX, this._height * 0.7 - 40, 40, 80);
@@ -703,10 +731,18 @@ class PlatformerQuest {
     this._updateLevelDisplay();
     this._updateHealthDisplay();
 
-    // Update canvas background gradient
-    if (this._canvas) {
-      // We'll fill in draw loop
-    }
+    // Resize stars and clouds to new level width
+    this._stars.forEach(s => {
+      s.x = Math.random() * this._width;
+      s.y = Math.random() * this._height * 0.5;
+      s.twinkle = Math.random() * Math.PI * 2;
+    });
+    this._clouds.forEach(c => {
+      c.x = Math.random() * this._width;
+      c.y = 30 + Math.random() * 40;
+      c.scale = 0.5 + Math.random() * 0.5;
+      c.speed = 20 + Math.random() * 20;
+    });
   }
 
   static _startLevel() {
@@ -872,13 +908,13 @@ class PlatformerQuest {
     const levelLen = this._currentLevel.length;
     this._cameraX = Math.max(0, Math.min(p.x - this._width / 4, levelLen - this._width));
 
-    // Update parallax layers (clouds only)
+    // Update parallax clouds
     this._drawClouds(this._ctx, delta);
 
     // Update player bullets
     this._updatePlayerBullets(delta);
 
-    // Update enemies (movement & limited shooting)
+    // Update enemies (movement & limited shooting within range)
     this._updateEnemies(delta);
 
     // Update enemy bullets
@@ -979,7 +1015,7 @@ class PlatformerQuest {
   }
 
   // ────────────────────────────────────────────────────────────────
-  // Update enemy movement & limited shooting (max 2 per frame)
+  // Update enemy movement & limited shooting only when player in range (≤300px)
   static _updateEnemies(delta) {
     const dt = delta / 1000;
     const p = this._player;
@@ -999,27 +1035,33 @@ class PlatformerQuest {
       }
 
       // Update facing if needed
-      enemy.facing = enemy.dir;
+      enemy.facing = (p.x > enemy.x) ? 1 : -1;
 
-      // Decrement bullet timer
-      enemy.bulletTimer -= delta;
-      if (enemy.bulletTimer <= 0 && shooters < 2) {
-        // Shoot toward player
-        enemy.bulletTimer = enemy.bulletInterval;
-        shooters++;
-        const bx = enemy.x + (enemy.dir === 1 ? enemy.width : -8);
-        const by = enemy.y + enemy.height / 2 - 4;
-        const angle = Math.atan2(p.y + p.height / 2 - by, p.x + p.width / 2 - bx);
-        const speed = 300;
-        this._enemyBullets.push({
-          x: bx,
-          y: by,
-          width: 8,
-          height: 8,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          color: '#f00'
-        });
+      // Check range
+      const dist = Math.abs((enemy.x + enemy.width / 2) - (p.x + p.width / 2));
+      if (dist <= 300) {
+        // In range: attempt to shoot with limit
+        enemy.bulletTimer -= delta;
+        if (enemy.bulletTimer <= 0 && shooters < 2) {
+          enemy.bulletTimer = enemy.bulletInterval;
+          shooters++;
+          const bx = enemy.x + (enemy.facing === 1 ? enemy.width : -8);
+          const by = enemy.y + enemy.height / 2 - 4;
+          const angle = Math.atan2(p.y + p.height / 2 - by, p.x + p.width / 2 - bx);
+          const speed = 300;
+          this._enemyBullets.push({
+            x: bx,
+            y: by,
+            width: 8,
+            height: 8,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            color: '#f00'
+          });
+        }
+      } else {
+        // Out of range: reset bulletTimer slowly so that when in range shooting can happen
+        enemy.bulletTimer = Math.min(enemy.bulletTimer, 0);
       }
     }
   }
@@ -1108,7 +1150,7 @@ class PlatformerQuest {
       x: x,
       y: y,
       radius: 0,
-      maxRadius: 15,
+      maxRadius: 20,
       alpha: 1,
       type: 'muzzle'
     });
@@ -1117,7 +1159,6 @@ class PlatformerQuest {
   // ────────────────────────────────────────────────────────────────
   // Spawn explosion at (x, y)
   static _spawnExplosion(x, y) {
-    // Multiple particles or single expanding circle
     this._explosions.push({
       x: x,
       y: y,
@@ -1148,7 +1189,7 @@ class PlatformerQuest {
     for (let coin of this._coinsCurrent) {
       if (coin.collected) continue;
       const cx = coin.x;
-      const cy = coin.y;
+      const cy = coin.y + Math.sin((Date.now() + coin.x) * 0.005) * 5;
       const r = coin.radius;
       // AABB vs circle
       const closestX = Math.max(p.x, Math.min(cx, p.x + p.width));
@@ -1233,7 +1274,7 @@ class PlatformerQuest {
       ctx.strokeRect(drawX, plat.y, plat.width, plat.height);
     }
 
-    // 4) Draw coins as spinning (simple ups and downs)
+    // 4) Draw coins as spinning (ups and downs)
     this._coinsCurrent.forEach(coin => {
       if (coin.collected) return;
       const drawX = coin.x - camX;
@@ -1252,7 +1293,7 @@ class PlatformerQuest {
       ctx.fill();
     });
 
-    // 5) Draw enemies as animated (slight bob) rectangles
+    // 5) Draw enemies as pill-shaped characters with gradient and eyes
     for (let enemy of this._enemies) {
       if (!enemy.alive) continue;
       const drawX = enemy.x - camX;
@@ -1260,39 +1301,63 @@ class PlatformerQuest {
       const drawY = enemy.y + bob;
       if (drawX + enemy.width < 0 || drawX > this._width) continue;
 
-      // Body
-      ctx.fillStyle = enemy.color || '#E74C3C';
-      ctx.fillRect(drawX, drawY, enemy.width, enemy.height);
-      // Outline
+      // Body gradient
+      const gradEnemy = ctx.createLinearGradient(drawX, drawY, drawX, drawY + enemy.height);
+      gradEnemy.addColorStop(0, enemy.bodyColor);
+      gradEnemy.addColorStop(1, '#C0392B');
+      ctx.fillStyle = gradEnemy;
+      // Draw rounded rectangle (pill)
+      const r = enemy.width / 2;
+      ctx.beginPath();
+      ctx.moveTo(drawX + r, drawY);
+      ctx.lineTo(drawX + enemy.width - r, drawY);
+      ctx.quadraticCurveTo(drawX + enemy.width, drawY, drawX + enemy.width, drawY + r);
+      ctx.lineTo(drawX + enemy.width, drawY + enemy.height - r);
+      ctx.quadraticCurveTo(drawX + enemy.width, drawY + enemy.height, drawX + enemy.width - r, drawY + enemy.height);
+      ctx.lineTo(drawX + r, drawY + enemy.height);
+      ctx.quadraticCurveTo(drawX, drawY + enemy.height, drawX, drawY + enemy.height - r);
+      ctx.lineTo(drawX, drawY + r);
+      ctx.quadraticCurveTo(drawX, drawY, drawX + r, drawY);
+      ctx.closePath();
+      ctx.fill();
       ctx.strokeStyle = '#000';
       ctx.lineWidth = 2;
-      ctx.strokeRect(drawX, drawY, enemy.width, enemy.height);
+      ctx.stroke();
+
       // Eyes
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(drawX + 6, drawY + 6, 6, 6);
-      ctx.fillRect(drawX + 20, drawY + 6, 6, 6);
+      ctx.fillStyle = enemy.eyeColor || '#FFF';
+      ctx.beginPath();
+      ctx.arc(drawX + enemy.width * 0.3, drawY + enemy.height * 0.3, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(drawX + enemy.width * 0.7, drawY + enemy.height * 0.3, 4, 0, Math.PI * 2);
+      ctx.fill();
       ctx.fillStyle = '#000';
-      ctx.fillRect(drawX + 8, drawY + 8, 2, 2);
-      ctx.fillRect(drawX + 22, drawY + 8, 2, 2);
+      ctx.beginPath();
+      ctx.arc(drawX + enemy.width * 0.3, drawY + enemy.height * 0.3, 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(drawX + enemy.width * 0.7, drawY + enemy.height * 0.3, 2, 0, Math.PI * 2);
+      ctx.fill();
     }
 
-    // 6) Draw enemy bullets (simple red circles)
+    // 6) Draw enemy bullets (small red circles)
     this._enemyBullets.forEach(b => {
-      const drawX = b.x - camX;
-      const drawY = b.y;
+      const drawX = b.x - camX + b.width / 2;
+      const drawY = b.y + b.height / 2;
       ctx.beginPath();
       ctx.fillStyle = b.color || '#f00';
-      ctx.arc(drawX + b.width / 2, drawY + b.height / 2, b.width / 2, 0, Math.PI * 2);
+      ctx.arc(drawX, drawY, b.width / 2, 0, Math.PI * 2);
       ctx.fill();
     });
 
     // 7) Draw player bullets (bright yellow circles)
     this._playerBullets.forEach(b => {
-      const drawX = b.x - camX;
-      const drawY = b.y;
+      const drawX = b.x - camX + b.width / 2;
+      const drawY = b.y + b.height / 2;
       ctx.beginPath();
       ctx.fillStyle = b.color || '#ff0';
-      ctx.arc(drawX + b.width / 2, drawY + b.height / 2, b.width / 2, 0, Math.PI * 2);
+      ctx.arc(drawX, drawY, b.width / 2, 0, Math.PI * 2);
       ctx.fill();
     });
 
@@ -1314,32 +1379,87 @@ class PlatformerQuest {
       }
     });
 
-    // 9) Draw player as colored rectangle with smooth bob while running
+    // 9) Draw player as a stylized character: rounded body + head + limbs
     const drawPlayerX = p.x - camX;
     const runningBob = Math.abs(Math.sin(Date.now() * 0.008)) * (p.vx !== 0 && p.onGround ? 5 : 0);
     const drawPlayerY = p.y - runningBob;
     ctx.save();
 
-    if (p.isDodging) {
-      ctx.globalAlpha = 0.6;
-      ctx.fillStyle = '#3498db';
-    } else {
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = p.color;
-    }
+    // Body gradient
+    const gradPlayer = ctx.createLinearGradient(drawPlayerX, drawPlayerY, drawPlayerX, drawPlayerY + p.height);
+    gradPlayer.addColorStop(0, p.bodyColor);
+    gradPlayer.addColorStop(1, p.highlightColor);
+    ctx.fillStyle = gradPlayer;
 
-    ctx.fillRect(drawPlayerX, drawPlayerY, p.width, p.height);
+    // Draw rounded body
+    const rBody = p.width / 2;
+    ctx.beginPath();
+    ctx.moveTo(drawPlayerX + rBody, drawPlayerY);
+    ctx.lineTo(drawPlayerX + p.width - rBody, drawPlayerY);
+    ctx.quadraticCurveTo(drawPlayerX + p.width, drawPlayerY, drawPlayerX + p.width, drawPlayerY + rBody);
+    ctx.lineTo(drawPlayerX + p.width, drawPlayerY + p.height - rBody);
+    ctx.quadraticCurveTo(drawPlayerX + p.width, drawPlayerY + p.height, drawPlayerX + p.width - rBody, drawPlayerY + p.height);
+    ctx.lineTo(drawPlayerX + rBody, drawPlayerY + p.height);
+    ctx.quadraticCurveTo(drawPlayerX, drawPlayerY + p.height, drawPlayerX, drawPlayerY + p.height - rBody);
+    ctx.lineTo(drawPlayerX, drawPlayerY + rBody);
+    ctx.quadraticCurveTo(drawPlayerX, drawPlayerY, drawPlayerX + rBody, drawPlayerY);
+    ctx.closePath();
+    ctx.fill();
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 2;
-    ctx.strokeRect(drawPlayerX, drawPlayerY, p.width, p.height);
+    ctx.stroke();
 
-    // Player face eyes
-    ctx.fillStyle = '#fff';
-    ctx.fillRect(drawPlayerX + 8, drawPlayerY + 8, 4, 4);
-    ctx.fillRect(drawPlayerX + 20, drawPlayerY + 8, 4, 4);
+    // Head (circle above body)
+    const headRadius = p.width * 0.4;
+    const headX = drawPlayerX + p.width / 2;
+    const headY = drawPlayerY - headRadius + 4;
+    ctx.fillStyle = p.bodyColor;
+    ctx.beginPath();
+    ctx.arc(headX, headY, headRadius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Eyes on head
+    ctx.fillStyle = '#FFF';
+    ctx.beginPath();
+    ctx.arc(headX - headRadius / 2.5, headY - headRadius / 4, headRadius / 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(headX + headRadius / 2.5, headY - headRadius / 4, headRadius / 4, 0, Math.PI * 2);
+    ctx.fill();
     ctx.fillStyle = '#000';
-    ctx.fillRect(drawPlayerX + 9, drawPlayerY + 9, 2, 2);
-    ctx.fillRect(drawPlayerX + 21, drawPlayerY + 9, 2, 2);
+    ctx.beginPath();
+    ctx.arc(headX - headRadius / 2.5, headY - headRadius / 4, headRadius / 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(headX + headRadius / 2.5, headY - headRadius / 4, headRadius / 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Limbs (simple lines)
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 3;
+    // Left arm
+    ctx.beginPath();
+    ctx.moveTo(drawPlayerX + rBody / 2, drawPlayerY + p.height * 0.3);
+    ctx.lineTo(drawPlayerX + rBody / 2 - 10, drawPlayerY + p.height * 0.5);
+    ctx.stroke();
+    // Right arm
+    ctx.beginPath();
+    ctx.moveTo(drawPlayerX + p.width - rBody / 2, drawPlayerY + p.height * 0.3);
+    ctx.lineTo(drawPlayerX + p.width - rBody / 2 + 10, drawPlayerY + p.height * 0.5);
+    ctx.stroke();
+    // Left leg
+    ctx.beginPath();
+    ctx.moveTo(drawPlayerX + rBody / 2, drawPlayerY + p.height);
+    ctx.lineTo(drawPlayerX + rBody / 2 - 5, drawPlayerY + p.height + 15);
+    ctx.stroke();
+    // Right leg
+    ctx.beginPath();
+    ctx.moveTo(drawPlayerX + p.width - rBody / 2, drawPlayerY + p.height);
+    ctx.lineTo(drawPlayerX + p.width - rBody / 2 + 5, drawPlayerY + p.height + 15);
+    ctx.stroke();
 
     ctx.restore();
 
