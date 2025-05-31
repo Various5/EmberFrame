@@ -2,9 +2,9 @@
  * APP_METADATA
  * @name Settings
  * @icon fas fa-cog
- * @description Comprehensive system settings and customization
+ * @description Customize your EmberFrame experience
  * @category System
- * @version 2.0.0
+ * @version 3.0.0
  * @author EmberFrame Team
  * @enabled true
  */
@@ -19,41 +19,32 @@ class Settings {
             content: `
                 <div class="settings-app">
                     <div class="settings-sidebar">
-                        <div class="settings-search">
-                            <input type="text" id="settings-search" placeholder="Search settings..." />
-                            <i class="fas fa-search"></i>
-                        </div>
-                        
-                        <div class="settings-categories">
-                            <div class="settings-category active" data-category="appearance">
+                        <div class="settings-nav">
+                            <div class="nav-item active" data-section="appearance">
                                 <i class="fas fa-palette"></i>
                                 <span>Appearance</span>
                             </div>
-                            <div class="settings-category" data-category="behavior">
-                                <i class="fas fa-mouse-pointer"></i>
-                                <span>Behavior</span>
+                            <div class="nav-item" data-section="themes">
+                                <i class="fas fa-paint-brush"></i>
+                                <span>Themes</span>
                             </div>
-                            <div class="settings-category" data-category="performance">
+                            <div class="nav-item" data-section="effects">
+                                <i class="fas fa-magic"></i>
+                                <span>Visual Effects</span>
+                            </div>
+                            <div class="nav-item" data-section="wallpaper">
+                                <i class="fas fa-image"></i>
+                                <span>Wallpaper</span>
+                            </div>
+                            <div class="nav-item" data-section="windows">
+                                <i class="fas fa-window-maximize"></i>
+                                <span>Windows</span>
+                            </div>
+                            <div class="nav-item" data-section="performance">
                                 <i class="fas fa-tachometer-alt"></i>
                                 <span>Performance</span>
                             </div>
-                            <div class="settings-category" data-category="accessibility">
-                                <i class="fas fa-universal-access"></i>
-                                <span>Accessibility</span>
-                            </div>
-                            <div class="settings-category" data-category="security">
-                                <i class="fas fa-shield-alt"></i>
-                                <span>Security</span>
-                            </div>
-                            <div class="settings-category" data-category="notifications">
-                                <i class="fas fa-bell"></i>
-                                <span>Notifications</span>
-                            </div>
-                            <div class="settings-category" data-category="advanced">
-                                <i class="fas fa-cogs"></i>
-                                <span>Advanced</span>
-                            </div>
-                            <div class="settings-category" data-category="about">
+                            <div class="nav-item" data-section="about">
                                 <i class="fas fa-info-circle"></i>
                                 <span>About</span>
                             </div>
@@ -61,921 +52,727 @@ class Settings {
                     </div>
 
                     <div class="settings-content">
-                        <div class="settings-header">
-                            <h2 id="settings-title">Appearance</h2>
-                            <p id="settings-description">Customize the look and feel of your desktop</p>
-                        </div>
-
-                        <div class="settings-panel active" id="appearance-panel">
-                            <div class="settings-section">
-                                <h3>Theme</h3>
-                                <div class="settings-group">
-                                    <div class="theme-selector">
-                                        <div class="theme-option active" data-theme="cyber-blue">
-                                            <div class="theme-preview cyber-blue"></div>
-                                            <span>Cyber Blue</span>
-                                        </div>
-                                        <div class="theme-option" data-theme="ember-red">
-                                            <div class="theme-preview ember-red"></div>
-                                            <span>Ember Red</span>
-                                        </div>
-                                        <div class="theme-option" data-theme="matrix-green">
-                                            <div class="theme-preview matrix-green"></div>
-                                            <span>Matrix Green</span>
-                                        </div>
-                                        <div class="theme-option" data-theme="neon-purple">
-                                            <div class="theme-preview neon-purple"></div>
-                                            <span>Neon Purple</span>
-                                        </div>
-                                        <div class="theme-option" data-theme="ice-blue">
-                                            <div class="theme-preview ice-blue"></div>
-                                            <span>Ice Blue</span>
-                                        </div>
-                                        <div class="theme-option" data-theme="ember-orange">
-                                            <div class="theme-preview ember-orange"></div>
-                                            <span>Ember Orange</span>
-                                        </div>
-                                    </div>
-                                </div>
+                        <!-- Appearance Section -->
+                        <div class="section active" id="appearance-section">
+                            <div class="section-header">
+                                <h2><i class="fas fa-palette"></i> Appearance</h2>
+                                <p>Customize the look and feel of your desktop</p>
                             </div>
 
-                            <div class="settings-section">
-                                <h3>Wallpaper</h3>
-                                <div class="settings-group">
-                                    <label>Background Style:</label>
-                                    <select id="wallpaper-style">
-                                        <option value="gradient">Gradient Background</option>
-                                        <option value="solid">Solid Color</option>
-                                        <option value="pattern">Pattern</option>
-                                        <option value="image">Custom Image</option>
-                                    </select>
-                                    <div class="wallpaper-options" id="wallpaper-options">
-                                        <div class="gradient-selector">
-                                            <div class="gradient-option active" data-gradient="cyber">
-                                                <div class="gradient-preview" style="background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)"></div>
-                                                <span>Cyber</span>
-                                            </div>
-                                            <div class="gradient-option" data-gradient="ember">
-                                                <div class="gradient-preview" style="background: linear-gradient(135deg, #1a0a00 0%, #2d1a0a 100%)"></div>
-                                                <span>Ember</span>
-                                            </div>
-                                            <div class="gradient-option" data-gradient="matrix">
-                                                <div class="gradient-preview" style="background: linear-gradient(135deg, #000000 0%, #001100 100%)"></div>
-                                                <span>Matrix</span>
-                                            </div>
-                                            <div class="gradient-option" data-gradient="ocean">
-                                                <div class="gradient-preview" style="background: linear-gradient(135deg, #001133 0%, #003366 100%)"></div>
-                                                <span>Ocean</span>
-                                            </div>
-                                        </div>
+                            <div class="settings-grid">
+                                <div class="setting-card">
+                                    <h3>Font Settings</h3>
+                                    <div class="setting-row">
+                                        <label>Font Family</label>
+                                        <select id="font-family">
+                                            <option value="'Rajdhani', sans-serif">Rajdhani (Default)</option>
+                                            <option value="'Orbitron', monospace">Orbitron</option>
+                                            <option value="'Space Mono', monospace">Space Mono</option>
+                                            <option value="'Fira Code', monospace">Fira Code</option>
+                                            <option value="'Inter', sans-serif">Inter</option>
+                                            <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+                                            <option value="Arial, sans-serif">Arial</option>
+                                        </select>
+                                    </div>
+                                    <div class="setting-row">
+                                        <label>Font Size</label>
+                                        <input type="range" id="font-size" min="12" max="20" value="14" class="slider">
+                                        <span class="value" id="font-size-value">14px</span>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="settings-section">
-                                <h3>Typography</h3>
-                                <div class="settings-group">
-                                    <label>Font Family:</label>
-                                    <select id="font-family">
-                                        <option value="Rajdhani, sans-serif">Rajdhani (Default)</option>
-                                        <option value="Orbitron, monospace">Orbitron</option>
-                                        <option value="Share Tech Mono, monospace">Share Tech Mono</option>
-                                        <option value="Arial, sans-serif">Arial</option>
-                                        <option value="Helvetica, sans-serif">Helvetica</option>
-                                        <option value="Georgia, serif">Georgia</option>
-                                        <option value="Times New Roman, serif">Times New Roman</option>
-                                    </select>
-
-                                    <label>Font Size:</label>
-                                    <div class="slider-control">
-                                        <input type="range" id="font-size" min="10" max="20" value="14" />
-                                        <span class="slider-value">14px</span>
+                                <div class="setting-card">
+                                    <h3>Icon Settings</h3>
+                                    <div class="setting-row">
+                                        <label>Icon Size</label>
+                                        <input type="range" id="icon-size" min="32" max="72" value="48" class="slider">
+                                        <span class="value" id="icon-size-value">48px</span>
+                                    </div>
+                                    <div class="setting-row">
+                                        <label>Show Icon Labels</label>
+                                        <label class="toggle">
+                                            <input type="checkbox" id="show-icon-labels" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="setting-row">
+                                        <label>Icon Shadows</label>
+                                        <label class="toggle">
+                                            <input type="checkbox" id="icon-shadows" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="settings-section">
-                                <h3>Desktop Icons</h3>
-                                <div class="settings-group">
-                                    <label>Icon Size:</label>
-                                    <div class="slider-control">
-                                        <input type="range" id="icon-size" min="32" max="80" value="48" />
-                                        <span class="slider-value">48px</span>
+                                <div class="setting-card">
+                                    <h3>Taskbar Settings</h3>
+                                    <div class="setting-row">
+                                        <label>Auto-hide Taskbar</label>
+                                        <label class="toggle">
+                                            <input type="checkbox" id="auto-hide-taskbar">
+                                            <span class="toggle-slider"></span>
+                                        </label>
                                     </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="show-icon-labels" checked />
-                                        <label for="show-icon-labels">Show icon labels</label>
-                                    </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="icon-shadows" checked />
-                                        <label for="icon-shadows">Enable icon shadows</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="settings-section">
-                                <h3>Transparency</h3>
-                                <div class="settings-group">
-                                    <label>Window Transparency:</label>
-                                    <div class="slider-control">
-                                        <input type="range" id="transparency" min="0" max="50" value="0" />
-                                        <span class="slider-value">0%</span>
-                                    </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="blur-effects" checked />
-                                        <label for="blur-effects">Enable blur effects</label>
+                                    <div class="setting-row">
+                                        <label>Show Clock</label>
+                                        <label class="toggle">
+                                            <input type="checkbox" id="show-clock" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="settings-panel" id="behavior-panel">
-                            <div class="settings-section">
-                                <h3>Window Behavior</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="restore-windows" />
-                                        <label for="restore-windows">Restore windows on startup</label>
-                                    </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="focus-follows-mouse" />
-                                        <label for="focus-follows-mouse">Focus follows mouse</label>
-                                    </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="double-click-maximize" checked />
-                                        <label for="double-click-maximize">Double-click header to maximize</label>
-                                    </div>
-                                </div>
+                        <!-- Themes Section -->
+                        <div class="section" id="themes-section">
+                            <div class="section-header">
+                                <h2><i class="fas fa-paint-brush"></i> Themes</h2>
+                                <p>Choose from our collection of stunning themes</p>
                             </div>
 
-                            <div class="settings-section">
-                                <h3>Taskbar</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="auto-hide-taskbar" />
-                                        <label for="auto-hide-taskbar">Auto-hide taskbar</label>
-                                    </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="show-clock" checked />
-                                        <label for="show-clock">Show clock</label>
-                                    </div>
-
-                                    <label>Taskbar Position:</label>
-                                    <select id="taskbar-position">
-                                        <option value="bottom">Bottom</option>
-                                        <option value="top">Top</option>
-                                        <option value="left">Left</option>
-                                        <option value="right">Right</option>
-                                    </select>
-                                </div>
+                            <div class="themes-grid" id="themes-grid">
+                                <!-- Themes will be populated here -->
                             </div>
 
-                            <div class="settings-section">
-                                <h3>Start Menu</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="show-recent-files" checked />
-                                        <label for="show-recent-files">Show recently used files</label>
+                            <div class="setting-card">
+                                <h3>Custom Theme</h3>
+                                <div class="color-customizer">
+                                    <div class="color-row">
+                                        <label>Primary Color</label>
+                                        <input type="color" id="custom-primary" value="#00d4ff">
                                     </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="search-web" />
-                                        <label for="search-web">Include web search in start menu</label>
+                                    <div class="color-row">
+                                        <label>Secondary Color</label>
+                                        <input type="color" id="custom-secondary" value="#764ba2">
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="settings-section">
-                                <h3>File Manager</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="single-click-open" />
-                                        <label for="single-click-open">Single-click to open items</label>
+                                    <div class="color-row">
+                                        <label>Accent Color</label>
+                                        <input type="color" id="custom-accent" value="#ff6b6b">
                                     </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="show-hidden-files" />
-                                        <label for="show-hidden-files">Show hidden files</label>
-                                    </div>
-
-                                    <label>Default View:</label>
-                                    <select id="default-file-view">
-                                        <option value="grid">Grid View</option>
-                                        <option value="list">List View</option>
-                                        <option value="details">Details View</option>
-                                    </select>
+                                    <button class="btn-primary" id="apply-custom-theme">Apply Custom Theme</button>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="settings-panel" id="performance-panel">
-                            <div class="settings-section">
-                                <h3>Animations</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="animations-enabled" checked />
-                                        <label for="animations-enabled">Enable animations</label>
-                                    </div>
-
-                                    <label>Animation Quality:</label>
-                                    <select id="animation-quality">
-                                        <option value="high">High Quality</option>
-                                        <option value="medium">Medium Quality</option>
-                                        <option value="low">Low Quality</option>
-                                        <option value="none">Disabled</option>
-                                    </select>
-
-                                    <label>Animation Speed:</label>
-                                    <div class="slider-control">
-                                        <input type="range" id="animation-speed" min="0.1" max="2.0" step="0.1" value="1.0" />
-                                        <span class="slider-value">1.0x</span>
-                                    </div>
-                                </div>
+                        <!-- Visual Effects Section -->
+                        <div class="section" id="effects-section">
+                            <div class="section-header">
+                                <h2><i class="fas fa-magic"></i> Visual Effects</h2>
+                                <p>Add life to your desktop with particle effects</p>
                             </div>
 
-                            <div class="settings-section">
-                                <h3>Hardware Acceleration</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="hardware-acceleration" checked />
-                                        <label for="hardware-acceleration">Use hardware acceleration when available</label>
+                            <div class="settings-grid">
+                                <div class="setting-card">
+                                    <h3>Particle Effects</h3>
+                                    <div class="setting-row">
+                                        <label>Enable Particles</label>
+                                        <label class="toggle">
+                                            <input type="checkbox" id="enable-particles" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
                                     </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="gpu-compositing" checked />
-                                        <label for="gpu-compositing">Enable GPU compositing</label>
+                                    <div class="setting-row">
+                                        <label>Particle Type</label>
+                                        <select id="particle-type">
+                                            <option value="dots">Classic Dots</option>
+                                            <option value="stars">Twinkling Stars</option>
+                                            <option value="hearts">Floating Hearts</option>
+                                            <option value="emojis">Random Emojis</option>
+                                            <option value="code">Matrix Code</option>
+                                            <option value="bubbles">Soap Bubbles</option>
+                                            <option value="snow">Snowflakes</option>
+                                            <option value="fire">Fire Sparks</option>
+                                        </select>
+                                    </div>
+                                    <div class="setting-row">
+                                        <label>Particle Count</label>
+                                        <input type="range" id="particle-count" min="10" max="200" value="50" class="slider">
+                                        <span class="value" id="particle-count-value">50</span>
+                                    </div>
+                                    <div class="setting-row">
+                                        <label>Mouse Interaction</label>
+                                        <label class="toggle">
+                                            <input type="checkbox" id="mouse-particles" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="settings-section">
-                                <h3>Memory Management</h3>
-                                <div class="settings-group">
-                                    <label>Memory Usage Limit:</label>
-                                    <select id="memory-limit">
-                                        <option value="auto">Automatic</option>
-                                        <option value="low">Conservative (512MB)</option>
-                                        <option value="medium">Balanced (1GB)</option>
-                                        <option value="high">Performance (2GB)</option>
-                                    </select>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="preload-apps" />
-                                        <label for="preload-apps">Preload frequently used applications</label>
+                                <div class="setting-card">
+                                    <h3>Animation Settings</h3>
+                                    <div class="setting-row">
+                                        <label>Animation Quality</label>
+                                        <select id="animation-quality">
+                                            <option value="high">High (Smooth)</option>
+                                            <option value="medium">Medium (Balanced)</option>
+                                            <option value="low">Low (Performance)</option>
+                                            <option value="none">Disabled</option>
+                                        </select>
+                                    </div>
+                                    <div class="setting-row">
+                                        <label>Blur Effects</label>
+                                        <label class="toggle">
+                                            <input type="checkbox" id="blur-effects" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="setting-row">
+                                        <label>Glow Effects</label>
+                                        <label class="toggle">
+                                            <input type="checkbox" id="glow-effects" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="settings-section">
-                                <h3>Background Processes</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="background-updates" checked />
-                                        <label for="background-updates">Check for updates in background</label>
+                                <div class="setting-card">
+                                    <h3>Background Effects</h3>
+                                    <div class="setting-row">
+                                        <label>Animated Grid</label>
+                                        <label class="toggle">
+                                            <input type="checkbox" id="animated-grid" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
                                     </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="background-sync" checked />
-                                        <label for="background-sync">Sync user data in background</label>
+                                    <div class="setting-row">
+                                        <label>Grid Speed</label>
+                                        <input type="range" id="grid-speed" min="1" max="10" value="5" class="slider">
+                                        <span class="value" id="grid-speed-value">5</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="settings-panel" id="accessibility-panel">
-                            <div class="settings-section">
-                                <h3>Visual Accessibility</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="high-contrast" />
-                                        <label for="high-contrast">High contrast mode</label>
-                                    </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="large-cursor" />
-                                        <label for="large-cursor">Large cursor</label>
-                                    </div>
-
-                                    <label>Text Scale:</label>
-                                    <div class="slider-control">
-                                        <input type="range" id="text-scale" min="0.8" max="2.0" step="0.1" value="1.0" />
-                                        <span class="slider-value">100%</span>
-                                    </div>
-                                </div>
+                        <!-- Wallpaper Section -->
+                        <div class="section" id="wallpaper-section">
+                            <div class="section-header">
+                                <h2><i class="fas fa-image"></i> Wallpaper</h2>
+                                <p>Customize your desktop background</p>
                             </div>
 
-                            <div class="settings-section">
-                                <h3>Motion</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="reduce-motion" />
-                                        <label for="reduce-motion">Reduce motion and animations</label>
-                                    </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="disable-parallax" />
-                                        <label for="disable-parallax">Disable parallax effects</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="settings-section">
-                                <h3>Keyboard & Mouse</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="sticky-keys" />
-                                        <label for="sticky-keys">Sticky keys</label>
-                                    </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="slow-keys" />
-                                        <label for="slow-keys">Slow keys</label>
-                                    </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="mouse-keys" />
-                                        <label for="mouse-keys">Mouse keys (use numpad as mouse)</label>
-                                    </div>
-
-                                    <label>Key Repeat Rate:</label>
-                                    <div class="slider-control">
-                                        <input type="range" id="key-repeat-rate" min="1" max="10" value="5" />
-                                        <span class="slider-value">5</span>
+                            <div class="settings-grid">
+                                <div class="setting-card full-width">
+                                    <h3>Background Type</h3>
+                                    <div class="wallpaper-types">
+                                        <div class="wallpaper-type active" data-type="gradient">
+                                            <i class="fas fa-palette"></i>
+                                            <span>Gradient</span>
+                                        </div>
+                                        <div class="wallpaper-type" data-type="pattern">
+                                            <i class="fas fa-th"></i>
+                                            <span>Pattern</span>
+                                        </div>
+                                        <div class="wallpaper-type" data-type="image">
+                                            <i class="fas fa-image"></i>
+                                            <span>Image</span>
+                                        </div>
+                                        <div class="wallpaper-type" data-type="solid">
+                                            <i class="fas fa-square"></i>
+                                            <span>Solid Color</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="settings-section">
-                                <h3>Screen Reader</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="screen-reader" />
-                                        <label for="screen-reader">Enable screen reader support</label>
+                                <div class="setting-card" id="gradient-options">
+                                    <h3>Gradient Settings</h3>
+                                    <div class="gradient-presets" id="gradient-presets">
+                                        <!-- Gradient presets will be populated here -->
                                     </div>
+                                    <div class="custom-gradient">
+                                        <div class="color-row">
+                                            <label>Start Color</label>
+                                            <input type="color" id="gradient-start" value="#667eea">
+                                        </div>
+                                        <div class="color-row">
+                                            <label>End Color</label>
+                                            <input type="color" id="gradient-end" value="#764ba2">
+                                        </div>
+                                        <div class="setting-row">
+                                            <label>Direction</label>
+                                            <select id="gradient-direction">
+                                                <option value="135deg">Diagonal ↘</option>
+                                                <option value="90deg">Vertical ↓</option>
+                                                <option value="0deg">Horizontal →</option>
+                                                <option value="45deg">Diagonal ↗</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="announce-notifications" />
-                                        <label for="announce-notifications">Announce notifications</label>
+                                <div class="setting-card" id="pattern-options" style="display: none;">
+                                    <h3>Pattern Settings</h3>
+                                    <div class="pattern-grid" id="pattern-grid">
+                                        <!-- Pattern options will be populated here -->
+                                    </div>
+                                </div>
+
+                                <div class="setting-card" id="solid-options" style="display: none;">
+                                    <h3>Solid Color</h3>
+                                    <div class="color-row">
+                                        <label>Background Color</label>
+                                        <input type="color" id="solid-color" value="#1a1a2e">
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="settings-panel" id="security-panel">
-                            <div class="settings-section">
-                                <h3>Privacy</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="save-session" checked />
-                                        <label for="save-session">Remember login session</label>
-                                    </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="usage-analytics" />
-                                        <label for="usage-analytics">Send anonymous usage analytics</label>
-                                    </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="error-reporting" checked />
-                                        <label for="error-reporting">Send error reports to improve EmberFrame</label>
-                                    </div>
-                                </div>
+                        <!-- Windows Section -->
+                        <div class="section" id="windows-section">
+                            <div class="section-header">
+                                <h2><i class="fas fa-window-maximize"></i> Windows</h2>
+                                <p>Configure window appearance and behavior</p>
                             </div>
 
-                            <div class="settings-section">
-                                <h3>Session Security</h3>
-                                <div class="settings-group">
-                                    <label>Auto-lock after inactivity:</label>
-                                    <select id="auto-lock-time">
-                                        <option value="never">Never</option>
-                                        <option value="5">5 minutes</option>
-                                        <option value="15">15 minutes</option>
-                                        <option value="30">30 minutes</option>
-                                        <option value="60">1 hour</option>
-                                    </select>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="require-password-wake" />
-                                        <label for="require-password-wake">Require password after screen lock</label>
+                            <div class="settings-grid">
+                                <div class="setting-card">
+                                    <h3>Window Appearance</h3>
+                                    <div class="setting-row">
+                                        <label>Window Transparency</label>
+                                        <input type="range" id="window-transparency" min="0" max="50" value="5" class="slider">
+                                        <span class="value" id="window-transparency-value">5%</span>
+                                    </div>
+                                    <div class="setting-row">
+                                        <label>Window Blur</label>
+                                        <label class="toggle">
+                                            <input type="checkbox" id="window-blur" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="setting-row">
+                                        <label>Window Shadows</label>
+                                        <label class="toggle">
+                                            <input type="checkbox" id="window-shadows" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="settings-section">
-                                <h3>File Security</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="encrypt-files" />
-                                        <label for="encrypt-files">Encrypt user files (requires restart)</label>
+                                <div class="setting-card">
+                                    <h3>Window Behavior</h3>
+                                    <div class="setting-row">
+                                        <label>Smooth Animations</label>
+                                        <label class="toggle">
+                                            <input type="checkbox" id="smooth-animations" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
                                     </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="secure-delete" />
-                                        <label for="secure-delete">Secure file deletion</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="settings-section">
-                                <h3>Network Security</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="https-only" checked />
-                                        <label for="https-only">Force HTTPS connections</label>
-                                    </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="block-trackers" />
-                                        <label for="block-trackers">Block known trackers</label>
+                                    <div class="setting-row">
+                                        <label>Window Snapping</label>
+                                        <label class="toggle">
+                                            <input type="checkbox" id="window-snapping" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="settings-panel" id="notifications-panel">
-                            <div class="settings-section">
-                                <h3>Notification Settings</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="enable-notifications" checked />
-                                        <label for="enable-notifications">Enable notifications</label>
-                                    </div>
-
-                                    <label>Notification Position:</label>
-                                    <select id="notification-position">
-                                        <option value="top-right">Top Right</option>
-                                        <option value="top-left">Top Left</option>
-                                        <option value="bottom-right">Bottom Right</option>
-                                        <option value="bottom-left">Bottom Left</option>
-                                    </select>
-
-                                    <label>Default Duration:</label>
-                                    <div class="slider-control">
-                                        <input type="range" id="notification-duration" min="1" max="10" value="4" />
-                                        <span class="slider-value">4s</span>
-                                    </div>
-                                </div>
+                        <!-- Performance Section -->
+                        <div class="section" id="performance-section">
+                            <div class="section-header">
+                                <h2><i class="fas fa-tachometer-alt"></i> Performance</h2>
+                                <p>Optimize performance and resource usage</p>
                             </div>
 
-                            <div class="settings-section">
-                                <h3>Notification Types</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="notify-file-operations" checked />
-                                        <label for="notify-file-operations">File operations</label>
+                            <div class="settings-grid">
+                                <div class="setting-card">
+                                    <h3>Performance Options</h3>
+                                    <div class="setting-row">
+                                        <label>Hardware Acceleration</label>
+                                        <label class="toggle">
+                                            <input type="checkbox" id="hardware-acceleration" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
                                     </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="notify-app-events" checked />
-                                        <label for="notify-app-events">Application events</label>
+                                    <div class="setting-row">
+                                        <label>Reduce Motion</label>
+                                        <label class="toggle">
+                                            <input type="checkbox" id="reduce-motion">
+                                            <span class="toggle-slider"></span>
+                                        </label>
                                     </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="notify-system-updates" checked />
-                                        <label for="notify-system-updates">System updates</label>
-                                    </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="notify-errors" checked />
-                                        <label for="notify-errors">Error messages</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="settings-section">
-                                <h3>Do Not Disturb</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="do-not-disturb" />
-                                        <label for="do-not-disturb">Enable Do Not Disturb mode</label>
-                                    </div>
-
-                                    <label>Quiet Hours Start:</label>
-                                    <input type="time" id="quiet-hours-start" value="22:00" />
-
-                                    <label>Quiet Hours End:</label>
-                                    <input type="time" id="quiet-hours-end" value="08:00" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="settings-panel" id="advanced-panel">
-                            <div class="settings-section">
-                                <h3>Developer Options</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="developer-mode" />
-                                        <label for="developer-mode">Enable developer mode</label>
-                                    </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="debug-mode" />
-                                        <label for="debug-mode">Enable debug logging</label>
-                                    </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="show-fps" />
-                                        <label for="show-fps">Show FPS counter</label>
+                                    <div class="setting-row">
+                                        <label>Frame Rate Limit</label>
+                                        <select id="frame-rate-limit">
+                                            <option value="60">60 FPS</option>
+                                            <option value="30">30 FPS</option>
+                                            <option value="15">15 FPS</option>
+                                        </select>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="settings-section">
-                                <h3>Experimental Features</h3>
-                                <div class="settings-group">
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="experimental-features" />
-                                        <label for="experimental-features">Enable experimental features</label>
+                                <div class="setting-card">
+                                    <h3>Memory Management</h3>
+                                    <div class="setting-row">
+                                        <button class="btn-secondary" id="clear-cache">Clear Cache</button>
                                     </div>
-
-                                    <div class="checkbox-group">
-                                        <input type="checkbox" id="beta-updates" />
-                                        <label for="beta-updates">Receive beta updates</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="settings-section">
-                                <h3>Data Management</h3>
-                                <div class="settings-group">
-                                    <button class="btn btn-secondary" onclick="Settings.exportSettings()">
-                                        <i class="fas fa-download"></i> Export Settings
-                                    </button>
-                                    <button class="btn btn-secondary" onclick="Settings.importSettings()">
-                                        <i class="fas fa-upload"></i> Import Settings
-                                    </button>
-                                    <button class="btn btn-warning" onclick="Settings.resetSettings()">
-                                        <i class="fas fa-undo"></i> Reset to Defaults
-                                    </button>
-                                    <button class="btn btn-danger" onclick="Settings.clearAllData()">
-                                        <i class="fas fa-trash"></i> Clear All Data
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="settings-section">
-                                <h3>System Information</h3>
-                                <div class="settings-group">
-                                    <div class="system-info">
-                                        <div class="info-row">
-                                            <span>Browser:</span>
-                                            <span id="browser-info">Loading...</span>
-                                        </div>
-                                        <div class="info-row">
-                                            <span>Screen Resolution:</span>
-                                            <span id="screen-resolution">Loading...</span>
-                                        </div>
-                                        <div class="info-row">
-                                            <span>Color Depth:</span>
-                                            <span id="color-depth">Loading...</span>
-                                        </div>
-                                        <div class="info-row">
-                                            <span>Memory Usage:</span>
-                                            <span id="memory-usage">Loading...</span>
-                                        </div>
+                                    <div class="setting-row">
+                                        <button class="btn-secondary" id="reset-settings">Reset All Settings</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="settings-panel" id="about-panel">
-                            <div class="settings-section">
-                                <div class="about-header">
-                                    <div class="about-logo">🔥</div>
-                                    <h2>EmberFrame</h2>
-                                    <p class="version">Version 2.0.0</p>
-                                    <p class="tagline">Advanced Web-Based Desktop Environment</p>
-                                </div>
+                        <!-- About Section -->
+                        <div class="section" id="about-section">
+                            <div class="section-header">
+                                <h2><i class="fas fa-info-circle"></i> About EmberFrame</h2>
+                                <p>Information about your desktop environment</p>
                             </div>
 
-                            <div class="settings-section">
-                                <h3>About EmberFrame</h3>
-                                <div class="settings-group">
-                                    <p>EmberFrame is a modern, full-featured desktop environment that runs entirely in your web browser. Built with cutting-edge web technologies, it provides a complete operating system experience with real file management, multi-user support, and a suite of productivity applications.</p>
-                                    
-                                    <div class="feature-grid">
-                                        <div class="feature-item">
-                                            <i class="fas fa-window-maximize"></i>
-                                            <h4>Window Management</h4>
-                                            <p>Full desktop-style window management</p>
-                                        </div>
-                                        <div class="feature-item">
-                                            <i class="fas fa-folder"></i>
-                                            <h4>File System</h4>
-                                            <p>Real file management and operations</p>
-                                        </div>
-                                        <div class="feature-item">
-                                            <i class="fas fa-users"></i>
-                                            <h4>Multi-User</h4>
-                                            <p>Secure user accounts and sessions</p>
-                                        </div>
-                                        <div class="feature-item">
-                                            <i class="fas fa-mobile-alt"></i>
-                                            <h4>Responsive</h4>
-                                            <p>Works on desktop and mobile devices</p>
-                                        </div>
+                            <div class="about-content">
+                                <div class="about-logo">
+                                    <div class="logo-icon">🔥</div>
+                                    <h1>EmberFrame</h1>
+                                    <p>Advanced Web Desktop Environment</p>
+                                </div>
+                                <div class="about-info">
+                                    <div class="info-row">
+                                        <strong>Version:</strong> 3.0.0
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="settings-section">
-                                <h3>Credits</h3>
-                                <div class="settings-group">
-                                    <div class="credits">
-                                        <div class="credit-item">
-                                            <strong>EmberFrame Team</strong>
-                                            <span>Core Development</span>
-                                        </div>
-                                        <div class="credit-item">
-                                            <strong>Font Awesome</strong>
-                                            <span>Icon Library</span>
-                                        </div>
-                                        <div class="credit-item">
-                                            <strong>Google Fonts</strong>
-                                            <span>Typography</span>
-                                        </div>
-                                        <div class="credit-item">
-                                            <strong>Flask Community</strong>
-                                            <span>Backend Framework</span>
-                                        </div>
+                                    <div class="info-row">
+                                        <strong>Build:</strong> 2024.12.31
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="settings-section">
-                                <h3>System Status</h3>
-                                <div class="settings-group">
-                                    <div class="status-grid">
-                                        <div class="status-item">
-                                            <div class="status-indicator online"></div>
-                                            <span>System Status</span>
-                                            <strong>Online</strong>
-                                        </div>
-                                        <div class="status-item">
-                                            <div class="status-indicator online"></div>
-                                            <span>File System</span>
-                                            <strong>Available</strong>
-                                        </div>
-                                        <div class="status-item">
-                                            <div class="status-indicator online"></div>
-                                            <span>User Session</span>
-                                            <strong>Active</strong>
-                                        </div>
+                                    <div class="info-row">
+                                        <strong>Engine:</strong> WebKit/Blink
+                                    </div>
+                                    <div class="info-row">
+                                        <strong>Platform:</strong> Web Browser
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Loading overlay -->
-                    <div class="loading-overlay" id="settings-loading">
-                        <div class="loading-spinner">
-                            <div class="spinner"></div>
-                            <div class="loading-text">Applying settings...</div>
-                        </div>
+                    <div class="settings-footer">
+                        <button class="btn-secondary" id="reset-all">Reset All</button>
+                        <button class="btn-primary" id="apply-settings">Apply Changes</button>
                     </div>
                 </div>
-
-                <!-- Hidden file input for importing settings -->
-                <input type="file" id="settings-import-input" accept=".json" style="display: none;" />
 
                 <style>
                     .settings-app {
                         height: 100%;
                         display: flex;
-                        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                        background: linear-gradient(135deg, #f8f9fb 0%, #e9ecef 100%);
                         font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-                        position: relative;
+                        color: #2c3e50;
                         overflow: hidden;
                     }
 
                     .settings-sidebar {
-                        width: 250px;
-                        background: rgba(255, 255, 255, 0.95);
-                        border-right: 1px solid rgba(0, 0, 0, 0.1);
-                        display: flex;
-                        flex-direction: column;
-                        backdrop-filter: blur(10px);
-                    }
-
-                    .settings-search {
-                        padding: 20px;
-                        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-                        position: relative;
-                    }
-
-                    .settings-search input {
-                        width: 100%;
-                        padding: 12px 40px 12px 15px;
-                        border: 2px solid #e1e5e9;
-                        border-radius: 25px;
-                        font-size: 14px;
-                        background: #f8f9fa;
-                        transition: all 0.3s ease;
-                    }
-
-                    .settings-search input:focus {
-                        outline: none;
-                        border-color: #007bff;
-                        background: white;
-                        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-                    }
-
-                    .settings-search i {
-                        position: absolute;
-                        right: 35px;
-                        top: 50%;
-                        transform: translateY(-50%);
-                        color: #6c757d;
-                    }
-
-                    .settings-categories {
-                        flex: 1;
-                        padding: 10px 0;
+                        width: 220px;
+                        background: linear-gradient(145deg, #667eea, #764ba2);
+                        border-right: 1px solid rgba(255, 255, 255, 0.1);
                         overflow-y: auto;
+                        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
                     }
 
-                    .settings-category {
+                    .settings-nav {
+                        padding: 20px 0;
+                    }
+
+                    .nav-item {
                         display: flex;
                         align-items: center;
-                        gap: 15px;
-                        padding: 15px 25px;
+                        gap: 12px;
+                        padding: 12px 20px;
+                        color: rgba(255, 255, 255, 0.8);
                         cursor: pointer;
                         transition: all 0.3s ease;
-                        border-left: 3px solid transparent;
-                        color: #495057;
+                        position: relative;
+                        font-size: 14px;
+                        font-weight: 500;
                     }
 
-                    .settings-category:hover {
-                        background: rgba(0, 123, 255, 0.05);
-                        color: #007bff;
+                    .nav-item:hover {
+                        background: rgba(255, 255, 255, 0.1);
+                        color: white;
                         transform: translateX(5px);
                     }
 
-                    .settings-category.active {
-                        background: rgba(0, 123, 255, 0.1);
-                        border-left-color: #007bff;
-                        color: #007bff;
-                        font-weight: 600;
+                    .nav-item.active {
+                        background: rgba(255, 255, 255, 0.2);
+                        color: white;
+                        border-right: 3px solid white;
                     }
 
-                    .settings-category i {
-                        width: 20px;
+                    .nav-item i {
+                        width: 18px;
                         text-align: center;
                         font-size: 16px;
                     }
 
                     .settings-content {
                         flex: 1;
-                        background: white;
                         overflow-y: auto;
+                        padding: 0;
                         position: relative;
                     }
 
-                    .settings-header {
-                        padding: 30px 40px 20px;
-                        border-bottom: 1px solid #e9ecef;
-                        background: linear-gradient(135deg, rgba(0, 123, 255, 0.05), rgba(108, 117, 125, 0.05));
+                    .section {
+                        display: none;
+                        padding: 30px;
+                        animation: slideIn 0.3s ease-out;
                     }
 
-                    .settings-header h2 {
+                    .section.active {
+                        display: block;
+                    }
+
+                    @keyframes slideIn {
+                        from { opacity: 0; transform: translateY(20px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+
+                    .section-header {
+                        margin-bottom: 30px;
+                        text-align: center;
+                        border-bottom: 2px solid #e9ecef;
+                        padding-bottom: 20px;
+                    }
+
+                    .section-header h2 {
                         margin: 0 0 8px 0;
                         color: #2c3e50;
                         font-size: 28px;
                         font-weight: 700;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 12px;
                     }
 
-                    .settings-header p {
+                    .section-header p {
                         margin: 0;
                         color: #6c757d;
                         font-size: 16px;
                     }
 
-                    .settings-panel {
-                        display: none;
-                        padding: 30px 40px;
-                    }
-
-                    .settings-panel.active {
-                        display: block;
-                    }
-
-                    .settings-section {
-                        margin-bottom: 40px;
-                        background: white;
-                        border-radius: 12px;
-                        border: 1px solid #e9ecef;
-                        overflow: hidden;
-                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-                    }
-
-                    .settings-section h3 {
-                        margin: 0;
-                        padding: 20px 25px;
-                        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-                        color: #2c3e50;
-                        font-size: 18px;
-                        font-weight: 600;
-                        border-bottom: 1px solid #e9ecef;
-                    }
-
-                    .settings-group {
-                        padding: 25px;
-                    }
-
-                    .settings-group label {
-                        display: block;
-                        margin-bottom: 8px;
-                        font-weight: 600;
-                        color: #2c3e50;
-                        font-size: 14px;
-                    }
-
-                    .settings-group select,
-                    .settings-group input[type="text"],
-                    .settings-group input[type="email"],
-                    .settings-group input[type="time"] {
-                        width: 100%;
-                        padding: 12px 15px;
-                        border: 2px solid #e9ecef;
-                        border-radius: 8px;
-                        font-size: 14px;
+                    .settings-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                        gap: 20px;
                         margin-bottom: 20px;
+                    }
+
+                    .setting-card {
+                        background: white;
+                        border-radius: 16px;
+                        padding: 24px;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                        border: 1px solid #e9ecef;
                         transition: all 0.3s ease;
                     }
 
-                    .settings-group select:focus,
-                    .settings-group input:focus {
-                        outline: none;
-                        border-color: #007bff;
-                        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+                    .setting-card:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
                     }
 
-                    .checkbox-group {
+                    .setting-card.full-width {
+                        grid-column: 1 / -1;
+                    }
+
+                    .setting-card h3 {
+                        margin: 0 0 20px 0;
+                        color: #2c3e50;
+                        font-size: 18px;
+                        font-weight: 600;
+                        padding-bottom: 12px;
+                        border-bottom: 2px solid #f8f9fa;
+                    }
+
+                    .setting-row {
                         display: flex;
                         align-items: center;
-                        gap: 12px;
-                        margin-bottom: 15px;
-                        cursor: pointer;
+                        justify-content: space-between;
+                        margin-bottom: 16px;
+                        padding: 8px 0;
                     }
 
-                    .checkbox-group input[type="checkbox"] {
-                        width: 18px;
-                        height: 18px;
-                        cursor: pointer;
-                        margin: 0;
+                    .setting-row:last-child {
+                        margin-bottom: 0;
                     }
 
-                    .checkbox-group label {
-                        margin: 0;
-                        cursor: pointer;
+                    .setting-row label {
                         font-weight: 500;
+                        color: #495057;
                         font-size: 14px;
                     }
 
-                    .slider-control {
+                    .slider {
+                        width: 120px;
+                        height: 6px;
+                        border-radius: 3px;
+                        background: #e9ecef;
+                        outline: none;
+                        appearance: none;
+                        cursor: pointer;
+                    }
+
+                    .slider::-webkit-slider-thumb {
+                        appearance: none;
+                        width: 18px;
+                        height: 18px;
+                        border-radius: 50%;
+                        background: linear-gradient(145deg, #667eea, #764ba2);
+                        cursor: pointer;
+                        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+                    }
+
+                    .slider::-moz-range-thumb {
+                        width: 18px;
+                        height: 18px;
+                        border-radius: 50%;
+                        background: linear-gradient(145deg, #667eea, #764ba2);
+                        cursor: pointer;
+                        border: none;
+                        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+                    }
+
+                    .value {
+                        font-weight: 600;
+                        color: #667eea;
+                        min-width: 50px;
+                        text-align: right;
+                        font-size: 13px;
+                    }
+
+                    .toggle {
+                        position: relative;
+                        display: inline-block;
+                        width: 50px;
+                        height: 24px;
+                    }
+
+                    .toggle input {
+                        opacity: 0;
+                        width: 0;
+                        height: 0;
+                    }
+
+                    .toggle-slider {
+                        position: absolute;
+                        cursor: pointer;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: #ccc;
+                        transition: 0.3s;
+                        border-radius: 24px;
+                    }
+
+                    .toggle-slider:before {
+                        position: absolute;
+                        content: "";
+                        height: 18px;
+                        width: 18px;
+                        left: 3px;
+                        bottom: 3px;
+                        background: white;
+                        transition: 0.3s;
+                        border-radius: 50%;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                    }
+
+                    .toggle input:checked + .toggle-slider {
+                        background: linear-gradient(145deg, #667eea, #764ba2);
+                    }
+
+                    .toggle input:checked + .toggle-slider:before {
+                        transform: translateX(26px);
+                    }
+
+                    select {
+                        padding: 8px 12px;
+                        border: 2px solid #e9ecef;
+                        border-radius: 8px;
+                        background: white;
+                        font-size: 14px;
+                        min-width: 150px;
+                        cursor: pointer;
+                        transition: border-color 0.3s ease;
+                    }
+
+                    select:focus {
+                        outline: none;
+                        border-color: #667eea;
+                    }
+
+                    input[type="color"] {
+                        width: 50px;
+                        height: 30px;
+                        border: none;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        background: none;
+                    }
+
+                    /* Themes Grid */
+                    .themes-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                        gap: 16px;
+                        margin-bottom: 24px;
+                    }
+
+                    .theme-card {
+                        border-radius: 12px;
+                        padding: 20px;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        border: 3px solid transparent;
+                        position: relative;
+                        overflow: hidden;
+                        min-height: 120px;
                         display: flex;
+                        flex-direction: column;
+                        justify-content: center;
                         align-items: center;
-                        gap: 15px;
+                        color: white;
+                        font-weight: 600;
+                        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+                    }
+
+                    .theme-card:hover {
+                        transform: scale(1.05);
+                        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+                    }
+
+                    .theme-card.active {
+                        border-color: #fff;
+                        box-shadow: 0 0 20px rgba(255,255,255,0.5);
+                    }
+
+                    .theme-card::before {
+                        content: '';
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: inherit;
+                        opacity: 0.9;
+                        z-index: -1;
+                    }
+
+                    /* Wallpaper Types */
+                    .wallpaper-types {
+                        display: grid;
+                        grid-template-columns: repeat(4, 1fr);
+                        gap: 12px;
                         margin-bottom: 20px;
                     }
 
-                    .slider-control input[type="range"] {
-                        flex: 1;
-                        margin: 0;
-                    }
-
-                    .slider-value {
-                        min-width: 60px;
-                        text-align: center;
-                        font-weight: 600;
-                        color: #007bff;
-                        background: rgba(0, 123, 255, 0.1);
-                        padding: 6px 12px;
-                        border-radius: 15px;
-                        font-size: 12px;
-                    }
-
-                    /* Theme Selector */
-                    .theme-selector {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-                        gap: 15px;
-                        margin-top: 15px;
-                    }
-
-                    .theme-option {
+                    .wallpaper-type {
                         display: flex;
                         flex-direction: column;
                         align-items: center;
-                        gap: 10px;
-                        padding: 15px;
+                        gap: 8px;
+                        padding: 16px;
                         border: 2px solid #e9ecef;
                         border-radius: 12px;
                         cursor: pointer;
@@ -983,114 +780,112 @@ class Settings {
                         background: #f8f9fa;
                     }
 
-                    .theme-option:hover {
-                        border-color: #007bff;
-                        transform: translateY(-3px);
-                        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+                    .wallpaper-type:hover {
+                        border-color: #667eea;
+                        background: #f0f8ff;
                     }
 
-                    .theme-option.active {
-                        border-color: #007bff;
-                        background: rgba(0, 123, 255, 0.05);
-                        box-shadow: 0 3px 10px rgba(0, 123, 255, 0.2);
+                    .wallpaper-type.active {
+                        border-color: #667eea;
+                        background: linear-gradient(145deg, #667eea, #764ba2);
+                        color: white;
                     }
 
-                    .theme-preview {
-                        width: 60px;
-                        height: 40px;
-                        border-radius: 8px;
-                        border: 1px solid rgba(0, 0, 0, 0.1);
+                    .wallpaper-type i {
+                        font-size: 20px;
                     }
 
-                    .theme-preview.cyber-blue {
-                        background: linear-gradient(135deg, #00d4ff, #0099cc);
-                    }
-
-                    .theme-preview.ember-red {
-                        background: linear-gradient(135deg, #ff4500, #dc143c);
-                    }
-
-                    .theme-preview.matrix-green {
-                        background: linear-gradient(135deg, #00ff00, #008800);
-                    }
-
-                    .theme-preview.neon-purple {
-                        background: linear-gradient(135deg, #8000ff, #4000cc);
-                    }
-
-                    .theme-preview.ice-blue {
-                        background: linear-gradient(135deg, #80e0ff, #4080ff);
-                    }
-
-                    .theme-preview.ember-orange {
-                        background: linear-gradient(135deg, #ff8c00, #ff4500);
-                    }
-
-                    .theme-option span {
+                    .wallpaper-type span {
                         font-size: 12px;
                         font-weight: 600;
-                        color: #495057;
-                        text-align: center;
                     }
 
-                    /* Gradient Selector */
-                    .gradient-selector {
+                    /* Gradient Presets */
+                    .gradient-presets {
                         display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-                        gap: 12px;
-                        margin-top: 15px;
+                        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+                        gap: 8px;
+                        margin-bottom: 16px;
                     }
 
-                    .gradient-option {
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        gap: 8px;
-                        padding: 12px;
-                        border: 2px solid #e9ecef;
-                        border-radius: 10px;
+                    .gradient-preset {
+                        height: 40px;
+                        border-radius: 8px;
                         cursor: pointer;
+                        border: 2px solid transparent;
                         transition: all 0.3s ease;
                     }
 
-                    .gradient-option:hover {
-                        border-color: #007bff;
-                        transform: translateY(-2px);
+                    .gradient-preset:hover {
+                        transform: scale(1.1);
+                        border-color: #667eea;
                     }
 
-                    .gradient-option.active {
-                        border-color: #007bff;
-                        background: rgba(0, 123, 255, 0.05);
+                    .gradient-preset.active {
+                        border-color: #667eea;
+                        box-shadow: 0 0 12px rgba(102, 126, 234, 0.5);
                     }
 
-                    .gradient-preview {
-                        width: 50px;
-                        height: 30px;
-                        border-radius: 6px;
-                        border: 1px solid rgba(0, 0, 0, 0.1);
+                    /* Pattern Grid */
+                    .pattern-grid {
+                        display: grid;
+                        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+                        gap: 12px;
                     }
 
-                    .gradient-option span {
-                        font-size: 11px;
-                        font-weight: 600;
-                        color: #495057;
+                    .pattern-option {
+                        height: 60px;
+                        border-radius: 8px;
+                        cursor: pointer;
+                        border: 2px solid transparent;
+                        transition: all 0.3s ease;
+                        background-size: 20px 20px;
+                    }
+
+                    .pattern-option:hover {
+                        transform: scale(1.05);
+                        border-color: #667eea;
+                    }
+
+                    .pattern-option.active {
+                        border-color: #667eea;
+                        box-shadow: 0 0 12px rgba(102, 126, 234, 0.5);
+                    }
+
+                    /* Color Customizer */
+                    .color-customizer {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 16px;
+                    }
+
+                    .color-row {
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
                     }
 
                     /* Buttons */
-                    .btn {
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 8px;
-                        padding: 12px 20px;
+                    .btn-primary, .btn-secondary {
+                        padding: 10px 20px;
                         border: none;
                         border-radius: 8px;
+                        cursor: pointer;
                         font-size: 14px;
                         font-weight: 600;
-                        cursor: pointer;
                         transition: all 0.3s ease;
-                        text-decoration: none;
-                        margin-right: 10px;
-                        margin-bottom: 10px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+
+                    .btn-primary {
+                        background: linear-gradient(145deg, #667eea, #764ba2);
+                        color: white;
+                    }
+
+                    .btn-primary:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
                     }
 
                     .btn-secondary {
@@ -1101,246 +896,72 @@ class Settings {
                     .btn-secondary:hover {
                         background: #5a6268;
                         transform: translateY(-2px);
-                        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
                     }
 
-                    .btn-warning {
-                        background: #ffc107;
-                        color: #212529;
-                    }
-
-                    .btn-warning:hover {
-                        background: #e0a800;
-                        transform: translateY(-2px);
-                    }
-
-                    .btn-danger {
-                        background: #dc3545;
-                        color: white;
-                    }
-
-                    .btn-danger:hover {
-                        background: #c82333;
-                        transform: translateY(-2px);
-                    }
-
-                    /* About Section */
-                    .about-header {
-                        text-align: center;
-                        padding: 40px 20px;
-                        background: linear-gradient(135deg, rgba(0, 123, 255, 0.05), rgba(108, 117, 125, 0.05));
-                        border-radius: 15px;
-                        margin-bottom: 30px;
-                    }
-
-                    .about-logo {
-                        font-size: 80px;
-                        margin-bottom: 20px;
-                        animation: pulse 3s ease-in-out infinite;
-                    }
-
-                    @keyframes pulse {
-                        0%, 100% { transform: scale(1); }
-                        50% { transform: scale(1.05); }
-                    }
-
-                    .about-header h2 {
-                        margin: 0 0 10px 0;
-                        font-size: 36px;
-                        font-weight: 900;
-                        color: #2c3e50;
-                    }
-
-                    .version {
-                        color: #007bff;
-                        font-size: 18px;
-                        font-weight: 600;
-                        margin-bottom: 10px;
-                    }
-
-                    .tagline {
-                        color: #6c757d;
-                        font-size: 16px;
-                        font-style: italic;
-                    }
-
-                    .feature-grid {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                        gap: 20px;
-                        margin-top: 25px;
-                    }
-
-                    .feature-item {
-                        text-align: center;
-                        padding: 20px;
-                        background: #f8f9fa;
-                        border-radius: 12px;
-                        border: 1px solid #e9ecef;
-                    }
-
-                    .feature-item i {
-                        font-size: 32px;
-                        color: #007bff;
-                        margin-bottom: 15px;
-                    }
-
-                    .feature-item h4 {
-                        margin: 0 0 8px 0;
-                        color: #2c3e50;
-                        font-size: 16px;
-                        font-weight: 600;
-                    }
-
-                    .feature-item p {
-                        margin: 0;
-                        color: #6c757d;
-                        font-size: 14px;
-                    }
-
-                    .credits {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 15px;
-                    }
-
-                    .credit-item {
+                    /* Settings Footer */
+                    .settings-footer {
+                        padding: 20px 30px;
+                        border-top: 1px solid #e9ecef;
+                        background: white;
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
-                        padding: 15px;
-                        background: #f8f9fa;
-                        border-radius: 8px;
-                        border: 1px solid #e9ecef;
+                        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
                     }
 
-                    .credit-item strong {
-                        color: #2c3e50;
-                        font-weight: 600;
-                    }
-
-                    .credit-item span {
-                        color: #6c757d;
-                        font-size: 14px;
-                    }
-
-                    .status-grid {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                        gap: 15px;
-                    }
-
-                    .status-item {
-                        display: flex;
-                        align-items: center;
-                        gap: 12px;
-                        padding: 15px;
-                        background: #f8f9fa;
-                        border-radius: 8px;
-                        border: 1px solid #e9ecef;
-                    }
-
-                    .status-indicator {
-                        width: 12px;
-                        height: 12px;
-                        border-radius: 50%;
-                        flex-shrink: 0;
-                    }
-
-                    .status-indicator.online {
-                        background: #28a745;
-                        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2);
-                        animation: pulse-online 2s ease-in-out infinite;
-                    }
-
-                    @keyframes pulse-online {
-                        0%, 100% { opacity: 1; }
-                        50% { opacity: 0.6; }
-                    }
-
-                    .status-item span {
-                        color: #6c757d;
-                        font-size: 14px;
-                        flex: 1;
-                    }
-
-                    .status-item strong {
-                        color: #28a745;
-                        font-weight: 600;
-                        font-size: 14px;
-                    }
-
-                    /* System Info */
-                    .system-info {
+                    /* About Content */
+                    .about-content {
                         display: flex;
                         flex-direction: column;
+                        align-items: center;
+                        gap: 30px;
+                        text-align: center;
+                        padding: 40px;
+                    }
+
+                    .about-logo {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
                         gap: 12px;
+                    }
+
+                    .logo-icon {
+                        font-size: 80px;
+                        background: linear-gradient(145deg, #667eea, #764ba2);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                        filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+                    }
+
+                    .about-logo h1 {
+                        margin: 0;
+                        font-size: 36px;
+                        font-weight: 700;
+                        background: linear-gradient(145deg, #667eea, #764ba2);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        background-clip: text;
+                    }
+
+                    .about-info {
+                        background: white;
+                        padding: 30px;
+                        border-radius: 16px;
+                        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                        min-width: 300px;
                     }
 
                     .info-row {
                         display: flex;
                         justify-content: space-between;
-                        align-items: center;
-                        padding: 12px 15px;
-                        background: #f8f9fa;
-                        border-radius: 8px;
-                        border: 1px solid #e9ecef;
+                        padding: 8px 0;
+                        border-bottom: 1px solid #f8f9fa;
                     }
 
-                    .info-row span:first-child {
-                        color: #495057;
-                        font-weight: 600;
-                    }
-
-                    .info-row span:last-child {
-                        color: #007bff;
-                        font-family: 'Courier New', monospace;
-                        font-size: 13px;
-                    }
-
-                    /* Loading states */
-                    .loading-overlay {
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        bottom: 0;
-                        background: rgba(0, 0, 0, 0.7);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        backdrop-filter: blur(5px);
-                        display: none;
-                        z-index: 1000;
-                    }
-
-                    .loading-overlay.show {
-                        display: flex;
-                    }
-
-                    .loading-spinner {
-                        text-align: center;
-                        color: white;
-                    }
-
-                    .spinner {
-                        width: 50px;
-                        height: 50px;
-                        border: 4px solid rgba(255, 255, 255, 0.3);
-                        border-top: 4px solid white;
-                        border-radius: 50%;
-                        animation: spin 1s linear infinite;
-                        margin: 0 auto 20px;
-                    }
-
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-
-                    .loading-text {
-                        font-size: 18px;
-                        font-weight: 500;
+                    .info-row:last-child {
+                        border-bottom: none;
                     }
 
                     /* Responsive Design */
@@ -1352,49 +973,27 @@ class Settings {
                         .settings-sidebar {
                             width: 100%;
                             height: auto;
-                            max-height: 200px;
-                            overflow-y: auto;
                         }
 
-                        .settings-categories {
+                        .settings-nav {
                             display: flex;
                             overflow-x: auto;
                             padding: 10px;
-                            gap: 10px;
                         }
 
-                        .settings-category {
+                        .nav-item {
                             flex-shrink: 0;
-                            white-space: nowrap;
-                            padding: 10px 15px;
-                            border-radius: 20px;
-                            border: 2px solid #e9ecef;
-                            background: white;
+                            padding: 8px 16px;
+                            border-radius: 8px;
+                            margin-right: 8px;
                         }
 
-                        .settings-category.active {
-                            border-color: #007bff;
-                            background: rgba(0, 123, 255, 0.1);
-                        }
-
-                        .settings-header,
-                        .settings-panel {
-                            padding: 20px;
-                        }
-
-                        .settings-group {
-                            padding: 20px;
-                        }
-
-                        .theme-selector,
-                        .gradient-selector {
-                            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-                            gap: 10px;
-                        }
-
-                        .feature-grid,
-                        .status-grid {
+                        .settings-grid {
                             grid-template-columns: 1fr;
+                        }
+
+                        .wallpaper-types {
+                            grid-template-columns: repeat(2, 1fr);
                         }
                     }
                 </style>
@@ -1406,360 +1005,274 @@ class Settings {
     }
 
     static init(windowElement) {
-        this.currentWindow = windowElement;
-        this.currentCategory = 'appearance';
-        this.settings = {};
-        this.isLoading = false;
+        this.windowElement = windowElement;
+        this.currentSettings = this.loadSettings();
 
+        this.setupNavigation();
+        this.setupThemes();
+        this.setupWallpapers();
         this.setupEventListeners();
-        this.loadUserSettings();
-        this.updateSystemInfo();
-        this.setupSliderListeners();
+        this.loadCurrentSettings();
+        this.initializeParticleSystem();
+
+        console.log('🎨 Enhanced Settings initialized');
+    }
+
+    static setupNavigation() {
+        const navItems = this.windowElement.querySelectorAll('.nav-item');
+        const sections = this.windowElement.querySelectorAll('.section');
+
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const sectionId = item.dataset.section;
+
+                // Update navigation
+                navItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+
+                // Update sections
+                sections.forEach(section => section.classList.remove('active'));
+                this.windowElement.querySelector(`#${sectionId}-section`).classList.add('active');
+            });
+        });
+    }
+
+    static setupThemes() {
+        const themes = [
+            {
+                name: 'Cyber Blue',
+                id: 'cyber-blue',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                primary: '#00d4ff',
+                secondary: '#764ba2'
+            },
+            {
+                name: 'Ember Red',
+                id: 'ember-red',
+                background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)',
+                primary: '#ff4757',
+                secondary: '#ff3838'
+            },
+            {
+                name: 'Matrix Green',
+                id: 'matrix-green',
+                background: 'linear-gradient(135deg, #00b894 0%, #00a085 100%)',
+                primary: '#00ff88',
+                secondary: '#00b894'
+            },
+            {
+                name: 'Purple Haze',
+                id: 'purple-haze',
+                background: 'linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%)',
+                primary: '#a29bfe',
+                secondary: '#6c5ce7'
+            },
+            {
+                name: 'Ocean Deep',
+                id: 'ocean-deep',
+                background: 'linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)',
+                primary: '#74b9ff',
+                secondary: '#0984e3'
+            },
+            {
+                name: 'Sunset Orange',
+                id: 'sunset-orange',
+                background: 'linear-gradient(135deg, #fd79a8 0%, #e84393 100%)',
+                primary: '#fd79a8',
+                secondary: '#e84393'
+            }
+        ];
+
+        const themesGrid = this.windowElement.querySelector('#themes-grid');
+
+        themes.forEach(theme => {
+            const themeCard = document.createElement('div');
+            themeCard.className = 'theme-card';
+            themeCard.dataset.themeId = theme.id;
+            themeCard.style.background = theme.background;
+            themeCard.innerHTML = `
+                <div>${theme.name}</div>
+                <small>Click to apply</small>
+            `;
+
+            themeCard.addEventListener('click', () => {
+                this.applyTheme(theme);
+                this.updateActiveTheme(themeCard);
+            });
+
+            themesGrid.appendChild(themeCard);
+        });
+    }
+
+    static setupWallpapers() {
+        // Gradient presets
+        const gradients = [
+            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+            'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+            'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'
+        ];
+
+        const gradientPresets = this.windowElement.querySelector('#gradient-presets');
+        gradients.forEach((gradient, index) => {
+            const preset = document.createElement('div');
+            preset.className = 'gradient-preset';
+            preset.style.background = gradient;
+            preset.addEventListener('click', () => {
+                this.applyWallpaper('gradient', gradient);
+                this.updateActiveGradient(preset);
+            });
+            gradientPresets.appendChild(preset);
+        });
+
+        // Pattern options
+        const patterns = [
+            {
+                name: 'Dots',
+                style: 'radial-gradient(circle, #667eea 1px, transparent 1px)',
+                size: '20px 20px'
+            },
+            {
+                name: 'Grid',
+                style: 'linear-gradient(#667eea 1px, transparent 1px), linear-gradient(90deg, #667eea 1px, transparent 1px)',
+                size: '20px 20px'
+            },
+            {
+                name: 'Diagonal',
+                style: 'repeating-linear-gradient(45deg, transparent, transparent 10px, #667eea 10px, #667eea 20px)',
+                size: 'auto'
+            },
+            {
+                name: 'Hexagon',
+                style: 'radial-gradient(circle at 25% 25%, transparent 25%, #667eea 25.5%, #667eea 50%, transparent 50.5%)',
+                size: '30px 30px'
+            }
+        ];
+
+        const patternGrid = this.windowElement.querySelector('#pattern-grid');
+        patterns.forEach(pattern => {
+            const option = document.createElement('div');
+            option.className = 'pattern-option';
+            option.style.backgroundImage = pattern.style;
+            option.style.backgroundSize = pattern.size;
+            option.title = pattern.name;
+            option.addEventListener('click', () => {
+                this.applyWallpaper('pattern', pattern);
+                this.updateActivePattern(option);
+            });
+            patternGrid.appendChild(option);
+        });
+
+        // Wallpaper type switching
+        const wallpaperTypes = this.windowElement.querySelectorAll('.wallpaper-type');
+        wallpaperTypes.forEach(type => {
+            type.addEventListener('click', () => {
+                const wallpaperType = type.dataset.type;
+                this.switchWallpaperType(wallpaperType);
+                wallpaperTypes.forEach(t => t.classList.remove('active'));
+                type.classList.add('active');
+            });
+        });
     }
 
     static setupEventListeners() {
-        // Category navigation
-        const categories = this.currentWindow.querySelectorAll('.settings-category');
-        categories.forEach(category => {
-            category.addEventListener('click', () => {
-                const categoryName = category.dataset.category;
-                this.switchCategory(categoryName);
-            });
-        });
-
-        // Search functionality
-        const searchInput = this.currentWindow.querySelector('#settings-search');
-        searchInput.addEventListener('input', (e) => {
-            this.searchSettings(e.target.value);
-        });
-
-        // Theme selection
-        const themeOptions = this.currentWindow.querySelectorAll('.theme-option');
-        themeOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                const theme = option.dataset.theme;
-                this.applyTheme(theme);
-            });
-        });
-
-        // Gradient selection
-        const gradientOptions = this.currentWindow.querySelectorAll('.gradient-option');
-        gradientOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                const gradient = option.dataset.gradient;
-                this.applyGradient(gradient);
-            });
-        });
-
-        // Settings change handlers
-        this.setupSettingChangeHandlers();
-
-        // Import/Export handlers
-        const importInput = this.currentWindow.querySelector('#settings-import-input');
-        importInput.addEventListener('change', (e) => {
-            this.handleImportFile(e.target.files[0]);
-        });
-    }
-
-    static setupSliderListeners() {
-        // Font size slider
-        const fontSizeSlider = this.currentWindow.querySelector('#font-size');
-        const fontSizeValue = fontSizeSlider.parentElement.querySelector('.slider-value');
-        fontSizeSlider.addEventListener('input', (e) => {
-            fontSizeValue.textContent = e.target.value + 'px';
-            this.updateSetting('fontSize', parseInt(e.target.value));
-        });
-
-        // Icon size slider
-        const iconSizeSlider = this.currentWindow.querySelector('#icon-size');
-        const iconSizeValue = iconSizeSlider.parentElement.querySelector('.slider-value');
-        iconSizeSlider.addEventListener('input', (e) => {
-            iconSizeValue.textContent = e.target.value + 'px';
-            this.updateSetting('iconSize', parseInt(e.target.value));
-        });
-
-        // Transparency slider
-        const transparencySlider = this.currentWindow.querySelector('#transparency');
-        const transparencyValue = transparencySlider.parentElement.querySelector('.slider-value');
-        transparencySlider.addEventListener('input', (e) => {
-            transparencyValue.textContent = e.target.value + '%';
-            this.updateSetting('transparency', parseInt(e.target.value));
-        });
-
-        // Animation speed slider
-        const animSpeedSlider = this.currentWindow.querySelector('#animation-speed');
-        const animSpeedValue = animSpeedSlider.parentElement.querySelector('.slider-value');
-        animSpeedSlider.addEventListener('input', (e) => {
-            animSpeedValue.textContent = e.target.value + 'x';
-            this.updateSetting('animationSpeed', parseFloat(e.target.value));
-        });
-
-        // Text scale slider
-        const textScaleSlider = this.currentWindow.querySelector('#text-scale');
-        const textScaleValue = textScaleSlider.parentElement.querySelector('.slider-value');
-        textScaleSlider.addEventListener('input', (e) => {
-            const percent = Math.round(e.target.value * 100);
-            textScaleValue.textContent = percent + '%';
-            this.updateSetting('textScale', parseFloat(e.target.value));
-        });
-
-        // Notification duration slider
-        const notifDurationSlider = this.currentWindow.querySelector('#notification-duration');
-        const notifDurationValue = notifDurationSlider.parentElement.querySelector('.slider-value');
-        notifDurationSlider.addEventListener('input', (e) => {
-            notifDurationValue.textContent = e.target.value + 's';
-            this.updateSetting('notificationDuration', parseInt(e.target.value));
-        });
-
-        // Key repeat rate slider
-        const keyRepeatSlider = this.currentWindow.querySelector('#key-repeat-rate');
-        const keyRepeatValue = keyRepeatSlider.parentElement.querySelector('.slider-value');
-        keyRepeatSlider.addEventListener('input', (e) => {
-            keyRepeatValue.textContent = e.target.value;
-            this.updateSetting('keyRepeatRate', parseInt(e.target.value));
-        });
-    }
-
-    static setupSettingChangeHandlers() {
-        // Get all inputs and selects
-        const inputs = this.currentWindow.querySelectorAll('input, select');
-
-        inputs.forEach(input => {
-            if (input.type === 'checkbox') {
-                input.addEventListener('change', (e) => {
-                    const settingName = this.camelCase(e.target.id);
-                    this.updateSetting(settingName, e.target.checked);
-                });
-            } else if (input.type === 'range') {
-                // Range inputs are handled separately in setupSliderListeners
-                return;
-            } else {
-                input.addEventListener('change', (e) => {
-                    const settingName = this.camelCase(e.target.id);
-                    this.updateSetting(settingName, e.target.value);
+        // Range sliders
+        const sliders = this.windowElement.querySelectorAll('.slider');
+        sliders.forEach(slider => {
+            const valueSpan = this.windowElement.querySelector(`#${slider.id}-value`);
+            if (valueSpan) {
+                slider.addEventListener('input', () => {
+                    const value = slider.value;
+                    const unit = slider.id.includes('size') ? 'px' :
+                                slider.id.includes('transparency') ? '%' : '';
+                    valueSpan.textContent = value + unit;
+                    this.updateSetting(slider.id, value);
                 });
             }
         });
-    }
 
-    static switchCategory(categoryName) {
-        // Update sidebar
-        this.currentWindow.querySelectorAll('.settings-category').forEach(cat => {
-            cat.classList.remove('active');
-        });
-        this.currentWindow.querySelector(`[data-category="${categoryName}"]`).classList.add('active');
-
-        // Update content
-        this.currentWindow.querySelectorAll('.settings-panel').forEach(panel => {
-            panel.classList.remove('active');
-        });
-        this.currentWindow.querySelector(`#${categoryName}-panel`).classList.add('active');
-
-        // Update header
-        const titles = {
-            'appearance': 'Appearance',
-            'behavior': 'Behavior',
-            'performance': 'Performance',
-            'accessibility': 'Accessibility',
-            'security': 'Security',
-            'notifications': 'Notifications',
-            'advanced': 'Advanced',
-            'about': 'About'
-        };
-
-        const descriptions = {
-            'appearance': 'Customize the look and feel of your desktop',
-            'behavior': 'Configure how the system responds to your actions',
-            'performance': 'Optimize system performance and animations',
-            'accessibility': 'Make the system more accessible',
-            'security': 'Manage security and privacy settings',
-            'notifications': 'Control how and when you receive notifications',
-            'advanced': 'Developer options and system management',
-            'about': 'Information about EmberFrame'
-        };
-
-        this.currentWindow.querySelector('#settings-title').textContent = titles[categoryName];
-        this.currentWindow.querySelector('#settings-description').textContent = descriptions[categoryName];
-
-        this.currentCategory = categoryName;
-    }
-
-    static searchSettings(query) {
-        const searchQuery = query.toLowerCase().trim();
-
-        if (!searchQuery) {
-            // Show all panels
-            this.currentWindow.querySelectorAll('.settings-section').forEach(section => {
-                section.style.display = 'block';
+        // Toggles
+        const toggles = this.windowElement.querySelectorAll('input[type="checkbox"]');
+        toggles.forEach(toggle => {
+            toggle.addEventListener('change', () => {
+                this.updateSetting(toggle.id, toggle.checked);
             });
-            return;
-        }
-
-        // Search through all settings sections
-        const sections = this.currentWindow.querySelectorAll('.settings-section');
-        let foundSections = [];
-
-        sections.forEach(section => {
-            const text = section.textContent.toLowerCase();
-            if (text.includes(searchQuery)) {
-                section.style.display = 'block';
-                foundSections.push(section);
-            } else {
-                section.style.display = 'none';
-            }
         });
 
-        // If we found matches in a specific category, switch to it
-        if (foundSections.length > 0) {
-            const firstMatch = foundSections[0];
-            const panel = firstMatch.closest('.settings-panel');
-            if (panel) {
-                const categoryName = panel.id.replace('-panel', '');
-                if (categoryName !== this.currentCategory) {
-                    this.switchCategory(categoryName);
-                }
-            }
-        }
-    }
-
-    static async loadUserSettings() {
-        this.showLoading('Loading your settings...');
-
-        try {
-            const response = await fetch('/api/user/preferences');
-            const data = await response.json();
-
-            if (data.success) {
-                this.settings = data.preferences || {};
-                this.populateSettingsUI();
-                console.log('✅ Settings loaded:', this.settings);
-            } else {
-                this.showNotification('Failed to load settings', 'error');
-            }
-        } catch (error) {
-            console.error('Failed to load settings:', error);
-            this.showNotification('Failed to load settings: ' + error.message, 'error');
-        } finally {
-            this.hideLoading();
-        }
-    }
-
-    static populateSettingsUI() {
-        // Populate all form elements with saved settings
-        Object.keys(this.settings).forEach(key => {
-            const element = this.currentWindow.querySelector(`#${this.kebabCase(key)}`);
-            if (element) {
-                if (element.type === 'checkbox') {
-                    element.checked = this.settings[key];
-                } else if (element.type === 'range') {
-                    element.value = this.settings[key];
-                    // Update slider value display
-                    const valueDisplay = element.parentElement.querySelector('.slider-value');
-                    if (valueDisplay) {
-                        let displayValue = this.settings[key];
-                        if (key === 'fontSize' || key === 'iconSize') {
-                            displayValue += 'px';
-                        } else if (key === 'transparency') {
-                            displayValue += '%';
-                        } else if (key === 'animationSpeed') {
-                            displayValue += 'x';
-                        } else if (key === 'textScale') {
-                            displayValue = Math.round(this.settings[key] * 100) + '%';
-                        } else if (key === 'notificationDuration') {
-                            displayValue += 's';
-                        }
-                        valueDisplay.textContent = displayValue;
-                    }
-                } else {
-                    element.value = this.settings[key];
-                }
-            }
+        // Selects
+        const selects = this.windowElement.querySelectorAll('select');
+        selects.forEach(select => {
+            select.addEventListener('change', () => {
+                this.updateSetting(select.id, select.value);
+            });
         });
 
-        // Update theme selection
-        if (this.settings.theme) {
-            this.currentWindow.querySelectorAll('.theme-option').forEach(option => {
-                option.classList.remove('active');
+        // Color inputs
+        const colorInputs = this.windowElement.querySelectorAll('input[type="color"]');
+        colorInputs.forEach(input => {
+            input.addEventListener('change', () => {
+                this.updateSetting(input.id, input.value);
             });
-            const activeTheme = this.currentWindow.querySelector(`[data-theme="${this.settings.theme}"]`);
-            if (activeTheme) {
-                activeTheme.classList.add('active');
-            }
-        }
+        });
 
-        // Update gradient selection
-        if (this.settings.wallpaperGradient) {
-            this.currentWindow.querySelectorAll('.gradient-option').forEach(option => {
-                option.classList.remove('active');
-            });
-            const activeGradient = this.currentWindow.querySelector(`[data-gradient="${this.settings.wallpaperGradient}"]`);
-            if (activeGradient) {
-                activeGradient.classList.add('active');
-            }
-        }
+        // Custom theme button
+        this.windowElement.querySelector('#apply-custom-theme').addEventListener('click', () => {
+            this.applyCustomTheme();
+        });
+
+        // Footer buttons
+        this.windowElement.querySelector('#apply-settings').addEventListener('click', () => {
+            this.saveAndApplySettings();
+        });
+
+        this.windowElement.querySelector('#reset-all').addEventListener('click', () => {
+            this.resetAllSettings();
+        });
+
+        // Particle type change
+        this.windowElement.querySelector('#particle-type').addEventListener('change', (e) => {
+            this.updateParticleType(e.target.value);
+        });
     }
 
-    static async updateSetting(key, value) {
-        if (this.isLoading) return;
-
-        this.settings[key] = value;
-
-        // Apply setting immediately
-        this.applySettingLocally(key, value);
-
-        // Debounced save to server
-        clearTimeout(this.saveTimeout);
-        this.saveTimeout = setTimeout(() => {
-            this.saveSettingsToServer();
-        }, 500);
+    static updateSetting(key, value) {
+        this.currentSettings[key] = value;
+        this.applySettingImmediately(key, value);
     }
 
-    static applySettingLocally(key, value) {
-        const root = document.documentElement;
+    static applySettingImmediately(key, value) {
         const body = document.body;
+        const root = document.documentElement;
 
-        switch (key) {
-            case 'fontSize':
+        switch(key) {
+            case 'font-family':
+                root.style.setProperty('--system-font', value);
+                break;
+            case 'font-size':
                 root.style.setProperty('--base-font-size', value + 'px');
                 break;
-            case 'iconSize':
+            case 'icon-size':
                 root.style.setProperty('--icon-size', value + 'px');
                 break;
-            case 'transparency':
-                const opacity = (100 - value) / 100;
-                root.style.setProperty('--window-opacity', opacity);
-                break;
-            case 'animationsEnabled':
+            case 'show-icon-labels':
                 if (!value) {
-                    body.classList.add('no-animations');
+                    body.classList.add('hide-icon-labels');
                 } else {
-                    body.classList.remove('no-animations');
+                    body.classList.remove('hide-icon-labels');
                 }
                 break;
-            case 'blurEffects':
-                if (!value) {
-                    body.classList.add('no-blur');
-                } else {
-                    body.classList.remove('no-blur');
-                }
-                break;
-            case 'iconShadows':
+            case 'icon-shadows':
                 if (!value) {
                     body.classList.add('no-icon-shadows');
                 } else {
                     body.classList.remove('no-icon-shadows');
                 }
                 break;
-            case 'showIconLabels':
-                const labels = document.querySelectorAll('.icon-label');
-                labels.forEach(label => {
-                    label.style.display = value ? 'block' : 'none';
-                });
-                break;
-            case 'animationSpeed':
-                root.style.setProperty('--animation-duration', (0.3 / value) + 's');
-                break;
-            case 'autoHideTaskbar':
+            case 'auto-hide-taskbar':
                 const taskbar = document.querySelector('.taskbar');
                 if (taskbar) {
                     if (value) {
@@ -1769,280 +1282,472 @@ class Settings {
                     }
                 }
                 break;
-            case 'showClock':
+            case 'show-clock':
                 const clock = document.querySelector('.time-display');
                 if (clock) {
                     clock.style.display = value ? 'block' : 'none';
                 }
                 break;
-            case 'fontFamily':
-                root.style.setProperty('--system-font', value);
-                body.style.fontFamily = value;
+            case 'window-transparency':
+                const opacity = (100 - value) / 100;
+                root.style.setProperty('--window-opacity', opacity);
                 break;
-            case 'notificationPosition':
-                if (window.NotificationSystem?.container) {
-                    const container = window.NotificationSystem.container;
-                    container.className = container.className.replace(/top-\w+|bottom-\w+/g, '');
-                    container.classList.add(value);
+            case 'blur-effects':
+                if (!value) {
+                    body.classList.add('no-blur');
+                } else {
+                    body.classList.remove('no-blur');
                 }
                 break;
-            case 'textScale':
-                const scaledSize = (14 * value) + 'px';
-                root.style.setProperty('--base-font-size', scaledSize);
+            case 'animated-grid':
+                const grid = document.querySelector('.grid-background');
+                if (grid) {
+                    grid.style.display = value ? 'block' : 'none';
+                }
+                break;
+            case 'enable-particles':
+                if (value) {
+                    this.startParticles();
+                } else {
+                    this.stopParticles();
+                }
+                break;
+            case 'particle-count':
+                this.updateParticleCount(parseInt(value));
+                break;
+            case 'reduce-motion':
+                if (value) {
+                    body.classList.add('reduce-motion');
+                } else {
+                    body.classList.remove('reduce-motion');
+                }
                 break;
         }
     }
 
-    static applyTheme(themeName) {
-        this.currentWindow.querySelectorAll('.theme-option').forEach(option => {
-            option.classList.remove('active');
-        });
-        this.currentWindow.querySelector(`[data-theme="${themeName}"]`).classList.add('active');
+    static applyTheme(theme) {
+        const root = document.documentElement;
+        root.style.setProperty('--primary-blue', theme.primary);
+        root.style.setProperty('--neon-cyan', theme.secondary);
 
-        this.updateSetting('theme', themeName);
-
-        // Apply theme to the system
-        if (window.UserPreferencesManager) {
-            window.UserPreferencesManager.applyTheme(themeName);
+        if (!this.currentSettings.customWallpaper) {
+            document.body.style.background = theme.background;
         }
 
-        this.showNotification('Theme applied successfully', 'success');
+        this.currentSettings.currentTheme = theme.id;
+        this.showNotification(`${theme.name} theme applied!`, 'success');
     }
 
-    static applyGradient(gradientName) {
-        this.currentWindow.querySelectorAll('.gradient-option').forEach(option => {
-            option.classList.remove('active');
-        });
-        this.currentWindow.querySelector(`[data-gradient="${gradientName}"]`).classList.add('active');
+    static applyCustomTheme() {
+        const primary = this.windowElement.querySelector('#custom-primary').value;
+        const secondary = this.windowElement.querySelector('#custom-secondary').value;
+        const accent = this.windowElement.querySelector('#custom-accent').value;
 
-        this.updateSetting('wallpaperGradient', gradientName);
-
-        // Apply gradient background
-        const gradients = {
-            'cyber': 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)',
-            'ember': 'linear-gradient(135deg, #1a0a00 0%, #2d1a0a 100%)',
-            'matrix': 'linear-gradient(135deg, #000000 0%, #001100 100%)',
-            'ocean': 'linear-gradient(135deg, #001133 0%, #003366 100%)'
+        const customTheme = {
+            name: 'Custom Theme',
+            id: 'custom',
+            primary: primary,
+            secondary: secondary,
+            accent: accent,
+            background: `linear-gradient(135deg, ${primary} 0%, ${secondary} 100%)`
         };
 
-        if (gradients[gradientName]) {
-            document.body.style.background = gradients[gradientName];
-        }
-
-        this.showNotification('Wallpaper updated', 'success');
+        this.applyTheme(customTheme);
     }
 
-    static async saveSettingsToServer() {
-        if (this.isLoading) return;
+    static switchWallpaperType(type) {
+        // Hide all wallpaper options
+        const options = ['gradient-options', 'pattern-options', 'solid-options'];
+        options.forEach(option => {
+            const element = this.windowElement.querySelector(`#${option}`);
+            if (element) element.style.display = 'none';
+        });
 
-        try {
-            const response = await fetch('/api/user/preferences', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ preferences: this.settings })
+        // Show selected option
+        const selectedOption = this.windowElement.querySelector(`#${type}-options`);
+        if (selectedOption) {
+            selectedOption.style.display = 'block';
+        }
+    }
+
+    static applyWallpaper(type, value) {
+        let backgroundStyle = '';
+
+        switch(type) {
+            case 'gradient':
+                backgroundStyle = value;
+                break;
+            case 'pattern':
+                backgroundStyle = `${value.style}, linear-gradient(135deg, #1a1a2e, #16213e)`;
+                break;
+            case 'solid':
+                backgroundStyle = value;
+                break;
+        }
+
+        document.body.style.background = backgroundStyle;
+        this.currentSettings.wallpaperType = type;
+        this.currentSettings.wallpaperValue = value;
+        this.currentSettings.customWallpaper = true;
+    }
+
+    // Particle System
+    static initializeParticleSystem() {
+        this.particles = [];
+        this.particleContainer = null;
+        this.particleTypes = {
+            dots: '●',
+            stars: '✦',
+            hearts: '♥',
+            emojis: ['😀', '😎', '🚀', '⭐', '🔥', '💎', '🌟', '✨'],
+            code: ['0', '1', 'A', 'B', 'C', 'X', 'Y', 'Z'],
+            bubbles: '○',
+            snow: '❄',
+            fire: '🔥'
+        };
+
+        if (this.currentSettings['enable-particles']) {
+            this.startParticles();
+        }
+    }
+
+    static startParticles() {
+        if (this.particleContainer) return;
+
+        this.particleContainer = document.createElement('div');
+        this.particleContainer.className = 'particle-container';
+        this.particleContainer.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        `;
+
+        document.body.appendChild(this.particleContainer);
+        this.createParticles();
+        this.animateParticles();
+    }
+
+    static stopParticles() {
+        if (this.particleContainer) {
+            this.particleContainer.remove();
+            this.particleContainer = null;
+            this.particles = [];
+        }
+    }
+
+    static createParticles() {
+        const count = this.currentSettings['particle-count'] || 50;
+        const type = this.currentSettings['particle-type'] || 'dots';
+
+        this.particles = [];
+        this.particleContainer.innerHTML = '';
+
+        for (let i = 0; i < count; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+
+            const x = Math.random() * window.innerWidth;
+            const y = Math.random() * window.innerHeight;
+            const size = Math.random() * 8 + 4;
+            const speedX = (Math.random() - 0.5) * 2;
+            const speedY = (Math.random() - 0.5) * 2;
+
+            let content = this.getParticleContent(type);
+
+            particle.style.cssText = `
+                position: absolute;
+                left: ${x}px;
+                top: ${y}px;
+                font-size: ${size}px;
+                color: rgba(255, 255, 255, 0.6);
+                pointer-events: none;
+                user-select: none;
+                animation: float ${3 + Math.random() * 4}s ease-in-out infinite;
+                animation-delay: ${Math.random() * 2}s;
+            `;
+
+            particle.textContent = content;
+
+            this.particles.push({
+                element: particle,
+                x: x,
+                y: y,
+                speedX: speedX,
+                speedY: speedY,
+                size: size
             });
 
-            const data = await response.json();
-
-            if (data.success) {
-                console.log('✅ Settings saved to server');
-            } else {
-                this.showNotification('Failed to save settings', 'error');
-            }
-        } catch (error) {
-            console.error('Failed to save settings:', error);
-            this.showNotification('Failed to save settings: ' + error.message, 'error');
+            this.particleContainer.appendChild(particle);
         }
     }
 
-    static updateSystemInfo() {
-        // Browser info
-        const browserInfo = this.currentWindow.querySelector('#browser-info');
-        browserInfo.textContent = navigator.userAgent.split(' ').slice(-2).join(' ');
-
-        // Screen resolution
-        const screenRes = this.currentWindow.querySelector('#screen-resolution');
-        screenRes.textContent = `${screen.width}×${screen.height}`;
-
-        // Color depth
-        const colorDepth = this.currentWindow.querySelector('#color-depth');
-        colorDepth.textContent = `${screen.colorDepth}-bit`;
-
-        // Memory usage (if available)
-        const memoryUsage = this.currentWindow.querySelector('#memory-usage');
-        if (performance.memory) {
-            const used = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024);
-            const total = Math.round(performance.memory.totalJSHeapSize / 1024 / 1024);
-            memoryUsage.textContent = `${used}MB / ${total}MB`;
-        } else {
-            memoryUsage.textContent = 'Not available';
+    static getParticleContent(type) {
+        switch(type) {
+            case 'emojis':
+                return this.particleTypes.emojis[Math.floor(Math.random() * this.particleTypes.emojis.length)];
+            case 'code':
+                return this.particleTypes.code[Math.floor(Math.random() * this.particleTypes.code.length)];
+            default:
+                return this.particleTypes[type] || this.particleTypes.dots;
         }
     }
 
-    // Data management methods
-    static exportSettings() {
-        const settingsData = {
-            version: '2.0.0',
-            exported: new Date().toISOString(),
-            settings: this.settings
-        };
+    static animateParticles() {
+        if (!this.particleContainer) return;
 
-        const dataStr = JSON.stringify(settingsData, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(dataBlob);
+        this.particles.forEach(particle => {
+            particle.x += particle.speedX;
+            particle.y += particle.speedY;
 
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `emberframe-settings-${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
+            // Wrap around screen
+            if (particle.x > window.innerWidth) particle.x = -20;
+            if (particle.x < -20) particle.x = window.innerWidth;
+            if (particle.y > window.innerHeight) particle.y = -20;
+            if (particle.y < -20) particle.y = window.innerHeight;
 
-        URL.revokeObjectURL(url);
-        this.showNotification('Settings exported successfully', 'success');
+            particle.element.style.left = particle.x + 'px';
+            particle.element.style.top = particle.y + 'px';
+        });
+
+        requestAnimationFrame(() => this.animateParticles());
     }
 
-    static importSettings() {
-        const input = this.currentWindow.querySelector('#settings-import-input');
-        input.click();
+    static updateParticleType(type) {
+        if (!this.particleContainer) return;
+
+        this.particles.forEach(particle => {
+            particle.element.textContent = this.getParticleContent(type);
+        });
     }
 
-    static async handleImportFile(file) {
-        if (!file) return;
+    static updateParticleCount(count) {
+        if (!this.particleContainer) return;
 
-        try {
-            const text = await file.text();
-            const data = JSON.parse(text);
+        const currentCount = this.particles.length;
 
-            if (data.settings) {
-                this.settings = { ...this.settings, ...data.settings };
-                this.populateSettingsUI();
-                await this.saveSettingsToServer();
+        if (count > currentCount) {
+            // Add particles
+            for (let i = currentCount; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
 
-                // Apply all settings
-                Object.keys(data.settings).forEach(key => {
-                    this.applySettingLocally(key, data.settings[key]);
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
+                const size = Math.random() * 8 + 4;
+                const speedX = (Math.random() - 0.5) * 2;
+                const speedY = (Math.random() - 0.5) * 2;
+
+                let content = this.getParticleContent(this.currentSettings['particle-type'] || 'dots');
+
+                particle.style.cssText = `
+                    position: absolute;
+                    left: ${x}px;
+                    top: ${y}px;
+                    font-size: ${size}px;
+                    color: rgba(255, 255, 255, 0.6);
+                    pointer-events: none;
+                    user-select: none;
+                    animation: float ${3 + Math.random() * 4}s ease-in-out infinite;
+                    animation-delay: ${Math.random() * 2}s;
+                `;
+
+                particle.textContent = content;
+
+                this.particles.push({
+                    element: particle,
+                    x: x,
+                    y: y,
+                    speedX: speedX,
+                    speedY: speedY,
+                    size: size
                 });
 
-                this.showNotification('Settings imported successfully', 'success');
-            } else {
-                this.showNotification('Invalid settings file format', 'error');
+                this.particleContainer.appendChild(particle);
             }
-        } catch (error) {
-            this.showNotification('Failed to import settings: ' + error.message, 'error');
+        } else if (count < currentCount) {
+            // Remove particles
+            for (let i = currentCount - 1; i >= count; i--) {
+                this.particles[i].element.remove();
+                this.particles.splice(i, 1);
+            }
         }
     }
 
-    static async resetSettings() {
-        if (!confirm('Reset all settings to default values?\n\nThis will restore EmberFrame to its original configuration.\n\nThis action cannot be undone.')) {
-            return;
-        }
+    static updateActiveTheme(activeCard) {
+        this.windowElement.querySelectorAll('.theme-card').forEach(card => {
+            card.classList.remove('active');
+        });
+        activeCard.classList.add('active');
+    }
 
-        this.showLoading('Resetting settings...');
+    static updateActiveGradient(activePreset) {
+        this.windowElement.querySelectorAll('.gradient-preset').forEach(preset => {
+            preset.classList.remove('active');
+        });
+        activePreset.classList.add('active');
+    }
 
-        try {
-            const response = await fetch('/api/user/preferences/reset', {
-                method: 'POST'
-            });
+    static updateActivePattern(activePattern) {
+        this.windowElement.querySelectorAll('.pattern-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        activePattern.classList.add('active');
+    }
 
-            const data = await response.json();
-
-            if (data.success) {
-                this.settings = {};
-                this.populateSettingsUI();
-
-                // Reset UI to defaults
-                document.body.className = '';
-                document.documentElement.style.cssText = '';
-
-                this.showNotification('Settings reset to defaults', 'success');
-
-                // Suggest refresh
-                setTimeout(() => {
-                    if (confirm('Settings have been reset. Would you like to refresh the page to ensure all changes are applied?')) {
-                        window.location.reload();
+    static loadCurrentSettings() {
+        // Load saved settings and apply to UI
+        Object.keys(this.currentSettings).forEach(key => {
+            const element = this.windowElement.querySelector(`#${key}`);
+            if (element) {
+                if (element.type === 'checkbox') {
+                    element.checked = this.currentSettings[key];
+                } else if (element.type === 'range') {
+                    element.value = this.currentSettings[key];
+                    const valueSpan = this.windowElement.querySelector(`#${key}-value`);
+                    if (valueSpan) {
+                        const unit = key.includes('size') ? 'px' :
+                                   key.includes('transparency') ? '%' : '';
+                        valueSpan.textContent = element.value + unit;
                     }
-                }, 1500);
-            } else {
-                this.showNotification('Failed to reset settings', 'error');
+                } else {
+                    element.value = this.currentSettings[key];
+                }
+
+                // Apply the setting immediately
+                this.applySettingImmediately(key, this.currentSettings[key]);
             }
-        } catch (error) {
-            this.showNotification('Failed to reset settings: ' + error.message, 'error');
-        } finally {
-            this.hideLoading();
+        });
+    }
+
+    static saveAndApplySettings() {
+        this.saveSettings();
+        this.showNotification('Settings saved successfully!', 'success');
+    }
+
+    static resetAllSettings() {
+        if (confirm('Reset all settings to default? This cannot be undone.')) {
+            this.currentSettings = this.getDefaultSettings();
+            this.loadCurrentSettings();
+            this.saveSettings();
+            this.showNotification('Settings reset to defaults', 'info');
         }
     }
 
-    static async clearAllData() {
-        if (!confirm('Clear all user data?\n\nThis will remove:\n• All settings\n• All user files\n• All preferences\n• Session data\n\nThis action cannot be undone and you will be logged out.')) {
-            return;
-        }
+    static getDefaultSettings() {
+        return {
+            'font-family': "'Rajdhani', sans-serif",
+            'font-size': '14',
+            'icon-size': '48',
+            'show-icon-labels': true,
+            'icon-shadows': true,
+            'auto-hide-taskbar': false,
+            'show-clock': true,
+            'window-transparency': '5',
+            'blur-effects': true,
+            'animated-grid': true,
+            'enable-particles': true,
+            'particle-type': 'dots',
+            'particle-count': '50',
+            'mouse-particles': true,
+            'animation-quality': 'high',
+            'glow-effects': true,
+            'reduce-motion': false,
+            'hardware-acceleration': true,
+            currentTheme: 'cyber-blue',
+            wallpaperType: 'gradient',
+            customWallpaper: false
+        };
+    }
 
-        if (!confirm('Are you absolutely sure?\n\nThis will permanently delete all your data.')) {
-            return;
-        }
-
-        this.showLoading('Clearing all data...');
-
+    static loadSettings() {
         try {
-            const response = await fetch('/api/user/clear-all-data', {
-                method: 'POST'
-            });
-
-            if (response.ok) {
-                this.showNotification('All data cleared. Logging out...', 'info');
-                setTimeout(() => {
-                    window.location.href = '/logout';
-                }, 2000);
-            } else {
-                this.showNotification('Failed to clear data', 'error');
-            }
-        } catch (error) {
-            this.showNotification('Failed to clear data: ' + error.message, 'error');
-        } finally {
-            this.hideLoading();
+            const stored = localStorage.getItem('emberframe-settings');
+            return stored ? { ...this.getDefaultSettings(), ...JSON.parse(stored) } : this.getDefaultSettings();
+        } catch {
+            return this.getDefaultSettings();
         }
     }
 
-    // Utility methods
-    static showLoading(message) {
-        this.isLoading = true;
-        const overlay = this.currentWindow.querySelector('#settings-loading');
-        const text = overlay.querySelector('.loading-text');
-        text.textContent = message;
-        overlay.classList.add('show');
-    }
+    static saveSettings() {
+        try {
+            localStorage.setItem('emberframe-settings', JSON.stringify(this.currentSettings));
 
-    static hideLoading() {
-        this.isLoading = false;
-        const overlay = this.currentWindow.querySelector('#settings-loading');
-        overlay.classList.remove('show');
+            // Also try to save to server if available
+            fetch('/api/user/preferences', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ settings: this.currentSettings })
+            }).catch(() => {
+                // Server save failed, but localStorage worked
+            });
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+        }
     }
 
     static showNotification(message, type = 'info') {
         if (window.Notification) {
             window.Notification[type](message);
         } else {
-            console.log(`[${type.toUpperCase()}] ${message}`);
+            alert(message);
         }
-    }
-
-    static camelCase(str) {
-        return str.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
-    }
-
-    static kebabCase(str) {
-        return str.replace(/([A-Z])/g, '-$1').toLowerCase().replace(/^-/, '');
     }
 
     static onClose(windowElement) {
-        // Save any pending changes before closing
-        if (this.saveTimeout) {
-            clearTimeout(this.saveTimeout);
-            this.saveSettingsToServer();
-        }
-
-        this.currentWindow = null;
+        this.stopParticles();
         return true;
     }
 }
+
+// Add particle animation CSS
+const particleStyles = document.createElement('style');
+particleStyles.textContent = `
+    @keyframes float {
+        0%, 100% { 
+            transform: translateY(0px) rotate(0deg); 
+            opacity: 0.6; 
+        }
+        50% { 
+            transform: translateY(-20px) rotate(180deg); 
+            opacity: 1; 
+        }
+    }
+
+    .reduce-motion * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .hide-icon-labels .icon-label {
+        display: none !important;
+    }
+
+    .no-icon-shadows .icon-image {
+        box-shadow: none !important;
+    }
+
+    .no-blur .window,
+    .no-blur .start-menu,
+    .no-blur .desktop-icon,
+    .no-blur .taskbar {
+        backdrop-filter: none !important;
+    }
+
+    .auto-hide.taskbar {
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+    }
+
+    .auto-hide.taskbar:hover {
+        transform: translateY(0);
+    }
+`;
+document.head.appendChild(particleStyles);
 
 window.Settings = Settings;

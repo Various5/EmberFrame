@@ -9,601 +9,461 @@
  * @author EmberFrame Team
  * @enabled true
  */
+
 class TextEditor {
     static createWindow() {
         return {
-            title: 'Text Editor - New Document',
+            title: 'Text Editor v2.0',
             width: '900px',
-            height: '650px',
-            autoSize: false,
-            content: `
-                <div class="text-editor">
-                    <div class="text-editor-menubar">
-                        <div class="menu-group">
-                            <button class="menu-button" onclick="TextEditor.showFileMenu(event)">
-                                File <span class="menu-arrow">▼</span>
-                            </button>
-                            <div class="dropdown-menu file-menu">
-                                <div class="menu-item" onclick="TextEditor.newFile()">
-                                    <span class="menu-shortcut">Ctrl+N</span>New
-                                </div>
-                                <div class="menu-item" onclick="TextEditor.openFile()">
-                                    <span class="menu-shortcut">Ctrl+O</span>Open...
-                                </div>
-                                <div class="menu-separator"></div>
-                                <div class="menu-item" onclick="TextEditor.saveFile()">
-                                    <span class="menu-shortcut">Ctrl+S</span>Save
-                                </div>
-                                <div class="menu-item" onclick="TextEditor.saveAsFile()">
-                                    <span class="menu-shortcut">Ctrl+Shift+S</span>Save As...
-                                </div>
-                                <div class="menu-separator"></div>
-                                <div class="menu-item" onclick="TextEditor.exportFile()">Export...</div>
-                            </div>
-                        </div>
-                        <div class="menu-group">
-                            <button class="menu-button" onclick="TextEditor.showEditMenu(event)">
-                                Edit <span class="menu-arrow">▼</span>
-                            </button>
-                            <div class="dropdown-menu edit-menu">
-                                <div class="menu-item" onclick="TextEditor.undo()">
-                                    <span class="menu-shortcut">Ctrl+Z</span>Undo
-                                </div>
-                                <div class="menu-item" onclick="TextEditor.redo()">
-                                    <span class="menu-shortcut">Ctrl+Y</span>Redo
-                                </div>
-                                <div class="menu-separator"></div>
-                                <div class="menu-item" onclick="TextEditor.selectAll()">
-                                    <span class="menu-shortcut">Ctrl+A</span>Select All
-                                </div>
-                                <div class="menu-item" onclick="TextEditor.findReplace()">
-                                    <span class="menu-shortcut">Ctrl+F</span>Find & Replace
-                                </div>
-                            </div>
-                        </div>
-                        <div class="menu-group">
-                            <button class="menu-button" onclick="TextEditor.showFormatMenu(event)">
-                                Format <span class="menu-arrow">▼</span>
-                            </button>
-                            <div class="dropdown-menu format-menu">
-                                <div class="menu-item" onclick="TextEditor.toggleWordWrap()">
-                                    <span class="menu-check" id="wordwrap-check">✓</span>Word Wrap
-                                </div>
-                                <div class="menu-separator"></div>
-                                <div class="menu-item" onclick="TextEditor.increaseFontSize()">Increase Font Size</div>
-                                <div class="menu-item" onclick="TextEditor.decreaseFontSize()">Decrease Font Size</div>
-                                <div class="menu-item" onclick="TextEditor.resetFontSize()">Reset Font Size</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="text-editor-toolbar">
-                        <div class="toolbar-group">
-                            <button onclick="TextEditor.newFile()" title="New (Ctrl+N)">📄</button>
-                            <button onclick="TextEditor.openFile()" title="Open (Ctrl+O)">📁</button>
-                            <button onclick="TextEditor.saveFile()" title="Save (Ctrl+S)">💾</button>
-                        </div>
-                        <div class="toolbar-group">
-                            <button onclick="TextEditor.undo()" title="Undo (Ctrl+Z)">↶</button>
-                            <button onclick="TextEditor.redo()" title="Redo (Ctrl+Y)">↷</button>
-                        </div>
-                        <div class="toolbar-group">
-                            <button onclick="TextEditor.toggleBold()" title="Bold" class="format-btn" data-format="bold"><b>B</b></button>
-                            <button onclick="TextEditor.toggleItalic()" title="Italic" class="format-btn" data-format="italic"><i>I</i></button>
-                            <button onclick="TextEditor.toggleUnderline()" title="Underline" class="format-btn" data-format="underline"><u>U</u></button>
-                        </div>
-                        <div class="toolbar-group">
-                            <select onchange="TextEditor.changeFontFamily(this.value)" title="Font Family">
-                                <option value="monospace">Monospace</option>
-                                <option value="'Segoe UI', sans-serif" selected>Segoe UI</option>
-                                <option value="Arial, sans-serif">Arial</option>
-                                <option value="'Times New Roman', serif">Times</option>
-                                <option value="'Courier New', monospace">Courier</option>
-                            </select>
-                            <select onchange="TextEditor.changeFontSize(this.value)" title="Font Size">
-                                <option value="10">10px</option>
-                                <option value="12">12px</option>
-                                <option value="14" selected>14px</option>
-                                <option value="16">16px</option>
-                                <option value="18">18px</option>
-                                <option value="20">20px</option>
-                                <option value="24">24px</option>
-                            </select>
-                        </div>
-                        <div class="toolbar-group">
-                            <select onchange="TextEditor.changeTheme(this.value)" title="Editor Theme">
-                                <option value="light">Light</option>
-                                <option value="dark">Dark</option>
-                                <option value="solarized">Solarized</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="text-editor-content">
-                        <div class="editor-sidebar">
-                            <div class="line-numbers" id="line-numbers"></div>
-                        </div>
-                        <textarea id="text-editor-textarea" placeholder="Start typing your document here..." spellcheck="true"></textarea>
-                    </div>
-                    
-                    <div class="text-editor-status">
-                        <span id="editor-status">Ready</span>
-                        <span id="file-path">Untitled</span>
-                        <span id="cursor-position">Ln 1, Col 1</span>
-                        <span id="word-count">0 words, 0 characters</span>
-                        <span id="encoding">UTF-8</span>
-                    </div>
-                </div>
-                
-                <!-- Find & Replace Dialog -->
-                <div class="find-replace-dialog" id="find-replace-dialog">
-                    <div class="dialog-header">
-                        <h3>Find & Replace</h3>
-                        <button onclick="TextEditor.closeFindReplace()">✕</button>
-                    </div>
-                    <div class="dialog-content">
-                        <div class="input-group">
-                            <label>Find:</label>
-                            <input type="text" id="find-input" placeholder="Enter text to find...">
-                            <button onclick="TextEditor.findNext()">Find Next</button>
-                        </div>
-                        <div class="input-group">
-                            <label>Replace:</label>
-                            <input type="text" id="replace-input" placeholder="Enter replacement text...">
-                            <button onclick="TextEditor.replaceNext()">Replace</button>
-                            <button onclick="TextEditor.replaceAll()">Replace All</button>
-                        </div>
-                        <div class="dialog-options">
-                            <label><input type="checkbox" id="match-case"> Match case</label>
-                            <label><input type="checkbox" id="whole-word"> Whole word</label>
-                            <label><input type="checkbox" id="regex-search"> Use regex</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <style>
-                    .text-editor {
-                        height: 100%;
-                        display: flex;
-                        flex-direction: column;
-                        background: #fff;
-                    }
-                    
-                    .text-editor-menubar {
-                        display: flex;
-                        background: #f8f9fa;
-                        border-bottom: 1px solid #dee2e6;
-                        padding: 4px 8px;
-                    }
-                    
-                    .menu-group {
-                        position: relative;
-                    }
-                    
-                    .menu-button {
-                        background: none;
-                        border: none;
-                        padding: 8px 12px;
-                        cursor: pointer;
-                        border-radius: 4px;
-                        font-size: 13px;
-                        display: flex;
-                        align-items: center;
-                        gap: 4px;
-                    }
-                    
-                    .menu-button:hover {
-                        background: #e9ecef;
-                    }
-                    
-                    .menu-arrow {
-                        font-size: 10px;
-                        opacity: 0.7;
-                    }
-                    
-                    .dropdown-menu {
-                        position: absolute;
-                        top: 100%;
-                        left: 0;
-                        background: white;
-                        border: 1px solid #dee2e6;
-                        border-radius: 4px;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                        display: none;
-                        min-width: 180px;
-                        z-index: 1000;
-                    }
-                    
-                    .dropdown-menu.active {
-                        display: block;
-                    }
-                    
-                    .menu-item {
-                        padding: 8px 16px;
-                        cursor: pointer;
-                        font-size: 13px;
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                    }
-                    
-                    .menu-item:hover {
-                        background: #f8f9fa;
-                    }
-                    
-                    .menu-shortcut {
-                        font-size: 11px;
-                        color: #6c757d;
-                        margin-left: 20px;
-                    }
-                    
-                    .menu-check {
-                        margin-right: 8px;
-                        width: 16px;
-                    }
-                    
-                    .menu-separator {
-                        height: 1px;
-                        background: #dee2e6;
-                        margin: 4px 0;
-                    }
-                    
-                    .text-editor-toolbar {
-                        display: flex;
-                        gap: 8px;
-                        padding: 8px 12px;
-                        background: #f8f9fa;
-                        border-bottom: 1px solid #dee2e6;
-                        flex-wrap: wrap;
-                        align-items: center;
-                    }
-                    
-                    .toolbar-group {
-                        display: flex;
-                        gap: 4px;
-                        align-items: center;
-                        padding-right: 8px;
-                        border-right: 1px solid #dee2e6;
-                    }
-                    
-                    .toolbar-group:last-child {
-                        border-right: none;
-                    }
-                    
-                    .text-editor-toolbar button {
-                        padding: 6px 8px;
-                        border: 1px solid transparent;
-                        background: white;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        transition: all 0.2s;
-                        font-size: 12px;
-                        min-width: 28px;
-                        height: 28px;
-                    }
-                    
-                    .text-editor-toolbar button:hover {
-                        background: #e9ecef;
-                        border-color: #dee2e6;
-                    }
-                    
-                    .text-editor-toolbar button.active {
-                        background: #007bff;
-                        color: white;
-                        border-color: #007bff;
-                    }
-                    
-                    .text-editor-toolbar select {
-                        padding: 4px 6px;
-                        border: 1px solid #dee2e6;
-                        border-radius: 4px;
-                        font-size: 12px;
-                        background: white;
-                    }
-                    
-                    .text-editor-content {
-                        flex: 1;
-                        display: flex;
-                        position: relative;
-                        overflow: hidden;
-                    }
-                    
-                    .editor-sidebar {
-                        width: 50px;
-                        background: #f8f9fa;
-                        border-right: 1px solid #dee2e6;
-                        overflow: hidden;
-                    }
-                    
-                    .line-numbers {
-                        padding: 20px 8px;
-                        font-family: 'Courier New', monospace;
-                        font-size: 12px;
-                        line-height: 1.5;
-                        color: #6c757d;
-                        text-align: right;
-                        user-select: none;
-                        white-space: pre;
-                    }
-                    
-                    #text-editor-textarea {
-                        flex: 1;
-                        border: none;
-                        outline: none;
-                        padding: 20px;
-                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                        font-size: 14px;
-                        line-height: 1.5;
-                        resize: none;
-                        background: white;
-                        color: #333;
-                        white-space: pre-wrap;
-                        word-wrap: break-word;
-                    }
-                    
-                    .text-editor-status {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        padding: 6px 12px;
-                        background: #f8f9fa;
-                        border-top: 1px solid #dee2e6;
-                        font-size: 12px;
-                        color: #6c757d;
-                        gap: 20px;
-                    }
-                    
-                    .find-replace-dialog {
-                        position: absolute;
-                        top: 80px;
-                        right: 20px;
-                        width: 350px;
-                        background: white;
-                        border: 1px solid #dee2e6;
-                        border-radius: 8px;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                        display: none;
-                        z-index: 1000;
-                    }
-                    
-                    .find-replace-dialog.active {
-                        display: block;
-                    }
-                    
-                    .dialog-header {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        padding: 12px 16px;
-                        background: #f8f9fa;
-                        border-bottom: 1px solid #dee2e6;
-                        border-radius: 8px 8px 0 0;
-                    }
-                    
-                    .dialog-header h3 {
-                        margin: 0;
-                        font-size: 14px;
-                        font-weight: 600;
-                    }
-                    
-                    .dialog-header button {
-                        background: none;
-                        border: none;
-                        font-size: 16px;
-                        cursor: pointer;
-                        padding: 4px;
-                        border-radius: 4px;
-                    }
-                    
-                    .dialog-header button:hover {
-                        background: #e9ecef;
-                    }
-                    
-                    .dialog-content {
-                        padding: 16px;
-                    }
-                    
-                    .input-group {
-                        display: flex;
-                        align-items: center;
-                        gap: 8px;
-                        margin-bottom: 12px;
-                    }
-                    
-                    .input-group label {
-                        min-width: 60px;
-                        font-size: 13px;
-                        font-weight: 500;
-                    }
-                    
-                    .input-group input[type="text"] {
-                        flex: 1;
-                        padding: 6px 8px;
-                        border: 1px solid #dee2e6;
-                        border-radius: 4px;
-                        font-size: 13px;
-                    }
-                    
-                    .input-group button {
-                        padding: 6px 12px;
-                        border: 1px solid #dee2e6;
-                        background: white;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        font-size: 12px;
-                    }
-                    
-                    .input-group button:hover {
-                        background: #f8f9fa;
-                    }
-                    
-                    .dialog-options {
-                        display: flex;
-                        gap: 16px;
-                        margin-top: 12px;
-                        font-size: 12px;
-                    }
-                    
-                    .dialog-options label {
-                        display: flex;
-                        align-items: center;
-                        gap: 4px;
-                        cursor: pointer;
-                    }
-                    
-                    /* Themes */
-                    .text-editor.theme-dark {
-                        background: #1e1e1e;
-                        color: #d4d4d4;
-                    }
-                    
-                    .text-editor.theme-dark #text-editor-textarea {
-                        background: #1e1e1e;
-                        color: #d4d4d4;
-                    }
-                    
-                    .text-editor.theme-dark .editor-sidebar {
-                        background: #252526;
-                        border-color: #3e3e42;
-                    }
-                    
-                    .text-editor.theme-dark .line-numbers {
-                        color: #858585;
-                    }
-                    
-                    .text-editor.theme-dark .text-editor-menubar,
-                    .text-editor.theme-dark .text-editor-toolbar,
-                    .text-editor.theme-dark .text-editor-status {
-                        background: #2d2d30;
-                        border-color: #3e3e42;
-                        color: #cccccc;
-                    }
-                    
-                    .text-editor.theme-solarized {
-                        background: #fdf6e3;
-                        color: #657b83;
-                    }
-                    
-                    .text-editor.theme-solarized #text-editor-textarea {
-                        background: #fdf6e3;
-                        color: #657b83;
-                    }
-                </style>
-            `,
+            height: '700px',
+            content: TextEditor.getHTML(),
             onInit: (windowElement) => {
                 TextEditor.init(windowElement);
             }
         };
     }
 
-static init(windowElement) {
-    // Add comprehensive null checking
-    if (!windowElement) {
-        console.error('TextEditor: windowElement is null in init');
-        return;
+    static getHTML() {
+        return `
+            <div class="text-editor-container">
+                <div class="editor-toolbar">
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" data-action="new" title="New File (Ctrl+N)">
+                            <i class="fas fa-file"></i>
+                        </button>
+                        <button class="toolbar-btn" data-action="open" title="Open File (Ctrl+O)">
+                            <i class="fas fa-folder-open"></i>
+                        </button>
+                        <button class="toolbar-btn" data-action="save" title="Save File (Ctrl+S)">
+                            <i class="fas fa-save"></i>
+                        </button>
+                        <button class="toolbar-btn" data-action="save-as" title="Save As">
+                            <i class="fas fa-file-export"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="toolbar-separator"></div>
+                    
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" data-action="undo" title="Undo (Ctrl+Z)">
+                            <i class="fas fa-undo"></i>
+                        </button>
+                        <button class="toolbar-btn" data-action="redo" title="Redo (Ctrl+Y)">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="toolbar-separator"></div>
+                    
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" data-action="bold" title="Bold (Ctrl+B)">
+                            <i class="fas fa-bold"></i>
+                        </button>
+                        <button class="toolbar-btn" data-action="italic" title="Italic (Ctrl+I)">
+                            <i class="fas fa-italic"></i>
+                        </button>
+                        <button class="toolbar-btn" data-action="underline" title="Underline (Ctrl+U)">
+                            <i class="fas fa-underline"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="toolbar-separator"></div>
+                    
+                    <div class="toolbar-group">
+                        <select class="font-family-select">
+                            <option value="monospace">Monospace</option>
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="Georgia, serif">Georgia</option>
+                            <option value="'Times New Roman', serif">Times New Roman</option>
+                            <option value="'Courier New', monospace">Courier New</option>
+                        </select>
+                        
+                        <select class="font-size-select">
+                            <option value="12px">12px</option>
+                            <option value="14px" selected>14px</option>
+                            <option value="16px">16px</option>
+                            <option value="18px">18px</option>
+                            <option value="20px">20px</option>
+                            <option value="24px">24px</option>
+                        </select>
+                    </div>
+                    
+                    <div class="toolbar-separator"></div>
+                    
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" data-action="find" title="Find & Replace (Ctrl+F)">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <button class="toolbar-btn" data-action="word-wrap" title="Toggle Word Wrap">
+                            <i class="fas fa-align-justify"></i>
+                        </button>
+                        <button class="toolbar-btn" data-action="fullscreen" title="Toggle Fullscreen">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="editor-status-bar">
+                    <span class="file-info">New Document</span>
+                    <span class="cursor-position">Line 1, Column 1</span>
+                    <span class="word-count">Words: 0 | Characters: 0</span>
+                </div>
+                
+                <div class="find-replace-panel" style="display: none;">
+                    <div class="find-replace-content">
+                        <div class="find-group">
+                            <input type="text" class="find-input" placeholder="Find...">
+                            <button class="find-btn" data-action="find-next">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <button class="find-btn" data-action="find-prev">
+                                <i class="fas fa-chevron-up"></i>
+                            </button>
+                        </div>
+                        <div class="replace-group">
+                            <input type="text" class="replace-input" placeholder="Replace...">
+                            <button class="replace-btn" data-action="replace">Replace</button>
+                            <button class="replace-btn" data-action="replace-all">Replace All</button>
+                        </div>
+                        <button class="close-find" data-action="close-find">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="editor-main">
+                    <div class="line-numbers"></div>
+                    <textarea class="editor-textarea" spellcheck="true"></textarea>
+                </div>
+            </div>
+            
+            <input type="file" class="file-input" accept=".txt,.js,.html,.css,.json,.md" style="display: none;">
+            
+            <style>
+                .text-editor-container {
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
+                    background: var(--bg-primary, #1a1a1a);
+                    color: var(--text-primary, #ffffff);
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                }
+                
+                .editor-toolbar {
+                    display: flex;
+                    align-items: center;
+                    padding: 8px;
+                    background: var(--bg-secondary, #2d2d2d);
+                    border-bottom: 1px solid var(--border-color, #444);
+                    flex-wrap: wrap;
+                    gap: 4px;
+                }
+                
+                .toolbar-group {
+                    display: flex;
+                    align-items: center;
+                    gap: 2px;
+                }
+                
+                .toolbar-btn {
+                    background: transparent;
+                    border: 1px solid transparent;
+                    color: var(--text-primary, #ffffff);
+                    padding: 6px 8px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    font-size: 14px;
+                }
+                
+                .toolbar-btn:hover {
+                    background: var(--accent-color, #ff6b35);
+                    border-color: var(--accent-color, #ff6b35);
+                }
+                
+                .toolbar-btn.active {
+                    background: var(--accent-color, #ff6b35);
+                    border-color: var(--accent-color, #ff6b35);
+                }
+                
+                .toolbar-separator {
+                    width: 1px;
+                    height: 24px;
+                    background: var(--border-color, #444);
+                    margin: 0 8px;
+                }
+                
+                .font-family-select,
+                .font-size-select {
+                    background: var(--bg-primary, #1a1a1a);
+                    color: var(--text-primary, #ffffff);
+                    border: 1px solid var(--border-color, #444);
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    margin: 0 2px;
+                }
+                
+                .editor-status-bar {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 4px 12px;
+                    background: var(--bg-secondary, #2d2d2d);
+                    border-bottom: 1px solid var(--border-color, #444);
+                    font-size: 12px;
+                    color: var(--text-secondary, #cccccc);
+                }
+                
+                .find-replace-panel {
+                    background: var(--bg-secondary, #2d2d2d);
+                    border-bottom: 1px solid var(--border-color, #444);
+                    padding: 8px;
+                }
+                
+                .find-replace-content {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    position: relative;
+                }
+                
+                .find-group,
+                .replace-group {
+                    display: flex;
+                    align-items: center;
+                    gap: 4px;
+                }
+                
+                .find-input,
+                .replace-input {
+                    background: var(--bg-primary, #1a1a1a);
+                    color: var(--text-primary, #ffffff);
+                    border: 1px solid var(--border-color, #444);
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 12px;
+                    width: 150px;
+                }
+                
+                .find-btn,
+                .replace-btn {
+                    background: var(--accent-color, #ff6b35);
+                    color: white;
+                    border: none;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 12px;
+                }
+                
+                .close-find {
+                    position: absolute;
+                    right: 0;
+                    background: transparent;
+                    border: none;
+                    color: var(--text-primary, #ffffff);
+                    cursor: pointer;
+                    padding: 4px;
+                }
+                
+                .editor-main {
+                    display: flex;
+                    flex: 1;
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                .line-numbers {
+                    background: var(--bg-secondary, #2d2d2d);
+                    color: var(--text-secondary, #666);
+                    padding: 12px 8px;
+                    font-family: 'Courier New', monospace;
+                    font-size: 14px;
+                    line-height: 1.4;
+                    text-align: right;
+                    user-select: none;
+                    border-right: 1px solid var(--border-color, #444);
+                    min-width: 40px;
+                    white-space: pre;
+                }
+                
+                .editor-textarea {
+                    flex: 1;
+                    background: var(--bg-primary, #1a1a1a);
+                    color: var(--text-primary, #ffffff);
+                    border: none;
+                    outline: none;
+                    padding: 12px;
+                    font-family: 'Courier New', monospace;
+                    font-size: 14px;
+                    line-height: 1.4;
+                    resize: none;
+                    white-space: pre;
+                    overflow-wrap: normal;
+                    overflow-x: auto;
+                    tab-size: 4;
+                }
+                
+                .editor-textarea.word-wrap {
+                    white-space: pre-wrap;
+                    overflow-wrap: break-word;
+                    overflow-x: hidden;
+                }
+                
+                .highlight {
+                    background-color: #ffff0080;
+                    color: #000;
+                }
+                
+                @media (max-width: 768px) {
+                    .toolbar-group {
+                        flex-wrap: wrap;
+                    }
+                    
+                    .font-family-select,
+                    .font-size-select {
+                        width: 80px;
+                    }
+                    
+                    .find-replace-content {
+                        flex-direction: column;
+                        align-items: stretch;
+                    }
+                    
+                    .find-input,
+                    .replace-input {
+                        width: 100%;
+                    }
+                }
+            </style>
+        `;
     }
 
-    this.currentWindow = windowElement;
-    console.log('TextEditor: currentWindow set to:', this.currentWindow);
+    static init(windowElement) {
+        const editor = new TextEditorInstance(windowElement);
+        editor.initialize();
+    }
+}
 
-    // Initialize other properties
-    this.currentFile = null;
-    this.currentFilePath = null;
-    this.isModified = false;
-    this.undoStack = [];
-    this.redoStack = [];
+class TextEditorInstance {
+    constructor(windowElement) {
+        this.windowElement = windowElement;
+        this.textarea = null;
+        this.lineNumbers = null;
+        this.currentFile = null;
+        this.isModified = false;
+        this.undoStack = [];
+        this.redoStack = [];
+        this.maxUndoSteps = 50;
+        this.lastSavedContent = '';
+        this.findMatches = [];
+        this.currentMatchIndex = -1;
+        this.isFullscreen = false;
 
-    // Find elements
-    this.textarea = windowElement.querySelector('#text-editor-textarea');
-    this.statusElement = windowElement.querySelector('#editor-status');
-    this.filePathElement = windowElement.querySelector('#file-path');
-    this.wordCountElement = windowElement.querySelector('#word-count');
-    this.cursorPositionElement = windowElement.querySelector('#cursor-position');
-    this.lineNumbers = windowElement.querySelector('#line-numbers');
-
-    if (!this.textarea) {
-        console.error('TextEditor: Required elements not found');
-        return;
+        // Bind methods
+        this.handleInput = this.handleInput.bind(this);
+        this.handleScroll = this.handleScroll.bind(this);
+        this.handleKeyDown = this.handleKeyDown.bind(this);
+        this.updateCursorPosition = this.updateCursorPosition.bind(this);
     }
 
-    // Setup with delay to ensure DOM is ready
-    setTimeout(() => {
+    initialize() {
+        this.textarea = this.windowElement.querySelector('.editor-textarea');
+        this.lineNumbers = this.windowElement.querySelector('.line-numbers');
+        this.fileInput = this.windowElement.querySelector('.file-input');
+
         this.setupEventListeners();
         this.updateLineNumbers();
         this.updateStatus();
-        this.updateWordCount();
-        this.updateCursorPosition();
-        this.textarea.focus();
-    }, 50);
-}
+        this.addToUndoStack();
 
-static setupEventListeners() {
-    // Multiple safety checks
-    if (!this.currentWindow) {
-        console.error('TextEditor: currentWindow is null in setupEventListeners');
-        return;
+        // Focus the textarea
+        setTimeout(() => this.textarea.focus(), 100);
     }
 
-    if (!this.textarea) {
-        console.error('TextEditor: textarea is null in setupEventListeners');
-        return;
-    }
+    setupEventListeners() {
+        // Textarea events
+        this.textarea.addEventListener('input', this.handleInput);
+        this.textarea.addEventListener('scroll', this.handleScroll);
+        this.textarea.addEventListener('keydown', this.handleKeyDown);
+        this.textarea.addEventListener('click', this.updateCursorPosition);
+        this.textarea.addEventListener('keyup', this.updateCursorPosition);
 
-    console.log('TextEditor: Setting up event listeners');
-
-        this.textarea = this.currentWindow.querySelector('#text-editor-textarea');
-        if (!this.textarea) {
-            console.error('TextEditor: textarea not found');
-            return;
-        }
-
-        this.textarea.addEventListener('input', () => {
-            this.handleTextChange();
-        });
-        this.textarea.addEventListener('input', () => {
-            this.handleTextChange();
-        });
-
-        this.textarea.addEventListener('scroll', () => {
-            this.syncLineNumbers();
-        });
-
-        this.textarea.addEventListener('keyup', () => {
-            this.updateCursorPosition();
-        });
-
-        this.textarea.addEventListener('click', () => {
-            this.updateCursorPosition();
-        });
-
-        // Keyboard shortcuts
-        this.textarea.addEventListener('keydown', (e) => {
-            this.handleKeyboardShortcuts(e);
-        });
-
-        // Close dropdown menus when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.menu-group') && this.currentWindow) {
-                this.closeAllMenus();
+        // Toolbar events
+        this.windowElement.addEventListener('click', (e) => {
+            const action = e.target.closest('[data-action]')?.dataset.action;
+            if (action) {
+                this.handleToolbarAction(action);
             }
         });
-            setTimeout(() => {
-            this.setupEventListeners();
+
+        // Font controls
+        const fontFamilySelect = this.windowElement.querySelector('.font-family-select');
+        const fontSizeSelect = this.windowElement.querySelector('.font-size-select');
+
+        fontFamilySelect.addEventListener('change', (e) => {
+            this.textarea.style.fontFamily = e.target.value;
+        });
+
+        fontSizeSelect.addEventListener('change', (e) => {
+            this.textarea.style.fontSize = e.target.value;
+            this.lineNumbers.style.fontSize = e.target.value;
             this.updateLineNumbers();
-            this.updateStatus();
-            this.updateWordCount();
-            this.updateCursorPosition();
+        });
 
-            // Focus textarea
-            if (this.textarea) {
-                this.textarea.focus();
+        // File input
+        this.fileInput.addEventListener('change', (e) => {
+            this.openFile(e.target.files[0]);
+        });
+
+        // Find/Replace events
+        const findInput = this.windowElement.querySelector('.find-input');
+        const replaceInput = this.windowElement.querySelector('.replace-input');
+
+        findInput.addEventListener('input', () => this.performFind());
+        findInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.shiftKey ? this.findPrevious() : this.findNext();
             }
-        }, 100);
-        }
+        });
 
-    static handleKeyboardShortcuts(e) {
+        replaceInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                this.replaceNext();
+            }
+        });
+    }
+
+    handleInput() {
+        this.isModified = true;
+        this.updateLineNumbers();
+        this.updateStatus();
+        this.updateWindowTitle();
+
+        // Add to undo stack after a delay
+        clearTimeout(this.undoTimeout);
+        this.undoTimeout = setTimeout(() => {
+            this.addToUndoStack();
+        }, 1000);
+    }
+
+    handleScroll() {
+        this.lineNumbers.scrollTop = this.textarea.scrollTop;
+    }
+
+    handleKeyDown(e) {
+        // Handle keyboard shortcuts
         if (e.ctrlKey || e.metaKey) {
-            switch(e.key) {
+            switch (e.key.toLowerCase()) {
+                case 'n':
+                    e.preventDefault();
+                    this.newFile();
+                    break;
+                case 'o':
+                    e.preventDefault();
+                    this.openFileDialog();
+                    break;
                 case 's':
                     e.preventDefault();
                     if (e.shiftKey) {
@@ -612,13 +472,9 @@ static setupEventListeners() {
                         this.saveFile();
                     }
                     break;
-                case 'n':
+                case 'f':
                     e.preventDefault();
-                    this.newFile();
-                    break;
-                case 'o':
-                    e.preventDefault();
-                    this.openFile();
+                    this.toggleFindReplace();
                     break;
                 case 'z':
                     e.preventDefault();
@@ -632,212 +488,152 @@ static setupEventListeners() {
                     e.preventDefault();
                     this.redo();
                     break;
-                case 'f':
+                case 'b':
                     e.preventDefault();
-                    this.findReplace();
+                    this.formatText('bold');
                     break;
-                case 'a':
+                case 'i':
                     e.preventDefault();
-                    this.selectAll();
+                    this.formatText('italic');
+                    break;
+                case 'u':
+                    e.preventDefault();
+                    this.formatText('underline');
                     break;
             }
-        } else if (e.key === 'F3') {
+        }
+
+        // Handle Tab key
+        if (e.key === 'Tab') {
             e.preventDefault();
-            this.findNext();
-        } else if (e.key === 'Escape') {
-            this.closeFindReplace();
+            this.insertText('    '); // Insert 4 spaces
         }
     }
 
-    static handleTextChange() {
-        if (!this.isModified) {
-            this.isModified = true;
-            this.updateTitle();
+    handleToolbarAction(action) {
+        switch (action) {
+            case 'new':
+                this.newFile();
+                break;
+            case 'open':
+                this.openFileDialog();
+                break;
+            case 'save':
+                this.saveFile();
+                break;
+            case 'save-as':
+                this.saveAsFile();
+                break;
+            case 'undo':
+                this.undo();
+                break;
+            case 'redo':
+                this.redo();
+                break;
+            case 'bold':
+            case 'italic':
+            case 'underline':
+                this.formatText(action);
+                break;
+            case 'find':
+                this.toggleFindReplace();
+                break;
+            case 'word-wrap':
+                this.toggleWordWrap();
+                break;
+            case 'fullscreen':
+                this.toggleFullscreen();
+                break;
+            case 'find-next':
+                this.findNext();
+                break;
+            case 'find-prev':
+                this.findPrevious();
+                break;
+            case 'replace':
+                this.replaceNext();
+                break;
+            case 'replace-all':
+                this.replaceAll();
+                break;
+            case 'close-find':
+                this.closeFindReplace();
+                break;
         }
-
-        this.updateWordCount();
-        this.updateLineNumbers();
-        this.updateStatus('Modified');
-        this.addToUndoStack();
     }
 
-    static addToUndoStack() {
-        // Throttle undo stack updates
-        clearTimeout(this.undoTimeout);
-        this.undoTimeout = setTimeout(() => {
-            if (this.undoStack.length > 100) {
-                this.undoStack.shift();
-            }
-            this.undoStack.push(this.textarea.value);
-            this.redoStack = [];
-        }, 500);
-    }
-
-    static updateTitle() {
-        const title = this.currentWindow.querySelector('.window-title');
-        const fileName = this.currentFile || 'New Document';
-        const modified = this.isModified ? ' •' : '';
-        title.textContent = `Text Editor - ${fileName}${modified}`;
-    }
-
-    static updateStatus(status = 'Ready') {
-        this.statusElement.textContent = status;
-    }
-
-    static updateWordCount() {
-        const text = this.textarea.value;
-        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-        const chars = text.length;
-        const lines = text.split('\n').length;
-        this.wordCountElement.textContent = `${lines} lines, ${words} words, ${chars} characters`;
-    }
-
-    static updateCursorPosition() {
-        const textarea = this.textarea;
-        const text = textarea.value;
-        const cursorPos = textarea.selectionStart;
-
-        const lines = text.substring(0, cursorPos).split('\n');
-        const line = lines.length;
-        const col = lines[lines.length - 1].length + 1;
-
-        this.cursorPositionElement.textContent = `Ln ${line}, Col ${col}`;
-    }
-
-    static updateLineNumbers() {
-        const lines = this.textarea.value.split('\n').length;
-        const lineNumbersText = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
-        this.lineNumbers.textContent = lineNumbersText;
-    }
-
-    static syncLineNumbers() {
-        this.lineNumbers.scrollTop = this.textarea.scrollTop;
-    }
-
-    // File operations
-    static newFile() {
-        if (this.isModified) {
-            if (!confirm('You have unsaved changes. Create a new file anyway?')) {
-                return;
-            }
+    newFile() {
+        if (this.isModified && !confirm('You have unsaved changes. Are you sure you want to create a new file?')) {
+            return;
         }
 
         this.textarea.value = '';
         this.currentFile = null;
-        this.currentFilePath = null;
         this.isModified = false;
+        this.lastSavedContent = '';
         this.undoStack = [];
         this.redoStack = [];
-
-        this.updateTitle();
-        this.updateStatus('New file created');
-        this.updateWordCount();
         this.updateLineNumbers();
-        this.filePathElement.textContent = 'Untitled';
-        this.textarea.focus();
+        this.updateStatus();
+        this.updateWindowTitle();
+        this.addToUndoStack();
     }
 
-    static openFile() {
-        if (window.FileBrowser) {
-            window.FileBrowser.openForTextFiles((result) => {
-                if (result.action === 'open') {
-                    this.loadFile(result.path);
-                }
-            }, 'open');
-        } else {
-            Notification.error('File browser not available');
-        }
+    openFileDialog() {
+        this.fileInput.click();
     }
 
-    static async loadFile(filePath) {
+    async openFile(file) {
+        if (!file) return;
+
         try {
-            // Clean up the file path to avoid double slashes
-            const cleanPath = filePath.replace(/\/+/g, '/'); // Replace multiple slashes with single slash
-
-            const response = await fetch(`/api/file-content/${cleanPath}`);
-            const data = await response.json();
-
-            if (response.ok) {
-                this.textarea.value = data.content;
-                this.currentFile = cleanPath.split('/').pop();
-                this.currentFilePath = cleanPath;
-                this.isModified = false;
-
-                this.updateTitle();
-                this.updateStatus(`Loaded ${this.currentFile}`);
-                this.updateWordCount();
-                this.updateLineNumbers();
-                this.filePathElement.textContent = cleanPath;
-
-                // Clear undo/redo stacks
-                this.undoStack = [];
-                this.redoStack = [];
-
-                Notification.success(`File "${this.currentFile}" loaded successfully`);
-            } else {
-                Notification.error(data.error || 'Failed to load file');
-            }
+            const content = await this.readFileContent(file);
+            this.textarea.value = content;
+            this.currentFile = file.name;
+            this.isModified = false;
+            this.lastSavedContent = content;
+            this.undoStack = [];
+            this.redoStack = [];
+            this.updateLineNumbers();
+            this.updateStatus();
+            this.updateWindowTitle();
+            this.addToUndoStack();
         } catch (error) {
-            Notification.error('Network error: ' + error.message);
+            alert('Error reading file: ' + error.message);
         }
     }
 
-    static saveFile() {
-        if (!this.currentFilePath) {
+    readFileContent(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = () => reject(new Error('Failed to read file'));
+            reader.readAsText(file);
+        });
+    }
+
+    saveFile() {
+        if (this.currentFile) {
+            this.downloadFile(this.textarea.value, this.currentFile);
+        } else {
             this.saveAsFile();
-            return;
-        }
-
-        this.performSave(this.currentFilePath);
-    }
-
-    static saveAsFile() {
-        if (window.FileBrowser) {
-            const defaultFilename = this.currentFile || 'document.txt';
-            window.FileBrowser.openForTextFiles((result) => {
-                if (result.action === 'save') {
-                    this.performSave(result.path);
-                }
-            }, 'save', defaultFilename);
-        } else {
-            Notification.error('File browser not available');
         }
     }
 
-    static async performSave(filePath) {
-        try {
-            const response = await fetch(`/api/files/${filePath}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: this.textarea.value })
-            });
-
-            if (response.ok) {
-                this.currentFile = filePath.split('/').pop();
-                this.currentFilePath = filePath;
-                this.isModified = false;
-
-                this.updateTitle();
-                this.updateStatus(`Saved ${this.currentFile}`);
-                this.filePathElement.textContent = filePath;
-
-                Notification.success(`File saved as "${this.currentFile}"`);
-            } else {
-                const data = await response.json();
-                Notification.error(data.error || 'Failed to save file');
-            }
-        } catch (error) {
-            Notification.error('Network error: ' + error.message);
+    saveAsFile() {
+        const filename = prompt('Enter filename:', this.currentFile || 'document.txt');
+        if (filename) {
+            this.downloadFile(this.textarea.value, filename);
+            this.currentFile = filename;
+            this.isModified = false;
+            this.lastSavedContent = this.textarea.value;
+            this.updateWindowTitle();
         }
     }
 
-    static exportFile() {
-        const content = this.textarea.value;
-        const filename = this.currentFile || 'document.txt';
-
+    downloadFile(content, filename) {
         const blob = new Blob([content], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
-
         const a = document.createElement('a');
         a.href = url;
         a.download = filename;
@@ -845,241 +641,300 @@ static setupEventListeners() {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-
-        Notification.success('File exported to downloads');
     }
 
-    // Edit operations
-    static undo() {
+    addToUndoStack() {
+        const content = this.textarea.value;
+        const cursorPos = this.textarea.selectionStart;
+
+        // Don't add if content hasn't changed
+        if (this.undoStack.length > 0 && this.undoStack[this.undoStack.length - 1].content === content) {
+            return;
+        }
+
+        this.undoStack.push({ content, cursorPos });
+
+        // Limit undo stack size
+        if (this.undoStack.length > this.maxUndoSteps) {
+            this.undoStack.shift();
+        }
+
+        // Clear redo stack when new action is performed
+        this.redoStack = [];
+    }
+
+    undo() {
         if (this.undoStack.length > 1) {
             const current = this.undoStack.pop();
             this.redoStack.push(current);
-            this.textarea.value = this.undoStack[this.undoStack.length - 1] || '';
-            this.updateStatus('Undo');
-            this.updateWordCount();
+
+            const previous = this.undoStack[this.undoStack.length - 1];
+            this.textarea.value = previous.content;
+            this.textarea.setSelectionRange(previous.cursorPos, previous.cursorPos);
+
             this.updateLineNumbers();
+            this.updateStatus();
         }
     }
 
-    static redo() {
+    redo() {
         if (this.redoStack.length > 0) {
-            const content = this.redoStack.pop();
-            this.undoStack.push(content);
-            this.textarea.value = content;
-            this.updateStatus('Redo');
-            this.updateWordCount();
+            const next = this.redoStack.pop();
+            this.undoStack.push(next);
+
+            this.textarea.value = next.content;
+            this.textarea.setSelectionRange(next.cursorPos, next.cursorPos);
+
             this.updateLineNumbers();
+            this.updateStatus();
         }
     }
 
-    static selectAll() {
-        this.textarea.select();
-    }
-
-    // Format operations
-    static toggleBold() {
-        this.wrapSelectedText('**', '**');
-    }
-
-    static toggleItalic() {
-        this.wrapSelectedText('*', '*');
-    }
-
-    static toggleUnderline() {
-        this.wrapSelectedText('_', '_');
-    }
-
-    static wrapSelectedText(prefix, suffix) {
+    formatText(format) {
         const start = this.textarea.selectionStart;
         const end = this.textarea.selectionEnd;
         const selectedText = this.textarea.value.substring(start, end);
 
         if (selectedText) {
-            const wrappedText = prefix + selectedText + suffix;
-            this.textarea.setRangeText(wrappedText, start, end);
-            this.textarea.setSelectionRange(start + prefix.length, start + prefix.length + selectedText.length);
-            this.handleTextChange();
+            let formattedText;
+            switch (format) {
+                case 'bold':
+                    formattedText = `**${selectedText}**`;
+                    break;
+                case 'italic':
+                    formattedText = `*${selectedText}*`;
+                    break;
+                case 'underline':
+                    formattedText = `<u>${selectedText}</u>`;
+                    break;
+                default:
+                    return;
+            }
+
+            this.replaceSelection(formattedText);
         }
     }
 
-    static changeFontFamily(family) {
-        this.fontFamily = family;
-        this.textarea.style.fontFamily = family;
+    insertText(text) {
+        const start = this.textarea.selectionStart;
+        const end = this.textarea.selectionEnd;
+        const value = this.textarea.value;
+
+        this.textarea.value = value.substring(0, start) + text + value.substring(end);
+        this.textarea.setSelectionRange(start + text.length, start + text.length);
+
+        this.handleInput();
     }
 
-    static changeFontSize(size) {
-        this.fontSize = parseInt(size);
-        this.textarea.style.fontSize = size + 'px';
-        this.updateLineNumbers();
+    replaceSelection(text) {
+        const start = this.textarea.selectionStart;
+        const end = this.textarea.selectionEnd;
+        const value = this.textarea.value;
+
+        this.textarea.value = value.substring(0, start) + text + value.substring(end);
+        this.textarea.setSelectionRange(start + text.length, start + text.length);
+
+        this.handleInput();
     }
 
-    static increaseFontSize() {
-        this.fontSize = Math.min(this.fontSize + 2, 48);
-        this.textarea.style.fontSize = this.fontSize + 'px';
-        this.updateFontSizeSelect();
-    }
+    toggleFindReplace() {
+        const panel = this.windowElement.querySelector('.find-replace-panel');
+        const isVisible = panel.style.display !== 'none';
 
-    static decreaseFontSize() {
-        this.fontSize = Math.max(this.fontSize - 2, 8);
-        this.textarea.style.fontSize = this.fontSize + 'px';
-        this.updateFontSizeSelect();
-    }
+        if (isVisible) {
+            this.closeFindReplace();
+        } else {
+            panel.style.display = 'block';
+            const findInput = this.windowElement.querySelector('.find-input');
+            findInput.focus();
 
-    static resetFontSize() {
-        this.fontSize = 14;
-        this.textarea.style.fontSize = '14px';
-        this.updateFontSizeSelect();
-    }
-
-    static updateFontSizeSelect() {
-        const select = this.currentWindow.querySelector('select[onchange*="changeFontSize"]');
-        select.value = this.fontSize;
-    }
-
-    static toggleWordWrap() {
-        this.wordWrap = !this.wordWrap;
-        this.textarea.style.whiteSpace = this.wordWrap ? 'pre-wrap' : 'pre';
-        this.textarea.style.overflowX = this.wordWrap ? 'hidden' : 'auto';
-
-        const check = this.currentWindow.querySelector('#wordwrap-check');
-        check.textContent = this.wordWrap ? '✓' : '';
-    }
-
-    static changeTheme(theme) {
-        this.currentTheme = theme;
-        this.currentWindow.querySelector('.text-editor').className = `text-editor theme-${theme}`;
-    }
-
-    // Menu operations
-    static showFileMenu(event) {
-        event.stopPropagation();
-        this.closeAllMenus();
-        this.currentWindow.querySelector('.file-menu').classList.add('active');
-    }
-
-    static showEditMenu(event) {
-        event.stopPropagation();
-        this.closeAllMenus();
-        this.currentWindow.querySelector('.edit-menu').classList.add('active');
-    }
-
-    static showFormatMenu(event) {
-        event.stopPropagation();
-        this.closeAllMenus();
-        this.currentWindow.querySelector('.format-menu').classList.add('active');
-    }
-
-    static closeAllMenus() {
-        // Add null check
-        if (!this.currentWindow) {
-            console.warn('TextEditor: currentWindow is null, skipping closeAllMenus');
-            return;
-        }
-
-        this.currentWindow.querySelectorAll('.dropdown-menu').forEach(menu => {
-            menu.classList.remove('active');
-        });
-    }
-
-    // Find & Replace
-    static findReplace() {
-        const dialog = this.currentWindow.querySelector('#find-replace-dialog');
-        dialog.classList.add('active');
-
-        const findInput = this.currentWindow.querySelector('#find-input');
-        findInput.focus();
-
-        // Pre-fill with selected text if any
-        const selectedText = this.textarea.value.substring(
-            this.textarea.selectionStart,
-            this.textarea.selectionEnd
-        );
-        if (selectedText) {
-            findInput.value = selectedText;
+            // Pre-fill with selected text
+            const selectedText = this.getSelectedText();
+            if (selectedText) {
+                findInput.value = selectedText;
+                this.performFind();
+            }
         }
     }
 
-    static closeFindReplace() {
-        this.currentWindow.querySelector('#find-replace-dialog').classList.remove('active');
+    closeFindReplace() {
+        const panel = this.windowElement.querySelector('.find-replace-panel');
+        panel.style.display = 'none';
+        this.clearHighlights();
         this.textarea.focus();
     }
 
-    static findNext() {
-        const findText = this.currentWindow.querySelector('#find-input').value;
-        if (!findText) return;
+    performFind() {
+        const findInput = this.windowElement.querySelector('.find-input');
+        const searchText = findInput.value;
 
-        const text = this.textarea.value;
-        const startPos = this.textarea.selectionEnd;
+        this.clearHighlights();
+        this.findMatches = [];
+        this.currentMatchIndex = -1;
 
-        let index = text.indexOf(findText, startPos);
-        if (index === -1) {
-            // Search from beginning
-            index = text.indexOf(findText, 0);
+        if (!searchText) return;
+
+        const content = this.textarea.value;
+        const regex = new RegExp(searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+        let match;
+
+        while ((match = regex.exec(content)) !== null) {
+            this.findMatches.push({
+                start: match.index,
+                end: match.index + match[0].length
+            });
         }
 
-        if (index !== -1) {
-            this.textarea.setSelectionRange(index, index + findText.length);
+        if (this.findMatches.length > 0) {
+            this.currentMatchIndex = 0;
+            this.highlightCurrentMatch();
+        }
+    }
+
+    findNext() {
+        if (this.findMatches.length === 0) return;
+
+        this.currentMatchIndex = (this.currentMatchIndex + 1) % this.findMatches.length;
+        this.highlightCurrentMatch();
+    }
+
+    findPrevious() {
+        if (this.findMatches.length === 0) return;
+
+        this.currentMatchIndex = this.currentMatchIndex <= 0 ?
+            this.findMatches.length - 1 : this.currentMatchIndex - 1;
+        this.highlightCurrentMatch();
+    }
+
+    highlightCurrentMatch() {
+        if (this.currentMatchIndex >= 0 && this.currentMatchIndex < this.findMatches.length) {
+            const match = this.findMatches[this.currentMatchIndex];
+            this.textarea.setSelectionRange(match.start, match.end);
             this.textarea.focus();
-            this.updateStatus(`Found "${findText}"`);
+        }
+    }
+
+    replaceNext() {
+        if (this.currentMatchIndex >= 0 && this.currentMatchIndex < this.findMatches.length) {
+            const replaceInput = this.windowElement.querySelector('.replace-input');
+            const replaceText = replaceInput.value;
+            const match = this.findMatches[this.currentMatchIndex];
+
+            this.textarea.setSelectionRange(match.start, match.end);
+            this.replaceSelection(replaceText);
+
+            // Refresh find results
+            setTimeout(() => this.performFind(), 10);
+        }
+    }
+
+    replaceAll() {
+        const findInput = this.windowElement.querySelector('.find-input');
+        const replaceInput = this.windowElement.querySelector('.replace-input');
+        const searchText = findInput.value;
+        const replaceText = replaceInput.value;
+
+        if (!searchText) return;
+
+        const regex = new RegExp(searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+        const newContent = this.textarea.value.replace(regex, replaceText);
+
+        this.textarea.value = newContent;
+        this.handleInput();
+        this.performFind();
+    }
+
+    clearHighlights() {
+        // Clear any existing highlights (this is a simplified version)
+        // In a more advanced implementation, you might use overlays or other techniques
+    }
+
+    getSelectedText() {
+        const start = this.textarea.selectionStart;
+        const end = this.textarea.selectionEnd;
+        return this.textarea.value.substring(start, end);
+    }
+
+    toggleWordWrap() {
+        const btn = this.windowElement.querySelector('[data-action="word-wrap"]');
+        this.textarea.classList.toggle('word-wrap');
+        btn.classList.toggle('active');
+    }
+
+    toggleFullscreen() {
+        const container = this.windowElement.querySelector('.text-editor-container');
+        const btn = this.windowElement.querySelector('[data-action="fullscreen"]');
+
+        if (!this.isFullscreen) {
+            container.style.position = 'fixed';
+            container.style.top = '0';
+            container.style.left = '0';
+            container.style.width = '100vw';
+            container.style.height = '100vh';
+            container.style.zIndex = '10000';
+            btn.innerHTML = '<i class="fas fa-compress"></i>';
+            this.isFullscreen = true;
         } else {
-            this.updateStatus(`"${findText}" not found`);
+            container.style.position = '';
+            container.style.top = '';
+            container.style.left = '';
+            container.style.width = '';
+            container.style.height = '';
+            container.style.zIndex = '';
+            btn.innerHTML = '<i class="fas fa-expand"></i>';
+            this.isFullscreen = false;
         }
     }
 
-    static replaceNext() {
-        const findText = this.currentWindow.querySelector('#find-input').value;
-        const replaceText = this.currentWindow.querySelector('#replace-input').value;
+    updateLineNumbers() {
+        const lines = this.textarea.value.split('\n');
+        const lineCount = lines.length;
 
-        if (!findText) return;
-
-        const selectedText = this.textarea.value.substring(
-            this.textarea.selectionStart,
-            this.textarea.selectionEnd
-        );
-
-        if (selectedText === findText) {
-            this.textarea.setRangeText(replaceText);
-            this.handleTextChange();
+        let lineNumbersText = '';
+        for (let i = 1; i <= lineCount; i++) {
+            lineNumbersText += i + '\n';
         }
 
-        this.findNext();
+        this.lineNumbers.textContent = lineNumbersText;
     }
 
-    static replaceAll() {
-        const findText = this.currentWindow.querySelector('#find-input').value;
-        const replaceText = this.currentWindow.querySelector('#replace-input').value;
+    updateCursorPosition() {
+        const textarea = this.textarea;
+        const cursorPos = textarea.selectionStart;
+        const textBeforeCursor = textarea.value.substring(0, cursorPos);
+        const lines = textBeforeCursor.split('\n');
+        const currentLine = lines.length;
+        const currentColumn = lines[lines.length - 1].length + 1;
 
-        if (!findText) return;
+        const positionSpan = this.windowElement.querySelector('.cursor-position');
+        positionSpan.textContent = `Line ${currentLine}, Column ${currentColumn}`;
+    }
 
-        const originalText = this.textarea.value;
-        const newText = originalText.split(findText).join(replaceText);
+    updateStatus() {
+        const content = this.textarea.value;
+        const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+        const characters = content.length;
 
-        if (originalText !== newText) {
-            this.textarea.value = newText;
-            this.handleTextChange();
+        const fileInfo = this.windowElement.querySelector('.file-info');
+        const wordCount = this.windowElement.querySelector('.word-count');
 
-            const count = originalText.split(findText).length - 1;
-            this.updateStatus(`Replaced ${count} occurrences`);
-        } else {
-            this.updateStatus(`"${findText}" not found`);
+        fileInfo.textContent = this.currentFile ?
+            `${this.currentFile}${this.isModified ? ' *' : ''}` :
+            `New Document${this.isModified ? ' *' : ''}`;
+
+        wordCount.textContent = `Words: ${words} | Characters: ${characters}`;
+
+        this.updateCursorPosition();
+    }
+
+    updateWindowTitle() {
+        const titleElement = this.windowElement.closest('.window')?.querySelector('.window-title');
+        if (titleElement) {
+            const filename = this.currentFile || 'New Document';
+            titleElement.textContent = `Text Editor v2.0 - ${filename}${this.isModified ? ' *' : ''}`;
         }
     }
-
-static onClose(windowElement) {
-    if (this.isModified) {
-        const result = confirm('You have unsaved changes. Close anyway?');
-        if (!result) {
-            return false; // Prevent closing
-        }
-    }
-
-    // Clean up this specific instance
-    if (this.currentWindow === windowElement) {
-        this.currentWindow = null;
-    }
-
-    return true; // Allow closing
 }
-}
 
+// Register the TextEditor with the window manager
 window.TextEditor = TextEditor;
