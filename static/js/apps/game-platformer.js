@@ -1,6 +1,6 @@
 /**
  * APP_METADATA
- * @name PlatformerQuest
+ * @name GamePlatformer
  * @icon fas fa-gamepad
  * @description Jump-and-run arcade game
  * @category Games
@@ -9,7 +9,7 @@
  * @enabled true
  */
 
-class PlatformerQuest {
+class GamePlatformer {
   // ────────────────────────────────────────────────────────────────
   // Static properties for game state
   static _container = null;
@@ -1643,4 +1643,4 @@ class PlatformerQuest {
 }
 
 // Expose globally for WindowManager
-window.PlatformerQuest = PlatformerQuest;
+window.GamePlatformer = GamePlatformer;

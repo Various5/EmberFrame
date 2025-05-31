@@ -1,6 +1,6 @@
 /**
  * APP_METADATA
- * @name FlightToss
+ * @name GameFlightToss
  * @icon fas fa-rocket
  * @description A refined “learn to fly/toss the turtle” style game: after each throw it resets automatically, with full visibility, smooth performance, and an elegant UI.
  * @category Games
@@ -9,7 +9,7 @@
  * @enabled true
  */
 
-class FlightToss {
+class GameFlightToss {
   // ────────────────────────────────────────────────────────────────────────────────
   // Static properties / Game state
   static _container = null;
@@ -665,4 +665,4 @@ class FlightToss {
 }
 
 // Expose globally for EmberFrame WindowManager
-window.FlightToss = FlightToss;
+window.GameFlightToss = GameFlightToss;

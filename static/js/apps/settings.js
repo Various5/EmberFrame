@@ -2,9 +2,9 @@
  * APP_METADATA
  * @name Settings
  * @icon fas fa-cog
- * @description Advanced system customization with dynamic backgrounds and particle effects
+ * @description Complete system customization with particles, backgrounds, themes and intelligent presets
  * @category System
- * @version 4.0.0
+ * @version 6.0.0
  * @author EmberFrame Team
  * @enabled true
  */
@@ -12,9 +12,9 @@
 class Settings {
     static createWindow() {
         return {
-            title: '⚙️ EmberFrame Settings',
-            width: '900px',
-            height: '750px',
+            title: '⚙️ EmberFrame Settings Pro',
+            width: '1000px',
+            height: '850px',
             autoSize: false,
             content: `
                 <div class="settings-container">
@@ -22,20 +22,25 @@ class Settings {
                     <div class="settings-sidebar">
                         <div class="settings-header">
                             <div class="settings-logo">⚙️</div>
-                            <div class="settings-title">Settings</div>
+                            <div class="settings-title">Settings Pro</div>
+                            <div class="settings-version">v6.0</div>
                         </div>
                         
                         <div class="settings-nav">
-                            <div class="nav-item active" data-section="appearance">
+                            <div class="nav-item active" data-section="presets">
+                                <i class="fas fa-magic"></i>
+                                <span>Quick Presets</span>
+                            </div>
+                            <div class="nav-item" data-section="appearance">
                                 <i class="fas fa-palette"></i>
                                 <span>Appearance</span>
                             </div>
-                            <div class="nav-item" data-section="background">
+                            <div class="nav-item" data-section="backgrounds">
                                 <i class="fas fa-image"></i>
-                                <span>Background</span>
+                                <span>Backgrounds</span>
                             </div>
                             <div class="nav-item" data-section="particles">
-                                <i class="fas fa-star"></i>
+                                <i class="fas fa-sparkles"></i>
                                 <span>Particles</span>
                             </div>
                             <div class="nav-item" data-section="interface">
@@ -51,9 +56,95 @@ class Settings {
 
                     <!-- Main Content -->
                     <div class="settings-content">
+                        
+                        <!-- Quick Presets Section -->
+                        <div class="settings-section active" id="presets">
+                            <div class="section-title">🎯 Quick Presets</div>
+                            
+                            <div class="setting-group">
+                                <label>Theme Presets</label>
+                                <div class="preset-grid">
+                                    <div class="preset-card" data-preset="cyberpunk">
+                                        <div class="preset-preview cyberpunk-preview"></div>
+                                        <div class="preset-name">Cyberpunk</div>
+                                        <div class="preset-desc">Neon lights, matrix rain, cyber colors</div>
+                                    </div>
+                                    <div class="preset-card" data-preset="space">
+                                        <div class="preset-preview space-preview"></div>
+                                        <div class="preset-name">Deep Space</div>
+                                        <div class="preset-desc">Starfield, cosmic particles, dark theme</div>
+                                    </div>
+                                    <div class="preset-card" data-preset="ocean">
+                                        <div class="preset-preview ocean-preview"></div>
+                                        <div class="preset-name">Ocean Depths</div>
+                                        <div class="preset-desc">Flowing waves, blue gradients, calm</div>
+                                    </div>
+                                    <div class="preset-card" data-preset="forest">
+                                        <div class="preset-preview forest-preview"></div>
+                                        <div class="preset-name">Mystic Forest</div>
+                                        <div class="preset-desc">Green particles, nature colors</div>
+                                    </div>
+                                    <div class="preset-card" data-preset="synthwave">
+                                        <div class="preset-preview synthwave-preview"></div>
+                                        <div class="preset-name">Synthwave</div>
+                                        <div class="preset-desc">80s retro, pink/purple, grid patterns</div>
+                                    </div>
+                                    <div class="preset-card" data-preset="minimal">
+                                        <div class="preset-preview minimal-preview"></div>
+                                        <div class="preset-name">Minimal</div>
+                                        <div class="preset-desc">Clean, simple, productivity focused</div>
+                                    </div>
+                                    <div class="preset-card" data-preset="aurora">
+                                        <div class="preset-preview aurora-preview"></div>
+                                        <div class="preset-name">Aurora</div>
+                                        <div class="preset-desc">Northern lights, flowing colors</div>
+                                    </div>
+                                    <div class="preset-card" data-preset="volcanic">
+                                        <div class="preset-preview volcanic-preview"></div>
+                                        <div class="preset-name">Volcanic</div>
+                                        <div class="preset-desc">Fire effects, lava colors, intense</div>
+                                    </div>
+                                    <div class="preset-card" data-preset="gaming">
+                                        <div class="preset-preview gaming-preview"></div>
+                                        <div class="preset-name">Gaming</div>
+                                        <div class="preset-desc">High performance, responsive particles</div>
+                                    </div>
+                                    <div class="preset-card" data-preset="productivity">
+                                        <div class="preset-preview productivity-preview"></div>
+                                        <div class="preset-name">Productivity</div>
+                                        <div class="preset-desc">Subtle effects, focus-friendly</div>
+                                    </div>
+                                    <div class="preset-card" data-preset="party">
+                                        <div class="preset-preview party-preview"></div>
+                                        <div class="preset-name">Party Mode</div>
+                                        <div class="preset-desc">Colorful, energetic, fun effects</div>
+                                    </div>
+                                    <div class="preset-card" data-preset="zen">
+                                        <div class="preset-preview zen-preview"></div>
+                                        <div class="preset-name">Zen Garden</div>
+                                        <div class="preset-desc">Peaceful, meditative, soft</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <label>Custom Profiles</label>
+                                <div class="profile-management">
+                                    <div class="profile-list" id="profile-list">
+                                        <!-- Profiles will be populated here -->
+                                    </div>
+                                    <div class="profile-controls">
+                                        <input type="text" id="new-profile-name" placeholder="Profile name..." class="profile-input">
+                                        <button id="save-profile" class="action-btn">💾 Save Current</button>
+                                        <button id="load-profile" class="action-btn">📂 Load Profile</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Appearance Section -->
-                        <div class="settings-section active" id="appearance">
-                            <div class="section-title">🎨 Appearance Settings</div>
+                        <div class="settings-section" id="appearance">
+                            <div class="section-title">🎨 Appearance</div>
                             
                             <div class="setting-group">
                                 <label>Color Scheme</label>
@@ -65,10 +156,6 @@ class Settings {
                                     <div class="color-scheme" data-scheme="light">
                                         <div class="scheme-preview light"></div>
                                         <span>Light</span>
-                                    </div>
-                                    <div class="color-scheme" data-scheme="auto">
-                                        <div class="scheme-preview auto"></div>
-                                        <span>Auto</span>
                                     </div>
                                     <div class="color-scheme" data-scheme="cyber">
                                         <div class="scheme-preview cyber"></div>
@@ -98,36 +185,16 @@ class Settings {
                                         <div class="scheme-preview forest"></div>
                                         <span>Forest</span>
                                     </div>
-                                    <div class="color-scheme" data-scheme="royal">
-                                        <div class="scheme-preview royal"></div>
-                                        <span>Royal</span>
-                                    </div>
-                                    <div class="color-scheme" data-scheme="fire">
-                                        <div class="scheme-preview fire"></div>
-                                        <span>Fire</span>
-                                    </div>
-                                    <div class="color-scheme" data-scheme="ice">
-                                        <div class="scheme-preview ice"></div>
-                                        <span>Ice</span>
-                                    </div>
-                                    <div class="color-scheme" data-scheme="space">
-                                        <div class="scheme-preview space"></div>
-                                        <span>Space</span>
-                                    </div>
-                                    <div class="color-scheme" data-scheme="toxic">
-                                        <div class="scheme-preview toxic"></div>
-                                        <span>Toxic</span>
-                                    </div>
-                                    <div class="color-scheme" data-scheme="pastel">
-                                        <div class="scheme-preview pastel"></div>
-                                        <span>Pastel</span>
+                                    <div class="color-scheme" data-scheme="aurora">
+                                        <div class="scheme-preview aurora"></div>
+                                        <span>Aurora</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="setting-group">
                                 <label>Accent Color</label>
-                                <div class="color-picker">
+                                <div class="color-picker-enhanced">
                                     <input type="color" id="accent-color" value="#00d4ff">
                                     <div class="preset-colors">
                                         <div class="color-preset" data-color="#00d4ff" style="background: #00d4ff"></div>
@@ -139,41 +206,56 @@ class Settings {
                                         <div class="color-preset" data-color="#54a0ff" style="background: #54a0ff"></div>
                                         <div class="color-preset" data-color="#5f27cd" style="background: #5f27cd"></div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="setting-group">
-                                <label>Window Transparency</label>
-                                <div class="slider-container">
-                                    <input type="range" id="window-transparency" min="0" max="50" value="10" step="5">
-                                    <span class="slider-value">10%</span>
+                                    <button id="color-randomize" class="color-random-btn">🎲</button>
                                 </div>
                             </div>
 
                             <div class="setting-group">
                                 <label>Visual Effects</label>
-                                <div class="checkbox-group">
+                                <div class="effects-grid">
                                     <label class="checkbox-item">
                                         <input type="checkbox" id="blur-effects" checked>
                                         <span class="checkmark"></span>
-                                        Enable blur effects
+                                        Blur Effects
                                     </label>
                                     <label class="checkbox-item">
                                         <input type="checkbox" id="window-shadows" checked>
                                         <span class="checkmark"></span>
-                                        Window shadows
+                                        Window Shadows
                                     </label>
                                     <label class="checkbox-item">
                                         <input type="checkbox" id="smooth-animations" checked>
                                         <span class="checkmark"></span>
-                                        Smooth animations
+                                        Smooth Animations
                                     </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="parallax-effects">
+                                        <span class="checkmark"></span>
+                                        Parallax Effects
+                                    </label>
+                                </div>
+                                
+                                <div class="control-row">
+                                    <div class="control-item">
+                                        <label>Window Transparency</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="window-transparency" min="0" max="50" value="10" step="5">
+                                            <span class="slider-value">10%</span>
+                                        </div>
+                                    </div>
+                                    <div class="control-item">
+                                        <label>UI Scale</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="ui-scale" min="0.8" max="1.5" value="1" step="0.1">
+                                            <span class="slider-value">100%</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Background Section -->
-                        <div class="settings-section" id="background">
+                        <!-- Backgrounds Section -->
+                        <div class="settings-section" id="backgrounds">
                             <div class="section-title">🖼️ Dynamic Backgrounds</div>
                             
                             <div class="setting-group">
@@ -183,57 +265,94 @@ class Settings {
                                         <i class="fas fa-paint-brush"></i>
                                         <span>Gradient</span>
                                     </div>
-                                    <div class="bg-type" data-type="media">
+                                    <div class="bg-type" data-type="animated">
                                         <i class="fas fa-video"></i>
-                                        <span>Media</span>
+                                        <span>Animated</span>
                                     </div>
                                     <div class="bg-type" data-type="pattern">
                                         <i class="fas fa-th"></i>
                                         <span>Pattern</span>
+                                    </div>
+                                    <div class="bg-type" data-type="media">
+                                        <i class="fas fa-file-image"></i>
+                                        <span>Media</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Gradient Settings -->
                             <div class="setting-group" id="gradient-settings">
-                                <label>Gradient Colors</label>
+                                <label>Gradient Configuration</label>
                                 <div class="gradient-controls">
-                                    <div class="color-input-group">
-                                        <label>Start Color</label>
-                                        <input type="color" id="gradient-start" value="#667eea">
+                                    <div class="control-row">
+                                        <div class="control-item">
+                                            <label>Start Color</label>
+                                            <input type="color" id="gradient-start" value="#667eea">
+                                        </div>
+                                        <div class="control-item">
+                                            <label>End Color</label>
+                                            <input type="color" id="gradient-end" value="#764ba2">
+                                        </div>
                                     </div>
-                                    <div class="color-input-group">
-                                        <label>End Color</label>
-                                        <input type="color" id="gradient-end" value="#764ba2">
+                                    <div class="control-row">
+                                        <div class="control-item">
+                                            <label>Angle</label>
+                                            <div class="slider-container">
+                                                <input type="range" id="gradient-angle" min="0" max="360" value="135">
+                                                <span class="slider-value">135°</span>
+                                            </div>
+                                        </div>
+                                        <div class="control-item">
+                                            <label>Opacity</label>
+                                            <div class="slider-container">
+                                                <input type="range" id="gradient-opacity" min="10" max="100" value="100">
+                                                <span class="slider-value">100%</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="slider-container">
-                                    <label>Angle</label>
-                                    <input type="range" id="gradient-angle" min="0" max="360" value="135">
-                                    <span class="slider-value">135°</span>
                                 </div>
                             </div>
 
-                            <!-- Animated Settings -->
+                            <!-- Animated Background Settings -->
                             <div class="setting-group" id="animated-settings" style="display: none;">
                                 <label>Animated Backgrounds</label>
-                                <div class="animated-options">
-                                    <div class="animated-option" data-animation="matrix">Matrix Rain</div>
-                                    <div class="animated-option" data-animation="waves">Flowing Waves</div>
-                                    <div class="animated-option" data-animation="neural">Neural Network</div>
-                                    <div class="animated-option" data-animation="plasma">Plasma Field</div>
-                                    <div class="animated-option" data-animation="geometry">Geometric Lines</div>
-                                    <div class="animated-option" data-animation="stars">Starfield</div>
-                                    <div class="animated-option" data-animation="particles">Particle Flow</div>
-                                    <div class="animated-option" data-animation="fractals">Fractal Tree</div>
-                                    <div class="animated-option" data-animation="cellular">Cellular Automata</div>
-                                    <div class="animated-option" data-animation="lightning">Lightning</div>
-                                    <div class="animated-option" data-animation="ripples">Water Ripples</div>
-                                    <div class="animated-option" data-animation="crystals">Growing Crystals</div>
-                                    <div class="animated-option" data-animation="dna">DNA Strands</div>
-                                    <div class="animated-option" data-animation="galaxy">Galaxy Spiral</div>
-                                    <div class="animated-option" data-animation="fire">Fire Effect</div>
-                                    <div class="animated-option" data-animation="code">Digital Rain</div>
+                                <div class="animated-grid">
+                                    <div class="animated-option" data-animation="matrix">
+                                        <i class="fas fa-code"></i>
+                                        <span>Matrix Rain</span>
+                                    </div>
+                                    <div class="animated-option" data-animation="waves">
+                                        <i class="fas fa-water"></i>
+                                        <span>Flowing Waves</span>
+                                    </div>
+                                    <div class="animated-option" data-animation="neural">
+                                        <i class="fas fa-brain"></i>
+                                        <span>Neural Network</span>
+                                    </div>
+                                    <div class="animated-option" data-animation="plasma">
+                                        <i class="fas fa-bolt"></i>
+                                        <span>Plasma Field</span>
+                                    </div>
+                                    <div class="animated-option" data-animation="starfield">
+                                        <i class="fas fa-star"></i>
+                                        <span>Starfield</span>
+                                    </div>
+                                    <div class="animated-option" data-animation="fractals">
+                                        <i class="fas fa-snowflake"></i>
+                                        <span>Fractals</span>
+                                    </div>
+                                    <div class="animated-option" data-animation="fire">
+                                        <i class="fas fa-fire"></i>
+                                        <span>Fire Effect</span>
+                                    </div>
+                                    <div class="animated-option" data-animation="dna">
+                                        <i class="fas fa-dna"></i>
+                                        <span>DNA Helix</span>
+                                    </div>
+                                    <div class="animated-option" data-animation="galaxy">
+                                        <i class="fas fa-satellite"></i>
+                                        <span>Galaxy</span>
+                                    </div>
                                 </div>
                                 <div class="control-row">
                                     <div class="control-item">
@@ -255,8 +374,8 @@ class Settings {
 
                             <!-- Pattern Settings -->
                             <div class="setting-group" id="pattern-settings" style="display: none;">
-                                <label>Pattern Type</label>
-                                <div class="pattern-options">
+                                <label>Pattern Configuration</label>
+                                <div class="pattern-grid">
                                     <div class="pattern-option" data-pattern="dots">Dots</div>
                                     <div class="pattern-option" data-pattern="grid">Grid</div>
                                     <div class="pattern-option" data-pattern="lines">Lines</div>
@@ -265,31 +384,20 @@ class Settings {
                                     <div class="pattern-option" data-pattern="waves">Waves</div>
                                     <div class="pattern-option" data-pattern="circuit">Circuit</div>
                                     <div class="pattern-option" data-pattern="maze">Maze</div>
-                                    <div class="pattern-option" data-pattern="crosshatch">Crosshatch</div>
-                                    <div class="pattern-option" data-pattern="chevron">Chevron</div>
-                                    <div class="pattern-option" data-pattern="diamonds">Diamonds</div>
-                                    <div class="pattern-option" data-pattern="scales">Scales</div>
-                                    <div class="pattern-option" data-pattern="honeycomb">Honeycomb</div>
-                                    <div class="pattern-option" data-pattern="weave">Weave</div>
-                                    <div class="pattern-option" data-pattern="spiral">Spiral</div>
-                                    <div class="pattern-option" data-pattern="mandala">Mandala</div>
-                                    <div class="pattern-option" data-pattern="fractal">Fractal</div>
-                                    <div class="pattern-option" data-pattern="noise">Perlin Noise</div>
                                 </div>
-                                
                                 <div class="control-row">
-                                    <div class="control-item">
-                                        <label>Pattern Visibility</label>
-                                        <div class="slider-container">
-                                            <input type="range" id="pattern-visibility" min="0" max="100" value="30">
-                                            <span class="slider-value">30%</span>
-                                        </div>
-                                    </div>
                                     <div class="control-item">
                                         <label>Pattern Size</label>
                                         <div class="slider-container">
                                             <input type="range" id="pattern-size" min="10" max="100" value="20">
                                             <span class="slider-value">20px</span>
+                                        </div>
+                                    </div>
+                                    <div class="control-item">
+                                        <label>Pattern Opacity</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="pattern-opacity" min="0" max="100" value="30">
+                                            <span class="slider-value">30%</span>
                                         </div>
                                     </div>
                                 </div>
@@ -299,87 +407,42 @@ class Settings {
                                         <input type="color" id="pattern-color" value="#00d4ff">
                                     </div>
                                     <div class="control-item">
-                                        <label>Secondary Color</label>
-                                        <input type="color" id="pattern-color2" value="#ff00ff">
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" id="pattern-animate">
+                                            <span class="checkmark"></span>
+                                            Animate Pattern
+                                        </label>
                                     </div>
-                                </div>
-                                <div class="control-row">
-                                    <div class="control-item">
-                                        <label>Pattern Rotation</label>
-                                        <div class="slider-container">
-                                            <input type="range" id="pattern-rotation" min="0" max="360" value="0">
-                                            <span class="slider-value">0°</span>
-                                        </div>
-                                    </div>
-                                    <div class="control-item">
-                                        <label>Pattern Complexity</label>
-                                        <div class="slider-container">
-                                            <input type="range" id="pattern-complexity" min="1" max="10" value="3">
-                                            <span class="slider-value">3</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="checkbox-group">
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" id="pattern-animate">
-                                        <span class="checkmark"></span>
-                                        Animate pattern
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" id="pattern-glow">
-                                        <span class="checkmark"></span>
-                                        Pattern glow effect
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" id="pattern-3d">
-                                        <span class="checkmark"></span>
-                                        3D effect
-                                    </label>
                                 </div>
                             </div>
 
-                            <!-- Video Settings -->
-                            <div class="setting-group" id="video-settings" style="display: none;">
-                                <label>Video Background</label>
-                                <div class="video-controls">
+                            <!-- Media Settings -->
+                            <div class="setting-group" id="media-settings" style="display: none;">
+                                <label>Media Background</label>
+                                <div class="media-controls">
                                     <div class="control-item">
-                                        <label>Video URL or File</label>
-                                        <input type="text" id="video-url" placeholder="Enter video URL or upload file" class="video-input">
-                                        <input type="file" id="video-file" accept="video/*" style="display: none;">
-                                        <button id="video-browse" class="browse-btn">Browse Files</button>
+                                        <label>Image/Video URL</label>
+                                        <div class="media-input-group">
+                                            <input type="text" id="media-url" placeholder="Enter URL..." class="media-input">
+                                            <input type="file" id="media-file" accept="image/*,video/*" style="display: none;">
+                                            <button id="media-browse" class="browse-btn">Browse</button>
+                                        </div>
                                     </div>
                                     <div class="control-row">
                                         <div class="control-item">
-                                            <label>Video Opacity</label>
+                                            <label>Media Opacity</label>
                                             <div class="slider-container">
-                                                <input type="range" id="video-opacity" min="10" max="100" value="50">
+                                                <input type="range" id="media-opacity" min="10" max="100" value="50">
                                                 <span class="slider-value">50%</span>
                                             </div>
                                         </div>
                                         <div class="control-item">
-                                            <label>Playback Speed</label>
-                                            <div class="slider-container">
-                                                <input type="range" id="video-speed" min="0.25" max="2" value="1" step="0.25">
-                                                <span class="slider-value">1x</span>
-                                            </div>
+                                            <label class="checkbox-item">
+                                                <input type="checkbox" id="media-blur">
+                                                <span class="checkmark"></span>
+                                                Blur Effect
+                                            </label>
                                         </div>
-                                    </div>
-                                    <div class="checkbox-group">
-                                        <label class="checkbox-item">
-                                            <input type="checkbox" id="video-loop" checked>
-                                            <span class="checkmark"></span>
-                                            Loop video
-                                        </label>
-                                        <label class="checkbox-item">
-                                            <input type="checkbox" id="video-muted" checked>
-                                            <span class="checkmark"></span>
-                                            Mute audio
-                                        </label>
-                                        <label class="checkbox-item">
-                                            <input type="checkbox" id="video-blur">
-                                            <span class="checkmark"></span>
-                                            Blur effect
-                                        </label>
                                     </div>
                                 </div>
                             </div>
@@ -387,42 +450,64 @@ class Settings {
 
                         <!-- Particles Section -->
                         <div class="settings-section" id="particles">
-                            <div class="section-title">⭐ Advanced Particle System</div>
+                            <div class="section-title">✨ Particle System</div>
                             
                             <div class="setting-group">
-                                <label class="checkbox-item">
-                                    <input type="checkbox" id="particles-enabled" checked>
-                                    <span class="checkmark"></span>
-                                    Enable Particle System
-                                </label>
-                                <div style="display: flex; gap: 10px; margin-top: 10px;">
-                                    <button id="test-particles" class="action-btn" style="flex: 1;">
-                                        🧪 Test Simple Particles
-                                    </button>
-                                    <button id="test-advanced" class="action-btn" style="flex: 1;">
-                                        🚀 Test Advanced System
-                                    </button>
+                                <div class="particles-toggle-section">
+                                    <label class="checkbox-item particles-master-toggle">
+                                        <input type="checkbox" id="particles-enabled" checked>
+                                        <span class="checkmark"></span>
+                                        <span class="toggle-label">Enable Particle System</span>
+                                    </label>
+                                    <div class="particles-status active" id="particles-status">
+                                        <span class="status-text">Active - Rendering</span>
+                                    </div>
+                                </div>
+                                <div class="test-buttons">
+                                    <button id="test-particles" class="test-btn">🧪 Test Particles</button>
+                                    <button id="reset-particles" class="test-btn">🔄 Reset System</button>
                                 </div>
                             </div>
 
-                            <div class="setting-group">
-                                <label>Particle Count</label>
-                                <div class="slider-container">
-                                    <input type="range" id="particle-count" min="10" max="500" value="100" step="10">
-                                    <span class="slider-value">100</span>
+                            <div class="setting-group" id="particles-main-controls">
+                                <label>Particle Configuration</label>
+                                <div class="control-row">
+                                    <div class="control-item">
+                                        <label>Particle Count</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="particle-count" min="10" max="200" value="50" step="10">
+                                            <span class="slider-value">50</span>
+                                        </div>
+                                    </div>
+                                    <div class="control-item">
+                                        <label>Particle Size</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="particle-size" min="1" max="20" value="3">
+                                            <span class="slider-value">3px</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="control-row">
+                                    <div class="control-item">
+                                        <label>Particle Speed</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="particle-speed" min="0.1" max="5" value="1" step="0.1">
+                                            <span class="slider-value">1x</span>
+                                        </div>
+                                    </div>
+                                    <div class="control-item">
+                                        <label>Particle Color</label>
+                                        <input type="color" id="particle-color" value="#00d4ff">
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="setting-group">
                                 <label>Particle Behavior</label>
-                                <div class="particle-behaviors">
+                                <div class="behavior-grid">
                                     <div class="behavior-option active" data-behavior="float">
                                         <i class="fas fa-cloud"></i>
                                         <span>Float</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="text">
-                                        <i class="fas fa-font"></i>
-                                        <span>Text Shape</span>
                                     </div>
                                     <div class="behavior-option" data-behavior="follow">
                                         <i class="fas fa-mouse-pointer"></i>
@@ -436,10 +521,6 @@ class Settings {
                                         <i class="fas fa-circle-notch"></i>
                                         <span>Orbit</span>
                                     </div>
-                                    <div class="behavior-option" data-behavior="magnetic">
-                                        <i class="fas fa-magnet"></i>
-                                        <span>Magnetic</span>
-                                    </div>
                                     <div class="behavior-option" data-behavior="spiral">
                                         <i class="fas fa-hurricane"></i>
                                         <span>Spiral</span>
@@ -448,172 +529,35 @@ class Settings {
                                         <i class="fas fa-water"></i>
                                         <span>Wave</span>
                                     </div>
-                                    <div class="behavior-option" data-behavior="fireworks">
-                                        <i class="fas fa-fire"></i>
-                                        <span>Fireworks</span>
+                                    <div class="behavior-option" data-behavior="bounce">
+                                        <i class="fas fa-basketball-ball"></i>
+                                        <span>Bounce</span>
                                     </div>
                                     <div class="behavior-option" data-behavior="constellation">
                                         <i class="fas fa-star"></i>
                                         <span>Constellation</span>
                                     </div>
-                                    <div class="behavior-option" data-behavior="sphere">
-                                        <i class="fas fa-globe"></i>
-                                        <span>Sphere</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="cube">
-                                        <i class="fas fa-cube"></i>
-                                        <span>Cube</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="tornado">
-                                        <i class="fas fa-tornado"></i>
-                                        <span>Tornado</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="bounce">
-                                        <i class="fas fa-basketball-ball"></i>
-                                        <span>Bounce</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="gravity">
-                                        <i class="fas fa-arrow-down"></i>
-                                        <span>Gravity</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="explosion">
-                                        <i class="fas fa-bomb"></i>
-                                        <span>Explosion</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="vortex">
-                                        <i class="fas fa-eye"></i>
-                                        <span>Vortex</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="pendulum">
-                                        <i class="fas fa-clock"></i>
-                                        <span>Pendulum</span>
+                                    <div class="behavior-option" data-behavior="fireworks">
+                                        <i class="fas fa-fire"></i>
+                                        <span>Fireworks</span>
                                     </div>
                                     <div class="behavior-option" data-behavior="swarm">
                                         <i class="fas fa-swarm"></i>
                                         <span>Swarm</span>
                                     </div>
-                                    <div class="behavior-option" data-behavior="rain">
-                                        <i class="fas fa-cloud-rain"></i>
-                                        <span>Rain</span>
+                                    <div class="behavior-option" data-behavior="gravity">
+                                        <i class="fas fa-arrow-down"></i>
+                                        <span>Gravity</span>
                                     </div>
-                                    <div class="behavior-option" data-behavior="snow">
-                                        <i class="fas fa-snowflake"></i>
-                                        <span>Snow</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="plasma">
-                                        <i class="fas fa-bolt"></i>
-                                        <span>Plasma</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="dna">
-                                        <i class="fas fa-dna"></i>
-                                        <span>DNA Helix</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="matrix">
-                                        <i class="fas fa-code"></i>
-                                        <span>Matrix</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="galaxy">
-                                        <i class="fas fa-star-half-alt"></i>
-                                        <span>Galaxy</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="heart">
-                                        <i class="fas fa-heart"></i>
-                                        <span>Heart</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="flower">
-                                        <i class="fas fa-flower"></i>
-                                        <span>Flower</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="pulse">
-                                        <i class="fas fa-heartbeat"></i>
-                                        <span>Pulse</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="web">
-                                        <i class="fas fa-spider"></i>
-                                        <span>Spider Web</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="mouse-trail">
-                                        <i class="fas fa-route"></i>
-                                        <span>Mouse Trail</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="mouse-repel">
-                                        <i class="fas fa-expand-arrows-alt"></i>
-                                        <span>Mouse Repel</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="mouse-attract">
-                                        <i class="fas fa-compress-arrows-alt"></i>
-                                        <span>Mouse Attract</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="mouse-orbit">
-                                        <i class="fas fa-satellite"></i>
-                                        <span>Mouse Orbit</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="mouse-click">
-                                        <i class="fas fa-hand-pointer"></i>
-                                        <span>Click Effects</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="mouse-gravity">
-                                        <i class="fas fa-meteor"></i>
-                                        <span>Mouse Gravity</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="mouse-wind">
-                                        <i class="fas fa-wind"></i>
-                                        <span>Mouse Wind</span>
-                                    </div>
-                                    <div class="behavior-option" data-behavior="laser">
-                                        <i class="fas fa-crosshairs"></i>
-                                        <span>Laser Pointer</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Text Particle Settings -->
-                            <div class="setting-group" id="text-particle-settings" style="display: none;">
-                                <label>Text Particle Configuration</label>
-                                <div class="control-item">
-                                    <label>Text to Display</label>
-                                    <input type="text" id="particle-text" placeholder="Enter your text" value="EMBERFRAME" class="text-input">
-                                </div>
-                                <div class="control-row">
-                                    <div class="control-item">
-                                        <label>Font Size</label>
-                                        <div class="slider-container">
-                                            <input type="range" id="text-font-size" min="20" max="200" value="80">
-                                            <span class="slider-value">80px</span>
-                                        </div>
-                                    </div>
-                                    <div class="control-item">
-                                        <label>Text Weight</label>
-                                        <select id="text-font-weight">
-                                            <option value="normal">Normal</option>
-                                            <option value="bold" selected>Bold</option>
-                                            <option value="900">Extra Bold</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="control-row">
-                                    <div class="control-item">
-                                        <label>Letter Spacing</label>
-                                        <div class="slider-container">
-                                            <input type="range" id="text-letter-spacing" min="0" max="50" value="10">
-                                            <span class="slider-value">10px</span>
-                                        </div>
-                                    </div>
-                                    <div class="control-item">
-                                        <label>Text Animation</label>
-                                        <select id="text-animation">
-                                            <option value="static">Static</option>
-                                            <option value="wave">Wave</option>
-                                            <option value="bounce">Bounce</option>
-                                            <option value="typewriter">Typewriter</option>
-                                            <option value="explode">Explode</option>
-                                        </select>
+                                    <div class="behavior-option" data-behavior="magnetic">
+                                        <i class="fas fa-magnet"></i>
+                                        <span>Magnetic</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="setting-group">
-                                <label>Mouse Interaction Settings</label>
+                                <label>Mouse Interaction</label>
                                 <div class="control-row">
                                     <div class="control-item">
                                         <label>Mouse Force</label>
@@ -630,75 +574,26 @@ class Settings {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="checkbox-group">
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" id="mouse-click-burst">
-                                        <span class="checkmark"></span>
-                                        Click creates particle burst
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" id="mouse-velocity">
-                                        <span class="checkmark"></span>
-                                        React to mouse velocity
-                                    </label>
-                                </div>
-                            </div>
-
-                            <div class="setting-group">
-                                <label>Particle Appearance</label>
-                                <div class="particle-controls">
-                                    <div class="control-row">
-                                        <div class="control-item">
-                                            <label>Size</label>
-                                            <div class="slider-container">
-                                                <input type="range" id="particle-size" min="1" max="20" value="3">
-                                                <span class="slider-value">3px</span>
-                                            </div>
-                                        </div>
-                                        <div class="control-item">
-                                            <label>Speed</label>
-                                            <div class="slider-container">
-                                                <input type="range" id="particle-speed" min="0.1" max="5" value="1" step="0.1">
-                                                <span class="slider-value">1x</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="control-row">
-                                        <div class="control-item">
-                                            <label>Color</label>
-                                            <input type="color" id="particle-color" value="#00d4ff">
-                                        </div>
-                                        <div class="control-item">
-                                            <label>Shape</label>
-                                            <select id="particle-shape">
-                                                <option value="circle">Circle</option>
-                                                <option value="square">Square</option>
-                                                <option value="triangle">Triangle</option>
-                                                <option value="star">Star</option>
-                                                <option value="diamond">Diamond</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="setting-group">
-                                <label>Special Effects</label>
-                                <div class="checkbox-group">
+                                <div class="effects-grid">
                                     <label class="checkbox-item">
                                         <input type="checkbox" id="particle-glow" checked>
                                         <span class="checkmark"></span>
-                                        Glow effect
+                                        Glow Effect
                                     </label>
                                     <label class="checkbox-item">
                                         <input type="checkbox" id="particle-trails" checked>
                                         <span class="checkmark"></span>
-                                        Particle trails
+                                        Particle Trails
                                     </label>
                                     <label class="checkbox-item">
                                         <input type="checkbox" id="particle-connect">
                                         <span class="checkmark"></span>
-                                        Connect nearby particles
+                                        Connect Particles
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="mouse-click-burst">
+                                        <span class="checkmark"></span>
+                                        Click Bursts
                                     </label>
                                 </div>
                             </div>
@@ -706,57 +601,55 @@ class Settings {
 
                         <!-- Interface Section -->
                         <div class="settings-section" id="interface">
-                            <div class="section-title">🖥️ Interface Settings</div>
+                            <div class="section-title">🖥️ Interface</div>
                             
                             <div class="setting-group">
-                                <label>Font Settings</label>
-                                <div class="font-controls">
-                                    <div class="control-row">
-                                        <div class="control-item">
-                                            <label>Font Family</label>
-                                            <select id="font-family">
-                                                <option value="'Segoe UI', sans-serif">Segoe UI</option>
-                                                <option value="'Roboto', sans-serif">Roboto</option>
-                                                <option value="'Arial', sans-serif">Arial</option>
-                                                <option value="'Helvetica', sans-serif">Helvetica</option>
-                                                <option value="'Fira Code', monospace">Fira Code</option>
-                                                <option value="'Consolas', monospace">Consolas</option>
-                                            </select>
-                                        </div>
-                                        <div class="control-item">
-                                            <label>Font Size</label>
-                                            <div class="slider-container">
-                                                <input type="range" id="font-size" min="10" max="20" value="14">
-                                                <span class="slider-value">14px</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="setting-group">
                                 <label>Window Behavior</label>
-                                <div class="checkbox-group">
+                                <div class="effects-grid">
                                     <label class="checkbox-item">
                                         <input type="checkbox" id="auto-hide-taskbar">
                                         <span class="checkmark"></span>
-                                        Auto-hide taskbar
+                                        Auto-hide Taskbar
                                     </label>
                                     <label class="checkbox-item">
                                         <input type="checkbox" id="snap-windows" checked>
                                         <span class="checkmark"></span>
-                                        Snap windows to edges
+                                        Snap Windows
                                     </label>
                                     <label class="checkbox-item">
                                         <input type="checkbox" id="show-clock" checked>
                                         <span class="checkmark"></span>
-                                        Show system clock
+                                        Show Clock
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="minimize-to-tray">
+                                        <span class="checkmark"></span>
+                                        Minimize to Tray
                                     </label>
                                 </div>
                             </div>
 
                             <div class="setting-group">
-                                <label>Icon Settings</label>
+                                <label>Typography & Layout</label>
+                                <div class="control-row">
+                                    <div class="control-item">
+                                        <label>Font Family</label>
+                                        <select id="font-family">
+                                            <option value="'Segoe UI', sans-serif">Segoe UI</option>
+                                            <option value="'Roboto', sans-serif">Roboto</option>
+                                            <option value="'Arial', sans-serif">Arial</option>
+                                            <option value="'Helvetica', sans-serif">Helvetica</option>
+                                            <option value="'Fira Code', monospace">Fira Code</option>
+                                        </select>
+                                    </div>
+                                    <div class="control-item">
+                                        <label>Font Size</label>
+                                        <div class="slider-container">
+                                            <input type="range" id="font-size" min="10" max="20" value="14">
+                                            <span class="slider-value">14px</span>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="control-row">
                                     <div class="control-item">
                                         <label>Icon Size</label>
@@ -778,7 +671,7 @@ class Settings {
 
                         <!-- Advanced Section -->
                         <div class="settings-section" id="advanced">
-                            <div class="section-title">🔧 Advanced Settings</div>
+                            <div class="section-title">🔧 Advanced</div>
                             
                             <div class="setting-group">
                                 <label>Performance</label>
@@ -796,34 +689,45 @@ class Settings {
                                         <label class="checkbox-item">
                                             <input type="checkbox" id="hardware-acceleration" checked>
                                             <span class="checkmark"></span>
-                                            Hardware acceleration
+                                            Hardware Acceleration
                                         </label>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="setting-group">
-                                <label>Debug Options</label>
-                                <div class="checkbox-group">
+                                <label>Debug & Monitoring</label>
+                                <div class="effects-grid">
                                     <label class="checkbox-item">
                                         <input type="checkbox" id="show-fps">
                                         <span class="checkmark"></span>
-                                        Show FPS counter
+                                        Show FPS Counter
                                     </label>
                                     <label class="checkbox-item">
                                         <input type="checkbox" id="debug-mode">
                                         <span class="checkmark"></span>
-                                        Debug mode
+                                        Debug Mode
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="performance-monitor">
+                                        <span class="checkmark"></span>
+                                        Performance Monitor
+                                    </label>
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" id="verbose-logging">
+                                        <span class="checkmark"></span>
+                                        Verbose Logging
                                     </label>
                                 </div>
                             </div>
 
                             <div class="setting-group">
-                                <label>Actions</label>
+                                <label>Data Management</label>
                                 <div class="action-buttons">
-                                    <button class="action-btn" id="reset-settings">Reset to Defaults</button>
-                                    <button class="action-btn" id="export-settings">Export Settings</button>
-                                    <button class="action-btn" id="import-settings">Import Settings</button>
+                                    <button class="action-btn" id="reset-settings">🔄 Reset All</button>
+                                    <button class="action-btn" id="export-settings">📤 Export</button>
+                                    <button class="action-btn" id="import-settings">📥 Import</button>
+                                    <button class="action-btn danger" id="clear-cache">🗑️ Clear Cache</button>
                                 </div>
                             </div>
                         </div>
@@ -856,7 +760,7 @@ class Settings {
         // Auto-save on any change
         this.setupAutoSave();
 
-        console.log('🔧 Settings initialized successfully');
+        console.log('🔧 Settings Pro v6.0 initialized successfully');
     }
 
     static setupEventListeners() {
@@ -864,6 +768,13 @@ class Settings {
         this.windowElement.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', () => {
                 this.switchSection(item.dataset.section);
+            });
+        });
+
+        // Preset cards
+        this.windowElement.querySelectorAll('.preset-card').forEach(card => {
+            card.addEventListener('click', () => {
+                this.applyPreset(card.dataset.preset);
             });
         });
 
@@ -885,26 +796,9 @@ class Settings {
             });
         });
 
-        // All sliders with live update
-        this.windowElement.querySelectorAll('input[type="range"]').forEach(slider => {
-            slider.addEventListener('input', (e) => {
-                this.updateSliderValue(slider);
-                this.applySetting(slider.id, slider.value);
-            });
-        });
-
-        // All checkboxes
-        this.windowElement.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', (e) => {
-                this.applySetting(checkbox.id, checkbox.checked);
-            });
-        });
-
-        // All selects
-        this.windowElement.querySelectorAll('select').forEach(select => {
-            select.addEventListener('change', (e) => {
-                this.applySetting(select.id, select.value);
-            });
+        // Color randomizer
+        this.windowElement.querySelector('#color-randomize').addEventListener('click', () => {
+            this.randomizeAccentColor();
         });
 
         // Background types
@@ -932,12 +826,48 @@ class Settings {
             });
         });
 
+        // Particles master toggle
+        this.windowElement.querySelector('#particles-enabled').addEventListener('change', (e) => {
+            this.toggleParticleSystem(e.target.checked);
+        });
+
         // Particle behaviors
         this.windowElement.querySelectorAll('.behavior-option').forEach(behavior => {
             behavior.addEventListener('click', () => {
                 this.setParticleBehavior(behavior.dataset.behavior);
                 behavior.parentElement.querySelectorAll('.behavior-option').forEach(b => b.classList.remove('active'));
                 behavior.classList.add('active');
+            });
+        });
+
+        // Test buttons
+        this.windowElement.querySelector('#test-particles').addEventListener('click', () => {
+            this.testParticles();
+        });
+
+        this.windowElement.querySelector('#reset-particles').addEventListener('click', () => {
+            this.resetParticleSystem();
+        });
+
+        // All sliders with live update
+        this.windowElement.querySelectorAll('input[type="range"]').forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                this.updateSliderValue(slider);
+                this.applySetting(slider.id, slider.value);
+            });
+        });
+
+        // All checkboxes
+        this.windowElement.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', (e) => {
+                this.applySetting(checkbox.id, checkbox.checked);
+            });
+        });
+
+        // All selects
+        this.windowElement.querySelectorAll('select').forEach(select => {
+            select.addEventListener('change', (e) => {
+                this.applySetting(select.id, select.value);
             });
         });
 
@@ -948,7 +878,34 @@ class Settings {
             });
         });
 
+        // Media browse button
+        this.windowElement.querySelector('#media-browse').addEventListener('click', () => {
+            this.windowElement.querySelector('#media-file').click();
+        });
+
+        this.windowElement.querySelector('#media-file').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                this.windowElement.querySelector('#media-url').value = url;
+                this.applySetting('media-url', url);
+            }
+        });
+
+        // Profile management
+        this.windowElement.querySelector('#save-profile').addEventListener('click', () => {
+            this.saveProfile();
+        });
+
+        this.windowElement.querySelector('#load-profile').addEventListener('click', () => {
+            this.loadProfile();
+        });
+
         // Action buttons
+        this.setupActionButtons();
+    }
+
+    static setupActionButtons() {
         this.windowElement.querySelector('#reset-settings').addEventListener('click', () => {
             this.resetSettings();
         });
@@ -961,48 +918,12 @@ class Settings {
             this.importSettings();
         });
 
-        // Media background controls
-        this.windowElement.querySelector('#gif-browse').addEventListener('click', () => {
-            this.windowElement.querySelector('#gif-file').click();
-        });
-
-        this.windowElement.querySelector('#gif-file').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const url = URL.createObjectURL(file);
-                this.windowElement.querySelector('#gif-url').value = url;
-                this.applySetting('gif-url', url);
-            }
-        });
-
-        this.windowElement.querySelector('#gif-url').addEventListener('input', (e) => {
-            this.applySetting('gif-url', e.target.value);
-        });
-
-        this.windowElement.querySelector('#youtube-url').addEventListener('input', (e) => {
-            this.applySetting('youtube-url', e.target.value);
-        });
-
-        // Text particle controls
-        this.windowElement.querySelector('#particle-text').addEventListener('input', (e) => {
-            this.applySetting('particle-text', e.target.value);
-        });
-
-        // Test particles button
-        this.windowElement.querySelector('#test-particles').addEventListener('click', () => {
-            console.log('🧪 Testing simple particles...');
-            window.createTestParticles();
-        });
-
-        // Test advanced particles button
-        this.windowElement.querySelector('#test-advanced').addEventListener('click', () => {
-            console.log('🚀 Testing advanced particles...');
-            window.testAdvancedParticles();
+        this.windowElement.querySelector('#clear-cache').addEventListener('click', () => {
+            this.clearCache();
         });
     }
 
     static setupAutoSave() {
-        // Auto-save every 500ms after changes
         let saveTimeout;
         const autoSave = () => {
             clearTimeout(saveTimeout);
@@ -1011,7 +932,6 @@ class Settings {
             }, 500);
         };
 
-        // Monitor all form elements
         this.windowElement.addEventListener('input', autoSave);
         this.windowElement.addEventListener('change', autoSave);
     }
@@ -1028,6 +948,203 @@ class Settings {
             section.classList.remove('active');
         });
         this.windowElement.querySelector(`#${sectionId}`).classList.add('active');
+    }
+
+    static applyPreset(presetName) {
+        console.log(`🎯 Applying preset: ${presetName}`);
+
+        const presets = {
+            cyberpunk: {
+                colorScheme: 'cyber',
+                accentColor: '#ff00ff',
+                backgroundType: 'animated',
+                backgroundAnimation: 'matrix',
+                particleBehavior: 'dodge',
+                'particle-color': '#00d4ff',
+                'particle-count': 200,
+                'particle-glow': true,
+                'animation-speed': 1.5,
+                'animation-intensity': 1.8
+            },
+            space: {
+                colorScheme: 'dark',
+                accentColor: '#4a90e2',
+                backgroundType: 'animated',
+                backgroundAnimation: 'starfield',
+                particleBehavior: 'float',
+                'particle-color': '#ffffff',
+                'particle-count': 150,
+                'particle-glow': true,
+                'animation-speed': 0.8,
+                'animation-intensity': 1.2
+            },
+            ocean: {
+                colorScheme: 'ocean',
+                accentColor: '#00bfff',
+                backgroundType: 'animated',
+                backgroundAnimation: 'waves',
+                particleBehavior: 'wave',
+                'particle-color': '#87ceeb',
+                'particle-count': 100,
+                'particle-trails': true,
+                'animation-speed': 1.0,
+                'animation-intensity': 1.0
+            },
+            forest: {
+                colorScheme: 'forest',
+                accentColor: '#32cd32',
+                backgroundType: 'gradient',
+                'gradient-start': '#1a2e1a',
+                'gradient-end': '#2d5a2d',
+                particleBehavior: 'swarm',
+                'particle-color': '#90ee90',
+                'particle-count': 80,
+                'animation-speed': 0.6
+            },
+            synthwave: {
+                colorScheme: 'synthwave',
+                accentColor: '#feca57',
+                backgroundType: 'pattern',
+                backgroundPattern: 'grid',
+                'pattern-color': '#ff6b6b',
+                'pattern-animate': true,
+                particleBehavior: 'orbit',
+                'particle-color': '#ff9ff3',
+                'particle-count': 120,
+                'particle-glow': true
+            },
+            minimal: {
+                colorScheme: 'light',
+                accentColor: '#666666',
+                backgroundType: 'gradient',
+                'gradient-start': '#ffffff',
+                'gradient-end': '#f8f9fa',
+                particleBehavior: 'float',
+                'particle-color': '#cccccc',
+                'particle-count': 30,
+                'particle-size': 2,
+                'particle-speed': 0.3
+            },
+            aurora: {
+                colorScheme: 'aurora',
+                accentColor: '#80ff80',
+                backgroundType: 'animated',
+                backgroundAnimation: 'plasma',
+                particleBehavior: 'spiral',
+                'particle-color': '#e0e0ff',
+                'particle-count': 180,
+                'particle-trails': true,
+                'animation-speed': 0.7,
+                'animation-intensity': 1.5
+            },
+            volcanic: {
+                colorScheme: 'volcanic',
+                accentColor: '#ff4400',
+                backgroundType: 'animated',
+                backgroundAnimation: 'fire',
+                particleBehavior: 'fireworks',
+                'particle-color': '#ff6347',
+                'particle-count': 250,
+                'particle-glow': true,
+                'animation-speed': 2.0,
+                'animation-intensity': 2.0
+            },
+            gaming: {
+                colorScheme: 'neon',
+                accentColor: '#ff0080',
+                backgroundType: 'animated',
+                backgroundAnimation: 'neural',
+                particleBehavior: 'follow',
+                'particle-color': '#00ffff',
+                'particle-count': 300,
+                'particle-connect': true,
+                'mouse-force': 2.0,
+                'animation-speed': 1.2
+            },
+            productivity: {
+                colorScheme: 'light',
+                accentColor: '#007bff',
+                backgroundType: 'gradient',
+                'gradient-start': '#f8f9fa',
+                'gradient-end': '#e9ecef',
+                particleBehavior: 'float',
+                'particle-color': '#dee2e6',
+                'particle-count': 20,
+                'particle-size': 1,
+                'particle-speed': 0.2
+            },
+            party: {
+                colorScheme: 'neon',
+                accentColor: '#ff69b4',
+                backgroundType: 'animated',
+                backgroundAnimation: 'plasma',
+                particleBehavior: 'bounce',
+                'particle-color': '#ff1493',
+                'particle-count': 400,
+                'particle-glow': true,
+                'mouse-click-burst': true,
+                'animation-speed': 2.5,
+                'animation-intensity': 2.0
+            },
+            zen: {
+                colorScheme: 'forest',
+                accentColor: '#90ee90',
+                backgroundType: 'gradient',
+                'gradient-start': '#0f1f0f',
+                'gradient-end': '#1a2e1a',
+                particleBehavior: 'constellation',
+                'particle-color': '#98fb98',
+                'particle-count': 50,
+                'particle-trails': true,
+                'particle-speed': 0.1
+            }
+        };
+
+        const preset = presets[presetName];
+        if (preset) {
+            // Apply all preset settings
+            Object.entries(preset).forEach(([key, value]) => {
+                this.settings[key] = value;
+                this.applySetting(key, value);
+            });
+
+            // Update UI to reflect changes
+            this.updateAllUIFromSettings();
+            this.saveSettings();
+
+            // Show feedback
+            this.showPresetApplied(presetName);
+        }
+    }
+
+    static showPresetApplied(presetName) {
+        // Create temporary notification
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent-color, #00d4ff);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 10000;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            animation: slideInRight 0.3s ease;
+        `;
+        notification.textContent = `✨ ${presetName.charAt(0).toUpperCase() + presetName.slice(1)} preset applied!`;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOutRight 0.3s ease';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 300);
+        }, 2000);
     }
 
     static setColorScheme(scheme) {
@@ -1047,8 +1164,7 @@ class Settings {
 
         // Remove existing scheme classes
         body.classList.remove('light-mode', 'dark-mode', 'cyber-mode', 'neon-mode', 'matrix-mode',
-                             'synthwave-mode', 'ocean-mode', 'sunset-mode', 'forest-mode', 'royal-mode',
-                             'fire-mode', 'ice-mode', 'space-mode', 'toxic-mode', 'pastel-mode');
+                             'synthwave-mode', 'ocean-mode', 'sunset-mode', 'forest-mode', 'aurora-mode', 'volcanic-mode');
 
         const schemes = {
             'dark': {
@@ -1057,7 +1173,6 @@ class Settings {
                     '--bg-primary': '#1a1a1a',
                     '--bg-secondary': '#0f0f0f',
                     '--text-primary': '#ffffff',
-                    '--accent-color': '#00d4ff'
                 }
             },
             'light': {
@@ -1066,7 +1181,6 @@ class Settings {
                     '--bg-primary': '#ffffff',
                     '--bg-secondary': '#f8f9fa',
                     '--text-primary': '#333333',
-                    '--accent-color': '#007bff'
                 }
             },
             'cyber': {
@@ -1075,7 +1189,6 @@ class Settings {
                     '--bg-primary': '#0a0a0f',
                     '--bg-secondary': '#050508',
                     '--text-primary': '#00d4ff',
-                    '--accent-color': '#ff00ff'
                 }
             },
             'neon': {
@@ -1084,7 +1197,6 @@ class Settings {
                     '--bg-primary': '#0d0d0d',
                     '--bg-secondary': '#1a1a1a',
                     '--text-primary': '#00ffff',
-                    '--accent-color': '#ff0080'
                 }
             },
             'matrix': {
@@ -1093,7 +1205,6 @@ class Settings {
                     '--bg-primary': '#000000',
                     '--bg-secondary': '#001100',
                     '--text-primary': '#00ff00',
-                    '--accent-color': '#00aa00'
                 }
             },
             'synthwave': {
@@ -1102,7 +1213,6 @@ class Settings {
                     '--bg-primary': '#2d1b69',
                     '--bg-secondary': '#1a0f3d',
                     '--text-primary': '#ff6b6b',
-                    '--accent-color': '#feca57'
                 }
             },
             'ocean': {
@@ -1111,7 +1221,6 @@ class Settings {
                     '--bg-primary': '#0f3460',
                     '--bg-secondary': '#16537e',
                     '--text-primary': '#87ceeb',
-                    '--accent-color': '#00bfff'
                 }
             },
             'sunset': {
@@ -1120,7 +1229,6 @@ class Settings {
                     '--bg-primary': '#2c1810',
                     '--bg-secondary': '#3d2418',
                     '--text-primary': '#ffd700',
-                    '--accent-color': '#ff6347'
                 }
             },
             'forest': {
@@ -1129,73 +1237,25 @@ class Settings {
                     '--bg-primary': '#1a2e1a',
                     '--bg-secondary': '#0f1f0f',
                     '--text-primary': '#90ee90',
-                    '--accent-color': '#32cd32'
                 }
             },
-            'royal': {
-                class: 'royal-mode',
+            'aurora': {
+                class: 'aurora-mode',
                 colors: {
-                    '--bg-primary': '#1a0d33',
-                    '--bg-secondary': '#2d1b4e',
-                    '--text-primary': '#daa520',
-                    '--accent-color': '#9932cc'
+                    '--bg-primary': '#1a2040',
+                    '--bg-secondary': '#0f1530',
+                    '--text-primary': '#e0e0ff',
                 }
             },
-            'fire': {
-                class: 'fire-mode',
+            'volcanic': {
+                class: 'volcanic-mode',
                 colors: {
-                    '--bg-primary': '#2d0a0a',
-                    '--bg-secondary': '#1a0000',
-                    '--text-primary': '#ff4500',
-                    '--accent-color': '#dc143c'
-                }
-            },
-            'ice': {
-                class: 'ice-mode',
-                colors: {
-                    '--bg-primary': '#0a1a2d',
-                    '--bg-secondary': '#041426',
-                    '--text-primary': '#b0e0e6',
-                    '--accent-color': '#00ffff'
-                }
-            },
-            'space': {
-                class: 'space-mode',
-                colors: {
-                    '--bg-primary': '#0c0c1e',
-                    '--bg-secondary': '#1a1a3a',
-                    '--text-primary': '#e6e6fa',
-                    '--accent-color': '#9370db'
-                }
-            },
-            'toxic': {
-                class: 'toxic-mode',
-                colors: {
-                    '--bg-primary': '#1a2d0a',
-                    '--bg-secondary': '#0f1f00',
-                    '--text-primary': '#adff2f',
-                    '--accent-color': '#7fff00'
-                }
-            },
-            'pastel': {
-                class: 'pastel-mode',
-                colors: {
-                    '--bg-primary': '#f5f5f5',
-                    '--bg-secondary': '#e8e8e8',
-                    '--text-primary': '#333333',
-                    '--accent-color': '#ff91a4'
+                    '--bg-primary': '#3d1a00',
+                    '--bg-secondary': '#2d1000',
+                    '--text-primary': '#ffaa55',
                 }
             }
         };
-
-        if (scheme === 'auto') {
-            // Use system preference
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                scheme = 'dark';
-            } else {
-                scheme = 'light';
-            }
-        }
 
         const schemeData = schemes[scheme];
         if (schemeData) {
@@ -1226,6 +1286,12 @@ class Settings {
         this.saveSettings();
     }
 
+    static randomizeAccentColor() {
+        const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd', '#00d4ff'];
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        this.setAccentColor(randomColor);
+    }
+
     static setBackgroundType(type) {
         this.settings.backgroundType = type;
 
@@ -1235,21 +1301,50 @@ class Settings {
 
         // Show/hide relevant settings
         this.windowElement.querySelector('#gradient-settings').style.display = type === 'gradient' ? 'block' : 'none';
-        this.windowElement.querySelector('#media-settings').style.display = type === 'media' ? 'block' : 'none';
+        this.windowElement.querySelector('#animated-settings').style.display = type === 'animated' ? 'block' : 'none';
         this.windowElement.querySelector('#pattern-settings').style.display = type === 'pattern' ? 'block' : 'none';
+        this.windowElement.querySelector('#media-settings').style.display = type === 'media' ? 'block' : 'none';
 
         this.updateBackground();
         this.saveSettings();
     }
 
-    static setMediaType(mediaType) {
-        this.settings.mediaType = mediaType;
+    static setAnimatedBackground(animation) {
+        this.settings.backgroundAnimation = animation;
+        if (this.backgroundSystem) {
+            this.backgroundSystem.setAnimation(animation);
+        } else {
+            this.initializeBackgroundSystem();
+        }
+        this.saveSettings();
+    }
 
-        // Show/hide controls
-        this.windowElement.querySelector('#gif-controls').style.display = mediaType === 'gif' ? 'block' : 'none';
-        this.windowElement.querySelector('#youtube-controls').style.display = mediaType === 'youtube' ? 'block' : 'none';
-
+    static setPattern(pattern) {
+        this.settings.backgroundPattern = pattern;
         this.updateBackground();
+        this.saveSettings();
+    }
+
+    static toggleParticleSystem(enabled) {
+        this.settings['particles-enabled'] = enabled;
+
+        const statusEl = this.windowElement.querySelector('#particles-status');
+        const mainControls = this.windowElement.querySelector('#particles-main-controls');
+
+        if (enabled) {
+            statusEl.innerHTML = '<span class="status-text">Active - Rendering</span>';
+            statusEl.className = 'particles-status active';
+            mainControls.style.opacity = '1';
+            mainControls.style.pointerEvents = 'all';
+            this.initializeParticleSystem();
+        } else {
+            statusEl.innerHTML = '<span class="status-text">Inactive - System Idle</span>';
+            statusEl.className = 'particles-status inactive';
+            mainControls.style.opacity = '0.5';
+            mainControls.style.pointerEvents = 'none';
+            this.destroyParticleSystem();
+        }
+
         this.saveSettings();
     }
 
@@ -1261,44 +1356,49 @@ class Settings {
         this.saveSettings();
     }
 
+    static testParticles() {
+        console.log('🧪 Testing particle system...');
+        if (this.particleSystem) {
+            this.particleSystem.testBurst();
+        } else {
+            this.initializeParticleSystem();
+        }
+    }
+
+    static resetParticleSystem() {
+        console.log('🔄 Resetting particle system...');
+        this.destroyParticleSystem();
+        setTimeout(() => {
+            if (this.settings['particles-enabled']) {
+                this.initializeParticleSystem();
+            }
+        }, 200);
+    }
+
     static applySetting(settingId, value) {
         this.settings[settingId] = value;
 
         switch (settingId) {
             case 'window-transparency':
                 const opacity = 1 - (value / 100);
-                document.documentElement.style.setProperty('--window-opacity', opacity);
-                // Apply to all windows
                 document.querySelectorAll('.window').forEach(window => {
                     window.style.backgroundColor = `rgba(26, 26, 26, ${opacity})`;
                     window.style.backdropFilter = value > 0 ? `blur(${value/10}px)` : 'none';
                 });
                 break;
-            case 'blur-effects':
-                document.body.classList.toggle('no-blur', !value);
-                break;
-            case 'window-shadows':
-                document.documentElement.style.setProperty('--window-shadow', value ? '0 10px 30px rgba(0,0,0,0.3)' : 'none');
-                break;
-            case 'smooth-animations':
-                document.body.classList.toggle('no-animations', !value);
-                break;
             case 'particles-enabled':
-                console.log(`🎆 Particles ${value ? 'enabled' : 'disabled'}`);
-                if (value) {
-                    this.initializeParticleSystem();
-                } else {
-                    this.destroyParticleSystem();
-                }
+                this.toggleParticleSystem(value);
                 break;
             case 'particle-count':
             case 'particle-size':
             case 'particle-speed':
             case 'particle-color':
-            case 'particle-shape':
             case 'particle-glow':
             case 'particle-trails':
             case 'particle-connect':
+            case 'mouse-force':
+            case 'mouse-range':
+            case 'mouse-click-burst':
                 if (this.particleSystem) {
                     this.particleSystem.updateSettings(this.settings);
                 }
@@ -1306,44 +1406,28 @@ class Settings {
             case 'gradient-start':
             case 'gradient-end':
             case 'gradient-angle':
-            case 'pattern-visibility':
+            case 'gradient-opacity':
             case 'pattern-size':
+            case 'pattern-opacity':
             case 'pattern-color':
-            case 'pattern-color2':
-            case 'pattern-rotation':
-            case 'pattern-complexity':
             case 'pattern-animate':
-            case 'pattern-glow':
-            case 'pattern-3d':
+            case 'animation-speed':
+            case 'animation-intensity':
+            case 'media-url':
+            case 'media-opacity':
+            case 'media-blur':
                 this.updateBackground();
                 break;
-            case 'gif-url':
-            case 'youtube-url':
-            case 'media-opacity':
-            case 'media-speed':
-            case 'media-loop':
-            case 'media-muted':
-            case 'media-blur':
-                if (this.settings.backgroundType === 'media') {
-                    this.updateBackground();
+            case 'show-fps':
+                if (value) {
+                    this.initializeFPSCounter();
+                } else {
+                    this.destroyFPSCounter();
                 }
                 break;
-            case 'particle-text':
-            case 'text-font-size':
-            case 'text-font-weight':
-            case 'text-letter-spacing':
-            case 'text-animation':
-                if (this.particleSystem && this.settings.particleBehavior === 'text') {
-                    this.particleSystem.arrangeAsText();
-                }
-                break;
-            case 'mouse-force':
-            case 'mouse-range':
-            case 'mouse-click-burst':
-            case 'mouse-velocity':
-                if (this.particleSystem) {
-                    this.particleSystem.settings = this.settings;
-                }
+            case 'ui-scale':
+                document.body.style.transform = `scale(${value})`;
+                document.body.style.transformOrigin = 'top left';
                 break;
             case 'font-family':
                 document.body.style.fontFamily = value;
@@ -1356,16 +1440,6 @@ class Settings {
                 break;
             case 'icon-spacing':
                 document.documentElement.style.setProperty('--icon-spacing', value + 'px');
-                break;
-            case 'show-fps':
-                if (value) {
-                    this.initializeFPSCounter();
-                } else {
-                    this.destroyFPSCounter();
-                }
-                break;
-            case 'debug-mode':
-                document.body.classList.toggle('debug-mode', value);
                 break;
         }
     }
@@ -1380,259 +1454,47 @@ class Settings {
                 suffix = '%';
             } else if (slider.id.includes('angle')) {
                 suffix = '°';
-            } else if (slider.id.includes('size') && slider.id !== 'font-size') {
+            } else if (slider.id.includes('size') && !slider.id.includes('font')) {
                 suffix = 'px';
             } else if (slider.id === 'font-size') {
                 suffix = 'px';
-            } else if (slider.id.includes('speed')) {
+            } else if (slider.id.includes('speed') || slider.id.includes('scale') || slider.id.includes('force')) {
                 suffix = 'x';
-            } else if (slider.id.includes('spacing')) {
+            } else if (slider.id.includes('range') || slider.id.includes('spacing')) {
                 suffix = 'px';
+            } else if (slider.id === 'ui-scale') {
+                suffix = '%';
+                value = Math.round(value * 100);
             }
 
             valueSpan.textContent = value + suffix;
         }
     }
 
-    static updateBackground() {
-        if (!this.wallpaperLayer) {
-            this.createWallpaperLayer();
-        }
-
-        const type = this.settings.backgroundType;
-
-        // Clear previous background
-        this.wallpaperLayer.style.background = 'transparent';
-        this.wallpaperLayer.style.backgroundImage = '';
-        this.wallpaperLayer.innerHTML = '';
-
-        if (type === 'gradient') {
-            const start = this.settings['gradient-start'] || '#667eea';
-            const end = this.settings['gradient-end'] || '#764ba2';
-            const angle = this.settings['gradient-angle'] || 135;
-
-            this.wallpaperLayer.style.background = `linear-gradient(${angle}deg, ${start}, ${end})`;
-        } else if (type === 'pattern') {
-            this.generatePattern();
-        } else if (type === 'media') {
-            this.setupMediaBackground();
-        }
-    }
-
-    static setupMediaBackground() {
-        const mediaType = this.settings.mediaType || 'gif';
-        const opacity = (this.settings['media-opacity'] || 50) / 100;
-        const speed = this.settings['media-speed'] || 1;
-        const loop = this.settings['media-loop'] !== false;
-        const muted = this.settings['media-muted'] !== false;
-        const blur = this.settings['media-blur'] || false;
-
-        if (mediaType === 'gif') {
-            const gifUrl = this.settings['gif-url'];
-            if (gifUrl) {
-                const img = document.createElement('img');
-                img.style.cssText = `
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    opacity: ${opacity};
-                    filter: ${blur ? 'blur(5px)' : 'none'};
-                `;
-                img.src = gifUrl;
-                img.onerror = () => {
-                    console.error('Failed to load GIF:', gifUrl);
-                    this.wallpaperLayer.innerHTML = '<div style="color: #ff4444; text-align: center; padding: 50px;">Failed to load GIF</div>';
-                };
-                this.wallpaperLayer.appendChild(img);
-            }
-        } else if (mediaType === 'youtube') {
-            const youtubeUrl = this.settings['youtube-url'];
-            if (youtubeUrl) {
-                const videoId = this.extractYouTubeVideoId(youtubeUrl);
-                if (videoId) {
-                    const iframe = document.createElement('iframe');
-                    iframe.style.cssText = `
-                        width: 100%;
-                        height: 100%;
-                        border: none;
-                        opacity: ${opacity};
-                        filter: ${blur ? 'blur(5px)' : 'none'};
-                    `;
-                    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&loop=${loop ? 1 : 0}&mute=${muted ? 1 : 0}&controls=0&playlist=${videoId}`;
-                    iframe.allow = 'autoplay; encrypted-media';
-                    this.wallpaperLayer.appendChild(iframe);
-                }
-            }
-        }
-    }
-
-    static extractYouTubeVideoId(url) {
-        const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-        const match = url.match(regex);
-        return match ? match[1] : null;
-    }
-
-    static generatePattern() {
-        if (!this.wallpaperLayer) {
-            this.createWallpaperLayer();
-        }
-
-        const pattern = this.settings.backgroundPattern || 'dots';
-        const opacity = (this.settings['pattern-opacity'] || 20) / 100;
-        const size = this.settings['pattern-size'] || 20;
-        const color = this.settings['pattern-color'] || this.settings.accentColor || '#00d4ff';
-        const animate = this.settings['pattern-animate'];
-
-        let backgroundImage = '';
-        let backgroundSize = `${size}px ${size}px`;
-
-        switch (pattern) {
-            case 'dots':
-                backgroundImage = `radial-gradient(circle, ${color} 1px, transparent 1px)`;
-                break;
-
-            case 'grid':
-                backgroundImage = `
-                    linear-gradient(${color} 1px, transparent 1px), 
-                    linear-gradient(90deg, ${color} 1px, transparent 1px)
-                `;
-                break;
-
-            case 'lines':
-                backgroundImage = `repeating-linear-gradient(45deg, ${color} 0px, ${color} 1px, transparent 1px, transparent ${size/4}px)`;
-                break;
-
-            case 'hexagon':
-                backgroundImage = `
-                    radial-gradient(circle at 25% 25%, ${color} 2px, transparent 2px),
-                    radial-gradient(circle at 75% 75%, ${color} 2px, transparent 2px)
-                `;
-                backgroundSize = `${size}px ${size * 0.866}px`;
-                break;
-
-            case 'triangles':
-                backgroundImage = `
-                    linear-gradient(45deg, ${color} 25%, transparent 25%),
-                    linear-gradient(-45deg, ${color} 25%, transparent 25%),
-                    linear-gradient(45deg, transparent 75%, ${color} 75%),
-                    linear-gradient(-45deg, transparent 75%, ${color} 75%)
-                `;
-                break;
-
-            case 'waves':
-                backgroundImage = `
-                    repeating-linear-gradient(0deg,
-                        transparent 0px,
-                        transparent ${size/4}px,
-                        ${color} ${size/4}px,
-                        ${color} ${size/2}px
-                    )
-                `;
-                break;
-
-            case 'circuit':
-                backgroundImage = `
-                    linear-gradient(90deg, ${color} 1px, transparent 1px),
-                    linear-gradient(${color} 1px, transparent 1px),
-                    linear-gradient(90deg, ${color} 2px, transparent 2px),
-                    linear-gradient(${color} 2px, transparent 2px)
-                `;
-                backgroundSize = `${size}px ${size}px, ${size}px ${size}px, ${size*2}px ${size*2}px, ${size*2}px ${size*2}px`;
-                break;
-
-            case 'maze':
-                backgroundImage = `
-                    linear-gradient(90deg, ${color} 2px, transparent 2px),
-                    linear-gradient(${color} 2px, transparent 2px),
-                    linear-gradient(90deg, transparent ${size/2}px, ${color} ${size/2}px, ${color} ${size/2+2}px, transparent ${size/2+2}px)
-                `;
-                break;
-
-            case 'crosshatch':
-                backgroundImage = `
-                    repeating-linear-gradient(45deg, ${color} 0px, ${color} 1px, transparent 1px, transparent ${size/3}px),
-                    repeating-linear-gradient(-45deg, ${color} 0px, ${color} 1px, transparent 1px, transparent ${size/3}px)
-                `;
-                break;
-
-            case 'chevron':
-                backgroundImage = `
-                    repeating-linear-gradient(60deg, ${color} 0px, ${color} 1px, transparent 1px, transparent ${size/2}px),
-                    repeating-linear-gradient(120deg, ${color} 0px, ${color} 1px, transparent 1px, transparent ${size/2}px)
-                `;
-                break;
-
-            case 'diamonds':
-                backgroundImage = `
-                    repeating-conic-gradient(from 0deg at 50% 50%, 
-                        ${color} 0deg 90deg, 
-                        transparent 90deg 180deg, 
-                        ${color} 180deg 270deg, 
-                        transparent 270deg 360deg
-                    )
-                `;
-                break;
-
-            case 'scales':
-                backgroundImage = `
-                    radial-gradient(circle at 100% 50%, transparent ${size/3}px, ${color} ${size/3}px, ${color} ${size/2}px, transparent ${size/2}px),
-                    radial-gradient(circle at 0% 50%, transparent ${size/3}px, ${color} ${size/3}px, ${color} ${size/2}px, transparent ${size/2}px)
-                `;
-                backgroundSize = `${size}px ${size/2}px`;
-                break;
-        }
-
-        // Apply pattern to wallpaper layer
-        this.wallpaperLayer.style.background = `rgba(0, 0, 0, ${1 - opacity})`;
-        this.wallpaperLayer.style.backgroundImage = backgroundImage;
-        this.wallpaperLayer.style.backgroundSize = backgroundSize;
-
-        // Add animation if enabled
-        if (animate) {
-            this.wallpaperLayer.style.animation = 'patternMove 10s linear infinite';
-
-            // Add keyframes if not already added
-            if (!document.querySelector('#pattern-keyframes')) {
-                const style = document.createElement('style');
-                style.id = 'pattern-keyframes';
-                style.textContent = `
-                    @keyframes patternMove {
-                        0% { background-position: 0px 0px; }
-                        100% { background-position: ${size}px ${size}px; }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-        } else {
-            this.wallpaperLayer.style.animation = 'none';
-        }
-    }
-
     static initializeSystems() {
-        // Create wallpaper layer first
         this.createWallpaperLayer();
 
-        // Initialize particle system if enabled
         if (this.settings['particles-enabled']) {
             this.initializeParticleSystem();
+        }
+
+        if (this.settings.backgroundType === 'animated') {
+            this.initializeBackgroundSystem();
         }
 
         if (this.settings['show-fps']) {
             this.initializeFPSCounter();
         }
 
-        // Apply background after systems are ready
         this.updateBackground();
     }
 
     static createWallpaperLayer() {
-        // Remove existing wallpaper if any
         const existingWallpaper = document.getElementById('ember-wallpaper');
         if (existingWallpaper) {
             existingWallpaper.remove();
         }
 
-        // Create wallpaper layer
         const wallpaper = document.createElement('div');
         wallpaper.id = 'ember-wallpaper';
         wallpaper.style.cssText = `
@@ -1645,38 +1507,156 @@ class Settings {
             pointer-events: none;
         `;
         document.body.appendChild(wallpaper);
-
         this.wallpaperLayer = wallpaper;
-        this.updateBackground();
+    }
+
+    static updateBackground() {
+        if (!this.wallpaperLayer) {
+            this.createWallpaperLayer();
+        }
+
+        const type = this.settings.backgroundType || 'gradient';
+
+        // Clear previous background
+        this.wallpaperLayer.style.background = 'transparent';
+        this.wallpaperLayer.style.backgroundImage = '';
+        this.wallpaperLayer.innerHTML = '';
+
+        switch (type) {
+            case 'gradient':
+                this.applyGradientBackground();
+                break;
+            case 'pattern':
+                this.applyPatternBackground();
+                break;
+            case 'media':
+                this.applyMediaBackground();
+                break;
+            case 'animated':
+                // Handled by background system
+                break;
+        }
+    }
+
+    static applyGradientBackground() {
+        const start = this.settings['gradient-start'] || '#667eea';
+        const end = this.settings['gradient-end'] || '#764ba2';
+        const angle = this.settings['gradient-angle'] || 135;
+        const opacity = (this.settings['gradient-opacity'] || 100) / 100;
+
+        this.wallpaperLayer.style.background = `linear-gradient(${angle}deg, ${start}, ${end})`;
+        this.wallpaperLayer.style.opacity = opacity;
+    }
+
+    static applyPatternBackground() {
+        const pattern = this.settings.backgroundPattern || 'dots';
+        const size = this.settings['pattern-size'] || 20;
+        const opacity = (this.settings['pattern-opacity'] || 30) / 100;
+        const color = this.settings['pattern-color'] || this.settings.accentColor || '#00d4ff';
+        const animate = this.settings['pattern-animate'];
+
+        let backgroundImage = '';
+        let backgroundSize = `${size}px ${size}px`;
+
+        switch (pattern) {
+            case 'dots':
+                backgroundImage = `radial-gradient(circle, ${color} 1px, transparent 1px)`;
+                break;
+            case 'grid':
+                backgroundImage = `
+                    linear-gradient(${color} 1px, transparent 1px), 
+                    linear-gradient(90deg, ${color} 1px, transparent 1px)
+                `;
+                break;
+            case 'lines':
+                backgroundImage = `repeating-linear-gradient(45deg, ${color} 0px, ${color} 1px, transparent 1px, transparent ${size/4}px)`;
+                break;
+            case 'hexagon':
+                backgroundImage = `
+                    radial-gradient(circle at 25% 25%, ${color} 2px, transparent 2px),
+                    radial-gradient(circle at 75% 75%, ${color} 2px, transparent 2px)
+                `;
+                break;
+            case 'triangles':
+                backgroundImage = `
+                    linear-gradient(45deg, ${color} 25%, transparent 25%),
+                    linear-gradient(-45deg, ${color} 25%, transparent 25%)
+                `;
+                break;
+            case 'waves':
+                backgroundImage = `repeating-linear-gradient(0deg, transparent 0px, transparent ${size/4}px, ${color} ${size/4}px, ${color} ${size/2}px)`;
+                break;
+            case 'circuit':
+                backgroundImage = `
+                    linear-gradient(90deg, ${color} 1px, transparent 1px),
+                    linear-gradient(${color} 1px, transparent 1px)
+                `;
+                break;
+            case 'maze':
+                backgroundImage = `
+                    linear-gradient(90deg, ${color} 2px, transparent 2px),
+                    linear-gradient(${color} 2px, transparent 2px)
+                `;
+                break;
+        }
+
+        this.wallpaperLayer.style.backgroundImage = backgroundImage;
+        this.wallpaperLayer.style.backgroundSize = backgroundSize;
+        this.wallpaperLayer.style.opacity = opacity;
+
+        if (animate) {
+            this.wallpaperLayer.style.animation = 'patternMove 10s linear infinite';
+        } else {
+            this.wallpaperLayer.style.animation = 'none';
+        }
+    }
+
+    static applyMediaBackground() {
+        const mediaUrl = this.settings['media-url'];
+        const opacity = (this.settings['media-opacity'] || 50) / 100;
+        const blur = this.settings['media-blur'];
+
+        if (mediaUrl) {
+            const isVideo = mediaUrl.includes('.mp4') || mediaUrl.includes('.webm') || mediaUrl.includes('.ogg');
+
+            if (isVideo) {
+                const video = document.createElement('video');
+                video.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    opacity: ${opacity};
+                    filter: ${blur ? 'blur(5px)' : 'none'};
+                `;
+                video.src = mediaUrl;
+                video.autoplay = true;
+                video.loop = true;
+                video.muted = true;
+                this.wallpaperLayer.appendChild(video);
+            } else {
+                const img = document.createElement('img');
+                img.style.cssText = `
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    opacity: ${opacity};
+                    filter: ${blur ? 'blur(5px)' : 'none'};
+                `;
+                img.src = mediaUrl;
+                this.wallpaperLayer.appendChild(img);
+            }
+        }
     }
 
     static initializeParticleSystem() {
-        console.log('🎆 initializeParticleSystem called');
-
-        // Destroy any existing system
         if (this.particleSystem) {
-            console.log('🗑️ Destroying existing particle system');
             this.destroyParticleSystem();
         }
 
-        // Wait a moment to ensure cleanup
         setTimeout(() => {
-            // Check if we have settings
-            if (!this.settings) {
-                console.error('❌ No settings available for particle system');
-                this.settings = this.getDefaultSettings();
-            }
-
-            console.log('🎯 Creating particle system with settings:', {
-                enabled: this.settings['particles-enabled'],
-                count: this.settings['particle-count'],
-                behavior: this.settings.particleBehavior,
-                color: this.settings['particle-color']
-            });
-
             try {
                 this.particleSystem = new ParticleSystem(this.settings);
-                console.log('✅ Particle system created successfully');
+                console.log('✅ Particle system initialized');
             } catch (error) {
                 console.error('❌ Failed to create particle system:', error);
             }
@@ -1687,8 +1667,16 @@ class Settings {
         if (this.particleSystem) {
             this.particleSystem.destroy();
             this.particleSystem = null;
-            console.log('🚫 Advanced particle system destroyed');
+            console.log('🚫 Particle system destroyed');
         }
+    }
+
+    static initializeBackgroundSystem() {
+        if (this.backgroundSystem) {
+            this.backgroundSystem.destroy();
+        }
+
+        this.backgroundSystem = new BackgroundSystem(this.settings);
     }
 
     static initializeFPSCounter() {
@@ -1703,7 +1691,7 @@ class Settings {
         }
     }
 
-    static loadCurrentSettings() {
+    static updateAllUIFromSettings() {
         Object.keys(this.settings).forEach(key => {
             const element = this.windowElement.querySelector(`#${key}`);
             if (element) {
@@ -1720,15 +1708,115 @@ class Settings {
             }
         });
 
+        // Update UI states
+        this.setColorScheme(this.settings.colorScheme);
+        this.setAccentColor(this.settings.accentColor);
+        this.setBackgroundType(this.settings.backgroundType || 'gradient');
+    }
+
+    static loadCurrentSettings() {
+        this.updateAllUIFromSettings();
+
         // Apply all settings
         Object.keys(this.settings).forEach(key => {
             this.applySetting(key, this.settings[key]);
         });
 
-        // Update UI states
-        this.setColorScheme(this.settings.colorScheme);
-        this.setAccentColor(this.settings.accentColor);
-        this.setBackgroundType(this.settings.backgroundType);
+        // Update particle toggle state
+        this.toggleParticleSystem(this.settings['particles-enabled']);
+    }
+
+    static saveProfile() {
+        const profileName = this.windowElement.querySelector('#new-profile-name').value.trim();
+        if (!profileName) {
+            alert('Please enter a profile name');
+            return;
+        }
+
+        const profiles = this.loadProfiles();
+        profiles[profileName] = { ...this.settings };
+        this.saveProfiles(profiles);
+        this.updateProfileList();
+        this.windowElement.querySelector('#new-profile-name').value = '';
+
+        console.log(`💾 Profile '${profileName}' saved`);
+    }
+
+    static loadProfile() {
+        const profileName = this.windowElement.querySelector('#new-profile-name').value.trim();
+        if (!profileName) {
+            alert('Please enter a profile name to load');
+            return;
+        }
+
+        const profiles = this.loadProfiles();
+        if (profiles[profileName]) {
+            this.settings = { ...this.getDefaultSettings(), ...profiles[profileName] };
+            this.loadCurrentSettings();
+            this.saveSettings();
+            console.log(`📂 Profile '${profileName}' loaded`);
+        } else {
+            alert('Profile not found');
+        }
+    }
+
+    static loadProfiles() {
+        try {
+            const profiles = localStorage.getItem('emberframe-profiles');
+            return profiles ? JSON.parse(profiles) : {};
+        } catch (error) {
+            return {};
+        }
+    }
+
+    static saveProfiles(profiles) {
+        try {
+            localStorage.setItem('emberframe-profiles', JSON.stringify(profiles));
+        } catch (error) {
+            console.error('Failed to save profiles:', error);
+        }
+    }
+
+    static updateProfileList() {
+        const profileList = this.windowElement.querySelector('#profile-list');
+        const profiles = this.loadProfiles();
+
+        profileList.innerHTML = '';
+        Object.keys(profiles).forEach(profileName => {
+            const profileItem = document.createElement('div');
+            profileItem.className = 'profile-item';
+            profileItem.innerHTML = `
+                <span class="profile-name">${profileName}</span>
+                <div class="profile-actions">
+                    <button class="profile-btn load" data-profile="${profileName}">Load</button>
+                    <button class="profile-btn delete" data-profile="${profileName}">Delete</button>
+                </div>
+            `;
+            profileList.appendChild(profileItem);
+        });
+
+        // Add event listeners for profile buttons
+        profileList.querySelectorAll('.profile-btn.load').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const profileName = e.target.dataset.profile;
+                this.settings = { ...this.getDefaultSettings(), ...profiles[profileName] };
+                this.loadCurrentSettings();
+                this.saveSettings();
+                console.log(`📂 Profile '${profileName}' loaded`);
+            });
+        });
+
+        profileList.querySelectorAll('.profile-btn.delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const profileName = e.target.dataset.profile;
+                if (confirm(`Delete profile '${profileName}'?`)) {
+                    delete profiles[profileName];
+                    this.saveProfiles(profiles);
+                    this.updateProfileList();
+                    console.log(`🗑️ Profile '${profileName}' deleted`);
+                }
+            });
+        });
     }
 
     static resetSettings() {
@@ -1747,7 +1835,7 @@ class Settings {
 
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'emberframe-settings.json';
+        link.download = 'emberframe-settings-v6.json';
         link.click();
 
         URL.revokeObjectURL(url);
@@ -1780,9 +1868,21 @@ class Settings {
         input.click();
     }
 
+    static clearCache() {
+        if (confirm('Clear all cached data? This may improve performance.')) {
+            try {
+                localStorage.removeItem('emberframe-cache');
+                localStorage.removeItem('particle-cache');
+                alert('Cache cleared successfully!');
+            } catch (error) {
+                alert('Error clearing cache.');
+            }
+        }
+    }
+
     static saveSettings() {
         try {
-            localStorage.setItem('emberframe-settings', JSON.stringify(this.settings));
+            localStorage.setItem('emberframe-settings-v6', JSON.stringify(this.settings));
         } catch (error) {
             console.error('Failed to save settings:', error);
         }
@@ -1790,7 +1890,7 @@ class Settings {
 
     static loadSettings() {
         try {
-            const saved = localStorage.getItem('emberframe-settings');
+            const saved = localStorage.getItem('emberframe-settings-v6');
             return saved ? { ...this.getDefaultSettings(), ...JSON.parse(saved) } : this.getDefaultSettings();
         } catch (error) {
             return this.getDefaultSettings();
@@ -1802,66 +1902,52 @@ class Settings {
             // Appearance
             colorScheme: 'dark',
             accentColor: '#00d4ff',
-            'window-transparency': 10,
             'blur-effects': true,
             'window-shadows': true,
             'smooth-animations': true,
+            'parallax-effects': false,
+            'window-transparency': 10,
+            'ui-scale': 1,
 
             // Background
             backgroundType: 'gradient',
             'gradient-start': '#667eea',
             'gradient-end': '#764ba2',
             'gradient-angle': 135,
-            mediaType: 'gif',
-            'gif-url': '',
-            'youtube-url': '',
-            'media-opacity': 50,
-            'media-speed': 1,
-            'media-loop': true,
-            'media-muted': true,
-            'media-blur': false,
+            'gradient-opacity': 100,
+            backgroundAnimation: 'matrix',
+            'animation-speed': 0.8,
+            'animation-intensity': 0.7,
             backgroundPattern: 'dots',
-            'pattern-visibility': 30,
             'pattern-size': 20,
+            'pattern-opacity': 30,
             'pattern-color': '#00d4ff',
-            'pattern-color2': '#ff00ff',
-            'pattern-rotation': 0,
-            'pattern-complexity': 3,
             'pattern-animate': false,
-            'pattern-glow': false,
-            'pattern-3d': false,
+            'media-url': '',
+            'media-opacity': 50,
+            'media-blur': false,
 
-            // Particles
+            // Particles - Optimized for Performance
             'particles-enabled': true,
-            'particle-count': 100,
+            'particle-count': 50,
             particleBehavior: 'float',
-            'particle-size': 3,
-            'particle-speed': 1,
+            'particle-size': 2,
+            'particle-speed': 0.8,
             'particle-color': '#00d4ff',
-            'particle-shape': 'circle',
-            'particle-glow': true,
-            'particle-trails': true,
+            'particle-glow': false,
+            'particle-trails': false,
             'particle-connect': false,
-
-            // Text Particles
-            'particle-text': 'EMBERFRAME',
-            'text-font-size': 80,
-            'text-font-weight': 'bold',
-            'text-letter-spacing': 10,
-            'text-animation': 'static',
-
-            // Mouse Interaction
             'mouse-force': 1,
-            'mouse-range': 100,
+            'mouse-range': 80,
             'mouse-click-burst': false,
-            'mouse-velocity': false,
 
             // Interface
-            'font-family': "'Segoe UI', sans-serif",
-            'font-size': 14,
             'auto-hide-taskbar': false,
             'snap-windows': true,
             'show-clock': true,
+            'minimize-to-tray': false,
+            'font-family': "'Segoe UI', sans-serif",
+            'font-size': 14,
             'icon-size': 48,
             'icon-spacing': 120,
 
@@ -1869,60 +1955,29 @@ class Settings {
             'frame-rate': 60,
             'hardware-acceleration': true,
             'show-fps': false,
-            'debug-mode': false
+            'debug-mode': false,
+            'performance-monitor': false,
+            'verbose-logging': false
         };
     }
 
     static onClose() {
-        // Save settings but keep systems running
         this.saveSettings();
-
-        // Don't destroy systems - let them persist
-        // this.destroyParticleSystem();
-        // this.destroyBackgroundSystem();
-        // this.destroyFPSCounter();
-
-        // Keep wallpaper layer active
-        // if (this.wallpaperLayer) {
-        //     this.wallpaperLayer.remove();
-        //     this.wallpaperLayer = null;
-        // }
-
-        console.log('🔧 Settings saved and systems kept running');
+        console.log('🔧 Settings Pro v6.0 saved and systems maintained');
     }
 
-    // Method to apply saved settings on startup
     static applyStartupSettings() {
         const settings = this.loadSettings();
-        console.log('🚀 Applying startup settings:', settings);
+        console.log('🚀 Applying startup settings v6.0:', settings);
 
-        // Set settings first before initializing systems
         this.settings = settings;
-
-        // Apply all visual settings immediately
         this.setColorScheme(settings.colorScheme);
         this.setAccentColor(settings.accentColor);
 
-        // Apply window transparency
-        const opacity = 1 - (settings['window-transparency'] / 100);
-        document.querySelectorAll('.window').forEach(window => {
-            window.style.backgroundColor = `rgba(26, 26, 26, ${opacity})`;
-            window.style.backdropFilter = settings['window-transparency'] > 0 ? `blur(${settings['window-transparency']/10}px)` : 'none';
-        });
-
-        // Apply other visual effects
-        if (!settings['blur-effects']) {
-            document.body.classList.add('no-blur');
-        }
-
-        if (settings['window-shadows']) {
-            document.documentElement.style.setProperty('--window-shadow', '0 10px 30px rgba(0,0,0,0.3)');
-        }
-
-        // Initialize systems with settings already available (particle system only)
+        // Initialize systems
         this.initializeSystems();
 
-        console.log('✅ Startup settings applied successfully');
+        console.log('✅ Startup settings v6.0 applied successfully');
     }
 
     static getStyles() {
@@ -1939,7 +1994,7 @@ class Settings {
 
                 /* Sidebar */
                 .settings-sidebar {
-                    width: 200px;
+                    width: 220px;
                     background: linear-gradient(180deg, #2d2d2d 0%, #1a1a1a 100%);
                     border-right: 1px solid #333;
                     display: flex;
@@ -1954,7 +2009,7 @@ class Settings {
 
                 .settings-logo {
                     font-size: 32px;
-                    margin-bottom: 10px;
+                    margin-bottom: 8px;
                 }
 
                 .settings-title {
@@ -1962,6 +2017,13 @@ class Settings {
                     font-weight: 600;
                     text-transform: uppercase;
                     letter-spacing: 1px;
+                    margin-bottom: 4px;
+                }
+
+                .settings-version {
+                    font-size: 12px;
+                    opacity: 0.7;
+                    color: var(--accent-color, #00d4ff);
                 }
 
                 .settings-nav {
@@ -2024,9 +2086,15 @@ class Settings {
                 .setting-group {
                     margin-bottom: 25px;
                     background: rgba(255, 255, 255, 0.05);
-                    border-radius: 8px;
+                    border-radius: 12px;
                     padding: 20px;
                     border: 1px solid rgba(255, 255, 255, 0.1);
+                    transition: all 0.3s ease;
+                }
+
+                .setting-group:hover {
+                    background: rgba(255, 255, 255, 0.08);
+                    border-color: rgba(0, 212, 255, 0.3);
                 }
 
                 .setting-group > label {
@@ -2037,32 +2105,106 @@ class Settings {
                     color: #ffffff;
                 }
 
+                /* Preset Grid */
+                .preset-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 15px;
+                }
+
+                .preset-card {
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 2px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 12px;
+                    padding: 20px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .preset-card:hover {
+                    border-color: var(--accent-color, #00d4ff);
+                    background: rgba(255, 255, 255, 0.1);
+                    transform: translateY(-3px);
+                    box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+                }
+
+                .preset-preview {
+                    width: 100%;
+                    height: 80px;
+                    border-radius: 8px;
+                    margin-bottom: 15px;
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .preset-preview.cyberpunk-preview {
+                    background: linear-gradient(45deg, #0a0a0f, #ff00ff);
+                }
+
+                .preset-preview.space-preview {
+                    background: linear-gradient(45deg, #000000, #1a1a3a);
+                }
+
+                .preset-preview.ocean-preview {
+                    background: linear-gradient(45deg, #0f3460, #87ceeb);
+                }
+
+                .preset-preview.forest-preview {
+                    background: linear-gradient(45deg, #1a2e1a, #90ee90);
+                }
+
+                .preset-preview.synthwave-preview {
+                    background: linear-gradient(45deg, #2d1b69, #ff6b6b);
+                }
+
+                .preset-preview.minimal-preview {
+                    background: linear-gradient(45deg, #ffffff, #f8f9fa);
+                }
+
+                .preset-preview.aurora-preview {
+                    background: linear-gradient(45deg, #1a2040, #80ff80);
+                }
+
+                .preset-preview.volcanic-preview {
+                    background: linear-gradient(45deg, #3d1a00, #ff4400);
+                }
+
+                .preset-preview.gaming-preview {
+                    background: linear-gradient(45deg, #0d0d0d, #ff0080);
+                }
+
+                .preset-preview.productivity-preview {
+                    background: linear-gradient(45deg, #f8f9fa, #007bff);
+                }
+
+                .preset-preview.party-preview {
+                    background: linear-gradient(45deg, #ff69b4, #00ffff);
+                }
+
+                .preset-preview.zen-preview {
+                    background: linear-gradient(45deg, #0f1f0f, #98fb98);
+                }
+
+                .preset-name {
+                    font-size: 16px;
+                    font-weight: 600;
+                    margin-bottom: 5px;
+                    color: var(--accent-color, #00d4ff);
+                }
+
+                .preset-desc {
+                    font-size: 12px;
+                    opacity: 0.8;
+                    line-height: 1.4;
+                }
+
                 /* Color Schemes */
                 .color-schemes {
                     display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+                    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
                     gap: 12px;
-                    max-height: 180px;
-                    overflow-y: auto;
-                    padding: 5px;
-                }
-
-                .color-schemes::-webkit-scrollbar {
-                    width: 6px;
-                }
-
-                .color-schemes::-webkit-scrollbar-track {
-                    background: rgba(255, 255, 255, 0.1);
-                    border-radius: 3px;
-                }
-
-                .color-schemes::-webkit-scrollbar-thumb {
-                    background: var(--accent-color, #00d4ff);
-                    border-radius: 3px;
-                }
-
-                .color-schemes::-webkit-scrollbar-thumb:hover {
-                    background: rgba(0, 212, 255, 0.8);
                 }
 
                 .color-scheme {
@@ -2071,218 +2213,113 @@ class Settings {
                     align-items: center;
                     gap: 8px;
                     padding: 15px;
-                    border-radius: 8px;
+                    border-radius: 10px;
                     cursor: pointer;
                     transition: all 0.3s ease;
                     border: 2px solid transparent;
+                    background: rgba(255, 255, 255, 0.05);
                 }
 
                 .color-scheme:hover {
                     background: rgba(255, 255, 255, 0.1);
+                    transform: translateY(-2px);
                 }
 
                 .color-scheme.active {
                     border-color: var(--accent-color, #00d4ff);
                     background: rgba(0, 212, 255, 0.2);
+                    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
                 }
 
                 .scheme-preview {
-                    width: 40px;
-                    height: 40px;
+                    width: 50px;
+                    height: 50px;
                     border-radius: 50%;
                     border: 2px solid rgba(255, 255, 255, 0.3);
                 }
 
-                .scheme-preview.dark {
-                    background: linear-gradient(45deg, #1a1a1a, #2d2d2d);
-                }
+                .scheme-preview.dark { background: linear-gradient(45deg, #1a1a1a, #2d2d2d); }
+                .scheme-preview.light { background: linear-gradient(45deg, #ffffff, #f0f0f0); }
+                .scheme-preview.cyber { background: linear-gradient(45deg, #00d4ff, #ff00ff); }
+                .scheme-preview.neon { background: linear-gradient(45deg, #00ffff, #ff0080); }
+                .scheme-preview.matrix { background: linear-gradient(45deg, #000000, #00ff00); }
+                .scheme-preview.synthwave { background: linear-gradient(45deg, #2d1b69, #ff6b6b); }
+                .scheme-preview.ocean { background: linear-gradient(45deg, #0f3460, #87ceeb); }
+                .scheme-preview.sunset { background: linear-gradient(45deg, #ff6347, #ffd700); }
+                .scheme-preview.forest { background: linear-gradient(45deg, #1a2e1a, #90ee90); }
+                .scheme-preview.aurora { background: linear-gradient(45deg, #1a2040, #80ff80); }
 
-                .scheme-preview.light {
-                    background: linear-gradient(45deg, #ffffff, #f0f0f0);
-                }
-
-                .scheme-preview.auto {
-                    background: linear-gradient(45deg, #1a1a1a 50%, #ffffff 50%);
-                }
-
-                .scheme-preview.cyber {
-                    background: linear-gradient(45deg, #00d4ff, #ff00ff);
-                }
-
-                .scheme-preview.neon {
-                    background: linear-gradient(45deg, #00ffff, #ff0080);
-                }
-
-                .scheme-preview.matrix {
-                    background: linear-gradient(45deg, #000000, #00ff00);
-                }
-
-                .scheme-preview.synthwave {
-                    background: linear-gradient(45deg, #2d1b69, #ff6b6b);
-                }
-
-                .scheme-preview.ocean {
-                    background: linear-gradient(45deg, #0f3460, #87ceeb);
-                }
-
-                .scheme-preview.sunset {
-                    background: linear-gradient(45deg, #ff6347, #ffd700);
-                }
-
-                .scheme-preview.forest {
-                    background: linear-gradient(45deg, #1a2e1a, #90ee90);
-                }
-
-                .scheme-preview.royal {
-                    background: linear-gradient(45deg, #1a0d33, #daa520);
-                }
-
-                .scheme-preview.fire {
-                    background: linear-gradient(45deg, #2d0a0a, #ff4500);
-                }
-
-                .scheme-preview.ice {
-                    background: linear-gradient(45deg, #0a1a2d, #b0e0e6);
-                }
-
-                .scheme-preview.space {
-                    background: linear-gradient(45deg, #0c0c1e, #9370db);
-                }
-
-                .scheme-preview.toxic {
-                    background: linear-gradient(45deg, #1a2d0a, #adff2f);
-                }
-
-                .scheme-preview.pastel {
-                    background: linear-gradient(45deg, #f5f5f5, #ff91a4);
-                }
-
-                /* Color Picker */
-                .color-picker {
+                /* Color Picker Enhanced */
+                .color-picker-enhanced {
                     display: flex;
                     align-items: center;
                     gap: 15px;
+                    flex-wrap: wrap;
                 }
 
-                .color-picker input[type="color"] {
-                    width: 50px;
-                    height: 40px;
+                .color-picker-enhanced input[type="color"] {
+                    width: 60px;
+                    height: 50px;
                     border: none;
-                    border-radius: 8px;
+                    border-radius: 10px;
                     cursor: pointer;
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
                 }
 
                 .preset-colors {
                     display: flex;
                     gap: 8px;
+                    flex-wrap: wrap;
                 }
 
                 .color-preset {
-                    width: 30px;
-                    height: 30px;
+                    width: 40px;
+                    height: 40px;
                     border-radius: 50%;
                     cursor: pointer;
                     border: 2px solid transparent;
                     transition: all 0.3s ease;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
                 }
 
                 .color-preset:hover {
                     transform: scale(1.1);
+                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
                 }
 
                 .color-preset.active {
                     border-color: #ffffff;
-                    box-shadow: 0 0 0 2px var(--accent-color, #00d4ff);
+                    box-shadow: 0 0 0 3px var(--accent-color, #00d4ff);
                 }
 
-                /* Sliders */
-                .slider-container {
-                    display: flex;
-                    align-items: center;
-                    gap: 15px;
-                }
-
-                .slider-container label {
-                    min-width: 100px;
-                    font-weight: 500;
-                }
-
-                input[type="range"] {
-                    flex: 1;
-                    height: 6px;
-                    border-radius: 3px;
-                    background: rgba(255, 255, 255, 0.2);
-                    outline: none;
-                    -webkit-appearance: none;
-                }
-
-                input[type="range"]::-webkit-slider-thumb {
-                    -webkit-appearance: none;
-                    width: 20px;
-                    height: 20px;
-                    border-radius: 50%;
-                    background: var(--accent-color, #00d4ff);
+                .color-random-btn {
+                    padding: 10px 15px;
+                    background: linear-gradient(135deg, var(--accent-color, #00d4ff), #0099cc);
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
                     cursor: pointer;
-                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-                }
-
-                .slider-value {
                     font-weight: 600;
-                    color: var(--accent-color, #00d4ff);
-                    min-width: 50px;
-                    text-align: right;
-                }
-
-                /* Checkboxes */
-                .checkbox-group {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 10px;
-                }
-
-                .checkbox-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    cursor: pointer;
-                    user-select: none;
-                }
-
-                .checkbox-item input[type="checkbox"] {
-                    display: none;
-                }
-
-                .checkmark {
-                    width: 20px;
-                    height: 20px;
-                    background: rgba(255, 255, 255, 0.1);
-                    border: 2px solid rgba(255, 255, 255, 0.3);
-                    border-radius: 4px;
-                    position: relative;
                     transition: all 0.3s ease;
                 }
 
-                .checkbox-item input:checked + .checkmark {
-                    background: var(--accent-color, #00d4ff);
-                    border-color: var(--accent-color, #00d4ff);
+                .color-random-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
                 }
 
-                .checkbox-item input:checked + .checkmark::after {
-                    content: '✓';
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    color: white;
-                    font-weight: bold;
-                    font-size: 12px;
+                /* Effects Grid */
+                .effects-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 15px;
                 }
 
                 /* Background Types */
                 .background-types {
                     display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-                    gap: 12px;
+                    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                    gap: 15px;
                 }
 
                 .bg-type {
@@ -2290,111 +2327,195 @@ class Settings {
                     flex-direction: column;
                     align-items: center;
                     gap: 8px;
-                    padding: 15px;
+                    padding: 20px;
                     border: 2px solid rgba(255, 255, 255, 0.2);
-                    border-radius: 8px;
+                    border-radius: 12px;
                     cursor: pointer;
                     transition: all 0.3s ease;
+                    background: rgba(255, 255, 255, 0.05);
                 }
 
                 .bg-type:hover {
                     border-color: var(--accent-color, #00d4ff);
+                    background: rgba(255, 255, 255, 0.1);
                 }
 
                 .bg-type.active {
                     border-color: var(--accent-color, #00d4ff);
                     background: rgba(0, 212, 255, 0.2);
+                    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
                 }
 
-                /* Gradient Controls */
-                .gradient-controls {
-                    display: flex;
-                    gap: 20px;
+                .bg-type i {
+                    font-size: 24px;
+                    color: var(--accent-color, #00d4ff);
                 }
 
-                .color-input-group {
+                /* Animated Grid */
+                .animated-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                    gap: 12px;
+                }
+
+                .animated-option {
                     display: flex;
                     flex-direction: column;
-                    gap: 5px;
-                }
-
-                .color-input-group label {
-                    font-size: 14px;
-                    color: rgba(255, 255, 255, 0.8);
-                }
-
-                .color-input-group input[type="color"] {
-                    width: 60px;
-                    height: 40px;
-                    border: none;
-                    border-radius: 6px;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 15px;
+                    border: 2px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 10px;
                     cursor: pointer;
+                    transition: all 0.3s ease;
+                    background: rgba(255, 255, 255, 0.05);
                 }
 
-                /* Options Grid */
-                .animated-options,
-                .pattern-options,
-                .particle-behaviors {
+                .animated-option:hover {
+                    border-color: var(--accent-color, #00d4ff);
+                    background: rgba(255, 255, 255, 0.1);
+                }
+
+                .animated-option.active {
+                    border-color: var(--accent-color, #00d4ff);
+                    background: rgba(0, 212, 255, 0.2);
+                    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+                }
+
+                .animated-option i {
+                    font-size: 20px;
+                    color: var(--accent-color, #00d4ff);
+                }
+
+                /* Pattern Grid */
+                .pattern-grid {
                     display: grid;
                     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-                    gap: 8px;
-                    max-height: 200px;
-                    overflow-y: auto;
+                    gap: 10px;
                 }
 
-                /* Scrollbar styling */
-                .particle-behaviors::-webkit-scrollbar {
-                    width: 6px;
-                }
-
-                .particle-behaviors::-webkit-scrollbar-track {
-                    background: rgba(255, 255, 255, 0.1);
-                    border-radius: 3px;
-                }
-
-                .particle-behaviors::-webkit-scrollbar-thumb {
-                    background: var(--accent-color, #00d4ff);
-                    border-radius: 3px;
-                }
-
-                .particle-behaviors::-webkit-scrollbar-thumb:hover {
-                    background: rgba(0, 212, 255, 0.8);
-                }
-
-                .animated-option,
-                .pattern-option,
-                .behavior-option {
+                .pattern-option {
                     padding: 12px;
                     text-align: center;
                     border: 2px solid rgba(255, 255, 255, 0.2);
-                    border-radius: 6px;
+                    border-radius: 8px;
                     cursor: pointer;
                     transition: all 0.3s ease;
+                    background: rgba(255, 255, 255, 0.05);
                     font-size: 12px;
-                    font-weight: 500;
                 }
 
-                .animated-option:hover,
-                .pattern-option:hover,
-                .behavior-option:hover {
+                .pattern-option:hover {
                     border-color: var(--accent-color, #00d4ff);
+                    background: rgba(255, 255, 255, 0.1);
                 }
 
-                .animated-option.active,
-                .pattern-option.active,
-                .behavior-option.active {
+                .pattern-option.active {
                     border-color: var(--accent-color, #00d4ff);
                     background: rgba(0, 212, 255, 0.2);
                     color: var(--accent-color, #00d4ff);
+                }
+
+                /* Particle System */
+                .particles-toggle-section {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 20px;
+                    flex-wrap: wrap;
+                    gap: 15px;
+                }
+
+                .particles-master-toggle {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+
+                .toggle-label {
+                    font-size: 16px;
+                    font-weight: 600;
+                }
+
+                .particles-status {
+                    padding: 8px 16px;
+                    border-radius: 20px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                }
+
+                .particles-status.active {
+                    background: rgba(0, 255, 0, 0.2);
+                    color: #00ff00;
+                    border: 1px solid #00ff00;
+                }
+
+                .particles-status.inactive {
+                    background: rgba(255, 0, 0, 0.2);
+                    color: #ff6666;
+                    border: 1px solid #ff6666;
+                }
+
+                .status-text {
+                    font-weight: 500;
+                }
+
+                /* Test Buttons */
+                .test-buttons {
+                    display: flex;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                }
+
+                .test-btn {
+                    padding: 8px 15px;
+                    background: linear-gradient(135deg, #666, #888);
+                    color: white;
+                    border: none;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                    font-size: 12px;
+                }
+
+                .test-btn:hover {
+                    background: linear-gradient(135deg, #777, #999);
+                    transform: translateY(-2px);
+                }
+
+                /* Behavior Grid */
+                .behavior-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                    gap: 10px;
                 }
 
                 .behavior-option {
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    gap: 4px;
-                    padding: 10px 8px;
-                    font-size: 10px;
+                    gap: 5px;
+                    padding: 12px 8px;
+                    border: 2px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    background: rgba(255, 255, 255, 0.05);
+                    font-size: 11px;
+                    text-align: center;
+                }
+
+                .behavior-option:hover {
+                    border-color: var(--accent-color, #00d4ff);
+                    background: rgba(255, 255, 255, 0.1);
+                }
+
+                .behavior-option.active {
+                    border-color: var(--accent-color, #00d4ff);
+                    background: rgba(0, 212, 255, 0.2);
+                    color: var(--accent-color, #00d4ff);
                 }
 
                 .behavior-option i {
@@ -2402,98 +2523,7 @@ class Settings {
                     color: var(--accent-color, #00d4ff);
                 }
 
-                /* Video Controls */
-                .video-controls,
-                .media-controls {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 15px;
-                }
-
-                .video-input,
-                .media-input,
-                .text-input {
-                    width: 100%;
-                    padding: 8px 12px;
-                    background: rgba(255, 255, 255, 0.1);
-                    border: 1px solid rgba(255, 255, 255, 0.3);
-                    border-radius: 6px;
-                    color: white;
-                    outline: none;
-                    margin-bottom: 10px;
-                }
-
-                .text-input {
-                    font-size: 16px;
-                    font-weight: bold;
-                    text-align: center;
-                }
-
-                .browse-btn {
-                    padding: 8px 16px;
-                    background: var(--accent-color, #00d4ff);
-                    color: #000;
-                    border: none;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    font-weight: 600;
-                    transition: all 0.3s ease;
-                }
-
-                .browse-btn:hover {
-                    transform: translateY(-1px);
-                    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
-                }
-
-                /* Media Type Selector */
-                .media-type-selector {
-                    display: flex;
-                    gap: 10px;
-                    margin-bottom: 20px;
-                }
-
-                .media-type {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 5px;
-                    padding: 15px 20px;
-                    border: 2px solid rgba(255, 255, 255, 0.2);
-                    border-radius: 8px;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    flex: 1;
-                }
-
-                .media-type:hover {
-                    border-color: var(--accent-color, #00d4ff);
-                }
-
-                .media-type.active {
-                    border-color: var(--accent-color, #00d4ff);
-                    background: rgba(0, 212, 255, 0.2);
-                }
-
-                .media-type i {
-                    font-size: 24px;
-                    color: var(--accent-color, #00d4ff);
-                }
-
-                .help-text {
-                    font-size: 12px;
-                    color: rgba(255, 255, 255, 0.6);
-                    margin-top: 5px;
-                    font-style: italic;
-                }
-
                 /* Controls */
-                .particle-controls,
-                .font-controls {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 15px;
-                }
-
                 .control-row {
                     display: grid;
                     grid-template-columns: 1fr 1fr;
@@ -2508,47 +2538,248 @@ class Settings {
 
                 .control-item label {
                     font-size: 14px;
-                    color: rgba(255, 255, 255, 0.8);
+                    font-weight: 500;
+                    color: rgba(255, 255, 255, 0.9);
                 }
 
-                .control-item select {
-                    padding: 8px 12px;
+                .slider-container {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                }
+
+                input[type="range"] {
+                    flex: 1;
+                    height: 8px;
+                    border-radius: 4px;
+                    background: rgba(255, 255, 255, 0.2);
+                    outline: none;
+                    -webkit-appearance: none;
+                }
+
+                input[type="range"]::-webkit-slider-thumb {
+                    -webkit-appearance: none;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    background: var(--accent-color, #00d4ff);
+                    cursor: pointer;
+                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+                    transition: all 0.3s ease;
+                }
+
+                input[type="range"]::-webkit-slider-thumb:hover {
+                    transform: scale(1.2);
+                }
+
+                .slider-value {
+                    font-weight: 600;
+                    color: var(--accent-color, #00d4ff);
+                    min-width: 50px;
+                    text-align: right;
+                }
+
+                /* Checkboxes */
+                .checkbox-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    cursor: pointer;
+                    user-select: none;
+                    transition: all 0.3s ease;
+                    padding: 5px 0;
+                }
+
+                .checkbox-item:hover {
+                    color: var(--accent-color, #00d4ff);
+                }
+
+                .checkbox-item input[type="checkbox"] {
+                    display: none;
+                }
+
+                .checkmark {
+                    width: 20px;
+                    height: 20px;
+                    background: rgba(255, 255, 255, 0.1);
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 6px;
+                    position: relative;
+                    transition: all 0.3s ease;
+                    flex-shrink: 0;
+                }
+
+                .checkbox-item input:checked + .checkmark {
+                    background: var(--accent-color, #00d4ff);
+                    border-color: var(--accent-color, #00d4ff);
+                    box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+                }
+
+                .checkbox-item input:checked + .checkmark::after {
+                    content: '✓';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: white;
+                    font-weight: bold;
+                    font-size: 12px;
+                }
+
+                /* Select Elements */
+                select {
+                    padding: 10px 15px;
                     background: rgba(255, 255, 255, 0.1);
                     border: 1px solid rgba(255, 255, 255, 0.3);
-                    border-radius: 6px;
+                    border-radius: 8px;
+                    color: white;
+                    outline: none;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    width: 100%;
+                }
+
+                select:hover {
+                    border-color: var(--accent-color, #00d4ff);
+                }
+
+                /* Media Controls */
+                .media-input-group {
+                    display: flex;
+                    gap: 10px;
+                    align-items: center;
+                }
+
+                .media-input {
+                    flex: 1;
+                    padding: 10px 15px;
+                    background: rgba(255, 255, 255, 0.1);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 8px;
                     color: white;
                     outline: none;
                 }
 
-                .control-item input[type="color"] {
-                    width: 100%;
-                    height: 40px;
+                .browse-btn {
+                    padding: 10px 15px;
+                    background: var(--accent-color, #00d4ff);
+                    color: white;
                     border: none;
                     border-radius: 6px;
                     cursor: pointer;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                }
+
+                .browse-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+                }
+
+                /* Profile Management */
+                .profile-management {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
+                .profile-list {
+                    max-height: 200px;
+                    overflow-y: auto;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 8px;
+                    padding: 10px;
+                }
+
+                .profile-item {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 10px;
+                    background: rgba(255, 255, 255, 0.05);
+                    border-radius: 6px;
+                    margin-bottom: 8px;
+                }
+
+                .profile-name {
+                    font-weight: 500;
+                }
+
+                .profile-actions {
+                    display: flex;
+                    gap: 5px;
+                }
+
+                .profile-btn {
+                    padding: 5px 10px;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 12px;
+                    transition: all 0.3s ease;
+                }
+
+                .profile-btn.load {
+                    background: var(--accent-color, #00d4ff);
+                    color: white;
+                }
+
+                .profile-btn.delete {
+                    background: #ff4444;
+                    color: white;
+                }
+
+                .profile-btn:hover {
+                    transform: translateY(-1px);
+                }
+
+                .profile-controls {
+                    display: flex;
+                    gap: 10px;
+                    align-items: center;
+                }
+
+                .profile-input {
+                    flex: 1;
+                    padding: 10px 15px;
+                    background: rgba(255, 255, 255, 0.1);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 8px;
+                    color: white;
+                    outline: none;
                 }
 
                 /* Action Buttons */
                 .action-buttons {
                     display: flex;
-                    gap: 10px;
+                    gap: 12px;
                     flex-wrap: wrap;
                 }
 
                 .action-btn {
-                    padding: 10px 20px;
-                    background: var(--accent-color, #00d4ff);
-                    color: #000;
+                    padding: 12px 20px;
+                    background: linear-gradient(135deg, var(--accent-color, #00d4ff), #0099cc);
+                    color: white;
                     border: none;
-                    border-radius: 6px;
+                    border-radius: 8px;
                     cursor: pointer;
                     font-weight: 600;
                     transition: all 0.3s ease;
+                    flex: 1;
+                    min-width: 120px;
                 }
 
                 .action-btn:hover {
                     transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
+                    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+                }
+
+                .action-btn.danger {
+                    background: linear-gradient(135deg, #ff4444, #cc0000);
+                }
+
+                .action-btn.danger:hover {
+                    box-shadow: 0 4px 15px rgba(255, 68, 68, 0.4);
                 }
 
                 /* Animations */
@@ -2563,111 +2794,48 @@ class Settings {
                     }
                 }
 
-                /* Color Schemes */
-                body.light-mode {
-                    --bg-primary: #ffffff;
-                    --bg-secondary: #f8f9fa;
-                    --text-primary: #333333;
+                @keyframes slideInRight {
+                    from {
+                        transform: translateX(100%);
+                    }
+                    to {
+                        transform: translateX(0);
+                    }
                 }
 
-                body.dark-mode {
-                    --bg-primary: #1a1a1a;
-                    --bg-secondary: #0f0f0f;
-                    --text-primary: #ffffff;
+                @keyframes slideOutRight {
+                    from {
+                        transform: translateX(0);
+                    }
+                    to {
+                        transform: translateX(100%);
+                    }
                 }
 
-                body.cyber-mode {
-                    --bg-primary: #0a0a0f;
-                    --bg-secondary: #050508;
-                    --text-primary: #00d4ff;
-                    --accent-color: #ff00ff;
+                @keyframes patternMove {
+                    0% { background-position: 0px 0px; }
+                    100% { background-position: 20px 20px; }
                 }
 
-                body.neon-mode {
-                    --bg-primary: #0d0d0d;
-                    --bg-secondary: #1a1a1a;
-                    --text-primary: #00ffff;
-                    --accent-color: #ff0080;
+                /* Scrollbars */
+                .settings-content::-webkit-scrollbar,
+                .profile-list::-webkit-scrollbar {
+                    width: 8px;
                 }
 
-                body.matrix-mode {
-                    --bg-primary: #000000;
-                    --bg-secondary: #001100;
-                    --text-primary: #00ff00;
-                    --accent-color: #00aa00;
+                .settings-content::-webkit-scrollbar-track,
+                .profile-list::-webkit-scrollbar-track {
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 4px;
                 }
 
-                body.synthwave-mode {
-                    --bg-primary: #2d1b69;
-                    --bg-secondary: #1a0f3d;
-                    --text-primary: #ff6b6b;
-                    --accent-color: #feca57;
+                .settings-content::-webkit-scrollbar-thumb,
+                .profile-list::-webkit-scrollbar-thumb {
+                    background: var(--accent-color, #00d4ff);
+                    border-radius: 4px;
                 }
 
-                body.ocean-mode {
-                    --bg-primary: #0f3460;
-                    --bg-secondary: #16537e;
-                    --text-primary: #87ceeb;
-                    --accent-color: #00bfff;
-                }
-
-                body.sunset-mode {
-                    --bg-primary: #2c1810;
-                    --bg-secondary: #3d2418;
-                    --text-primary: #ffd700;
-                    --accent-color: #ff6347;
-                }
-
-                body.forest-mode {
-                    --bg-primary: #1a2e1a;
-                    --bg-secondary: #0f1f0f;
-                    --text-primary: #90ee90;
-                    --accent-color: #32cd32;
-                }
-
-                body.royal-mode {
-                    --bg-primary: #1a0d33;
-                    --bg-secondary: #2d1b4e;
-                    --text-primary: #daa520;
-                    --accent-color: #9932cc;
-                }
-
-                body.fire-mode {
-                    --bg-primary: #2d0a0a;
-                    --bg-secondary: #1a0000;
-                    --text-primary: #ff4500;
-                    --accent-color: #dc143c;
-                }
-
-                body.ice-mode {
-                    --bg-primary: #0a1a2d;
-                    --bg-secondary: #041426;
-                    --text-primary: #b0e0e6;
-                    --accent-color: #00ffff;
-                }
-
-                body.space-mode {
-                    --bg-primary: #0c0c1e;
-                    --bg-secondary: #1a1a3a;
-                    --text-primary: #e6e6fa;
-                    --accent-color: #9370db;
-                }
-
-                body.toxic-mode {
-                    --bg-primary: #1a2d0a;
-                    --bg-secondary: #0f1f00;
-                    --text-primary: #adff2f;
-                    --accent-color: #7fff00;
-                }
-
-                body.pastel-mode {
-                    --bg-primary: #f5f5f5;
-                    --bg-secondary: #e8e8e8;
-                    --text-primary: #333333;
-                    --accent-color: #ff91a4;
-                }
-
-                /* Responsive */
+                /* Responsive Design */
                 @media (max-width: 768px) {
                     .settings-container {
                         flex-direction: column;
@@ -2692,22 +2860,35 @@ class Settings {
                     .control-row {
                         grid-template-columns: 1fr;
                     }
+
+                    .preset-grid {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .effects-grid {
+                        grid-template-columns: 1fr;
+                    }
                 }
             </style>
         `;
     }
 }
 
-// Enhanced Particle System
+// Working Particle System (Performance Optimized)
 class ParticleSystem {
     constructor(settings) {
-        console.log('🔥 ParticleSystem constructor started');
-        this.settings = settings || Settings.getDefaultSettings();
+        this.settings = settings || {};
         this.particles = [];
         this.canvas = null;
         this.ctx = null;
         this.animationId = null;
         this.isRunning = false;
+        this.frameCount = 0;
+        this.lastPerformanceCheck = 0;
+        this.performanceMode = 'normal'; // normal, reduced, minimal
+        this.updateInterval = 1; // Update every frame by default
+        this.currentFrame = 0;
+
         this.mouse = {
             x: window.innerWidth / 2,
             y: window.innerHeight / 2,
@@ -2715,48 +2896,21 @@ class ParticleSystem {
             lastY: 0,
             vx: 0,
             vy: 0,
-            clicked: false,
-            clickX: 0,
-            clickY: 0
+            clicked: false
         };
         this.clickParticles = [];
 
-        console.log('🔧 Particle settings:', this.settings);
         this.init();
     }
 
     init() {
-        console.log('🚀 ParticleSystem.init() starting...');
-
-        try {
-            this.createCanvas();
-            this.setupEventListeners();
-            this.createParticles();
-            this.startAnimation();
-            console.log('✅ ParticleSystem initialized successfully');
-        } catch (error) {
-            console.error('❌ ParticleSystem initialization failed:', error);
-        }
-    }
-
-    startAnimation() {
-        if (this.isRunning) {
-            console.log('⚠️ Animation already running');
-            return;
-        }
-
-        this.isRunning = true;
-        console.log('🎬 Starting particle animation');
-        this.animate();
-    }
-
-    stopAnimation() {
-        this.isRunning = false;
-        if (this.animationId) {
-            cancelAnimationFrame(this.animationId);
-            this.animationId = null;
-        }
-        console.log('⏹️ Particle animation stopped');
+        console.log('🎆 Initializing optimized particle system...');
+        this.createCanvas();
+        this.setupEventListeners();
+        this.createParticles();
+        this.startAnimation();
+        this.startPerformanceMonitoring();
+        console.log('✅ Optimized particle system initialized successfully');
     }
 
     createCanvas() {
@@ -2772,30 +2926,37 @@ class ParticleSystem {
         `;
         this.resize();
         this.ctx = this.canvas.getContext('2d');
+
+        // Optimize canvas settings
+        this.ctx.imageSmoothingEnabled = false;
+
         document.body.appendChild(this.canvas);
     }
 
     setupEventListeners() {
         window.addEventListener('resize', () => this.resize());
+
+        // Throttle mouse events for better performance
+        let mouseThrottle = false;
         document.addEventListener('mousemove', (e) => {
-            this.mouse.lastX = this.mouse.x;
-            this.mouse.lastY = this.mouse.y;
-            this.mouse.x = e.clientX;
-            this.mouse.y = e.clientY;
-            this.mouse.vx = this.mouse.x - this.mouse.lastX;
-            this.mouse.vy = this.mouse.y - this.mouse.lastY;
+            if (mouseThrottle) return;
+            mouseThrottle = true;
+            requestAnimationFrame(() => {
+                this.mouse.lastX = this.mouse.x;
+                this.mouse.lastY = this.mouse.y;
+                this.mouse.x = e.clientX;
+                this.mouse.y = e.clientY;
+                this.mouse.vx = this.mouse.x - this.mouse.lastX;
+                this.mouse.vy = this.mouse.y - this.mouse.lastY;
+                mouseThrottle = false;
+            });
         });
 
         document.addEventListener('click', (e) => {
             this.mouse.clicked = true;
-            this.mouse.clickX = e.clientX;
-            this.mouse.clickY = e.clientY;
-
-            // Create click burst if enabled
-            if (this.settings['mouse-click-burst']) {
+            if (this.settings['mouse-click-burst'] && this.performanceMode !== 'minimal') {
                 this.createClickBurst(e.clientX, e.clientY);
             }
-
             setTimeout(() => {
                 this.mouse.clicked = false;
             }, 100);
@@ -2809,867 +2970,466 @@ class ParticleSystem {
 
     createParticles() {
         this.particles = [];
-        const count = parseInt(this.settings['particle-count']) || 100;
+        let count = parseInt(this.settings['particle-count']) || 50;
 
-        console.log(`🎯 Creating ${count} particles...`);
-
-        for (let i = 0; i < count; i++) {
-            const particle = {
-                x: Math.random() * this.canvas.width,
-                y: Math.random() * this.canvas.height,
-                vx: (Math.random() - 0.5) * 2,
-                vy: (Math.random() - 0.5) * 2,
-                angle: Math.random() * Math.PI * 2,
-                speed: Math.random() * 2 + 0.5,
-                life: Math.random() * 100,
-                maxLife: Math.random() * 100 + 50,
-                originalX: 0,
-                originalY: 0,
-                phase: Math.random() * Math.PI * 2,
-                radius: Math.random() * 100 + 50,
-                orbitalAngle: Math.random() * Math.PI * 2,
-                trail: []
-            };
-
-            // Set original position for some behaviors
-            particle.originalX = particle.x;
-            particle.originalY = particle.y;
-
-            this.particles.push(particle);
+        // Adjust count based on performance mode
+        switch (this.performanceMode) {
+            case 'reduced':
+                count = Math.floor(count * 0.7);
+                break;
+            case 'minimal':
+                count = Math.floor(count * 0.4);
+                break;
         }
 
-        console.log(`✅ Created ${this.particles.length} particles`);
+        for (let i = 0; i < count; i++) {
+            this.particles.push(this.createParticle());
+        }
+
+        console.log(`Created ${count} particles (${this.performanceMode} mode)`);
+    }
+
+    createParticle() {
+        return {
+            x: Math.random() * this.canvas.width,
+            y: Math.random() * this.canvas.height,
+            vx: (Math.random() - 0.5) * 2,
+            vy: (Math.random() - 0.5) * 2,
+            angle: Math.random() * Math.PI * 2,
+            speed: Math.random() * 2 + 0.5,
+            life: Math.random() * 100,
+            maxLife: Math.random() * 100 + 50,
+            originalX: 0,
+            originalY: 0,
+            phase: Math.random() * Math.PI * 2,
+            radius: Math.random() * 100 + 50,
+            orbitalAngle: Math.random() * Math.PI * 2,
+            trail: [],
+            lastUpdate: 0
+        };
     }
 
     setBehavior(behavior) {
         this.settings.particleBehavior = behavior;
-        console.log(`🎯 Particle behavior changed to: ${behavior}`);
+        console.log(`Particle behavior set to: ${behavior}`);
+    }
 
-        if (behavior === 'sphere' || behavior === 'cube') {
-            this.arrangeIn3D();
-        } else if (behavior === 'text') {
-            this.arrangeAsText();
-        }
-
-        // Log mouse settings for debugging
-        if (behavior.includes('mouse')) {
-            console.log(`🖱️ Mouse settings - Force: ${this.settings['mouse-force']}, Range: ${this.settings['mouse-range']}`);
+    updateSettings(settings) {
+        this.settings = settings;
+        const newCount = parseInt(settings['particle-count']) || 50;
+        if (Math.abs(newCount - this.particles.length) > 10) {
+            this.createParticles();
         }
     }
 
-    arrangeAsText() {
-        const text = this.settings['particle-text'] || 'EMBERFRAME';
-        const fontSize = parseInt(this.settings['text-font-size']) || 80;
-        const fontWeight = this.settings['text-font-weight'] || 'bold';
-        const letterSpacing = parseInt(this.settings['text-letter-spacing']) || 10;
+    testBurst() {
+        // Optimized burst - fewer particles
+        const burstCount = this.performanceMode === 'minimal' ? 10 :
+                          this.performanceMode === 'reduced' ? 20 : 30;
 
-        // Create a temporary canvas to get text metrics
-        const tempCanvas = document.createElement('canvas');
-        const tempCtx = tempCanvas.getContext('2d');
-        tempCtx.font = `${fontWeight} ${fontSize}px Arial`;
-
-        // Calculate text dimensions
-        const textMetrics = tempCtx.measureText(text);
-        const textWidth = textMetrics.width + (letterSpacing * (text.length - 1));
-        const textHeight = fontSize;
-
-        // Position text in center of screen
-        const startX = (this.canvas.width - textWidth) / 2;
-        const startY = (this.canvas.height + textHeight) / 2;
-
-        // Create image data from text
-        tempCanvas.width = textWidth + 100;
-        tempCanvas.height = textHeight + 100;
-        tempCtx.font = `${fontWeight} ${fontSize}px Arial`;
-        tempCtx.fillStyle = 'white';
-        tempCtx.textBaseline = 'top';
-
-        let currentX = 50;
-        for (let i = 0; i < text.length; i++) {
-            tempCtx.fillText(text[i], currentX, 50);
-            currentX += tempCtx.measureText(text[i]).width + letterSpacing;
+        for (let i = 0; i < burstCount; i++) {
+            const angle = (Math.PI * 2 * i) / burstCount;
+            const speed = Math.random() * 3 + 1;
+            this.particles.push({
+                ...this.createParticle(),
+                x: this.mouse.x,
+                y: this.mouse.y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 0,
+                maxLife: 40
+            });
         }
-
-        // Get pixel data
-        const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-        const data = imageData.data;
-
-        // Find text pixels and assign particles to them
-        const textPixels = [];
-        for (let y = 0; y < tempCanvas.height; y += 3) {
-            for (let x = 0; x < tempCanvas.width; x += 3) {
-                const index = (y * tempCanvas.width + x) * 4;
-                const alpha = data[index + 3];
-                if (alpha > 128) {
-                    textPixels.push({
-                        x: startX + x - 50,
-                        y: startY + y - 50
-                    });
-                }
-            }
-        }
-
-        // Assign particles to text positions
-        this.particles.forEach((particle, index) => {
-            if (index < textPixels.length) {
-                particle.targetX = textPixels[index].x;
-                particle.targetY = textPixels[index].y;
-            } else {
-                // Extra particles float around randomly
-                particle.targetX = Math.random() * this.canvas.width;
-                particle.targetY = Math.random() * this.canvas.height;
-            }
-        });
-
-        console.log(`📝 Arranged ${textPixels.length} particles for text: "${text}"`);
+        console.log('🧪 Optimized particle burst test executed');
     }
 
-    arrangeIn3D() {
-        const centerX = this.canvas.width / 2;
-        const centerY = this.canvas.height / 2;
-        const radius = Math.min(this.canvas.width, this.canvas.height) / 4;
+    createClickBurst(x, y) {
+        const burstCount = this.performanceMode === 'minimal' ? 5 :
+                          this.performanceMode === 'reduced' ? 10 : 15;
 
-        this.particles.forEach((particle, i) => {
-            if (this.settings.particleBehavior === 'sphere') {
-                const phi = Math.acos(-1 + (2 * i) / this.particles.length);
-                const theta = Math.sqrt(this.particles.length * Math.PI) * phi;
+        for (let i = 0; i < burstCount; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 6 + 1;
+            this.clickParticles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 0,
+                maxLife: 30,
+                size: Math.random() * 3 + 1,
+                color: this.settings['particle-color'] || '#00d4ff'
+            });
+        }
+    }
 
-                particle.x = centerX + radius * Math.cos(theta) * Math.sin(phi);
-                particle.y = centerY + radius * Math.sin(theta) * Math.sin(phi);
-                particle.z = radius * Math.cos(phi);
-            } else if (this.settings.particleBehavior === 'cube') {
-                const side = Math.cbrt(this.particles.length);
-                const x = (i % side) - side / 2;
-                const y = Math.floor((i / side) % side) - side / 2;
-                const z = Math.floor(i / (side * side)) - side / 2;
-
-                particle.x = centerX + x * 20;
-                particle.y = centerY + y * 20;
-                particle.z = z * 20;
+    startPerformanceMonitoring() {
+        setInterval(() => {
+            const now = performance.now();
+            if (now - this.lastPerformanceCheck > 5000) { // Check every 5 seconds
+                this.adjustPerformance();
+                this.lastPerformanceCheck = now;
             }
-        });
+        }, 5000);
+    }
+
+    adjustPerformance() {
+        const fps = this.frameCount / 5; // Average FPS over 5 seconds
+        this.frameCount = 0;
+
+        if (fps < 30 && this.performanceMode === 'normal') {
+            this.performanceMode = 'reduced';
+            this.updateInterval = 2; // Update every 2nd frame
+            this.createParticles();
+            console.log('🔧 Performance mode: REDUCED');
+        } else if (fps < 20 && this.performanceMode === 'reduced') {
+            this.performanceMode = 'minimal';
+            this.updateInterval = 3; // Update every 3rd frame
+            this.createParticles();
+            console.log('🔧 Performance mode: MINIMAL');
+        } else if (fps > 50 && this.performanceMode !== 'normal') {
+            this.performanceMode = 'normal';
+            this.updateInterval = 1;
+            this.createParticles();
+            console.log('🔧 Performance mode: NORMAL');
+        }
     }
 
     updateParticles() {
+        this.currentFrame++;
+
+        // Skip updates based on performance mode
+        if (this.currentFrame % this.updateInterval !== 0) {
+            return;
+        }
+
         const behavior = this.settings.particleBehavior || 'float';
-        const speed = parseFloat(this.settings['particle-speed']) || 1;
-        const trails = this.settings['particle-trails'];
+        const speed = parseFloat(this.settings['particle-speed']) || 0.8;
+        const trails = this.settings['particle-trails'] && this.performanceMode !== 'minimal';
+        const now = Date.now();
 
         this.particles.forEach((particle, index) => {
-            // Update trail
+            // Throttle particle updates for better performance
+            if (now - particle.lastUpdate < 16) return; // ~60fps max per particle
+            particle.lastUpdate = now;
+
+            // Update trail (optimized)
             if (trails) {
                 particle.trail.push({ x: particle.x, y: particle.y });
-                if (particle.trail.length > 10) {
+                if (particle.trail.length > 5) { // Reduced trail length
                     particle.trail.shift();
                 }
             }
 
-            switch (behavior) {
-                case 'float':
-                    particle.x += particle.vx * speed;
-                    particle.y += particle.vy * speed;
-                    break;
-
-                case 'follow':
-                    const fdx = this.mouse.x - particle.x;
-                    const fdy = this.mouse.y - particle.y;
-                    particle.vx += fdx * 0.0002 * speed;
-                    particle.vy += fdy * 0.0002 * speed;
-                    particle.x += particle.vx;
-                    particle.y += particle.vy;
-                    particle.vx *= 0.95;
-                    particle.vy *= 0.95;
-                    break;
-
-                case 'dodge':
-                    const ddx = this.mouse.x - particle.x;
-                    const ddy = this.mouse.y - particle.y;
-                    const dist = Math.sqrt(ddx * ddx + ddy * ddy);
-                    if (dist < 100) {
-                        particle.vx -= ddx * 0.002 * speed;
-                        particle.vy -= ddy * 0.002 * speed;
-                    }
-                    particle.x += particle.vx;
-                    particle.y += particle.vy;
-                    particle.vx *= 0.98;
-                    particle.vy *= 0.98;
-                    break;
-
-                case 'orbit':
-                    const centerX = this.canvas.width / 2;
-                    const centerY = this.canvas.height / 2;
-                    particle.orbitalAngle += 0.02 * speed;
-                    particle.x = centerX + Math.cos(particle.orbitalAngle) * particle.radius;
-                    particle.y = centerY + Math.sin(particle.orbitalAngle) * particle.radius;
-                    break;
-
-                case 'magnetic':
-                    this.particles.forEach((other, oi) => {
-                        if (index !== oi) {
-                            const dx = other.x - particle.x;
-                            const dy = other.y - particle.y;
-                            const d = Math.sqrt(dx * dx + dy * dy);
-                            if (d < 100 && d > 0) {
-                                particle.vx += dx * 0.00005 * speed;
-                                particle.vy += dy * 0.00005 * speed;
-                            }
-                        }
-                    });
-                    particle.x += particle.vx;
-                    particle.y += particle.vy;
-                    particle.vx *= 0.99;
-                    particle.vy *= 0.99;
-                    break;
-
-                case 'spiral':
-                    const scx = this.canvas.width / 2;
-                    const scy = this.canvas.height / 2;
-                    particle.angle += 0.03 * speed;
-                    const spiralRadius = (particle.angle * 3) % 200;
-                    particle.x = scx + Math.cos(particle.angle) * spiralRadius;
-                    particle.y = scy + Math.sin(particle.angle) * spiralRadius;
-                    break;
-
-                case 'wave':
-                    particle.phase += 0.05 * speed;
-                    particle.x += particle.vx * speed;
-                    particle.y = particle.originalY + Math.sin(particle.phase + particle.x * 0.01) * 50;
-                    if (!particle.originalY) particle.originalY = particle.y;
-                    break;
-
-                case 'fireworks':
-                    particle.life += speed;
-                    if (particle.life > particle.maxLife) {
-                        particle.x = Math.random() * this.canvas.width;
-                        particle.y = this.canvas.height;
-                        particle.vx = (Math.random() - 0.5) * 10;
-                        particle.vy = -Math.random() * 10 - 5;
-                        particle.life = 0;
-                    }
-                    particle.x += particle.vx;
-                    particle.y += particle.vy;
-                    particle.vy += 0.2; // gravity
-                    break;
-
-                case 'constellation':
-                    particle.x += particle.vx * 0.5 * speed;
-                    particle.y += particle.vy * 0.5 * speed;
-                    break;
-
-                case 'tornado':
-                    const tcx = this.canvas.width / 2;
-                    const tcy = this.canvas.height / 2;
-                    particle.angle += 0.05 * speed;
-                    const tornadoRadius = Math.abs(Math.sin(particle.angle * 0.5)) * 150;
-                    particle.x = tcx + Math.cos(particle.angle) * tornadoRadius;
-                    particle.y = tcy + Math.sin(particle.angle * 2) * 100 + particle.angle * 2;
-                    if (particle.y > this.canvas.height) {
-                        particle.angle = 0;
-                    }
-                    break;
-
-                case 'bounce':
-                    particle.x += particle.vx * speed;
-                    particle.y += particle.vy * speed;
-                    if (particle.x <= 0 || particle.x >= this.canvas.width) particle.vx *= -1;
-                    if (particle.y <= 0 || particle.y >= this.canvas.height) particle.vy *= -1;
-                    break;
-
-                case 'gravity':
-                    particle.x += particle.vx * speed;
-                    particle.y += particle.vy * speed;
-                    particle.vy += 0.1 * speed; // gravity
-                    if (particle.y > this.canvas.height) {
-                        particle.y = 0;
-                        particle.x = Math.random() * this.canvas.width;
-                        particle.vy = Math.random() * 2;
-                    }
-                    break;
-
-                case 'explosion':
-                    particle.life += speed;
-                    if (particle.life > particle.maxLife) {
-                        particle.x = this.canvas.width / 2;
-                        particle.y = this.canvas.height / 2;
-                        const angle = Math.random() * Math.PI * 2;
-                        particle.vx = Math.cos(angle) * (Math.random() * 5 + 2);
-                        particle.vy = Math.sin(angle) * (Math.random() * 5 + 2);
-                        particle.life = 0;
-                    }
-                    particle.x += particle.vx;
-                    particle.y += particle.vy;
-                    particle.vx *= 0.98;
-                    particle.vy *= 0.98;
-                    break;
-
-                case 'vortex':
-                    const vx = this.canvas.width / 2;
-                    const vy = this.canvas.height / 2;
-                    const vdx = vx - particle.x;
-                    const vdy = vy - particle.y;
-                    const vdist = Math.sqrt(vdx * vdx + vdy * vdy);
-                    const vangle = Math.atan2(vdy, vdx);
-                    particle.x += Math.cos(vangle + Math.PI/2) * speed * 2;
-                    particle.y += Math.sin(vangle + Math.PI/2) * speed * 2;
-                    if (vdist > 5) {
-                        particle.x += vdx * 0.01 * speed;
-                        particle.y += vdy * 0.01 * speed;
-                    }
-                    break;
-
-                case 'pendulum':
-                    const px = this.canvas.width / 2;
-                    const py = 50;
-                    particle.angle += particle.speed * 0.02 * speed;
-                    particle.x = px + Math.sin(particle.angle) * particle.radius;
-                    particle.y = py + Math.cos(particle.angle) * particle.radius;
-                    break;
-
-                case 'swarm':
-                    // Boid-like behavior
-                    let avgX = 0, avgY = 0, count = 0;
-                    let sepX = 0, sepY = 0;
-                    this.particles.forEach((other, oi) => {
-                        if (index !== oi) {
-                            const dx = other.x - particle.x;
-                            const dy = other.y - particle.y;
-                            const d = Math.sqrt(dx * dx + dy * dy);
-                            if (d < 50) {
-                                avgX += other.x; avgY += other.y; count++;
-                                if (d < 25) {
-                                    sepX -= dx; sepY -= dy;
-                                }
-                            }
-                        }
-                    });
-                    if (count > 0) {
-                        avgX /= count; avgY /= count;
-                        particle.vx += (avgX - particle.x) * 0.0001 * speed;
-                        particle.vy += (avgY - particle.y) * 0.0001 * speed;
-                    }
-                    particle.vx += sepX * 0.01 * speed;
-                    particle.vy += sepY * 0.01 * speed;
-                    particle.x += particle.vx;
-                    particle.y += particle.vy;
-                    particle.vx *= 0.99;
-                    particle.vy *= 0.99;
-                    break;
-
-                case 'rain':
-                    particle.y += particle.speed * 5 * speed;
-                    particle.x += Math.sin(particle.phase) * 0.5;
-                    particle.phase += 0.1;
-                    if (particle.y > this.canvas.height) {
-                        particle.y = -10;
-                        particle.x = Math.random() * this.canvas.width;
-                    }
-                    break;
-
-                case 'snow':
-                    particle.y += particle.speed * 2 * speed;
-                    particle.x += Math.sin(particle.phase) * 1;
-                    particle.phase += 0.05;
-                    if (particle.y > this.canvas.height) {
-                        particle.y = -10;
-                        particle.x = Math.random() * this.canvas.width;
-                    }
-                    break;
-
-                case 'plasma':
-                    particle.x += Math.sin(particle.phase) * 2 * speed;
-                    particle.y += Math.cos(particle.phase * 1.3) * 2 * speed;
-                    particle.phase += 0.05 * speed;
-                    break;
-
-                case 'dna':
-                    const dnaCenter = this.canvas.width / 2;
-                    particle.angle += 0.02 * speed;
-                    const helixRadius = 100;
-                    particle.x = dnaCenter + Math.cos(particle.angle + index * 0.5) * helixRadius;
-                    particle.y = (particle.angle * 50) % this.canvas.height;
-                    if (particle.y > this.canvas.height) particle.angle = 0;
-                    break;
-
-                case 'matrix':
-                    particle.y += particle.speed * 3 * speed;
-                    if (particle.y > this.canvas.height) {
-                        particle.y = -10;
-                        particle.x = Math.floor(Math.random() * (this.canvas.width / 20)) * 20;
-                    }
-                    break;
-
-                case 'galaxy':
-                    const gx = this.canvas.width / 2;
-                    const gy = this.canvas.height / 2;
-                    particle.angle += 0.01 * speed * (1 + particle.radius / 200);
-                    particle.x = gx + Math.cos(particle.angle) * particle.radius;
-                    particle.y = gy + Math.sin(particle.angle) * particle.radius * 0.3;
-                    break;
-
-                case 'heart':
-                    const hx = this.canvas.width / 2;
-                    const hy = this.canvas.height / 2;
-                    particle.angle += 0.02 * speed;
-                    const t = particle.angle;
-                    const heartScale = 5;
-                    particle.x = hx + heartScale * (16 * Math.pow(Math.sin(t), 3));
-                    particle.y = hy - heartScale * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
-                    break;
-
-                case 'flower':
-                    const fx = this.canvas.width / 2;
-                    const fy = this.canvas.height / 2;
-                    particle.angle += 0.02 * speed;
-                    const petalCount = 8;
-                    const flowerRadius = 100 * (1 + 0.5 * Math.sin(petalCount * particle.angle));
-                    particle.x = fx + Math.cos(particle.angle) * flowerRadius;
-                    particle.y = fy + Math.sin(particle.angle) * flowerRadius;
-                    break;
-
-                case 'pulse':
-                    const pulseCenter = { x: this.canvas.width / 2, y: this.canvas.height / 2 };
-                    const pulseDist = Math.sqrt((particle.x - pulseCenter.x) ** 2 + (particle.y - pulseCenter.y) ** 2);
-                    const pulseForce = Math.sin(Date.now() * 0.005) * 0.5;
-                    const pulseAngle = Math.atan2(particle.y - pulseCenter.y, particle.x - pulseCenter.x);
-                    particle.x += Math.cos(pulseAngle) * pulseForce * speed;
-                    particle.y += Math.sin(pulseAngle) * pulseForce * speed;
-                    break;
-
-                case 'web':
-                    // Create web-like structure
-                    const webCenter = { x: this.canvas.width / 2, y: this.canvas.height / 2 };
-                    const webAngle = Math.atan2(particle.y - webCenter.y, particle.x - webCenter.x);
-                    const webDist = Math.sqrt((particle.x - webCenter.x) ** 2 + (particle.y - webCenter.y) ** 2);
-
-                    // Snap to web lines
-                    const webLines = 8;
-                    const snapAngle = Math.round(webAngle / (Math.PI * 2 / webLines)) * (Math.PI * 2 / webLines);
-                    const targetX = webCenter.x + Math.cos(snapAngle) * webDist;
-                    const targetY = webCenter.y + Math.sin(snapAngle) * webDist;
-
-                    particle.x += (targetX - particle.x) * 0.1 * speed;
-                    particle.y += (targetY - particle.y) * 0.1 * speed;
-                    break;
-
-                case 'mouse-trail':
-                    // Follow mouse with trail delay
-                    const trailDelay = index * 0.02;
-                    const targetMouseX = this.mouse.x + Math.sin(Date.now() * 0.001 + index) * 20;
-                    const targetMouseY = this.mouse.y + Math.cos(Date.now() * 0.001 + index) * 20;
-                    particle.x += (targetMouseX - particle.x) * (0.1 - trailDelay) * speed;
-                    particle.y += (targetMouseY - particle.y) * (0.1 - trailDelay) * speed;
-                    break;
-
-                case 'mouse-repel':
-                    const repelRange = this.settings['mouse-range'] || 100;
-                    const repelForce = this.settings['mouse-force'] || 1;
-                    const rdx = this.mouse.x - particle.x;
-                    const rdy = this.mouse.y - particle.y;
-                    const rdist = Math.sqrt(rdx * rdx + rdy * rdy);
-                    if (rdist < repelRange) {
-                        const force = (repelRange - rdist) / repelRange * repelForce * 2;
-                        particle.vx -= (rdx / rdist) * force;
-                        particle.vy -= (rdy / rdist) * force;
-                    }
-                    particle.x += particle.vx * speed;
-                    particle.y += particle.vy * speed;
-                    particle.vx *= 0.95;
-                    particle.vy *= 0.95;
-                    break;
-
-                case 'mouse-attract':
-                    const attractRange = this.settings['mouse-range'] || 100;
-                    const attractForce = this.settings['mouse-force'] || 1;
-                    const adx = this.mouse.x - particle.x;
-                    const ady = this.mouse.y - particle.y;
-                    const adist = Math.sqrt(adx * adx + ady * ady);
-                    if (adist < attractRange && adist > 5) {
-                        const force = (attractRange - adist) / attractRange * attractForce * 0.5;
-                        particle.vx += (adx / adist) * force;
-                        particle.vy += (ady / adist) * force;
-                    }
-                    particle.x += particle.vx * speed;
-                    particle.y += particle.vy * speed;
-                    particle.vx *= 0.98;
-                    particle.vy *= 0.98;
-                    break;
-
-                case 'mouse-orbit':
-                    const orbitRange = this.settings['mouse-range'] || 100;
-                    const odx = this.mouse.x - particle.x;
-                    const ody = this.mouse.y - particle.y;
-                    const odist = Math.sqrt(odx * odx + ody * ody);
-                    if (odist < orbitRange * 2) {
-                        const angle = Math.atan2(ody, odx);
-                        const orbitalSpeed = 0.05 * speed;
-                        particle.x += Math.cos(angle + Math.PI/2) * orbitalSpeed * 20;
-                        particle.y += Math.sin(angle + Math.PI/2) * orbitalSpeed * 20;
-                        // Also pull towards mouse
-                        if (odist > orbitRange) {
-                            particle.x += odx * 0.01;
-                            particle.y += ody * 0.01;
-                        }
-                    } else {
-                        particle.x += particle.vx * speed;
-                        particle.y += particle.vy * speed;
-                    }
-                    break;
-
-                case 'mouse-click':
-                    if (this.mouse.clicked) {
-                        const cdx = this.mouse.clickX - particle.x;
-                        const cdy = this.mouse.clickY - particle.y;
-                        const cdist = Math.sqrt(cdx * cdx + cdy * cdy);
-                        if (cdist < 200) {
-                            const force = (200 - cdist) / 200 * 5;
-                            particle.vx += (cdx / cdist) * force;
-                            particle.vy += (cdy / cdist) * force;
-                        }
-                    }
-                    particle.x += particle.vx * speed;
-                    particle.y += particle.vy * speed;
-                    particle.vx *= 0.9;
-                    particle.vy *= 0.9;
-                    break;
-
-                case 'mouse-gravity':
-                    const gdx = this.mouse.x - particle.x;
-                    const gdy = this.mouse.y - particle.y;
-                    const gdist = Math.sqrt(gdx * gdx + gdy * gdy);
-                    if (gdist > 0) {
-                        const gravity = (this.settings['mouse-force'] || 1) * 100 / (gdist * gdist);
-                        particle.vx += (gdx / gdist) * gravity;
-                        particle.vy += (gdy / gdist) * gravity;
-                    }
-                    particle.x += particle.vx * speed;
-                    particle.y += particle.vy * speed;
-                    particle.vx *= 0.999;
-                    particle.vy *= 0.999;
-                    break;
-
-                case 'mouse-wind':
-                    const windForce = this.settings['mouse-force'] || 1;
-                    const mouseVel = Math.sqrt(this.mouse.vx * this.mouse.vx + this.mouse.vy * this.mouse.vy);
-                    if (mouseVel > 1) {
-                        particle.vx += this.mouse.vx * 0.01 * windForce;
-                        particle.vy += this.mouse.vy * 0.01 * windForce;
-                    }
-                    particle.x += particle.vx * speed;
-                    particle.y += particle.vy * speed;
-                    particle.vx *= 0.98;
-                    particle.vy *= 0.98;
-                    break;
-
-                case 'laser':
-                    // Create laser line from particle to mouse
-                    const ldx = this.mouse.x - particle.x;
-                    const ldy = this.mouse.y - particle.y;
-                    const ldist = Math.sqrt(ldx * ldx + ldy * ldy);
-                    if (ldist > 10) {
-                        particle.x += (ldx / ldist) * speed * 5;
-                        particle.y += (ldy / ldist) * speed * 5;
-                    }
-                    break;
-
-                case 'text':
-                    // Move particles towards their text positions
-                    if (particle.targetX !== undefined && particle.targetY !== undefined) {
-                        const textAnimation = this.settings['text-animation'] || 'static';
-                        let targetX = particle.targetX;
-                        let targetY = particle.targetY;
-
-                        // Apply text animations
-                        switch (textAnimation) {
-                            case 'wave':
-                                targetY += Math.sin(Date.now() * 0.003 + particle.targetX * 0.01) * 20;
-                                break;
-                            case 'bounce':
-                                targetY += Math.abs(Math.sin(Date.now() * 0.005 + index * 0.1)) * 30;
-                                break;
-                            case 'typewriter':
-                                // Reveal particles progressively
-                                const revealProgress = (Date.now() * 0.001) % 10;
-                                const particleRevealTime = index * 0.02;
-                                if (revealProgress < particleRevealTime) {
-                                    targetX = Math.random() * this.canvas.width;
-                                    targetY = Math.random() * this.canvas.height;
-                                }
-                                break;
-                            case 'explode':
-                                const explodeTime = Math.sin(Date.now() * 0.002) * 50;
-                                const dx = particle.targetX - this.canvas.width / 2;
-                                const dy = particle.targetY - this.canvas.height / 2;
-                                targetX = particle.targetX + dx * explodeTime * 0.01;
-                                targetY = particle.targetY + dy * explodeTime * 0.01;
-                                break;
-                        }
-
-                        // Move towards target position
-                        const dtx = targetX - particle.x;
-                        const dty = targetY - particle.y;
-                        const attractionForce = 0.05 * speed;
-
-                        particle.vx += dtx * attractionForce;
-                        particle.vy += dty * attractionForce;
-                        particle.x += particle.vx;
-                        particle.y += particle.vy;
-                        particle.vx *= 0.8; // Damping
-                        particle.vy *= 0.8;
-                    } else {
-                        // No target position, float randomly
-                        particle.x += particle.vx * speed;
-                        particle.y += particle.vy * speed;
-                    }
-                    break;
-            }
+            this.updateParticleBehavior(particle, behavior, speed);
 
             // Boundary wrapping
-            if (particle.x < 0) particle.x = this.canvas.width;
-            if (particle.x > this.canvas.width) particle.x = 0;
-            if (particle.y < 0) particle.y = this.canvas.height;
-            if (particle.y > this.canvas.height) particle.y = 0;
+            if (particle.x < -50) particle.x = this.canvas.width + 50;
+            if (particle.x > this.canvas.width + 50) particle.x = -50;
+            if (particle.y < -50) particle.y = this.canvas.height + 50;
+            if (particle.y > this.canvas.height + 50) particle.y = -50;
+        });
+
+        // Update click particles (optimized)
+        this.clickParticles = this.clickParticles.filter(particle => {
+            particle.life++;
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.vy += 0.1; // gravity
+            particle.vx *= 0.98;
+            particle.vy *= 0.98;
+            return particle.life < particle.maxLife;
         });
     }
 
-    drawParticles() {
-        const size = parseInt(this.settings['particle-size']) || 3;
-        const color = this.settings['particle-color'] || '#00d4ff';
-        const shape = this.settings['particle-shape'] || 'circle';
-        const glow = this.settings['particle-glow'];
-        const connect = this.settings['particle-connect'];
-        const trails = this.settings['particle-trails'];
+    updateParticleBehavior(particle, behavior, speed) {
+        // Optimized behavior calculations
+        switch (behavior) {
+            case 'float':
+                particle.x += particle.vx * speed;
+                particle.y += particle.vy * speed;
+                particle.vx *= 0.995; // Slight dampening
+                particle.vy *= 0.995;
+                break;
 
-        // Clear canvas
+            case 'follow':
+                if (this.performanceMode === 'minimal') {
+                    // Simplified follow behavior
+                    const dx = (this.mouse.x - particle.x) * 0.001;
+                    const dy = (this.mouse.y - particle.y) * 0.001;
+                    particle.vx += dx * speed;
+                    particle.vy += dy * speed;
+                } else {
+                    const fdx = this.mouse.x - particle.x;
+                    const fdy = this.mouse.y - particle.y;
+                    const force = (this.settings['mouse-force'] || 1) * 0.0001;
+                    particle.vx += fdx * force * speed;
+                    particle.vy += fdy * force * speed;
+                }
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vx *= 0.95;
+                particle.vy *= 0.95;
+                break;
+
+            case 'dodge':
+                const ddx = this.mouse.x - particle.x;
+                const ddy = this.mouse.y - particle.y;
+                const dist = ddx * ddx + ddy * ddy; // Skip sqrt for performance
+                const range = this.settings['mouse-range'] || 80;
+                if (dist < range * range) {
+                    const force = (this.settings['mouse-force'] || 1) * 0.001;
+                    particle.vx -= ddx * force * speed;
+                    particle.vy -= ddy * force * speed;
+                }
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vx *= 0.98;
+                particle.vy *= 0.98;
+                break;
+
+            case 'orbit':
+                const centerX = this.canvas.width / 2;
+                const centerY = this.canvas.height / 2;
+                particle.orbitalAngle += 0.015 * speed; // Slightly slower
+                particle.x = centerX + Math.cos(particle.orbitalAngle) * particle.radius;
+                particle.y = centerY + Math.sin(particle.orbitalAngle) * particle.radius;
+                break;
+
+            case 'spiral':
+                const scx = this.canvas.width / 2;
+                const scy = this.canvas.height / 2;
+                particle.angle += 0.02 * speed;
+                const spiralRadius = (particle.angle * 2) % 150; // Smaller spiral
+                particle.x = scx + Math.cos(particle.angle) * spiralRadius;
+                particle.y = scy + Math.sin(particle.angle) * spiralRadius;
+                break;
+
+            case 'wave':
+                particle.phase += 0.03 * speed;
+                particle.x += particle.vx * speed;
+                particle.y = particle.originalY + Math.sin(particle.phase + particle.x * 0.008) * 30;
+                if (!particle.originalY) particle.originalY = particle.y;
+                break;
+
+            case 'bounce':
+                particle.x += particle.vx * speed;
+                particle.y += particle.vy * speed;
+                if (particle.x <= 0 || particle.x >= this.canvas.width) particle.vx *= -0.8;
+                if (particle.y <= 0 || particle.y >= this.canvas.height) particle.vy *= -0.8;
+                break;
+
+            case 'constellation':
+                particle.x += particle.vx * 0.3 * speed;
+                particle.y += particle.vy * 0.3 * speed;
+                break;
+
+            case 'fireworks':
+                particle.life += speed;
+                if (particle.life > particle.maxLife) {
+                    particle.x = Math.random() * this.canvas.width;
+                    particle.y = this.canvas.height;
+                    particle.vx = (Math.random() - 0.5) * 8;
+                    particle.vy = -Math.random() * 8 - 3;
+                    particle.life = 0;
+                }
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vy += 0.15; // gravity
+                break;
+
+            case 'swarm':
+                // Simplified swarm behavior for performance
+                if (this.performanceMode !== 'minimal') {
+                    let avgX = 0, avgY = 0, count = 0;
+                    // Check fewer neighbors for performance
+                    const step = this.performanceMode === 'reduced' ? 3 : 2;
+                    for (let i = 0; i < this.particles.length; i += step) {
+                        const other = this.particles[i];
+                        if (other !== particle) {
+                            const dx = other.x - particle.x;
+                            const dy = other.y - particle.y;
+                            const d = dx * dx + dy * dy; // Skip sqrt
+                            if (d < 2500) { // 50px squared
+                                avgX += other.x; avgY += other.y; count++;
+                            }
+                        }
+                    }
+                    if (count > 0) {
+                        avgX /= count; avgY /= count;
+                        particle.vx += (avgX - particle.x) * 0.00005 * speed;
+                        particle.vy += (avgY - particle.y) * 0.00005 * speed;
+                    }
+                }
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vx *= 0.99;
+                particle.vy *= 0.99;
+                break;
+
+            case 'gravity':
+                particle.x += particle.vx * speed;
+                particle.y += particle.vy * speed;
+                particle.vy += 0.05 * speed; // gravity
+                if (particle.y > this.canvas.height) {
+                    particle.y = 0;
+                    particle.x = Math.random() * this.canvas.width;
+                    particle.vy = Math.random();
+                }
+                break;
+
+            case 'magnetic':
+                // Simplified magnetic behavior
+                if (this.performanceMode !== 'minimal') {
+                    const step = this.performanceMode === 'reduced' ? 4 : 3;
+                    for (let i = 0; i < this.particles.length; i += step) {
+                        const other = this.particles[i];
+                        if (other !== particle) {
+                            const dx = other.x - particle.x;
+                            const dy = other.y - particle.y;
+                            const d = dx * dx + dy * dy; // Skip sqrt
+                            if (d < 10000 && d > 0) { // 100px squared
+                                particle.vx += dx * 0.00002 * speed;
+                                particle.vy += dy * 0.00002 * speed;
+                            }
+                        }
+                    }
+                }
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vx *= 0.99;
+                particle.vy *= 0.99;
+                break;
+
+            default:
+                // Default float behavior
+                particle.x += particle.vx * speed;
+                particle.y += particle.vy * speed;
+                break;
+        }
+    }
+
+    drawParticles() {
+        // Optimized clearing
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Debug: Show canvas bounds
-        this.ctx.strokeStyle = '#ff0000';
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height);
+        const size = Math.max(1, parseInt(this.settings['particle-size']) || 2);
+        const color = this.settings['particle-color'] || '#00d4ff';
+        const glow = this.settings['particle-glow'] && this.performanceMode !== 'minimal';
+        const connect = this.settings['particle-connect'] && this.performanceMode === 'normal';
+        const trails = this.settings['particle-trails'] && this.performanceMode !== 'minimal';
 
-        // Debug info
-        this.ctx.fillStyle = '#ffff00';
-        this.ctx.font = '16px Arial';
-        this.ctx.fillText(`Particles: ${this.particles.length}`, 10, 30);
-        this.ctx.fillText(`Canvas: ${this.canvas.width}x${this.canvas.height}`, 10, 50);
-        this.ctx.fillText(`Color: ${color}`, 10, 70);
-        this.ctx.fillText(`Size: ${size}`, 10, 90);
+        // Batch rendering optimizations
+        this.ctx.save();
 
-        if (this.particles.length === 0) {
-            this.ctx.fillStyle = '#ff0000';
-            this.ctx.font = '20px Arial';
-            this.ctx.fillText('No particles found!', 10, 120);
-            return;
-        }
-
-        // Show first few particle positions
-        for (let i = 0; i < Math.min(5, this.particles.length); i++) {
-            const p = this.particles[i];
-            this.ctx.fillStyle = '#ffffff';
-            this.ctx.fillText(`P${i}: ${Math.round(p.x)},${Math.round(p.y)}`, 10, 120 + i * 20);
-        }
-
-        // Draw connections first (behind particles)
+        // Draw connections first (if enabled and performance allows)
         if (connect) {
-            this.ctx.strokeStyle = color + '30';
+            this.ctx.globalAlpha = 0.3;
+            this.ctx.strokeStyle = color;
             this.ctx.lineWidth = 1;
-            this.particles.forEach((particle, i) => {
-                this.particles.slice(i + 1).forEach(other => {
-                    const dist = Math.sqrt(
-                        Math.pow(particle.x - other.x, 2) +
-                        Math.pow(particle.y - other.y, 2)
-                    );
-                    if (dist < 100) {
-                        this.ctx.beginPath();
+            this.ctx.beginPath();
+
+            // Limit connection checks for performance
+            const step = 2;
+            for (let i = 0; i < this.particles.length; i += step) {
+                const particle = this.particles[i];
+                for (let j = i + step; j < this.particles.length; j += step) {
+                    const other = this.particles[j];
+                    const dx = particle.x - other.x;
+                    const dy = particle.y - other.y;
+                    const dist = dx * dx + dy * dy; // Skip sqrt
+                    if (dist < 6400) { // 80px squared
                         this.ctx.moveTo(particle.x, particle.y);
                         this.ctx.lineTo(other.x, other.y);
-                        this.ctx.stroke();
                     }
-                });
-            });
+                }
+            }
+            this.ctx.stroke();
         }
 
-        // Draw laser effects for laser behavior
-        if (this.settings.particleBehavior === 'laser') {
-            this.ctx.strokeStyle = color + '80';
-            this.ctx.lineWidth = 2;
-            this.particles.forEach(particle => {
-                this.ctx.beginPath();
-                this.ctx.moveTo(particle.x, particle.y);
-                this.ctx.lineTo(this.mouse.x, this.mouse.y);
-                this.ctx.stroke();
-            });
+        // Set up glow once for all particles
+        if (glow) {
+            this.ctx.shadowColor = color;
+            this.ctx.shadowBlur = size * 2; // Reduced glow intensity
         }
 
-        // Count visible particles
-        let visibleCount = 0;
-        let drawnCount = 0;
+        // Draw particles in batches
+        this.ctx.globalAlpha = 1;
+        this.ctx.fillStyle = color;
+        this.ctx.beginPath();
 
-        // Draw particles
-        this.particles.forEach((particle, index) => {
-            // Check if particle is in visible area
-            if (particle.x >= -50 && particle.x <= this.canvas.width + 50 &&
-                particle.y >= -50 && particle.y <= this.canvas.height + 50) {
-                visibleCount++;
+        this.particles.forEach(particle => {
+            // Culling - don't draw particles outside view
+            if (particle.x < -size || particle.x > this.canvas.width + size ||
+                particle.y < -size || particle.y > this.canvas.height + size) {
+                return;
             }
 
-            // Draw trail first
+            // Draw trail (simplified)
             if (trails && particle.trail && particle.trail.length > 1) {
-                this.ctx.strokeStyle = color + '60';
-                this.ctx.lineWidth = Math.max(1, size / 2);
+                this.ctx.save();
+                this.ctx.globalAlpha = 0.4;
+                this.ctx.strokeStyle = color;
+                this.ctx.lineWidth = 1;
                 this.ctx.beginPath();
                 this.ctx.moveTo(particle.trail[0].x, particle.trail[0].y);
                 for (let i = 1; i < particle.trail.length; i++) {
                     this.ctx.lineTo(particle.trail[i].x, particle.trail[i].y);
                 }
                 this.ctx.stroke();
+                this.ctx.restore();
             }
 
-            // Set up glow
-            if (glow) {
-                this.ctx.shadowColor = color;
-                this.ctx.shadowBlur = size * 3;
-            } else {
-                this.ctx.shadowBlur = 0;
-            }
-
-            this.ctx.fillStyle = color;
-            this.ctx.beginPath();
-
-            switch (shape) {
-                case 'circle':
-                    this.ctx.arc(particle.x, particle.y, size, 0, Math.PI * 2);
-                    break;
-                case 'square':
-                    this.ctx.rect(particle.x - size, particle.y - size, size * 2, size * 2);
-                    break;
-                case 'triangle':
-                    this.ctx.moveTo(particle.x, particle.y - size);
-                    this.ctx.lineTo(particle.x - size, particle.y + size);
-                    this.ctx.lineTo(particle.x + size, particle.y + size);
-                    this.ctx.closePath();
-                    break;
-                case 'star':
-                    this.drawStar(particle.x, particle.y, size);
-                    break;
-                case 'diamond':
-                    this.ctx.moveTo(particle.x, particle.y - size);
-                    this.ctx.lineTo(particle.x + size, particle.y);
-                    this.ctx.lineTo(particle.x, particle.y + size);
-                    this.ctx.lineTo(particle.x - size, particle.y);
-                    this.ctx.closePath();
-                    break;
-            }
-
-            try {
-                this.ctx.fill();
-                drawnCount++;
-            } catch (error) {
-                console.error('Error drawing particle:', error);
-            }
+            // Draw particle
+            this.ctx.moveTo(particle.x + size, particle.y);
+            this.ctx.arc(particle.x, particle.y, size, 0, Math.PI * 2);
         });
 
-        // Debug info about visible particles
-        this.ctx.fillStyle = '#00ff00';
-        this.ctx.fillText(`Visible: ${visibleCount}/${this.particles.length}`, 10, 220);
-        this.ctx.fillText(`Drawn: ${drawnCount}`, 10, 240);
-
-        // Reset shadow
-        this.ctx.shadowBlur = 0;
-
-        // Force a large visible particle for testing
-        this.ctx.fillStyle = '#ff00ff';
-        this.ctx.beginPath();
-        this.ctx.arc(100, 300, 20, 0, Math.PI * 2);
         this.ctx.fill();
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.fillText('Test Circle', 130, 305);
-    }
 
-    drawStar(x, y, size) {
-        const spikes = 5;
-        const outerRadius = size;
-        const innerRadius = size * 0.5;
-
-        let rot = Math.PI / 2 * 3;
-        let cx = x;
-        let cy = y;
-        const step = Math.PI / spikes;
-
-        this.ctx.moveTo(cx, cy - outerRadius);
-
-        for (let i = 0; i < spikes; i++) {
-            cx = x + Math.cos(rot) * outerRadius;
-            cy = y + Math.sin(rot) * outerRadius;
-            this.ctx.lineTo(cx, cy);
-            rot += step;
-
-            cx = x + Math.cos(rot) * innerRadius;
-            cy = y + Math.sin(rot) * innerRadius;
-            this.ctx.lineTo(cx, cy);
-            rot += step;
+        // Draw click particles (simplified)
+        if (this.clickParticles.length > 0) {
+            this.ctx.beginPath();
+            this.clickParticles.forEach(particle => {
+                const alpha = 1 - (particle.life / particle.maxLife);
+                if (alpha > 0.1) {
+                    this.ctx.globalAlpha = alpha;
+                    this.ctx.moveTo(particle.x + particle.size, particle.y);
+                    this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                }
+            });
+            this.ctx.fillStyle = color;
+            this.ctx.fill();
         }
 
-        this.ctx.lineTo(x, y - outerRadius);
-        this.ctx.closePath();
+        this.ctx.restore();
+    }
+
+    startAnimation() {
+        if (this.isRunning) return;
+        this.isRunning = true;
+        this.animate();
     }
 
     animate() {
-        if (!this.isRunning) {
-            console.log('🛑 Animation stopped');
-            return;
-        }
+        if (!this.isRunning) return;
 
-        if (!this.canvas || !this.ctx) {
-            console.error('❌ Cannot animate - canvas or context missing');
-            this.isRunning = false;
-            return;
-        }
+        this.frameCount++;
+        this.updateParticles();
+        this.drawParticles();
 
-        try {
-            this.updateParticles();
-            this.updateClickParticles();
-            this.drawParticles();
-            this.drawClickParticles();
-        } catch (error) {
-            console.error('❌ Animation error:', error);
-        }
-
-        // Continue animation loop
-        if (this.isRunning) {
-            this.animationId = requestAnimationFrame(() => this.animate());
-        }
-    }
-
-    updateSettings(newSettings) {
-        this.settings = newSettings;
-        console.log('🔄 Updating particle system settings:', newSettings);
-
-        // Recreate particles if count changed
-        const newCount = parseInt(newSettings['particle-count']) || 100;
-        if (newCount !== this.particles.length) {
-            console.log(`🔢 Particle count changed from ${this.particles.length} to ${newCount}`);
-            this.createParticles();
-        }
+        this.animationId = requestAnimationFrame(() => this.animate());
     }
 
     destroy() {
-        console.log('🗑️ Destroying particle system...');
-
-        this.stopAnimation();
-
+        this.isRunning = false;
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+        }
         if (this.canvas && this.canvas.parentNode) {
             this.canvas.parentNode.removeChild(this.canvas);
-            console.log('🗑️ Particle canvas removed');
         }
-
-        // Clear particles
-        this.particles = [];
-        this.clickParticles = [];
-        this.canvas = null;
-        this.ctx = null;
-
-        console.log('✅ Particle system destroyed completely');
+        console.log('🚫 Optimized particle system destroyed');
     }
 }
 
@@ -3681,6 +3441,7 @@ class BackgroundSystem {
         this.ctx = null;
         this.animationId = null;
         this.time = 0;
+        this.animation = settings.backgroundAnimation || 'matrix';
 
         this.init();
     }
@@ -3688,6 +3449,7 @@ class BackgroundSystem {
     init() {
         this.createCanvas();
         this.animate();
+        console.log('🎬 Background system initialized');
     }
 
     createCanvas() {
@@ -3712,15 +3474,19 @@ class BackgroundSystem {
         });
     }
 
+    setAnimation(animation) {
+        this.animation = animation;
+        console.log(`Background animation set to: ${animation}`);
+    }
+
     animate() {
         const speed = this.settings['animation-speed'] || 1;
         const intensity = this.settings['animation-intensity'] || 1;
         this.time += 0.02 * speed;
+
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        const animation = this.settings.backgroundAnimation;
-
-        switch (animation) {
+        switch (this.animation) {
             case 'matrix':
                 this.drawMatrixRain(intensity);
                 break;
@@ -3733,29 +3499,14 @@ class BackgroundSystem {
             case 'plasma':
                 this.drawPlasmaField(intensity);
                 break;
-            case 'geometry':
-                this.drawGeometricLines(intensity);
-                break;
-            case 'stars':
+            case 'starfield':
                 this.drawStarfield(intensity);
                 break;
-            case 'particles':
-                this.drawParticleFlow(intensity);
-                break;
             case 'fractals':
-                this.drawFractalTree(intensity);
+                this.drawFractals(intensity);
                 break;
-            case 'cellular':
-                this.drawCellularAutomata(intensity);
-                break;
-            case 'lightning':
-                this.drawLightning(intensity);
-                break;
-            case 'ripples':
-                this.drawWaterRipples(intensity);
-                break;
-            case 'crystals':
-                this.drawGrowingCrystals(intensity);
+            case 'fire':
+                this.drawFireEffect(intensity);
                 break;
             case 'dna':
                 this.drawDNAStrands(intensity);
@@ -3763,44 +3514,38 @@ class BackgroundSystem {
             case 'galaxy':
                 this.drawGalaxySpiral(intensity);
                 break;
-            case 'fire':
-                this.drawFireEffect(intensity);
-                break;
-            case 'code':
-                this.drawDigitalRain(intensity);
-                break;
         }
 
         this.animationId = requestAnimationFrame(() => this.animate());
     }
 
-    drawMatrixRain() {
+    drawMatrixRain(intensity) {
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.ctx.fillStyle = '#00ff00';
         this.ctx.font = '15px monospace';
 
-        const columns = this.canvas.width / 20;
-        for (let i = 0; i < columns; i++) {
+        const columns = Math.floor(this.canvas.width / 20);
+        for (let i = 0; i < columns * intensity; i++) {
             const text = String.fromCharCode(Math.random() * 128);
-            const x = i * 20;
+            const x = (i % columns) * 20;
             const y = (this.time * 100 + i * 50) % this.canvas.height;
             this.ctx.fillText(text, x, y);
         }
     }
 
-    drawWaves() {
+    drawWaves(intensity) {
         const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-        gradient.addColorStop(0, 'rgba(0, 212, 255, 0.1)');
-        gradient.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+        gradient.addColorStop(0, `rgba(0, 212, 255, ${0.1 * intensity})`);
+        gradient.addColorStop(1, `rgba(0, 0, 0, ${0.3 * intensity})`);
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.5)';
+        this.ctx.strokeStyle = `rgba(0, 212, 255, ${0.5 * intensity})`;
         this.ctx.lineWidth = 2;
 
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 5 * intensity; i++) {
             this.ctx.beginPath();
             for (let x = 0; x <= this.canvas.width; x += 10) {
                 const y = this.canvas.height / 2 + Math.sin((x + this.time * 100) * 0.01 + i) * 50;
@@ -3814,11 +3559,11 @@ class BackgroundSystem {
         }
     }
 
-    drawNeuralNetwork() {
+    drawNeuralNetwork(intensity) {
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        const nodes = 20;
+        const nodes = Math.floor(20 * intensity);
         const nodePositions = [];
 
         for (let i = 0; i < nodes; i++) {
@@ -3827,14 +3572,14 @@ class BackgroundSystem {
             nodePositions.push({ x, y });
 
             // Draw node
-            this.ctx.fillStyle = 'rgba(0, 212, 255, 0.8)';
+            this.ctx.fillStyle = `rgba(0, 212, 255, ${0.8 * intensity})`;
             this.ctx.beginPath();
             this.ctx.arc(x, y, 3, 0, Math.PI * 2);
             this.ctx.fill();
         }
 
         // Draw connections
-        this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.2)';
+        this.ctx.strokeStyle = `rgba(0, 212, 255, ${0.2 * intensity})`;
         this.ctx.lineWidth = 1;
         for (let i = 0; i < nodePositions.length; i++) {
             for (let j = i + 1; j < nodePositions.length; j++) {
@@ -3852,7 +3597,7 @@ class BackgroundSystem {
         }
     }
 
-    drawPlasmaField() {
+    drawPlasmaField(intensity) {
         const imageData = this.ctx.createImageData(this.canvas.width, this.canvas.height);
         const data = imageData.data;
 
@@ -3862,44 +3607,26 @@ class BackgroundSystem {
                              Math.sin(y * 0.01 + this.time) +
                              Math.sin((x + y) * 0.01 + this.time);
 
-                const color = Math.floor((value + 3) * 42.5);
+                const color = Math.floor((value + 3) * 42.5 * intensity);
                 const index = (y * this.canvas.width + x) * 4;
 
                 data[index] = color; // R
                 data[index + 1] = color * 0.5; // G
                 data[index + 2] = 255 - color; // B
-                data[index + 3] = 100; // A
+                data[index + 3] = 100 * intensity; // A
             }
         }
 
         this.ctx.putImageData(imageData, 0, 0);
     }
 
-    drawGeometricLines() {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.3)';
-        this.ctx.lineWidth = 1;
-
-        const step = 50;
-        for (let x = 0; x < this.canvas.width; x += step) {
-            for (let y = 0; y < this.canvas.height; y += step) {
-                const offset = Math.sin(this.time + x * 0.01 + y * 0.01) * 20;
-                this.ctx.beginPath();
-                this.ctx.moveTo(x, y);
-                this.ctx.lineTo(x + step + offset, y + step + offset);
-                this.ctx.stroke();
-            }
-        }
-    }
-
-    drawStarfield() {
+    drawStarfield(intensity) {
         this.ctx.fillStyle = 'rgba(0, 0, 20, 0.1)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.ctx.fillStyle = 'white';
-        for (let i = 0; i < 200; i++) {
+        const starCount = Math.floor(200 * intensity);
+        for (let i = 0; i < starCount; i++) {
             const x = (Math.sin(this.time * 0.1 + i) + 1) * this.canvas.width / 2;
             const y = (Math.cos(this.time * 0.1 + i * 0.7) + 1) * this.canvas.height / 2;
             const size = Math.sin(this.time + i) * 2 + 2;
@@ -3910,23 +3637,7 @@ class BackgroundSystem {
         }
     }
 
-    drawParticleFlow(intensity) {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.03)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.fillStyle = `rgba(0, 212, 255, ${0.6 * intensity})`;
-        for (let i = 0; i < 100 * intensity; i++) {
-            const x = (Math.sin(this.time + i * 0.1) + 1) * this.canvas.width / 2;
-            const y = (Math.cos(this.time * 0.7 + i * 0.05) + 1) * this.canvas.height / 2;
-            const size = Math.sin(this.time + i) * 3 + 3;
-
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, size, 0, Math.PI * 2);
-            this.ctx.fill();
-        }
-    }
-
-    drawFractalTree(intensity) {
+    drawFractals(intensity) {
         this.ctx.fillStyle = 'rgba(0, 0, 20, 0.1)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -3954,106 +3665,25 @@ class BackgroundSystem {
         drawBranch(this.canvas.width / 2, this.canvas.height - 50, -Math.PI / 2, 60 * intensity, 8);
     }
 
-    drawCellularAutomata(intensity) {
-        const cellSize = 5;
-        const cols = Math.floor(this.canvas.width / cellSize);
-        const rows = Math.floor(this.canvas.height / cellSize);
-
-        this.ctx.fillStyle = `rgba(0, 255, 255, ${0.8 * intensity})`;
-
-        for (let x = 0; x < cols; x++) {
-            for (let y = 0; y < rows; y++) {
-                const noise = Math.sin(x * 0.1 + this.time) * Math.cos(y * 0.1 + this.time);
-                if (noise > 0.3) {
-                    this.ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-                }
-            }
-        }
-    }
-
-    drawLightning(intensity) {
-        this.ctx.fillStyle = 'rgba(0, 0, 30, 0.1)';
+    drawFireEffect(intensity) {
+        this.ctx.fillStyle = 'rgba(20, 0, 0, 0.1)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.ctx.strokeStyle = `rgba(255, 255, 255, ${0.9 * intensity})`;
-        this.ctx.lineWidth = 3;
-        this.ctx.shadowColor = 'rgba(0, 200, 255, 0.8)';
-        this.ctx.shadowBlur = 10;
+        for (let x = 0; x < this.canvas.width; x += 5) {
+            const height = Math.sin(x * 0.01 + this.time * 2) * 100 + 200;
+            const baseY = this.canvas.height - height * intensity;
 
-        const drawLightningBolt = (startX, startY, endX, endY, generations) => {
-            if (generations === 0) {
-                this.ctx.beginPath();
-                this.ctx.moveTo(startX, startY);
-                this.ctx.lineTo(endX, endY);
-                this.ctx.stroke();
-                return;
+            for (let y = baseY; y < this.canvas.height; y += 3) {
+                const flicker = Math.random() * intensity;
+                const heat = (this.canvas.height - y) / height;
+
+                let r = Math.floor(255 * heat * flicker);
+                let g = Math.floor(100 * heat * flicker);
+                let b = 0;
+
+                this.ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                this.ctx.fillRect(x, y, 5, 3);
             }
-
-            const midX = (startX + endX) / 2 + (Math.random() - 0.5) * 50;
-            const midY = (startY + endY) / 2 + (Math.random() - 0.5) * 50;
-
-            drawLightningBolt(startX, startY, midX, midY, generations - 1);
-            drawLightningBolt(midX, midY, endX, endY, generations - 1);
-        };
-
-        if (Math.random() < 0.1 * intensity) {
-            const startX = Math.random() * this.canvas.width;
-            const endX = Math.random() * this.canvas.width;
-            drawLightningBolt(startX, 0, endX, this.canvas.height, 4);
-        }
-
-        this.ctx.shadowBlur = 0;
-    }
-
-    drawWaterRipples(intensity) {
-        this.ctx.fillStyle = 'rgba(0, 50, 100, 0.05)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.strokeStyle = `rgba(0, 150, 255, ${0.5 * intensity})`;
-        this.ctx.lineWidth = 2;
-
-        const centerX = this.canvas.width / 2;
-        const centerY = this.canvas.height / 2;
-
-        for (let i = 0; i < 5; i++) {
-            const radius = (this.time * 50 + i * 30) % 300;
-            const alpha = 1 - radius / 300;
-
-            this.ctx.globalAlpha = alpha * intensity;
-            this.ctx.beginPath();
-            this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            this.ctx.stroke();
-        }
-        this.ctx.globalAlpha = 1;
-    }
-
-    drawGrowingCrystals(intensity) {
-        this.ctx.fillStyle = 'rgba(0, 0, 50, 0.02)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.strokeStyle = `rgba(255, 0, 255, ${0.7 * intensity})`;
-        this.ctx.lineWidth = 1;
-
-        const crystalCount = 20 * intensity;
-        for (let i = 0; i < crystalCount; i++) {
-            const centerX = (Math.sin(i + this.time * 0.5) + 1) * this.canvas.width / 2;
-            const centerY = (Math.cos(i + this.time * 0.3) + 1) * this.canvas.height / 2;
-            const size = Math.sin(this.time + i) * 20 + 30;
-
-            this.ctx.beginPath();
-            for (let j = 0; j < 6; j++) {
-                const angle = (j * Math.PI * 2) / 6;
-                const x = centerX + Math.cos(angle) * size;
-                const y = centerY + Math.sin(angle) * size;
-
-                if (j === 0) {
-                    this.ctx.moveTo(x, y);
-                } else {
-                    this.ctx.lineTo(x, y);
-                }
-            }
-            this.ctx.closePath();
-            this.ctx.stroke();
         }
     }
 
@@ -4065,7 +3695,7 @@ class BackgroundSystem {
         this.ctx.lineWidth = 3;
 
         const centerX = this.canvas.width / 2;
-        const radius = 50;
+        const radius = 50 * intensity;
 
         for (let y = 0; y < this.canvas.height + 100; y += 10) {
             const t = (y + this.time * 100) * 0.02;
@@ -4077,7 +3707,7 @@ class BackgroundSystem {
             this.ctx.lineTo(x2, y);
             this.ctx.stroke();
 
-            // Draw helix strands
+            // Draw helix points
             this.ctx.beginPath();
             this.ctx.arc(x1, y, 3, 0, Math.PI * 2);
             this.ctx.stroke();
@@ -4097,7 +3727,8 @@ class BackgroundSystem {
 
         this.ctx.fillStyle = `rgba(255, 255, 255, ${0.8 * intensity})`;
 
-        for (let i = 0; i < 1000 * intensity; i++) {
+        const starCount = Math.floor(1000 * intensity);
+        for (let i = 0; i < starCount; i++) {
             const angle = i * 0.1 + this.time;
             const radius = i * 0.2;
             const spiralAngle = angle + radius * 0.01;
@@ -4114,47 +3745,6 @@ class BackgroundSystem {
         }
     }
 
-    drawFireEffect(intensity) {
-        this.ctx.fillStyle = 'rgba(20, 0, 0, 0.1)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        for (let x = 0; x < this.canvas.width; x += 5) {
-            const height = Math.sin(x * 0.01 + this.time * 2) * 100 + 200;
-            const baseY = this.canvas.height - height;
-
-            for (let y = baseY; y < this.canvas.height; y += 3) {
-                const flicker = Math.random() * intensity;
-                const heat = (this.canvas.height - y) / height;
-
-                let r = Math.floor(255 * heat * flicker);
-                let g = Math.floor(100 * heat * flicker);
-                let b = 0;
-
-                this.ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-                this.ctx.fillRect(x, y, 5, 3);
-            }
-        }
-    }
-
-    drawDigitalRain(intensity) {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.fillStyle = `rgba(0, 255, 0, ${0.8 * intensity})`;
-        this.ctx.font = '12px monospace';
-
-        const chars = '01';
-        const columns = this.canvas.width / 15;
-
-        for (let i = 0; i < columns * intensity; i++) {
-            const char = chars[Math.floor(Math.random() * chars.length)];
-            const x = i * 15;
-            const y = (this.time * 200 + i * 20) % this.canvas.height;
-
-            this.ctx.fillText(char, x, y);
-        }
-    }
-
     destroy() {
         if (this.animationId) {
             cancelAnimationFrame(this.animationId);
@@ -4162,6 +3752,7 @@ class BackgroundSystem {
         if (this.canvas && this.canvas.parentNode) {
             this.canvas.parentNode.removeChild(this.canvas);
         }
+        console.log('🎬 Background system destroyed');
     }
 }
 
@@ -4180,15 +3771,17 @@ class FPSCounter {
         this.element = document.createElement('div');
         this.element.style.cssText = `
             position: fixed;
-            top: 10px;
-            right: 10px;
+            top: 15px;
+            right: 15px;
             background: rgba(0, 0, 0, 0.8);
             color: #00ff00;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-family: monospace;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
             font-size: 14px;
             z-index: 10000;
+            border: 1px solid #00ff00;
+            box-shadow: 0 2px 10px rgba(0, 255, 0, 0.3);
         `;
         document.body.appendChild(this.element);
 
@@ -4201,6 +3794,9 @@ class FPSCounter {
 
         if (now - this.lastTime >= 1000) {
             this.fps = Math.round((this.frameCount * 1000) / (now - this.lastTime));
+            const color = this.fps > 55 ? '#00ff00' : this.fps > 30 ? '#ffff00' : '#ff0000';
+            this.element.style.color = color;
+            this.element.style.borderColor = color;
             this.element.textContent = `FPS: ${this.fps}`;
             this.frameCount = 0;
             this.lastTime = now;
@@ -4219,93 +3815,10 @@ class FPSCounter {
 // Make Settings available globally
 window.Settings = Settings;
 
-// Simple particle system for immediate testing
-window.createTestParticles = function() {
-    console.log('🧪 Creating test particles directly...');
-
-    // Remove any existing particle canvas
-    const existing = document.getElementById('test-particles-canvas');
-    if (existing) existing.remove();
-
-    // Create test canvas
-    const canvas = document.createElement('canvas');
-    canvas.id = 'test-particles-canvas';
-    canvas.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        pointer-events: none;
-        z-index: -5;
-        background: rgba(255, 0, 0, 0.1);
-    `;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const ctx = canvas.getContext('2d');
-    document.body.appendChild(canvas);
-
-    // Create simple particles
-    const particles = [];
-    for (let i = 0; i < 50; i++) {
-        particles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            vx: (Math.random() - 0.5) * 2,
-            vy: (Math.random() - 0.5) * 2
-        });
-    }
-
-    // Simple animation
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Update and draw particles
-        particles.forEach(p => {
-            p.x += p.vx;
-            p.y += p.vy;
-
-            // Wrap around edges
-            if (p.x < 0) p.x = canvas.width;
-            if (p.x > canvas.width) p.x = 0;
-            if (p.y < 0) p.y = canvas.height;
-            if (p.y > canvas.height) p.y = 0;
-
-            // Draw particle
-            ctx.fillStyle = '#00d4ff';
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-            ctx.fill();
-        });
-
-        requestAnimationFrame(animate);
-    }
-
-    animate();
-    console.log('✅ Test particles should now be visible!');
-};
-
-// Global function to test advanced particles
-window.testAdvancedParticles = function() {
-    console.log('🚀 Testing advanced particle system...');
-    if (window.Settings) {
-        Settings.destroyParticleSystem();
-        setTimeout(() => {
-            Settings.initializeParticleSystem();
-        }, 200);
-    } else {
-        console.error('❌ Settings not available');
-    }
-};
-
 // Auto-apply startup settings when page loads
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 DOM loaded, starting initialization...');
+    console.log('🚀 Settings Pro v6.0 - DOM loaded, initializing...');
 
-    // Create test particles immediately for testing
-    window.createTestParticles();
-
-    // Apply settings after a short delay
     setTimeout(() => {
         try {
             Settings.applyStartupSettings();
@@ -4317,10 +3830,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Also apply when scripts load (for hot reloading)
 if (document.readyState === 'loading') {
-    console.log('🚀 Script loaded, DOM not ready yet...');
+    console.log('🚀 Settings Pro v6.0 - Script loaded, waiting for DOM...');
 } else {
-    console.log('🚀 Script loaded, DOM already ready...');
-    window.createTestParticles();
+    console.log('🚀 Settings Pro v6.0 - Script loaded, DOM ready...');
     setTimeout(() => {
         Settings.applyStartupSettings();
     }, 500);

@@ -9,7 +9,7 @@
  * @enabled true
  */
 
-class ReallyRacer {
+class GameReallyRacer {
   // ═══════════════════════════════════════════════════════════════
   // CORE GAME PROPERTIES
   // ═══════════════════════════════════════════════════════════════
@@ -522,13 +522,13 @@ class ReallyRacer {
         </div>
       `,
       onInit: (container) => {
-        ReallyRacer._container = container;
-        ReallyRacer._canvas = container.querySelector('#physics-canvas');
-        ReallyRacer._ctx = ReallyRacer._canvas.getContext('2d');
-        ReallyRacer._init();
+        GameReallyRacer._container = container;
+        GameReallyRacer._canvas = container.querySelector('#physics-canvas');
+        GameReallyRacer._ctx = GameReallyRacer._canvas.getContext('2d');
+        GameReallyRacer._init();
       },
       onDestroy: () => {
-        ReallyRacer._cleanup();
+        GameReallyRacer._cleanup();
       }
     };
   }
@@ -537,27 +537,27 @@ class ReallyRacer {
     console.log('🏔️ Initializing Hill Racer Physics');
 
     // Load save data
-    ReallyRacer._loadGameData();
+    GameReallyRacer._loadGameData();
 
     // Setup event listeners
-    ReallyRacer._setupEventListeners();
-    ReallyRacer._setupMenuButtons();
+    GameReallyRacer._setupEventListeners();
+    GameReallyRacer._setupMenuButtons();
 
     // Initialize terrain FIRST
-    ReallyRacer._generateTerrain(ReallyRacer._currentLevel);
+    GameReallyRacer._generateTerrain(GameReallyRacer._currentLevel);
 
     // Initialize systems
-    ReallyRacer._populateLevelSelection();
-    ReallyRacer._populateGarage();
+    GameReallyRacer._populateLevelSelection();
+    GameReallyRacer._populateGarage();
 
     // Reset vehicle position based on terrain
-    ReallyRacer._resetVehicleOnTerrain();
+    GameReallyRacer._resetVehicleOnTerrain();
 
     // Show main menu
-    ReallyRacer._showScreen('main-menu');
+    GameReallyRacer._showScreen('main-menu');
 
     // Start render loop
-    ReallyRacer._startRenderLoop();
+    GameReallyRacer._startRenderLoop();
 
     console.log('✅ Hill Racer Physics initialized successfully');
   }
@@ -567,10 +567,10 @@ class ReallyRacer {
   // ═══════════════════════════════════════════════════════════════
 
   static _setupEventListeners() {
-    const container = ReallyRacer._container;
+    const container = GameReallyRacer._container;
 
-    container.addEventListener('keydown', ReallyRacer._onKeyDown.bind(ReallyRacer));
-    container.addEventListener('keyup', ReallyRacer._onKeyUp.bind(ReallyRacer));
+    container.addEventListener('keydown', GameReallyRacer._onKeyDown.bind(GameReallyRacer));
+    container.addEventListener('keyup', GameReallyRacer._onKeyUp.bind(GameReallyRacer));
 
     container.tabIndex = 0;
     container.focus();
@@ -578,50 +578,50 @@ class ReallyRacer {
 
   static _setupMenuButtons() {
     const buttons = {
-      'start-adventure-btn': () => ReallyRacer._startLevel(),
-      'level-select-btn': () => ReallyRacer._showScreen('level-selection'),
-      'garage-workshop-btn': () => ReallyRacer._showScreen('garage-workshop'),
-      'help-controls-btn': () => ReallyRacer._showScreen('help-controls'),
-      'back-to-main-btn': () => ReallyRacer._showScreen('main-menu'),
-      'back-from-garage-btn': () => ReallyRacer._showScreen('main-menu'),
-      'back-from-help-btn': () => ReallyRacer._showScreen('main-menu'),
-      'retry-level-btn': () => ReallyRacer._startLevel(),
-      'crash-menu-btn': () => ReallyRacer._showScreen('main-menu'),
-      'replay-level-btn': () => ReallyRacer._startLevel(),
-      'complete-menu-btn': () => ReallyRacer._showScreen('main-menu'),
-      'upgrade-after-crash-btn': () => ReallyRacer._showScreen('garage-workshop'),
-      'next-level-btn': () => ReallyRacer._nextLevel()
+      'start-adventure-btn': () => GameReallyRacer._startLevel(),
+      'level-select-btn': () => GameReallyRacer._showScreen('level-selection'),
+      'garage-workshop-btn': () => GameReallyRacer._showScreen('garage-workshop'),
+      'help-controls-btn': () => GameReallyRacer._showScreen('help-controls'),
+      'back-to-main-btn': () => GameReallyRacer._showScreen('main-menu'),
+      'back-from-garage-btn': () => GameReallyRacer._showScreen('main-menu'),
+      'back-from-help-btn': () => GameReallyRacer._showScreen('main-menu'),
+      'retry-level-btn': () => GameReallyRacer._startLevel(),
+      'crash-menu-btn': () => GameReallyRacer._showScreen('main-menu'),
+      'replay-level-btn': () => GameReallyRacer._startLevel(),
+      'complete-menu-btn': () => GameReallyRacer._showScreen('main-menu'),
+      'upgrade-after-crash-btn': () => GameReallyRacer._showScreen('garage-workshop'),
+      'next-level-btn': () => GameReallyRacer._nextLevel()
     };
 
     Object.entries(buttons).forEach(([id, handler]) => {
-      const element = ReallyRacer._container.querySelector(`#${id}`);
+      const element = GameReallyRacer._container.querySelector(`#${id}`);
       if (element) element.addEventListener('click', handler);
     });
   }
 
   static _onKeyDown(e) {
-    ReallyRacer._keys[e.code] = true;
+    GameReallyRacer._keys[e.code] = true;
 
     if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code)) {
       e.preventDefault();
     }
 
     // Special keys
-    if (e.code === 'KeyR' && ReallyRacer._gameState === 'playing') {
-      ReallyRacer._resetVehicleOnTerrain();
+    if (e.code === 'KeyR' && GameReallyRacer._gameState === 'playing') {
+      GameReallyRacer._resetVehicleOnTerrain();
     }
 
     if (e.code === 'Escape') {
-      if (ReallyRacer._gameState === 'playing') {
-        ReallyRacer._showScreen('main-menu');
-        ReallyRacer._gameState = 'menu';
-        ReallyRacer._running = false;
+      if (GameReallyRacer._gameState === 'playing') {
+        GameReallyRacer._showScreen('main-menu');
+        GameReallyRacer._gameState = 'menu';
+        GameReallyRacer._running = false;
       }
     }
   }
 
   static _onKeyUp(e) {
-    ReallyRacer._keys[e.code] = false;
+    GameReallyRacer._keys[e.code] = false;
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -629,16 +629,16 @@ class ReallyRacer {
   // ═══════════════════════════════════════════════════════════════
 
   static _generateTerrain(levelIndex) {
-    const level = ReallyRacer._levels[levelIndex];
-    ReallyRacer._terrain.points = [];
-    ReallyRacer._terrain.coins = [];
-    ReallyRacer._terrain.obstacles = [];
+    const level = GameReallyRacer._levels[levelIndex];
+    GameReallyRacer._terrain.points = [];
+    GameReallyRacer._terrain.coins = [];
+    GameReallyRacer._terrain.obstacles = [];
 
     // Generate height map using Perlin-like noise
-    const baseHeight = ReallyRacer._height - 120; // Higher base terrain
+    const baseHeight = GameReallyRacer._height - 120; // Higher base terrain
     let currentHeight = baseHeight;
 
-    for (let x = 0; x < level.length; x += ReallyRacer._terrain.segmentLength) {
+    for (let x = 0; x < level.length; x += GameReallyRacer._terrain.segmentLength) {
       // Create varied terrain
       const noise = Math.sin(x * 0.01) * level.maxHeight * 0.3 +
                    Math.sin(x * 0.005) * level.maxHeight * 0.5 +
@@ -648,9 +648,9 @@ class ReallyRacer {
       currentHeight = baseHeight - noise + heightVariation;
 
       // Clamp height to reasonable bounds - keep terrain visible
-      currentHeight = Math.max(50, Math.min(ReallyRacer._height - 100, currentHeight));
+      currentHeight = Math.max(50, Math.min(GameReallyRacer._height - 100, currentHeight));
 
-      ReallyRacer._terrain.points.push({
+      GameReallyRacer._terrain.points.push({
         x: x,
         y: currentHeight,
         type: 'normal'
@@ -658,19 +658,19 @@ class ReallyRacer {
     }
 
     // Add special terrain features
-    ReallyRacer._addTerrainFeatures(level);
+    GameReallyRacer._addTerrainFeatures(level);
 
     // Generate coins
-    ReallyRacer._generateCoins(level);
+    GameReallyRacer._generateCoins(level);
 
     // Generate obstacles
-    ReallyRacer._generateObstacles(level);
+    GameReallyRacer._generateObstacles(level);
 
-    console.log('✅ Terrain generated:', ReallyRacer._terrain.points.length, 'points');
+    console.log('✅ Terrain generated:', GameReallyRacer._terrain.points.length, 'points');
   }
 
   static _addTerrainFeatures(level) {
-    const points = ReallyRacer._terrain.points;
+    const points = GameReallyRacer._terrain.points;
 
     // Add jumps and special sections
     for (let i = 0; i < points.length - 10; i += 50 + Math.floor(Math.random() * 100)) {
@@ -696,9 +696,9 @@ class ReallyRacer {
   static _generateCoins(level) {
     for (let i = 0; i < level.coins; i++) {
       const x = Math.random() * (level.length - 200) + 100;
-      const terrainY = ReallyRacer._getTerrainHeightAt(x);
+      const terrainY = GameReallyRacer._getTerrainHeightAt(x);
 
-      ReallyRacer._terrain.coins.push({
+      GameReallyRacer._terrain.coins.push({
         x: x,
         y: terrainY - 30 - Math.random() * 50,
         collected: false,
@@ -711,12 +711,12 @@ class ReallyRacer {
   static _generateObstacles(level) {
     for (let i = 0; i < level.obstacles; i++) {
       const x = Math.random() * (level.length - 300) + 200;
-      const terrainY = ReallyRacer._getTerrainHeightAt(x);
+      const terrainY = GameReallyRacer._getTerrainHeightAt(x);
 
       const obstacleTypes = ['rock', 'tree', 'barrel'];
       const type = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
 
-      ReallyRacer._terrain.obstacles.push({
+      GameReallyRacer._terrain.obstacles.push({
         x: x,
         y: terrainY,
         type: type,
@@ -727,13 +727,13 @@ class ReallyRacer {
   }
 
   static _getTerrainHeightAt(x) {
-    const points = ReallyRacer._terrain.points;
+    const points = GameReallyRacer._terrain.points;
 
     if (!points || points.length === 0) {
-      return ReallyRacer._height - 120; // Default ground level
+      return GameReallyRacer._height - 120; // Default ground level
     }
 
-    const segmentLength = ReallyRacer._terrain.segmentLength;
+    const segmentLength = GameReallyRacer._terrain.segmentLength;
     const index = Math.floor(x / segmentLength);
 
     if (index >= points.length - 1) return points[points.length - 1].y;
@@ -749,13 +749,13 @@ class ReallyRacer {
   // ═══════════════════════════════════════════════════════════════
 
   static _resetVehicleOnTerrain() {
-    const vehicle = ReallyRacer._vehicle;
+    const vehicle = GameReallyRacer._vehicle;
 
     // Set vehicle starting position
     vehicle.x = 150;
 
     // Get terrain height at starting position
-    const terrainHeight = ReallyRacer._getTerrainHeightAt(vehicle.x);
+    const terrainHeight = GameReallyRacer._getTerrainHeightAt(vehicle.x);
 
     // Position vehicle above terrain
     vehicle.y = terrainHeight - vehicle.height - 30; // 30px above terrain
@@ -777,107 +777,107 @@ class ReallyRacer {
   // ═══════════════════════════════════════════════════════════════
 
   static _startLevel() {
-    console.log('🚀 Starting level', ReallyRacer._currentLevel);
+    console.log('🚀 Starting level', GameReallyRacer._currentLevel);
 
-    ReallyRacer._gameState = 'playing';
-    ReallyRacer._distance = 0;
-    ReallyRacer._time = 0;
-    ReallyRacer._fuel = 100;
-    ReallyRacer._coins = 0;
+    GameReallyRacer._gameState = 'playing';
+    GameReallyRacer._distance = 0;
+    GameReallyRacer._time = 0;
+    GameReallyRacer._fuel = 100;
+    GameReallyRacer._coins = 0;
 
     // Generate terrain for current level first
-    ReallyRacer._generateTerrain(ReallyRacer._currentLevel);
+    GameReallyRacer._generateTerrain(GameReallyRacer._currentLevel);
 
     // Reset vehicle on the new terrain
-    ReallyRacer._resetVehicleOnTerrain();
+    GameReallyRacer._resetVehicleOnTerrain();
 
     // Initialize camera to follow vehicle immediately
-    ReallyRacer._camera.x = ReallyRacer._vehicle.x - ReallyRacer._width * 0.3;
-    ReallyRacer._camera.y = ReallyRacer._vehicle.y - ReallyRacer._height * 0.6;
-    ReallyRacer._camera.targetX = ReallyRacer._camera.x;
-    ReallyRacer._camera.targetY = ReallyRacer._camera.y;
+    GameReallyRacer._camera.x = GameReallyRacer._vehicle.x - GameReallyRacer._width * 0.3;
+    GameReallyRacer._camera.y = GameReallyRacer._vehicle.y - GameReallyRacer._height * 0.6;
+    GameReallyRacer._camera.targetX = GameReallyRacer._camera.x;
+    GameReallyRacer._camera.targetY = GameReallyRacer._camera.y;
 
     // Clear particles
-    Object.keys(ReallyRacer._particles).forEach(key => {
-      ReallyRacer._particles[key] = [];
+    Object.keys(GameReallyRacer._particles).forEach(key => {
+      GameReallyRacer._particles[key] = [];
     });
 
     // Hide menu, show HUD
-    ReallyRacer._hideAllScreens();
-    const gameHUD = ReallyRacer._container.querySelector('#game-hud');
+    GameReallyRacer._hideAllScreens();
+    const gameHUD = GameReallyRacer._container.querySelector('#game-hud');
     if (gameHUD) gameHUD.style.display = 'block';
 
-    ReallyRacer._running = true;
-    ReallyRacer._container.focus();
+    GameReallyRacer._running = true;
+    GameReallyRacer._container.focus();
 
-    console.log('✅ Level started, vehicle at:', ReallyRacer._vehicle.x, ReallyRacer._vehicle.y);
+    console.log('✅ Level started, vehicle at:', GameReallyRacer._vehicle.x, GameReallyRacer._vehicle.y);
   }
 
   static _startRenderLoop() {
     const gameLoop = (timestamp) => {
-      ReallyRacer._animationId = requestAnimationFrame(gameLoop);
+      GameReallyRacer._animationId = requestAnimationFrame(gameLoop);
 
-      const deltaTime = Math.min((timestamp - ReallyRacer._lastTime) / 1000, 1/30);
-      ReallyRacer._lastTime = timestamp;
+      const deltaTime = Math.min((timestamp - GameReallyRacer._lastTime) / 1000, 1/30);
+      GameReallyRacer._lastTime = timestamp;
 
-      if (ReallyRacer._gameState === 'playing' && ReallyRacer._running) {
-        ReallyRacer._update(deltaTime);
+      if (GameReallyRacer._gameState === 'playing' && GameReallyRacer._running) {
+        GameReallyRacer._update(deltaTime);
       }
 
-      ReallyRacer._render();
+      GameReallyRacer._render();
     };
 
-    ReallyRacer._lastTime = performance.now();
-    gameLoop(ReallyRacer._lastTime);
+    GameReallyRacer._lastTime = performance.now();
+    gameLoop(GameReallyRacer._lastTime);
   }
 
   static _update(deltaTime) {
     // Update game time
-    ReallyRacer._time += deltaTime;
+    GameReallyRacer._time += deltaTime;
 
     // Update vehicle physics
-    ReallyRacer._updateVehiclePhysics(deltaTime);
+    GameReallyRacer._updateVehiclePhysics(deltaTime);
 
     // Update camera
-    ReallyRacer._updateCamera(deltaTime);
+    GameReallyRacer._updateCamera(deltaTime);
 
     // Update particles
-    ReallyRacer._updateParticles(deltaTime);
+    GameReallyRacer._updateParticles(deltaTime);
 
     // Update coins
-    ReallyRacer._updateCoins(deltaTime);
+    GameReallyRacer._updateCoins(deltaTime);
 
     // Check collisions
-    ReallyRacer._checkCollisions();
+    GameReallyRacer._checkCollisions();
 
     // Update distance
-    ReallyRacer._distance = Math.max(ReallyRacer._distance, ReallyRacer._vehicle.x - 150);
+    GameReallyRacer._distance = Math.max(GameReallyRacer._distance, GameReallyRacer._vehicle.x - 150);
 
     // Check game conditions
-    ReallyRacer._checkGameConditions();
+    GameReallyRacer._checkGameConditions();
 
     // Update UI
-    ReallyRacer._updateGameUI();
+    GameReallyRacer._updateGameUI();
 
     // Update screen effects
-    ReallyRacer._screenEffects.shake *= 0.9;
-    ReallyRacer._screenEffects.flash *= 0.9;
+    GameReallyRacer._screenEffects.shake *= 0.9;
+    GameReallyRacer._screenEffects.flash *= 0.9;
   }
 
   static _updateVehiclePhysics(deltaTime) {
-    const vehicle = ReallyRacer._vehicle;
-    const upgrades = ReallyRacer._saveData.upgrades;
+    const vehicle = GameReallyRacer._vehicle;
+    const upgrades = GameReallyRacer._saveData.upgrades;
 
     // Input handling
     let throttle = 0;
     let brake = 0;
     let lean = 0;
 
-    if (ReallyRacer._keys['ArrowUp'] || ReallyRacer._keys['KeyW']) throttle = 1;
-    if (ReallyRacer._keys['ArrowDown'] || ReallyRacer._keys['KeyS']) brake = 1;
-    if (ReallyRacer._keys['ArrowLeft'] || ReallyRacer._keys['KeyA']) lean = -1;
-    if (ReallyRacer._keys['ArrowRight'] || ReallyRacer._keys['KeyD']) lean = 1;
-    if (ReallyRacer._keys['Space']) brake = 1;
+    if (GameReallyRacer._keys['ArrowUp'] || GameReallyRacer._keys['KeyW']) throttle = 1;
+    if (GameReallyRacer._keys['ArrowDown'] || GameReallyRacer._keys['KeyS']) brake = 1;
+    if (GameReallyRacer._keys['ArrowLeft'] || GameReallyRacer._keys['KeyA']) lean = -1;
+    if (GameReallyRacer._keys['ArrowRight'] || GameReallyRacer._keys['KeyD']) lean = 1;
+    if (GameReallyRacer._keys['Space']) brake = 1;
 
     // Calculate forces
     const enginePower = vehicle.enginePower * (1 + upgrades.engine * 0.3);
@@ -885,17 +885,17 @@ class ReallyRacer {
     const grip = vehicle.frontWheel.grip * (1 + upgrades.tires * 0.15);
 
     // Apply throttle
-    if (throttle > 0 && ReallyRacer._fuel > 0) {
+    if (throttle > 0 && GameReallyRacer._fuel > 0) {
       const force = Math.cos(vehicle.angle) * enginePower * throttle * deltaTime;
       vehicle.velocityX += force;
       vehicle.velocityY += Math.sin(vehicle.angle) * enginePower * throttle * deltaTime;
 
       // Consume fuel
-      ReallyRacer._fuel -= deltaTime * 5 * (1 - upgrades.fuel * 0.15);
-      ReallyRacer._fuel = Math.max(0, ReallyRacer._fuel);
+      GameReallyRacer._fuel -= deltaTime * 5 * (1 - upgrades.fuel * 0.15);
+      GameReallyRacer._fuel = Math.max(0, GameReallyRacer._fuel);
 
       // Create exhaust particles
-      ReallyRacer._createExhaustParticles();
+      GameReallyRacer._createExhaustParticles();
     }
 
     // Apply braking
@@ -905,11 +905,11 @@ class ReallyRacer {
     }
 
     // Apply gravity
-    vehicle.velocityY += ReallyRacer._world.gravity * deltaTime;
+    vehicle.velocityY += GameReallyRacer._world.gravity * deltaTime;
 
     // Air resistance
-    const airResistanceX = vehicle.velocityX * vehicle.velocityX * ReallyRacer._world.airDensity * Math.sign(vehicle.velocityX);
-    const airResistanceY = vehicle.velocityY * vehicle.velocityY * ReallyRacer._world.airDensity * Math.sign(vehicle.velocityY);
+    const airResistanceX = vehicle.velocityX * vehicle.velocityX * GameReallyRacer._world.airDensity * Math.sign(vehicle.velocityX);
+    const airResistanceY = vehicle.velocityY * vehicle.velocityY * GameReallyRacer._world.airDensity * Math.sign(vehicle.velocityY);
 
     vehicle.velocityX -= airResistanceX * deltaTime;
     vehicle.velocityY -= airResistanceY * deltaTime;
@@ -933,7 +933,7 @@ class ReallyRacer {
     vehicle.speed = Math.sqrt(vehicle.velocityX * vehicle.velocityX + vehicle.velocityY * vehicle.velocityY);
 
     // Ground collision
-    ReallyRacer._checkGroundCollision();
+    GameReallyRacer._checkGroundCollision();
 
     // Update wheel positions
     const wheelOffsetX = vehicle.wheelBase / 2;
@@ -948,8 +948,8 @@ class ReallyRacer {
   }
 
   static _checkGroundCollision() {
-    const vehicle = ReallyRacer._vehicle;
-    const terrainY = ReallyRacer._getTerrainHeightAt(vehicle.x);
+    const vehicle = GameReallyRacer._vehicle;
+    const terrainY = GameReallyRacer._getTerrainHeightAt(vehicle.x);
 
     vehicle.onGround = false;
 
@@ -964,44 +964,44 @@ class ReallyRacer {
 
         // Landing effects
         if (vehicle.velocityY < -200) {
-          ReallyRacer._createLandingParticles();
-          ReallyRacer._addScreenShake(Math.abs(vehicle.velocityY) * 0.05);
+          GameReallyRacer._createLandingParticles();
+          GameReallyRacer._addScreenShake(Math.abs(vehicle.velocityY) * 0.05);
         }
       }
 
       // Ground friction
       if (vehicle.onGround) {
-        vehicle.velocityX *= Math.pow(ReallyRacer._world.friction, 1/60);
+        vehicle.velocityX *= Math.pow(GameReallyRacer._world.friction, 1/60);
 
         // Align with ground angle (simplified)
-        const groundAngle = ReallyRacer._getGroundAngleAt(vehicle.x);
+        const groundAngle = GameReallyRacer._getGroundAngleAt(vehicle.x);
         vehicle.angle = vehicle.angle * 0.9 + groundAngle * 0.1;
       }
     }
   }
 
   static _getGroundAngleAt(x) {
-    const segmentLength = ReallyRacer._terrain.segmentLength;
-    const y1 = ReallyRacer._getTerrainHeightAt(x - segmentLength);
-    const y2 = ReallyRacer._getTerrainHeightAt(x + segmentLength);
+    const segmentLength = GameReallyRacer._terrain.segmentLength;
+    const y1 = GameReallyRacer._getTerrainHeightAt(x - segmentLength);
+    const y2 = GameReallyRacer._getTerrainHeightAt(x + segmentLength);
     return Math.atan2(y2 - y1, segmentLength * 2);
   }
 
   static _updateCamera(deltaTime) {
-    const vehicle = ReallyRacer._vehicle;
+    const vehicle = GameReallyRacer._vehicle;
 
     // Camera follows vehicle with offset
-    ReallyRacer._camera.targetX = vehicle.x - ReallyRacer._width * 0.3;
-    ReallyRacer._camera.targetY = vehicle.y - ReallyRacer._height * 0.6;
+    GameReallyRacer._camera.targetX = vehicle.x - GameReallyRacer._width * 0.3;
+    GameReallyRacer._camera.targetY = vehicle.y - GameReallyRacer._height * 0.6;
 
     // Smooth camera movement
-    ReallyRacer._camera.x += (ReallyRacer._camera.targetX - ReallyRacer._camera.x) * ReallyRacer._camera.smoothing;
-    ReallyRacer._camera.y += (ReallyRacer._camera.targetY - ReallyRacer._camera.y) * ReallyRacer._camera.smoothing;
+    GameReallyRacer._camera.x += (GameReallyRacer._camera.targetX - GameReallyRacer._camera.x) * GameReallyRacer._camera.smoothing;
+    GameReallyRacer._camera.y += (GameReallyRacer._camera.targetY - GameReallyRacer._camera.y) * GameReallyRacer._camera.smoothing;
 
     // Camera shake
-    if (ReallyRacer._screenEffects.shake > 0) {
-      ReallyRacer._camera.x += (Math.random() - 0.5) * ReallyRacer._screenEffects.shake;
-      ReallyRacer._camera.y += (Math.random() - 0.5) * ReallyRacer._screenEffects.shake;
+    if (GameReallyRacer._screenEffects.shake > 0) {
+      GameReallyRacer._camera.x += (Math.random() - 0.5) * GameReallyRacer._screenEffects.shake;
+      GameReallyRacer._camera.y += (Math.random() - 0.5) * GameReallyRacer._screenEffects.shake;
     }
   }
 
@@ -1010,9 +1010,9 @@ class ReallyRacer {
   // ═══════════════════════════════════════════════════════════════
 
   static _updateParticles(deltaTime) {
-    Object.keys(ReallyRacer._particles).forEach(type => {
-      for (let i = ReallyRacer._particles[type].length - 1; i >= 0; i--) {
-        const particle = ReallyRacer._particles[type][i];
+    Object.keys(GameReallyRacer._particles).forEach(type => {
+      for (let i = GameReallyRacer._particles[type].length - 1; i >= 0; i--) {
+        const particle = GameReallyRacer._particles[type][i];
 
         // Update particle
         particle.x += particle.velocityX * deltaTime;
@@ -1022,24 +1022,24 @@ class ReallyRacer {
 
         // Apply gravity to some particles
         if (type === 'dust' || type === 'debris') {
-          particle.velocityY += ReallyRacer._world.gravity * deltaTime * 0.3;
+          particle.velocityY += GameReallyRacer._world.gravity * deltaTime * 0.3;
         }
 
         // Remove dead particles
         if (particle.life <= 0 || particle.size < 0.5) {
-          ReallyRacer._particles[type].splice(i, 1);
+          GameReallyRacer._particles[type].splice(i, 1);
         }
       }
     });
   }
 
   static _createExhaustParticles() {
-    const vehicle = ReallyRacer._vehicle;
+    const vehicle = GameReallyRacer._vehicle;
     const backX = vehicle.x - Math.cos(vehicle.angle) * vehicle.width / 2;
     const backY = vehicle.y - Math.sin(vehicle.angle) * vehicle.width / 2;
 
     for (let i = 0; i < 2; i++) {
-      ReallyRacer._particles.exhaust.push({
+      GameReallyRacer._particles.exhaust.push({
         x: backX + (Math.random() - 0.5) * 10,
         y: backY + (Math.random() - 0.5) * 10,
         velocityX: -Math.cos(vehicle.angle) * 50 + (Math.random() - 0.5) * 30,
@@ -1052,10 +1052,10 @@ class ReallyRacer {
   }
 
   static _createLandingParticles() {
-    const vehicle = ReallyRacer._vehicle;
+    const vehicle = GameReallyRacer._vehicle;
 
     for (let i = 0; i < 8; i++) {
-      ReallyRacer._particles.dust.push({
+      GameReallyRacer._particles.dust.push({
         x: vehicle.x + (Math.random() - 0.5) * vehicle.width,
         y: vehicle.y + vehicle.height / 2,
         velocityX: (Math.random() - 0.5) * 100,
@@ -1068,10 +1068,10 @@ class ReallyRacer {
   }
 
   static _createCrashParticles() {
-    const vehicle = ReallyRacer._vehicle;
+    const vehicle = GameReallyRacer._vehicle;
 
     for (let i = 0; i < 12; i++) {
-      ReallyRacer._particles.debris.push({
+      GameReallyRacer._particles.debris.push({
         x: vehicle.x,
         y: vehicle.y,
         velocityX: (Math.random() - 0.5) * 200,
@@ -1084,7 +1084,7 @@ class ReallyRacer {
   }
 
   static _updateCoins(deltaTime) {
-    ReallyRacer._terrain.coins.forEach(coin => {
+    GameReallyRacer._terrain.coins.forEach(coin => {
       if (!coin.collected) {
         coin.rotation += deltaTime * 5;
         coin.bob += deltaTime * 3;
@@ -1097,22 +1097,22 @@ class ReallyRacer {
   // ═══════════════════════════════════════════════════════════════
 
   static _checkCollisions() {
-    const vehicle = ReallyRacer._vehicle;
+    const vehicle = GameReallyRacer._vehicle;
 
     // Check coin collisions
-    ReallyRacer._terrain.coins.forEach(coin => {
-      if (!coin.collected && ReallyRacer._checkCircleCollision(vehicle, coin, 25)) {
+    GameReallyRacer._terrain.coins.forEach(coin => {
+      if (!coin.collected && GameReallyRacer._checkCircleCollision(vehicle, coin, 25)) {
         coin.collected = true;
-        ReallyRacer._coins++;
-        ReallyRacer._totalCoins++;
-        ReallyRacer._createCoinParticles(coin.x, coin.y);
+        GameReallyRacer._coins++;
+        GameReallyRacer._totalCoins++;
+        GameReallyRacer._createCoinParticles(coin.x, coin.y);
       }
     });
 
     // Check obstacle collisions
-    ReallyRacer._terrain.obstacles.forEach(obstacle => {
-      if (ReallyRacer._checkRectCollision(vehicle, obstacle)) {
-        ReallyRacer._crashVehicle();
+    GameReallyRacer._terrain.obstacles.forEach(obstacle => {
+      if (GameReallyRacer._checkRectCollision(vehicle, obstacle)) {
+        GameReallyRacer._crashVehicle();
       }
     });
   }
@@ -1133,7 +1133,7 @@ class ReallyRacer {
 
   static _createCoinParticles(x, y) {
     for (let i = 0; i < 6; i++) {
-      ReallyRacer._particles.coins.push({
+      GameReallyRacer._particles.coins.push({
         x: x,
         y: y,
         velocityX: (Math.random() - 0.5) * 60,
@@ -1146,66 +1146,66 @@ class ReallyRacer {
   }
 
   static _checkGameConditions() {
-    const vehicle = ReallyRacer._vehicle;
+    const vehicle = GameReallyRacer._vehicle;
 
     // Check if crashed (flipped over or high speed collision)
     if ((Math.abs(vehicle.angle) > Math.PI * 0.6 && vehicle.onGround) ||
-        (vehicle.speed > 200 && !vehicle.onGround && vehicle.y > ReallyRacer._height)) {
-      ReallyRacer._crashVehicle();
+        (vehicle.speed > 200 && !vehicle.onGround && vehicle.y > GameReallyRacer._height)) {
+      GameReallyRacer._crashVehicle();
     }
 
     // Check if out of fuel
-    if (ReallyRacer._fuel <= 0 && vehicle.speed < 5) {
-      ReallyRacer._gameOver('Out of fuel!');
+    if (GameReallyRacer._fuel <= 0 && vehicle.speed < 5) {
+      GameReallyRacer._gameOver('Out of fuel!');
     }
 
     // Check if reached end of level
-    const level = ReallyRacer._levels[ReallyRacer._currentLevel];
-    if (ReallyRacer._distance >= level.length - 100) {
-      ReallyRacer._levelComplete();
+    const level = GameReallyRacer._levels[GameReallyRacer._currentLevel];
+    if (GameReallyRacer._distance >= level.length - 100) {
+      GameReallyRacer._levelComplete();
     }
   }
 
   static _crashVehicle() {
-    if (ReallyRacer._gameState !== 'playing') return;
+    if (GameReallyRacer._gameState !== 'playing') return;
 
-    ReallyRacer._createCrashParticles();
-    ReallyRacer._addScreenShake(20);
-    ReallyRacer._gameOver('Vehicle crashed!');
+    GameReallyRacer._createCrashParticles();
+    GameReallyRacer._addScreenShake(20);
+    GameReallyRacer._gameOver('Vehicle crashed!');
   }
 
   static _gameOver(reason) {
-    ReallyRacer._gameState = 'crashed';
-    ReallyRacer._running = false;
+    GameReallyRacer._gameState = 'crashed';
+    GameReallyRacer._running = false;
 
     // Update save data
-    ReallyRacer._saveData.totalDistance += ReallyRacer._distance;
-    ReallyRacer._saveData.totalCoins += ReallyRacer._coins;
-    ReallyRacer._saveData.crashes++;
+    GameReallyRacer._saveData.totalDistance += GameReallyRacer._distance;
+    GameReallyRacer._saveData.totalCoins += GameReallyRacer._coins;
+    GameReallyRacer._saveData.crashes++;
 
-    if (ReallyRacer._distance > ReallyRacer._saveData.bestDistances[ReallyRacer._currentLevel]) {
-      ReallyRacer._saveData.bestDistances[ReallyRacer._currentLevel] = ReallyRacer._distance;
+    if (GameReallyRacer._distance > GameReallyRacer._saveData.bestDistances[GameReallyRacer._currentLevel]) {
+      GameReallyRacer._saveData.bestDistances[GameReallyRacer._currentLevel] = GameReallyRacer._distance;
     }
 
-    ReallyRacer._saveGameData();
-    ReallyRacer._showGameOverScreen(reason);
+    GameReallyRacer._saveGameData();
+    GameReallyRacer._showGameOverScreen(reason);
   }
 
   static _levelComplete() {
-    ReallyRacer._gameState = 'finished';
-    ReallyRacer._running = false;
+    GameReallyRacer._gameState = 'finished';
+    GameReallyRacer._running = false;
 
     // Update save data
-    ReallyRacer._saveData.totalDistance += ReallyRacer._distance;
-    ReallyRacer._saveData.totalCoins += ReallyRacer._coins;
+    GameReallyRacer._saveData.totalDistance += GameReallyRacer._distance;
+    GameReallyRacer._saveData.totalCoins += GameReallyRacer._coins;
 
     // Unlock next level
-    if (ReallyRacer._currentLevel < ReallyRacer._levels.length - 1) {
-      ReallyRacer._saveData.unlockedLevels[ReallyRacer._currentLevel + 1] = true;
+    if (GameReallyRacer._currentLevel < GameReallyRacer._levels.length - 1) {
+      GameReallyRacer._saveData.unlockedLevels[GameReallyRacer._currentLevel + 1] = true;
     }
 
-    ReallyRacer._saveGameData();
-    ReallyRacer._showLevelCompleteScreen();
+    GameReallyRacer._saveGameData();
+    GameReallyRacer._showLevelCompleteScreen();
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -1213,54 +1213,54 @@ class ReallyRacer {
   // ═══════════════════════════════════════════════════════════════
 
   static _render() {
-    const ctx = ReallyRacer._ctx;
-    const camera = ReallyRacer._camera;
+    const ctx = GameReallyRacer._ctx;
+    const camera = GameReallyRacer._camera;
 
     // Clear canvas with sky gradient
-    const gradient = ctx.createLinearGradient(0, 0, 0, ReallyRacer._height);
+    const gradient = ctx.createLinearGradient(0, 0, 0, GameReallyRacer._height);
     gradient.addColorStop(0, '#87CEEB');
     gradient.addColorStop(1, '#90EE90');
     ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, ReallyRacer._width, ReallyRacer._height);
+    ctx.fillRect(0, 0, GameReallyRacer._width, GameReallyRacer._height);
 
     ctx.save();
     ctx.translate(-camera.x, -camera.y);
 
     // Render background elements
-    ReallyRacer._renderBackground(ctx);
+    GameReallyRacer._renderBackground(ctx);
 
     // Render terrain
-    ReallyRacer._renderTerrain(ctx);
+    GameReallyRacer._renderTerrain(ctx);
 
     // Render game objects
-    ReallyRacer._renderObstacles(ctx);
-    ReallyRacer._renderCoins(ctx);
+    GameReallyRacer._renderObstacles(ctx);
+    GameReallyRacer._renderCoins(ctx);
 
     // Render particles
-    ReallyRacer._renderParticles(ctx);
+    GameReallyRacer._renderParticles(ctx);
 
     // Render vehicle - ALWAYS LAST for visibility
-    ReallyRacer._renderVehicle(ctx);
+    GameReallyRacer._renderVehicle(ctx);
 
     ctx.restore();
 
     // Render UI effects
-    ReallyRacer._renderScreenEffects(ctx);
+    GameReallyRacer._renderScreenEffects(ctx);
   }
 
   static _renderBackground(ctx) {
-    const camera = ReallyRacer._camera;
+    const camera = GameReallyRacer._camera;
 
     // Render distant mountains/hills for parallax effect
     ctx.fillStyle = 'rgba(34, 139, 34, 0.3)';
-    for (let x = Math.floor(camera.x / 100) * 100; x < camera.x + ReallyRacer._width; x += 100) {
+    for (let x = Math.floor(camera.x / 100) * 100; x < camera.x + GameReallyRacer._width; x += 100) {
       const height = 50 + Math.sin(x * 0.002) * 30;
-      ctx.fillRect(x, ReallyRacer._height - height - camera.y, 100, height);
+      ctx.fillRect(x, GameReallyRacer._height - height - camera.y, 100, height);
     }
   }
 
   static _renderTerrain(ctx) {
-    const points = ReallyRacer._terrain.points;
+    const points = GameReallyRacer._terrain.points;
     if (!points || points.length === 0) return;
 
     // Render terrain fill
@@ -1272,8 +1272,8 @@ class ReallyRacer {
       ctx.lineTo(points[i].x, points[i].y);
     }
 
-    ctx.lineTo(points[points.length - 1].x, ReallyRacer._height + 100);
-    ctx.lineTo(points[0].x, ReallyRacer._height + 100);
+    ctx.lineTo(points[points.length - 1].x, GameReallyRacer._height + 100);
+    ctx.lineTo(points[0].x, GameReallyRacer._height + 100);
     ctx.closePath();
     ctx.fill();
 
@@ -1290,8 +1290,8 @@ class ReallyRacer {
   }
 
   static _renderObstacles(ctx) {
-    ReallyRacer._terrain.obstacles.forEach(obstacle => {
-      ctx.fillStyle = ReallyRacer._getObstacleColor(obstacle.type);
+    GameReallyRacer._terrain.obstacles.forEach(obstacle => {
+      ctx.fillStyle = GameReallyRacer._getObstacleColor(obstacle.type);
 
       if (obstacle.type === 'rock') {
         // Draw rock as irregular shape
@@ -1316,7 +1316,7 @@ class ReallyRacer {
   }
 
   static _renderCoins(ctx) {
-    ReallyRacer._terrain.coins.forEach(coin => {
+    GameReallyRacer._terrain.coins.forEach(coin => {
       if (coin.collected) return;
 
       ctx.save();
@@ -1349,8 +1349,8 @@ class ReallyRacer {
   }
 
   static _renderParticles(ctx) {
-    Object.keys(ReallyRacer._particles).forEach(type => {
-      ReallyRacer._particles[type].forEach(particle => {
+    Object.keys(GameReallyRacer._particles).forEach(type => {
+      GameReallyRacer._particles[type].forEach(particle => {
         const alpha = particle.life / 1.0;
         ctx.fillStyle = particle.color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
         ctx.fillRect(particle.x - particle.size/2, particle.y - particle.size/2, particle.size, particle.size);
@@ -1359,11 +1359,11 @@ class ReallyRacer {
   }
 
   static _renderVehicle(ctx) {
-    const vehicle = ReallyRacer._vehicle;
+    const vehicle = GameReallyRacer._vehicle;
 
     // DEBUG: Log vehicle position
-    if (ReallyRacer._gameState === 'playing' && Math.random() < 0.01) {
-      console.log('🚗 Vehicle render pos:', vehicle.x, vehicle.y, 'Camera:', ReallyRacer._camera.x, ReallyRacer._camera.y);
+    if (GameReallyRacer._gameState === 'playing' && Math.random() < 0.01) {
+      console.log('🚗 Vehicle render pos:', vehicle.x, vehicle.y, 'Camera:', GameReallyRacer._camera.x, GameReallyRacer._camera.y);
     }
 
     ctx.save();
@@ -1372,7 +1372,7 @@ class ReallyRacer {
 
     // Vehicle shadow (if airborne)
     if (!vehicle.onGround) {
-      const shadowY = ReallyRacer._getTerrainHeightAt(vehicle.x) - vehicle.y + 20;
+      const shadowY = GameReallyRacer._getTerrainHeightAt(vehicle.x) - vehicle.y + 20;
       ctx.save();
       ctx.translate(0, shadowY);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
@@ -1445,17 +1445,17 @@ class ReallyRacer {
 
   static _renderScreenEffects(ctx) {
     // Screen flash for crashes
-    if (ReallyRacer._screenEffects.flash > 0) {
-      ctx.fillStyle = `rgba(255, 0, 0, ${ReallyRacer._screenEffects.flash})`;
-      ctx.fillRect(0, 0, ReallyRacer._width, ReallyRacer._height);
+    if (GameReallyRacer._screenEffects.flash > 0) {
+      ctx.fillStyle = `rgba(255, 0, 0, ${GameReallyRacer._screenEffects.flash})`;
+      ctx.fillRect(0, 0, GameReallyRacer._width, GameReallyRacer._height);
     }
 
     // Low fuel warning
-    if (ReallyRacer._fuel < 20 && ReallyRacer._gameState === 'playing') {
+    if (GameReallyRacer._fuel < 20 && GameReallyRacer._gameState === 'playing') {
       const flash = Math.sin(Date.now() * 0.01) * 0.3 + 0.3;
       ctx.fillStyle = `rgba(255, 0, 0, ${flash})`;
-      ctx.fillRect(0, 0, ReallyRacer._width, 10);
-      ctx.fillRect(0, ReallyRacer._height - 10, ReallyRacer._width, 10);
+      ctx.fillRect(0, 0, GameReallyRacer._width, 10);
+      ctx.fillRect(0, GameReallyRacer._height - 10, GameReallyRacer._width, 10);
     }
   }
 
@@ -1465,69 +1465,69 @@ class ReallyRacer {
 
   static _updateGameUI() {
     // Update speed display
-    const speedDisplay = ReallyRacer._container.querySelector('#speed-display');
+    const speedDisplay = GameReallyRacer._container.querySelector('#speed-display');
     if (speedDisplay) {
-      const speedMph = Math.floor(ReallyRacer._vehicle.speed * 0.5);
+      const speedMph = Math.floor(GameReallyRacer._vehicle.speed * 0.5);
       speedDisplay.textContent = `${speedMph} mph`;
     }
 
     // Update fuel bar
-    const fuelBar = ReallyRacer._container.querySelector('#fuel-bar');
-    const fuelPercent = ReallyRacer._container.querySelector('#fuel-percent');
+    const fuelBar = GameReallyRacer._container.querySelector('#fuel-bar');
+    const fuelPercent = GameReallyRacer._container.querySelector('#fuel-percent');
     if (fuelBar && fuelPercent) {
-      fuelBar.style.width = `${ReallyRacer._fuel}%`;
-      fuelPercent.textContent = `${Math.floor(ReallyRacer._fuel)}%`;
+      fuelBar.style.width = `${GameReallyRacer._fuel}%`;
+      fuelPercent.textContent = `${Math.floor(GameReallyRacer._fuel)}%`;
     }
 
     // Update angle display
-    const angleDisplay = ReallyRacer._container.querySelector('#angle-display');
+    const angleDisplay = GameReallyRacer._container.querySelector('#angle-display');
     if (angleDisplay) {
-      const angleDegrees = Math.floor(ReallyRacer._vehicle.angle * 180 / Math.PI);
+      const angleDegrees = Math.floor(GameReallyRacer._vehicle.angle * 180 / Math.PI);
       angleDisplay.textContent = `${angleDegrees}°`;
     }
 
     // Update airborne indicator
-    const airTime = ReallyRacer._container.querySelector('#air-time');
+    const airTime = GameReallyRacer._container.querySelector('#air-time');
     if (airTime) {
-      airTime.style.display = ReallyRacer._vehicle.onGround ? 'none' : 'inline';
+      airTime.style.display = GameReallyRacer._vehicle.onGround ? 'none' : 'inline';
     }
 
     // Update distance
-    const distanceDisplay = ReallyRacer._container.querySelector('#distance-display');
+    const distanceDisplay = GameReallyRacer._container.querySelector('#distance-display');
     if (distanceDisplay) {
-      distanceDisplay.textContent = `${Math.floor(ReallyRacer._distance)}m`;
+      distanceDisplay.textContent = `${Math.floor(GameReallyRacer._distance)}m`;
     }
 
     // Update coins
-    const coinsDisplay = ReallyRacer._container.querySelector('#coins-display');
+    const coinsDisplay = GameReallyRacer._container.querySelector('#coins-display');
     if (coinsDisplay) {
-      coinsDisplay.textContent = `💰 ${ReallyRacer._coins}`;
+      coinsDisplay.textContent = `💰 ${GameReallyRacer._coins}`;
     }
 
     // Update time
-    const timeDisplay = ReallyRacer._container.querySelector('#time-display');
+    const timeDisplay = GameReallyRacer._container.querySelector('#time-display');
     if (timeDisplay) {
-      const minutes = Math.floor(ReallyRacer._time / 60);
-      const seconds = Math.floor(ReallyRacer._time % 60);
+      const minutes = Math.floor(GameReallyRacer._time / 60);
+      const seconds = Math.floor(GameReallyRacer._time % 60);
       timeDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }
 
     // Update best distance
-    const bestDistance = ReallyRacer._container.querySelector('#best-distance');
+    const bestDistance = GameReallyRacer._container.querySelector('#best-distance');
     if (bestDistance) {
-      const best = ReallyRacer._saveData.bestDistances[ReallyRacer._currentLevel];
+      const best = GameReallyRacer._saveData.bestDistances[GameReallyRacer._currentLevel];
       bestDistance.textContent = `${Math.floor(best)}m`;
     }
   }
 
   static _populateLevelSelection() {
-    const levelCards = ReallyRacer._container.querySelector('#level-cards');
+    const levelCards = GameReallyRacer._container.querySelector('#level-cards');
 
-    ReallyRacer._levels.forEach((level, index) => {
+    GameReallyRacer._levels.forEach((level, index) => {
       const card = document.createElement('div');
       card.className = 'level-card';
 
-      if (!ReallyRacer._saveData.unlockedLevels[index]) {
+      if (!GameReallyRacer._saveData.unlockedLevels[index]) {
         card.classList.add('locked');
         card.innerHTML = `
           <div style="font-size: 32px; margin-bottom: 15px;">🔒</div>
@@ -1536,7 +1536,7 @@ class ReallyRacer {
           <div style="font-size: 12px; margin-top: 10px; color: #666;">Complete previous levels to unlock</div>
         `;
       } else {
-        if (index === ReallyRacer._currentLevel) {
+        if (index === GameReallyRacer._currentLevel) {
           card.classList.add('selected');
         }
 
@@ -1563,19 +1563,19 @@ class ReallyRacer {
           <div style="font-size: 12px; color: #888; margin-bottom: 10px;">${level.description}</div>
           <div style="font-size: 12px;">
             <div>Length: ${level.length}m • Coins: ${level.coins}</div>
-            <div>Best: ${ReallyRacer._saveData.bestDistances[index] === 0 ? '--' : Math.floor(ReallyRacer._saveData.bestDistances[index]) + 'm'}</div>
+            <div>Best: ${GameReallyRacer._saveData.bestDistances[index] === 0 ? '--' : Math.floor(GameReallyRacer._saveData.bestDistances[index]) + 'm'}</div>
           </div>
         `;
 
         card.addEventListener('click', () => {
-          ReallyRacer._currentLevel = index;
+          GameReallyRacer._currentLevel = index;
 
           // Update level selection
           document.querySelectorAll('.level-card').forEach(c => c.classList.remove('selected'));
           card.classList.add('selected');
 
           // Generate new terrain
-          ReallyRacer._generateTerrain(index);
+          GameReallyRacer._generateTerrain(index);
         });
       }
 
@@ -1584,11 +1584,11 @@ class ReallyRacer {
   }
 
   static _populateGarage() {
-    const upgradeGrid = ReallyRacer._container.querySelector('#upgrade-grid');
-    const garageCoins = ReallyRacer._container.querySelector('#garage-coins');
+    const upgradeGrid = GameReallyRacer._container.querySelector('#upgrade-grid');
+    const garageCoins = GameReallyRacer._container.querySelector('#garage-coins');
 
     if (garageCoins) {
-      garageCoins.textContent = ReallyRacer._saveData.totalCoins;
+      garageCoins.textContent = GameReallyRacer._saveData.totalCoins;
     }
 
     const upgradeTypes = [
@@ -1603,9 +1603,9 @@ class ReallyRacer {
       const card = document.createElement('div');
       card.className = 'upgrade-card';
 
-      const currentLevel = ReallyRacer._saveData.upgrades[upgrade.id];
-      const maxLevel = ReallyRacer._upgrades[upgrade.id].maxLevel;
-      const cost = ReallyRacer._upgrades[upgrade.id].cost * currentLevel;
+      const currentLevel = GameReallyRacer._saveData.upgrades[upgrade.id];
+      const maxLevel = GameReallyRacer._upgrades[upgrade.id].maxLevel;
+      const cost = GameReallyRacer._upgrades[upgrade.id].cost * currentLevel;
 
       if (currentLevel >= maxLevel) {
         card.classList.add('maxed');
@@ -1623,11 +1623,11 @@ class ReallyRacer {
 
       if (currentLevel < maxLevel) {
         card.addEventListener('click', () => {
-          if (ReallyRacer._saveData.totalCoins >= cost) {
-            ReallyRacer._saveData.totalCoins -= cost;
-            ReallyRacer._saveData.upgrades[upgrade.id]++;
-            ReallyRacer._saveGameData();
-            ReallyRacer._populateGarage(); // Refresh garage
+          if (GameReallyRacer._saveData.totalCoins >= cost) {
+            GameReallyRacer._saveData.totalCoins -= cost;
+            GameReallyRacer._saveData.upgrades[upgrade.id]++;
+            GameReallyRacer._saveGameData();
+            GameReallyRacer._populateGarage(); // Refresh garage
           }
         });
       }
@@ -1637,63 +1637,63 @@ class ReallyRacer {
   }
 
   static _showScreen(screenId) {
-    ReallyRacer._hideAllScreens();
+    GameReallyRacer._hideAllScreens();
 
-    const screen = ReallyRacer._container.querySelector(`#${screenId}`);
+    const screen = GameReallyRacer._container.querySelector(`#${screenId}`);
     if (screen) screen.style.display = 'block';
 
-    const menuOverlay = ReallyRacer._container.querySelector('#menu-overlay');
+    const menuOverlay = GameReallyRacer._container.querySelector('#menu-overlay');
     if (menuOverlay) menuOverlay.style.display = 'flex';
 
-    const gameHUD = ReallyRacer._container.querySelector('#game-hud');
+    const gameHUD = GameReallyRacer._container.querySelector('#game-hud');
     if (gameHUD) gameHUD.style.display = 'none';
 
     // Update garage coins when showing garage
     if (screenId === 'garage-workshop') {
-      ReallyRacer._populateGarage();
+      GameReallyRacer._populateGarage();
     }
   }
 
   static _hideAllScreens() {
     const screens = ['main-menu', 'level-selection', 'garage-workshop', 'help-controls', 'game-over-screen', 'level-complete'];
     screens.forEach(screenId => {
-      const screen = ReallyRacer._container.querySelector(`#${screenId}`);
+      const screen = GameReallyRacer._container.querySelector(`#${screenId}`);
       if (screen) screen.style.display = 'none';
     });
   }
 
   static _showGameOverScreen(reason) {
-    const crashStats = ReallyRacer._container.querySelector('#crash-stats');
+    const crashStats = GameReallyRacer._container.querySelector('#crash-stats');
     if (crashStats) {
       crashStats.innerHTML = `
         ${reason}<br>
-        Distance Reached: ${Math.floor(ReallyRacer._distance)}m<br>
-        Coins Collected: ${ReallyRacer._coins}<br>
-        Time: ${Math.floor(ReallyRacer._time / 60)}:${Math.floor(ReallyRacer._time % 60).toString().padStart(2, '0')}
+        Distance Reached: ${Math.floor(GameReallyRacer._distance)}m<br>
+        Coins Collected: ${GameReallyRacer._coins}<br>
+        Time: ${Math.floor(GameReallyRacer._time / 60)}:${Math.floor(GameReallyRacer._time % 60).toString().padStart(2, '0')}
       `;
     }
 
-    ReallyRacer._showScreen('game-over-screen');
+    GameReallyRacer._showScreen('game-over-screen');
   }
 
   static _showLevelCompleteScreen() {
-    const completionStats = ReallyRacer._container.querySelector('#completion-stats');
+    const completionStats = GameReallyRacer._container.querySelector('#completion-stats');
     if (completionStats) {
       completionStats.innerHTML = `
         Level Complete!<br>
-        Distance: ${Math.floor(ReallyRacer._distance)}m<br>
-        Coins Collected: ${ReallyRacer._coins}<br>
-        Time: ${Math.floor(ReallyRacer._time / 60)}:${Math.floor(ReallyRacer._time % 60).toString().padStart(2, '0')}
+        Distance: ${Math.floor(GameReallyRacer._distance)}m<br>
+        Coins Collected: ${GameReallyRacer._coins}<br>
+        Time: ${Math.floor(GameReallyRacer._time / 60)}:${Math.floor(GameReallyRacer._time % 60).toString().padStart(2, '0')}
       `;
     }
 
     // Show next level button if available
-    const nextLevelBtn = ReallyRacer._container.querySelector('#next-level-btn');
-    if (nextLevelBtn && ReallyRacer._currentLevel < ReallyRacer._levels.length - 1) {
+    const nextLevelBtn = GameReallyRacer._container.querySelector('#next-level-btn');
+    if (nextLevelBtn && GameReallyRacer._currentLevel < GameReallyRacer._levels.length - 1) {
       nextLevelBtn.style.display = 'inline-block';
     }
 
-    ReallyRacer._showScreen('level-complete');
+    GameReallyRacer._showScreen('level-complete');
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -1710,14 +1710,14 @@ class ReallyRacer {
   }
 
   static _addScreenShake(intensity) {
-    ReallyRacer._screenEffects.shake = Math.max(ReallyRacer._screenEffects.shake, intensity);
+    GameReallyRacer._screenEffects.shake = Math.max(GameReallyRacer._screenEffects.shake, intensity);
   }
 
   static _nextLevel() {
-    if (ReallyRacer._currentLevel < ReallyRacer._levels.length - 1) {
-      ReallyRacer._currentLevel++;
-      ReallyRacer._generateTerrain(ReallyRacer._currentLevel);
-      ReallyRacer._startLevel();
+    if (GameReallyRacer._currentLevel < GameReallyRacer._levels.length - 1) {
+      GameReallyRacer._currentLevel++;
+      GameReallyRacer._generateTerrain(GameReallyRacer._currentLevel);
+      GameReallyRacer._startLevel();
     }
   }
 
@@ -1742,14 +1742,14 @@ class ReallyRacer {
       console.log('📁 Game data loaded (placeholder)');
 
       // Update menu displays
-      const totalDistanceDisplay = ReallyRacer._container.querySelector('#total-distance-display');
-      if (totalDistanceDisplay) totalDistanceDisplay.textContent = `${Math.floor(ReallyRacer._saveData.totalDistance)}m`;
+      const totalDistanceDisplay = GameReallyRacer._container.querySelector('#total-distance-display');
+      if (totalDistanceDisplay) totalDistanceDisplay.textContent = `${Math.floor(GameReallyRacer._saveData.totalDistance)}m`;
 
-      const totalCoinsDisplay = ReallyRacer._container.querySelector('#total-coins-display');
-      if (totalCoinsDisplay) totalCoinsDisplay.textContent = `💰 ${ReallyRacer._saveData.totalCoins}`;
+      const totalCoinsDisplay = GameReallyRacer._container.querySelector('#total-coins-display');
+      if (totalCoinsDisplay) totalCoinsDisplay.textContent = `💰 ${GameReallyRacer._saveData.totalCoins}`;
 
-      const totalCrashesDisplay = ReallyRacer._container.querySelector('#total-crashes-display');
-      if (totalCrashesDisplay) totalCrashesDisplay.textContent = `💥 ${ReallyRacer._saveData.crashes}`;
+      const totalCrashesDisplay = GameReallyRacer._container.querySelector('#total-crashes-display');
+      if (totalCrashesDisplay) totalCrashesDisplay.textContent = `💥 ${GameReallyRacer._saveData.crashes}`;
 
     } catch (e) {
       console.warn('Could not load game data');
@@ -1757,11 +1757,11 @@ class ReallyRacer {
   }
 
   static _cleanup() {
-    ReallyRacer._running = false;
+    GameReallyRacer._running = false;
 
-    if (ReallyRacer._animationId) {
-      cancelAnimationFrame(ReallyRacer._animationId);
-      ReallyRacer._animationId = null;
+    if (GameReallyRacer._animationId) {
+      cancelAnimationFrame(GameReallyRacer._animationId);
+      GameReallyRacer._animationId = null;
     }
 
     console.log('🧹 Hill Racer Physics cleaned up');
@@ -1769,4 +1769,4 @@ class ReallyRacer {
 }
 
 // Export for WindowManager
-window.ReallyRacer = ReallyRacer;
+window.GameReallyRacer = GameReallyRacer;

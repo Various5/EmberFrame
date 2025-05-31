@@ -1,6 +1,6 @@
 /**
  * APP_METADATA
- * @name TetrisArcade
+ * @name GameTetrisArcade
  * @icon fas fa-th-large
  * @description A fully polished, classic‐rule Tetris with 7‐bag randomizer, proper locking, line clears only when rows are filled, neon glow, sound cues, high‐score persistence, and level progression.
  * @category Games
@@ -9,7 +9,7 @@
  * @enabled true
  */
 
-class TetrisArcade {
+class GameTetrisArcade {
   // ────────────────────────────────────────────────────────────────────────────────
   // Static properties for game state
   static _container = null;
@@ -674,4 +674,4 @@ class TetrisArcade {
 }
 
 // Expose globally
-window.TetrisArcade = TetrisArcade;
+window.GameTetrisArcade = GameTetrisArcade;

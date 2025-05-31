@@ -9,7 +9,7 @@
  * @author EmberFrame Team
  * @enabled true
  */
-class MediaPlayer {
+class MediaMediaplayer {
     static createWindow() {
         return {
             title: 'Media Player',
@@ -767,7 +767,7 @@ class MediaPlayer {
                 </style>
             `,
             onInit: (windowElement) => {
-                MediaPlayer.init(windowElement);
+                MediaMediaplayer.init(windowElement);
             }
         };
     }
@@ -1367,7 +1367,7 @@ class MediaPlayer {
                     <div class="track-name">${track.title || track.name}</div>
                     <div class="track-artist">${track.artist || 'Unknown Artist'}</div>
                 </div>
-                <button class="action-btn" onclick="MediaPlayer.removeFromPlaylist(${index})" title="Remove">
+                <button class="action-btn" onclick="MediaMediaplayer.removeFromPlaylist(${index})" title="Remove">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -1469,7 +1469,7 @@ class MediaPlayer {
                     <div class="file-name">${file.name}</div>
                     <div class="file-type">${file.type.toUpperCase()} • ${this.formatFileSize(file.size)}</div>
                 </div>
-                <button class="action-btn" onclick="MediaPlayer.addToPlaylist(MediaPlayer.files[${this.files.indexOf(file)}])" title="Add to Playlist">
+                <button class="action-btn" onclick="MediaMediaplayer.addToPlaylist(MediaMediaplayer.files[${this.files.indexOf(file)}])" title="Add to Playlist">
                     <i class="fas fa-plus"></i>
                 </button>
             </div>
@@ -1619,4 +1619,4 @@ class MediaPlayer {
     }
 }
 
-window.MediaPlayer = MediaPlayer;
+window.MediaMediaplayer = MediaMediaplayer;

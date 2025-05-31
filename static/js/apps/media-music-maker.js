@@ -1,6 +1,6 @@
 /**
  * APP_METADATA
- * @name MusicMaker
+ * @name MediaMusicMaker
  * @icon fas fa-music
  * @description FL Studio 21–style Browser DAW: Step Sequencer, Piano Roll, Playlist, Sample Browser, Mixer, Plugins, Save/Load, Undo/Redo.
  * @category Music
@@ -9,7 +9,7 @@
  * @enabled true
  */
 
-class MusicMaker {
+class MediaMusicMaker {
   // ─────────────────────────────────────────────────────────────────────────────────────────
   // STATIC STATE
   static _container = null;
@@ -53,15 +53,15 @@ class MusicMaker {
       height: '100%',
       content: this._getHTML(),
       onInit: async (winElem) => {
-        MusicMaker._container = winElem;
-        await MusicMaker._initialize();
+        MediaMusicMaker._container = winElem;
+        await MediaMusicMaker._initialize();
       },
       onDestroy: () => {
-        MusicMaker._cleanup();
+        MediaMusicMaker._cleanup();
       },
       onClose: () => true,
       onMinimize: () => {
-        if (MusicMaker._isPlaying) MusicMaker._stopScheduler();
+        if (MediaMusicMaker._isPlaying) MediaMusicMaker._stopScheduler();
       },
       onRestore: () => {},
     };
@@ -2592,7 +2592,7 @@ MusicMaker.registerPlugin(MySynth);
 
 // ─────────────────────────────────────────────────────────────────────────────────────────
 // BASE PLUGIN CLASS
-MusicMaker.PluginBase = class {
+MediaMusicMaker.PluginBase = class {
   constructor() {
     this.name = 'Unnamed Plugin';
     this.description = '';
@@ -2625,14 +2625,14 @@ MusicMaker.PluginBase = class {
 };
 
 // PLUGIN REGISTRATION METHOD
-MusicMaker.registerPlugin = function (PluginClass) {
+MediaMusicMaker.registerPlugin = function (PluginClass) {
   if (typeof PluginClass !== 'function') return;
-  if (!(PluginClass.prototype instanceof MusicMaker.PluginBase)) return;
-  MusicMaker._plugins.push(PluginClass);
-  if (MusicMaker._pluginsTab) {
-    MusicMaker._renderPlugins();
+  if (!(PluginClass.prototype instanceof MediaMusicMaker.PluginBase)) return;
+  MediaMusicMaker._plugins.push(PluginClass);
+  if (MediaMusicMaker._pluginsTab) {
+    MediaMusicMaker._renderPlugins();
   }
 };
 
 // Expose globally
-window.MusicMaker = MusicMaker;
+window.MediaMusicMaker = MediaMusicMaker;
