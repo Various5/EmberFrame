@@ -1,0 +1,179 @@
+
+Author: g3n3ric
+
+Extensive Censys Tutorial
+
+---
+
+Introduction to Censys
+
+Censys is a powerful search engine and data platform for discovering and analyzing internet-exposed infrastructure. Like Shodan, it provides visibility into services running on public IPs by scanning the entire IPv4 address space. It collects data on certificates, open ports, and banner information, which is crucial for security assessments and attack surface management.
+
+This tutorial walks through using Censys via the web, CLI, and API, exploring search syntax, real-world reconnaissance scenarios, integration with other tools, and ethical considerations.
+
+---
+
+1. Getting Started with Censys
+
+Website Access:
+- https://search.censys.io
+- Create an account to receive API credentials.
+
+Free accounts:
+- Allow limited daily queries.
+- Access IPv4 host data, certificate transparency, and autonomous system info.
+
+API Credentials:
+- Found in account settings:
+  - API ID
+  - Secret
+
+--- 
+
+2. Basic Web Interface Usage
+
+Search for Web Servers:
+```
+services.service_name: "HTTP"
+```
+
+Filter by Port:
+```
+services.port: 22
+```
+
+Find Exposed MongoDB:
+```
+services.service_name: "MONGODB" AND services.port: 27017
+```
+
+Search for Expired Certificates:
+```
+services.tls.certificates.leaf_data.not_after: [* TO now]
+```
+
+Country-specific Devices:
+```
+location.country: "Switzerland" AND services.port: 3389
+```
+
+--- 
+
+3. Using the Censys CLI
+
+Installation:
+```
+pip install censys
+censys config
+# Enter your API ID and Secret when prompted
+```
+
+Search IPv4 Hosts:
+```
+censys search "services.service_name: HTTP" --index-type hosts
+```
+
+Retrieve JSON Output:
+```
+censys search "services.port: 21" --index-type hosts --output hosts.json
+```
+
+Explore Certificates:
+```
+censys search "parsed.subject_dn: 'CN=example.com'" --index-type certificates
+```
+
+--- 
+
+4. Working with the API (Python)
+
+Install SDK:
+```
+pip install censys
+```
+
+Example Python Usage:
+```python
+from censys.search import CensysHosts
+
+api = CensysHosts()
+results = api.search("services.port: 21 AND location.country: US")
+
+for result in results():
+    print(result["ip"])
+```
+
+Use this for automation, integration with Nmap, or enriching recon data.
+
+--- 
+
+5. Real-World Reconnaissance Scenarios
+
+Identify Exposed Services:
+- FTP, SSH, Telnet, SMB servers across specific regions or providers.
+
+Check for Unencrypted Login Pages:
+```
+services.http.response.body: "login" AND NOT services.tls
+```
+
+Certificate Transparency Analysis:
+- Discover related subdomains and infrastructure.
+
+Vulnerability Scanning:
+- Filter hosts running outdated software by banners:
+```
+services.http.response.headers.server: "Apache/2.2.3"
+```
+
+--- 
+
+6. Integrating with Other Tools
+
+With Recon-ng:
+- Import Censys results into recon workspaces.
+
+With Nmap:
+- Pre-filter IPs with Censys, scan with Nmap for fingerprinting.
+
+With Burp Suite / ZAP:
+- Target subdomains and IPs found via Censys for further testing.
+
+--- 
+
+7. Best Practices and Ethical Usage
+
+- Always scan within permitted legal boundaries.
+- Use results only for threat analysis, research, or authorized security audits.
+- Avoid scraping excessive data.
+- Never attempt to exploit discovered infrastructure without explicit authorization.
+
+--- 
+
+8. Troubleshooting and Notes
+
+Rate Limits:
+- Free accounts have limited requests—use wisely or upgrade.
+
+No Results?
+- Refine query syntax.
+- Use broader filters and drill down manually.
+
+API Key Errors:
+- Regenerate from your account if invalid.
+
+--- 
+
+9. Resources and Further Reading
+
+- Censys Search: https://search.censys.io
+- API Docs: https://search.censys.io/api
+- Query Language: https://search.censys.io/search/language
+- Censys CLI: https://github.com/censys/censys-python
+
+--- 
+
+Conclusion
+
+Censys is a rich and reliable source for gathering intel on internet-facing systems. With powerful search capabilities, JSON APIs, and CLI tools, it enhances reconnaissance, vulnerability discovery, and attack surface mapping. Use Censys ethically and integrate it into your OSINT and red team workflows to increase your visibility into public assets.
+

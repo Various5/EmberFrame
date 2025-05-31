@@ -1,0 +1,159 @@
+
+Author: g3n3ric
+
+Extensive SpiderFoot Tutorial
+
+---
+
+Introduction to SpiderFoot
+
+SpiderFoot is an automated OSINT (Open Source Intelligence) tool for reconnaissance and threat intelligence gathering. It integrates with over 100 data sources to gather intelligence on IPs, domains, emails, usernames, and more. SpiderFoot is available both as a command-line tool and a web interface.
+
+This tutorial walks you through setup, module usage, real-world scenarios, automation, and best practices for ethical intelligence gathering.
+
+---
+
+1. Installation and Setup
+
+Python Version: 3.7+
+
+Linux/macOS:
+```
+git clone https://github.com/smicallef/spiderfoot.git
+cd spiderfoot
+pip3 install -r requirements.txt
+python3 sf.py -l 127.0.0.1:5001
+```
+
+Windows:
+- Use WSL or install Python 3.7+
+- Follow the Linux steps above.
+
+Docker:
+```
+docker pull smicallef/spiderfoot
+docker run -d -p 5001:5001 smicallef/spiderfoot
+```
+
+Web UI:
+- Visit http://127.0.0.1:5001
+- No login required by default (add auth manually if needed)
+
+---
+
+2. Using the Web Interface
+
+Start a New Scan:
+- Click "New Scan"
+- Enter target (IP, domain, email, etc.)
+- Select modules to enable
+- Click "Run Scan"
+
+Monitor Progress:
+- View real-time data as modules complete
+- Export or browse data in table format
+
+Scan Options:
+- Source types: IP, domain, AS, name, etc.
+- Select categories (e.g., passive DNS, credentials, social media)
+
+---
+
+3. Using the CLI
+
+Basic Scan via Terminal:
+```
+python3 sf.py -s example.com -o results.csv -m all
+```
+
+Scan only for emails and DNS:
+```
+python3 sf.py -s example.com -m sfp_dns,sfp_email -o example.csv
+```
+
+Scan IP range:
+```
+python3 sf.py -s 192.168.1.0/24 -m sfp_ipaddr -o network.csv
+```
+
+---
+
+4. Notable Modules
+
+- `sfp_dns`: DNS lookups and zone transfers
+- `sfp_email`: Extracts emails from breaches and leaks
+- `sfp_googlesearch`: Uses Google for indexed data
+- `sfp_sslcert`: Pulls SSL certificate details
+- `sfp_breach`: Checks data breaches (e.g., HIBP, Dehashed)
+- `sfp_shodan`: Retrieves Shodan data (requires API key)
+
+Enable or disable modules based on context for optimized performance and legality.
+
+---
+
+5. Real-World Scenarios
+
+Corporate Recon:
+- Use company domain to map subdomains, emails, employee leaks
+
+Threat Attribution:
+- Use IP to resolve to AS, netblocks, and known malware reports
+
+Red Team Prep:
+- Harvest public infrastructure for phishing or credential stuffing
+
+Incident Response:
+- Trace phishing domain history and shared infrastructure
+
+---
+
+6. Automation and Integration
+
+Use cron jobs or batch scripts for recurring scans:
+```
+@weekly python3 sf.py -s target.com -m all -o weekly_scan.csv
+```
+
+Integrate with SIEM or Elastic Stack via:
+- JSON output
+- REST APIs (external apps can consume scan data)
+
+---
+
+7. Tips and Troubleshooting
+
+No Output?
+- Ensure target format is correct (e.g., domain.com not http://domain.com)
+- Enable appropriate modules
+
+Performance Issues:
+- Disable modules you don’t need
+- Increase system resources or scan fewer targets
+
+Errors on Start:
+- Ensure Python 3.7+, pip modules are installed
+
+---
+
+8. Ethical and Legal Guidelines
+
+- Use only on assets you are authorized to investigate
+- Respect rate limits and terms of service of APIs
+- Avoid modules requiring credentials unless permitted
+- Store and share data securely
+
+---
+
+9. Resources and Further Learning
+
+- GitHub Repo: https://github.com/smicallef/spiderfoot
+- Official Docs: https://www.spiderfoot.net/documentation/
+- SpiderFoot HX (SaaS version): https://www.spiderfoot.net
+- OSINT Lists: https://github.com/jivoi/awesome-osint
+
+---
+
+Conclusion
+
+SpiderFoot offers a highly automated, extensible platform for conducting comprehensive OSINT investigations. With its modular design and rich data integrations, it’s a must-have for penetration testers, SOC analysts, and digital investigators.
+

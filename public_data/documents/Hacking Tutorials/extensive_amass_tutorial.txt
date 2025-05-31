@@ -1,0 +1,181 @@
+
+Author: g3n3ric
+
+Extensive Amass Tutorial
+
+---
+
+Introduction to Amass
+
+Amass is an advanced open-source reconnaissance tool for discovering and mapping the attack surface of external assets. It performs DNS enumeration, subdomain discovery, and network mapping through passive and active reconnaissance. Amass is widely used by red teams, bug bounty hunters, and threat analysts.
+
+This tutorial provides a comprehensive guide to installation, configuration, core functionalities, real-world usage scenarios, and ethical considerations.
+
+---
+
+1. Installation and Setup
+
+Linux/macOS:
+```
+sudo apt install amass   # Debian-based systems
+brew install amass       # macOS with Homebrew
+```
+
+From Source:
+```
+go install -v github.com/owasp-amass/amass/v4/...@latest
+```
+
+Docker:
+```
+docker run -v $(pwd):/amass/ amassproject/amass enum -d example.com
+```
+
+Verify Installation:
+```
+amass -version
+```
+
+---
+
+2. Core Functionalities
+
+Amass has multiple modes:
+- `enum`: Subdomain enumeration
+- `viz`: Visualize results
+- `db`: Manage the local database
+- `intel`: Identify targets from ASNs, CIDRs, etc.
+
+---
+
+3. Basic Usage
+
+Passive Subdomain Enumeration:
+```
+amass enum -passive -d example.com
+```
+
+Active Enumeration:
+```
+amass enum -active -d example.com
+```
+
+Combine with Brute Forcing:
+```
+amass enum -brute -d example.com
+```
+
+Save Output:
+```
+amass enum -d example.com -o results.txt
+```
+
+--- 
+
+4. Advanced Enumeration
+
+Using Wordlists:
+```
+amass enum -d example.com -brute -w /path/to/wordlist.txt
+```
+
+Use Custom Resolvers:
+```
+amass enum -d example.com -rf resolvers.txt
+```
+
+Export to JSON:
+```
+amass enum -d example.com -oJ output.json
+```
+
+Use Configuration File for APIs:
+- Store API keys (e.g., VirusTotal, PassiveTotal, etc.)
+- Example config: `~/.config/amass/config.ini`
+
+---
+
+5. Real-World Recon Scenarios
+
+Attack Surface Mapping:
+- Discover forgotten or untracked subdomains.
+
+Red Team Enumeration:
+- Identify dev, staging, or internal-facing interfaces.
+
+Cloud Recon:
+- Reveal assets hosted on AWS, GCP, or Azure.
+
+Vulnerability Discovery:
+- Feed results into Nmap, HTTP scanners, or fuzzers.
+
+---
+
+6. Visualization with `viz`
+
+Generate Graph DB:
+```
+amass db -names -d example.com
+amass viz -d3 -o graph.html
+```
+
+Visualize with:
+- Maltego
+- Neo4j
+- Built-in D3.js graph exports
+
+---
+
+7. Integration into Toolchains
+
+Combine with Subjack for takeover detection:
+```
+amass enum -d example.com -o subs.txt
+subjack -w subs.txt -t 100 -timeout 30 -o results.txt
+```
+
+Pipeline into HTTPx:
+```
+cat subs.txt | httpx -title -tech-detect
+```
+
+Link to Shodan:
+- Enrich IPs of discovered subdomains with Shodan data.
+
+--- 
+
+8. Troubleshooting and Tips
+
+No Results:
+- Check DNS resolution and network access.
+- Add API keys for more passive data sources.
+
+Slow Scans:
+- Use fewer modules or disable brute-force when unnecessary.
+
+Rate Limits:
+- Respect third-party API quotas.
+
+--- 
+
+9. Ethics and Legal Considerations
+
+- Only scan domains you own or have explicit permission to test.
+- Avoid brute-force scans on sensitive domains without consent.
+- Store and share data securely.
+
+--- 
+
+10. Further Resources
+
+- GitHub: https://github.com/owasp-amass/amass
+- Official Docs: https://owasp.org/www-project-amass/
+- Wordlists: https://github.com/danielmiessler/SecLists
+- DNS Resolvers: https://public-dns.info
+
+--- 
+
+Conclusion
+
+Amass is a powerful asset discovery tool that helps organizations and researchers identify the full breadth of their internet-exposed infrastructure. When combined with visualization, enrichment, and automation, it becomes an essential part of any security toolset.
+

@@ -1,0 +1,172 @@
+
+Author: g3n3ric
+
+Extensive WPScan Tutorial
+
+---
+
+Introduction to WPScan
+
+WPScan is a free, open-source WordPress vulnerability scanner designed to analyze WordPress websites for security issues. It can identify vulnerable plugins, themes, outdated versions, weak credentials, and common misconfigurations.
+
+WPScan is a vital tool for security professionals and ethical hackers targeting WordPress sites in penetration testing engagements.
+
+---
+
+1. Installation and Setup
+
+Linux (Debian/Ubuntu):
+```
+sudo apt update
+sudo apt install ruby-full
+sudo gem install wpscan
+```
+
+macOS:
+```
+brew install wpscan
+```
+
+Docker (Cross-platform):
+```
+docker run -it --rm wpscanteam/wpscan --url http://example.com
+```
+
+API Token (for vulnerability database access):
+- Register for a free API token at https://wpscan.com
+- Add token to command:
+```
+--api-token YOUR_TOKEN
+```
+
+---
+
+2. Basic Usage
+
+Simple Scan:
+```
+wpscan --url http://example.com
+```
+
+Enumerate Users:
+```
+wpscan --url http://example.com --enumerate u
+```
+
+Plugin Enumeration:
+```
+wpscan --url http://example.com --enumerate p
+```
+
+Theme Enumeration:
+```
+wpscan --url http://example.com --enumerate t
+```
+
+Vulnerability Check (requires API token):
+```
+wpscan --url http://example.com --api-token YOUR_TOKEN
+```
+
+---
+
+3. Password Brute Forcing
+
+Brute Force with Wordlist:
+```
+wpscan --url http://example.com --passwords passwords.txt --usernames admin
+```
+
+Brute Force Multiple Users:
+```
+wpscan --url http://example.com --passwords rockyou.txt --usernames usernames.txt
+```
+
+Throttle Requests to Avoid Lockout:
+```
+wpscan --url http://example.com --passwords rockyou.txt --usernames admin --throttle 1
+```
+
+---
+
+4. Real-world Pentesting Scenarios
+
+Checking for Outdated Core:
+```
+wpscan --url http://example.com --api-token YOUR_TOKEN
+```
+
+Detecting Vulnerable Plugins:
+```
+wpscan --url http://example.com --enumerate vp --api-token YOUR_TOKEN
+```
+
+Identifying Common Config Issues:
+- XML-RPC exposure
+- Weak usernames
+- Readable wp-config files
+
+Auditing for Hardcoded Credentials:
+- Check publicly accessible files
+- Look for backup archives
+
+---
+
+5. Performance Tuning and Stealth
+
+Randomize User-Agent:
+```
+wpscan --url http://example.com --random-user-agent
+```
+
+Use Proxy (e.g., with Burp):
+```
+wpscan --url http://example.com --proxy http://127.0.0.1:8080
+```
+
+Request Delay:
+```
+wpscan --url http://example.com --request-delay 2
+```
+
+Log Output:
+```
+wpscan --url http://example.com --log wpscan_results.txt
+```
+
+---
+
+6. Troubleshooting Common Issues
+
+403 Forbidden:
+- Use proxy to inspect behavior.
+- Randomize headers or use delay.
+
+Timeouts:
+- Use `--timeout 30` or throttle requests.
+
+Missing API token:
+- Register and include `--api-token`.
+
+---
+
+7. Ethical and Legal Guidelines
+
+- Never scan WordPress sites without proper authorization.
+- Avoid brute-forcing on production systems unless explicitly permitted.
+- Keep logs of scans and share responsibly with stakeholders.
+
+---
+
+8. Resources for Further Learning
+
+- Official WPScan Site: https://wpscan.com
+- WPScan GitHub: https://github.com/wpscanteam/wpscan
+- WordPress Security Best Practices: https://wordpress.org/support/article/hardening-wordpress/
+- Wordlists: https://github.com/danielmiessler/SecLists
+
+---
+
+Conclusion
+
+WPScan provides a streamlined, effective way to assess WordPress installations for security flaws. Combined with API-powered vulnerability databases and proper usage, it is a critical tool in the web pentester's arsenal.

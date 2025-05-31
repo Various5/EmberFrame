@@ -1,0 +1,147 @@
+
+Author: g3n3ric
+
+Extensive OSINT Framework Tutorial
+
+---
+
+Introduction to the OSINT Framework
+
+The OSINT Framework is not a tool itself, but a curated collection of OSINT (Open Source Intelligence) tools and resources grouped by topic. It’s designed to help researchers, investigators, and penetration testers efficiently locate information about people, domains, IPs, social networks, and more.
+
+This tutorial guides you through using the OSINT Framework effectively, applying real-world investigation techniques, and integrating external tools to automate intelligence gathering.
+
+---
+
+1. Getting Started with the OSINT Framework
+
+Access:
+- URL: https://osintframework.com
+- No installation required.
+- All resources are categorized and hyperlink to external tools or services.
+
+Structure:
+- Categories like: Username, Email, IP Address, Domain, Social Networks, etc.
+- Tools are further grouped by function (search, analysis, enrichment).
+
+Browser Integration:
+- Use in combination with Firefox/Chrome bookmarklets or extensions for automation.
+
+---
+
+2. Key Categories and How to Use Them
+
+Usernames:
+- Discover profiles on dozens of platforms using:
+  - Namechk
+  - KnowEm
+  - WhatsMyName
+
+Emails:
+- Validate and analyze email addresses using:
+  - Hunter.io
+  - HaveIBeenPwned
+  - EmailRep.io
+
+People Search:
+- Search engines and social networks:
+  - Pipl (commercial)
+  - PeekYou
+  - TruePeopleSearch
+
+Social Networks:
+- Enumerate public profiles, photos, tags:
+  - Facebook Graph Search
+  - LinkedIn Lookup
+  - Twitter Advanced Search
+
+Domains:
+- Whois, DNS, Reverse Lookups:
+  - VirusTotal
+  - ViewDNS
+  - DomainTools
+
+IP Address Research:
+- Locate geolocation, ASN, history:
+  - Shodan
+  - Censys
+  - IPInfo.io
+
+Dark Web:
+- Search onion sites:
+  - Ahmia
+  - OnionSearch
+  - TorLinks
+
+--- 
+
+3. Real-World Use Cases
+
+Investigating a Target Organization:
+- Start with domain → WHOIS lookup → email pattern discovery → social profile linking.
+
+Person of Interest Search:
+- Use known username → social profile correlation → location metadata from images.
+
+Threat Attribution:
+- Use IP or domain → historical data → related infrastructure → connected identities.
+
+---
+
+4. Combining the OSINT Framework with Other Tools
+
+Automation:
+- Combine framework tools with Recon-ng or SpiderFoot for scripted investigations.
+
+Bookmarklets and Extensions:
+- Use browser scripts to send usernames or emails directly to selected tools.
+
+Exporting Results:
+- While the framework itself doesn’t store data, tools it links to often support CSV, PDF, or API output for archiving.
+
+--- 
+
+5. Limitations and Enhancements
+
+Framework Limits:
+- Static website; links may become outdated or deprecated.
+- Lacks integration or automation out-of-the-box.
+
+Overcome with:
+- Bookmark automation
+- Scripting with Python (e.g., scraping public profiles, parsing metadata)
+- Integration with commercial OSINT platforms for correlation
+
+--- 
+
+6. Ethics and Legal Considerations
+
+- Use only public, legal, and consented information.
+- Do not access or retain private data without permission.
+- Respect terms of service of linked services.
+- Follow GDPR and regional privacy laws when handling personal data.
+
+--- 
+
+7. Recommended OSINT Additions
+
+- Maltego: Graph-based correlation
+- SpiderFoot: Automated OSINT scanner
+- theHarvester: Email, domain, and host collection
+- Creepy: Geolocation from social media images
+
+---
+
+8. Further Resources
+
+- OSINT Framework: https://osintframework.com
+- OSINT Techniques by Michael Bazzell: https://inteltechniques.com
+- Practical OSINT Blog: https://osintcurio.us
+- GitHub Resources: https://github.com/jivoi/awesome-osint
+
+---
+
+Conclusion
+
+The OSINT Framework is an excellent launchpad for investigations and reconnaissance. While simple in appearance, its categorized toolset enables efficient, structured intelligence gathering. When paired with automation and ethical diligence, it becomes a powerful asset for security professionals, investigators, and journalists alike.
+

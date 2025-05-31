@@ -1,0 +1,155 @@
+
+Author: g3n3ric
+
+Extensive Maltego Tutorial
+
+---
+
+Introduction to Maltego
+
+Maltego is a powerful open-source intelligence (OSINT) and graphical link analysis tool used for gathering and connecting information about individuals, groups, websites, companies, infrastructure, and more. It visualizes relationships between entities in a graph format, making it invaluable in reconnaissance, threat intelligence, and digital forensics.
+
+This tutorial covers installation, core functionality, entity exploration, use cases, practical examples, and ethical use guidelines.
+
+---
+
+1. Installation and Setup
+
+Download Maltego:
+- Visit https://www.maltego.com/downloads/
+- Select the version for your OS (Windows, macOS, Linux)
+
+Account Registration:
+- Required for Community (free) or Commercial editions.
+- After installation, create a Paterva account and log in.
+
+Launch Maltego:
+- Choose edition (e.g., CE for Community).
+- Activate transform hub.
+- Configure API keys where needed (Shodan, HaveIBeenPwned, etc.).
+
+---
+
+2. Understanding the Interface
+
+Main Components:
+- **Entities Panel**: Drag entities like Person, Website, Domain, etc.
+- **Canvas**: Workspace for visualizing relationships.
+- **Output Window**: Displays transform execution results.
+- **Transform Hub**: Install and manage data integrations.
+
+--- 
+
+3. Creating Investigations
+
+Basic Investigation Flow:
+1. Drag `Domain` entity to canvas.
+2. Right-click -> Run Transform -> "To Website", "To DNS Name", etc.
+3. Link results visually.
+
+Example Workflow:
+- Input: `example.com`
+- Transforms: 
+  - To DNS records
+  - To MX/NS
+  - To WHOIS info
+  - To social profiles via OSINT transforms
+
+---
+
+4. Working with Transforms
+
+Transform Types:
+- **Infrastructure Transforms**: Domain, DNS, IP, Ports.
+- **People Transforms**: Emails, usernames, social networks.
+- **Company/Org**: Locations, employee data, associations.
+
+Popular Transform Sources:
+- Shodan
+- HaveIBeenPwned
+- VirusTotal
+- BuiltWith
+- DNSDumpster
+- WhoisXML
+
+--- 
+
+5. Real-World Use Cases
+
+People Investigation:
+- Track email leaks, breached credentials.
+- Profile social media presence and affiliations.
+
+Company Recon:
+- Map digital infrastructure.
+- Discover subdomains, services, and misconfigurations.
+
+Threat Actor Tracking:
+- Analyze connections between usernames, emails, forums.
+
+Incident Response:
+- Trace phishing domains and connected infrastructure.
+
+---
+
+6. Data Management and Reporting
+
+Bookmarking Entities:
+- Right-click → Bookmark to track key nodes.
+
+Exporting:
+- Graph as image or PDF.
+- Data as CSV or Excel via Table View.
+
+Collaboration:
+- Use Maltego CaseFile or export graphs for team sharing.
+
+--- 
+
+7. Advanced Features
+
+Machine Transforms:
+- Automate a series of transforms as a "Machine" (like a macro).
+- Prebuilt machines for footprinting and enumeration.
+
+Custom Entities:
+- Define your own entity types for specialized analysis.
+
+Scripting API:
+- Create your own transforms using Python or Java.
+
+--- 
+
+8. Common Troubleshooting
+
+Slow Transforms:
+- Disable unused transform hubs.
+- Limit scope of transforms to reduce data volume.
+
+Missing Results:
+- Check transform credentials/API key limits.
+- Retry with alternate sources or verify input syntax.
+
+--- 
+
+9. Ethical and Legal Guidelines
+
+- Only use Maltego for targets you are authorized to investigate.
+- Do not scrape or store PII from unconsented sources.
+- Use commercial data integrations (e.g., Pipl, WhoisXML) responsibly.
+
+---
+
+10. Resources for Further Learning
+
+- Official Docs: https://docs.maltego.com/
+- Transform Hub Info: https://www.paterva.com/web7/community/transform-hub.php
+- OSINT Training: https://academy.paterva.com
+- GitHub Projects: https://github.com/search?q=maltego
+
+---
+
+Conclusion
+
+Maltego is one of the most effective tools for visualizing and investigating complex relationships in security intelligence. Its capabilities grow as your familiarity with entities, transforms, and graph workflows increases. Stay ethical, keep learning, and use Maltego to bring clarity to complex OSINT investigations.
+

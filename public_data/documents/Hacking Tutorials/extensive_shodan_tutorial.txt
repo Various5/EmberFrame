@@ -1,0 +1,175 @@
+
+Author: g3n3ric
+
+Extensive Shodan Tutorial
+
+---
+
+Introduction to Shodan
+
+Shodan is a powerful search engine for internet-connected devices. Unlike Google, which indexes websites, Shodan indexes information about the devices and services running across the internet. It's often referred to as the "search engine for hackers" due to its ability to reveal unprotected systems, IoT devices, databases, industrial control systems, and more.
+
+This tutorial covers installation, API usage, practical search examples, filters, ethical considerations, and integration with pentesting workflows.
+
+---
+
+1. Getting Started with Shodan
+
+Website Access:
+- Visit https://www.shodan.io
+- Create a free or paid account.
+- Verify email and retrieve API key.
+
+Install Shodan CLI:
+```
+pip install -U shodan
+shodan init YOUR_API_KEY
+```
+
+Basic Commands:
+```
+shodan info
+shodan search apache
+```
+
+---
+
+2. Understanding Shodan's Data
+
+Shodan collects:
+- Banner information from open ports.
+- HTTP headers, SSL certificates.
+- Device metadata (e.g., OS, location, hostname).
+- Services (FTP, SSH, Telnet, RDP, MongoDB, Elasticsearch, etc.)
+
+---
+
+3. Practical Search Examples
+
+Find Webcams:
+```
+shodan search "Netcam"
+shodan search "webcamXP"
+```
+
+Search for FTP Servers:
+```
+shodan search port:21 Anonymous
+```
+
+Find SCADA/ICS Systems:
+```
+shodan search "port:102 SCADA"
+```
+
+Search for Specific Country:
+```
+shodan search apache country:DE
+```
+
+Find Exposed Databases:
+```
+shodan search "port:27017"  # MongoDB
+shodan search "port:3306"   # MySQL
+```
+
+---
+
+4. Using Filters for Precise Results
+
+Common Filters:
+- `port`: Search for specific service ports.
+- `country`: 2-letter country code.
+- `org`: Organization/ISP.
+- `hostname`, `os`, `city`, `geo`.
+
+Example:
+```
+shodan search apache country:US city:"San Francisco" port:80
+```
+
+---
+
+5. Accessing Shodan API
+
+Get Your IP Address Info:
+```
+shodan host 8.8.8.8
+```
+
+Automate with Python:
+```python
+import shodan
+
+api = shodan.Shodan("YOUR_API_KEY")
+results = api.search("nginx")
+
+for result in results['matches']:
+    print(f"{result['ip_str']}:{result['port']} - {result['data']}")
+```
+
+Search in bulk, scan custom IP ranges, or build dashboards using Shodan's rich API documentation.
+
+---
+
+6. Use Cases for Penetration Testing
+
+Reconnaissance:
+- Identify target surface before engagement.
+- Find outdated software and known vulnerabilities.
+
+Attack Surface Mapping:
+- Locate related infrastructure using org/domain filters.
+
+Incident Response:
+- Monitor leaked/exposed assets.
+
+---
+
+7. Integration with Tools
+
+Shodan with Metasploit:
+- Plugin to directly search and import results into MSF.
+
+Shodan with Nmap:
+- Use Shodan for pre-scanning to reduce Nmap scan ranges.
+
+Browser Extensions:
+- Shodan plugin for Firefox/Chrome displays banner info while browsing.
+
+---
+
+8. Troubleshooting and Tips
+
+Limited Results?
+- Ensure API key usage is within daily quota.
+- Use premium account for access to more results.
+
+No Data Found?
+- Adjust filters or keywords.
+- Some services obfuscate banners or block scans.
+
+---
+
+9. Ethical and Legal Considerations
+
+- Use Shodan data responsibly.
+- Never target systems without authorization.
+- Be cautious with SCADA/ICS systems—they are highly sensitive.
+- Document all actions and obtain necessary permission.
+
+---
+
+10. External Resources
+
+- Official API Docs: https://developer.shodan.io/
+- Shodan Blog: https://blog.shodan.io
+- Wordlists for Searching: https://github.com/danielmiessler/SecLists
+- Community Tools: https://github.com/topics/shodan
+
+---
+
+Conclusion
+
+Shodan is an essential reconnaissance tool that provides unmatched visibility into the global internet device landscape. With careful use, powerful filtering, and ethical responsibility, Shodan becomes a major asset for cybersecurity professionals and penetration testers.
+

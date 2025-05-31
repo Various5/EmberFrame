@@ -1,0 +1,169 @@
+
+Author: g3n3ric
+
+Extensive Gobuster Tutorial
+
+---
+
+Introduction to Gobuster
+
+Gobuster is a fast and powerful command-line tool for discovering hidden directories, files, virtual hosts, and DNS subdomains on web servers. It is a must-have tool in web reconnaissance during penetration testing engagements.
+
+This tutorial provides a deep dive into Gobuster’s installation, use cases, real-world examples, tuning for performance, and ethical usage practices.
+
+---
+
+1. Installation and Setup
+
+Linux (Debian/Ubuntu):
+```
+sudo apt update
+sudo apt install gobuster
+```
+
+From Source (for all platforms):
+```
+git clone https://github.com/OJ/gobuster
+cd gobuster
+go install
+```
+
+macOS (using Homebrew):
+```
+brew install gobuster
+```
+
+Verify installation:
+```
+gobuster -h
+```
+
+---
+
+2. Directory and File Enumeration
+
+Basic Directory Brute Force:
+```
+gobuster dir -u http://example.com -w /usr/share/wordlists/dirb/common.txt
+```
+
+Add File Extension (e.g., PHP):
+```
+gobuster dir -u http://example.com -w wordlist.txt -x php
+```
+
+Recursive Brute Force:
+- Gobuster does not support true recursion but can be run manually on found paths.
+
+Include Status Codes:
+```
+gobuster dir -u http://example.com -w wordlist.txt -s 200,204,301,302,307
+```
+
+---
+
+3. DNS Subdomain Enumeration
+
+DNS Mode:
+```
+gobuster dns -d example.com -w subdomains.txt
+```
+
+Use Custom DNS Server:
+```
+gobuster dns -d example.com -w subdomains.txt -i -r 8.8.8.8
+```
+
+Verbose Output:
+```
+gobuster dns -d example.com -w subdomains.txt -v
+```
+
+---
+
+4. Virtual Host Enumeration
+
+Virtual Host Discovery:
+```
+gobuster vhost -u http://example.com -w vhosts.txt
+```
+
+Use Custom Host Header:
+```
+gobuster vhost -u http://example.com -w vhosts.txt -H "Host: FUZZ.example.com"
+```
+
+---
+
+5. Real-world Practical Scenarios
+
+Pentesting Web Servers:
+- Detect exposed admin panels, backup files, config files:
+```
+gobuster dir -u http://target -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,txt,conf,bak
+```
+
+Bug Bounty Recon:
+- Subdomain discovery for external services:
+```
+gobuster dns -d target.com -w subdomains.txt
+```
+
+CI/CD Misconfig Detection:
+- Discover exposed .git, .env, or Jenkins paths.
+
+---
+
+6. Performance Tuning
+
+Increase Threads for Speed:
+```
+gobuster dir -u http://example.com -w wordlist.txt -t 50
+```
+
+Rate Limiting and Timeouts:
+```
+gobuster dir -u http://example.com -w wordlist.txt --delay 200ms --timeout 10s
+```
+
+User-Agent Spoofing:
+```
+gobuster dir -u http://example.com -w wordlist.txt -a "Mozilla/5.0 HackerScanner"
+```
+
+---
+
+7. Troubleshooting
+
+Timeouts and Errors:
+- Increase timeout: `--timeout 20s`
+- Reduce threads or delay between requests
+
+Blocked by WAF:
+- Use user-agent spoofing and longer delays
+
+404 Bypass Techniques:
+- Use specific status code filtering: `--wildcard`
+
+---
+
+8. Ethical Considerations
+
+- Only run Gobuster on systems you are authorized to test.
+- Avoid denial-of-service risk with low delay and limited threads.
+- Inform clients or stakeholders before performing scans.
+
+---
+
+9. External References
+
+- Official Repo: https://github.com/OJ/gobuster
+- Wordlist Sources: https://github.com/danielmiessler/SecLists
+- Guide on usage: https://book.hacktricks.xyz/
+
+---
+
+Conclusion
+
+Gobuster is an essential tool for discovering hidden endpoints and structures in web applications. When combined with strategic wordlists, thoughtful configurations, and ethical discipline, it offers valuable insights in penetration testing and web application assessments.
+

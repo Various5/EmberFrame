@@ -1,0 +1,163 @@
+
+Author: g3n3ric
+
+Extensive Wireshark Tutorial
+
+---
+
+Introduction to Wireshark
+
+Wireshark is the world's foremost and widely-used network protocol analyzer, allowing detailed inspection and troubleshooting of network communications. Used extensively by network administrators, security analysts, and penetration testers, Wireshark helps uncover vulnerabilities, analyze network performance, and investigate security incidents.
+
+This comprehensive tutorial provides installation guidelines, detailed usage examples, protocol analysis, advanced capabilities, troubleshooting scenarios, and best practices.
+
+---
+
+1. Installation and Configuration
+
+Windows & macOS:
+- Download installer from https://wireshark.org/download.html.
+- Follow the straightforward setup process.
+
+Linux (Debian/Ubuntu):
+```
+sudo apt update
+sudo apt install wireshark
+```
+
+Linux (Fedora):
+```
+sudo dnf install wireshark
+```
+
+Post-installation:
+- Ensure Wireshark runs with correct permissions:
+```
+sudo dpkg-reconfigure wireshark-common
+sudo usermod -a -G wireshark your_username
+```
+
+---
+
+2. Detailed Capture and Filtering Techniques
+
+Starting a Capture:
+- Select interface, click "Start".
+
+Basic Display Filters:
+- HTTP traffic: `http`
+- DNS queries: `dns`
+- TCP ports: `tcp.port == 80`
+
+Advanced Filters:
+- Filter by IP: `ip.addr == 192.168.1.100`
+- Filter packets larger than 500 bytes: `frame.len > 500`
+- Exclude protocols: `!arp && !icmp`
+
+---
+
+3. Protocol Analysis
+
+HTTP Analysis:
+- Identify HTTP requests and responses clearly.
+- Extract objects: File > Export Objects > HTTP.
+
+TCP/IP Analysis:
+- Analyze TCP handshake (SYN, SYN-ACK, ACK).
+- Identify retransmissions (`tcp.analysis.retransmission`).
+
+UDP Analysis:
+- Monitor DNS (`udp.port == 53`) and DHCP traffic (`udp.port == 67 || udp.port == 68`).
+
+FTP & SMB:
+- FTP commands (`ftp.request.command`).
+- SMB file transfers (`smb` display filter).
+
+---
+
+4. Real-world Troubleshooting Scenarios
+
+Slow Network Performance:
+- Identify latency using time delta column.
+- Detect retransmissions and congestion.
+
+Security Incidents:
+- Analyze suspicious traffic with anomaly filters.
+- Detect port scans using `tcp.flags.syn==1 && tcp.flags.ack==0`.
+
+DNS Issues:
+- Monitor DNS resolution delays (`dns.time > 0.5`).
+
+---
+
+5. Advanced Features
+
+Packet Manipulation:
+- Export packets for replay or editing using external tools like Scapy.
+
+Lua Scripting:
+- Automate repetitive analysis.
+
+Example Lua Script:
+```lua
+do
+  local tap = Listener.new("tcp")
+  function tap.packet(pinfo,tvb)
+    if pinfo.dst_port == 80 then
+      print("HTTP Request detected:", pinfo.src)
+    end
+  end
+end
+```
+
+- Load scripts: Edit > Preferences > Protocols > Lua.
+
+---
+
+6. Case Studies in Penetration Tests and Security Audits
+
+Detecting ARP Spoofing:
+- ARP packets filter: `arp.duplicate-address-detected`.
+
+Identifying Data Exfiltration:
+- Large outbound traffic analysis.
+
+Wireless Network Audits:
+- Capture WPA handshakes.
+
+---
+
+7. Comprehensive Troubleshooting Guide
+
+Capture Issues:
+- Check interface permissions and restart Wireshark.
+
+Performance Issues:
+- Capture to file directly (dumpcap).
+
+Corrupt Captures:
+- Use command-line tools (`editcap`, `mergecap`) for recovery.
+
+---
+
+8. Ethical and Legal Use Considerations
+
+- Always obtain explicit authorization before capturing traffic.
+- Clearly define the scope and purposes of monitoring.
+- Respect user privacy and confidentiality.
+
+---
+
+9. Extensive External Resources
+
+- Official Wireshark Documentation: https://wireshark.org/docs
+- Wireshark Wiki: https://wiki.wireshark.org
+- Sample captures: https://wiki.wireshark.org/SampleCaptures
+- Community Q&A: https://ask.wireshark.org
+
+---
+
+Conclusion
+
+Wireshark mastery greatly enhances network troubleshooting, security analysis, and penetration testing skills. Regular use, ethical practice, and community engagement are key to becoming proficient.
+

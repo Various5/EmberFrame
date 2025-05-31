@@ -1,0 +1,213 @@
+
+Author: g3n3ric
+
+Extensive Recon-ng Tutorial
+
+---
+
+Introduction to Recon-ng
+
+Recon-ng is a powerful web reconnaissance framework written in Python. It offers a modular interface similar to Metasploit, enabling users to gather open-source intelligence (OSINT) about domains, people, IPs, and more using a variety of pre-built and custom modules.
+
+This tutorial provides in-depth guidance on installation, configuration, module usage, automation, data management, and best practices.
+
+---
+
+1. Installation and Setup
+
+Linux (Debian/Ubuntu):
+```
+sudo apt update
+sudo apt install recon-ng
+```
+
+From Source:
+```
+git clone https://github.com/lanmaster53/recon-ng.git
+cd recon-ng
+pip install -r REQUIREMENTS
+./recon-ng
+```
+
+macOS:
+```
+brew install recon-ng
+```
+
+Verify Installation:
+```
+recon-ng
+```
+
+---
+
+2. Understanding the Workspace
+
+Creating a Workspace:
+```
+workspaces create testproject
+```
+
+Listing Workspaces:
+```
+workspaces list
+```
+
+Switching Workspaces:
+```
+workspaces select testproject
+```
+
+Each workspace isolates data and modules used for that engagement.
+
+---
+
+3. Using Modules Effectively
+
+Listing Modules:
+```
+modules search
+```
+
+Loading a Module:
+```
+modules load recon/domains-hosts/bing_domain_web
+```
+
+Setting Module Options:
+```
+options set SOURCE example.com
+```
+
+Running the Module:
+```
+run
+```
+
+Viewing Results:
+```
+show hosts
+```
+
+--- 
+
+4. Recon-ng Modules by Category
+
+- `recon/domains-*`: Information from domains (WHOIS, DNS).
+- `recon/hosts-*`: Subdomain enumeration, reverse IP lookups.
+- `recon/profiles-*`: Gather user profile information.
+- `recon/companies-*`: LinkedIn and job posting intelligence.
+- `import/*`: Import data manually or from external tools.
+- `reporting/*`: Exporting and summarizing collected data.
+
+---
+
+5. Automating Recon-ng with Workspaces and Scripts
+
+Using the Marketplace:
+```
+marketplace search github
+marketplace install recon/domains-hosts/github_code_search
+```
+
+Scripted Operations:
+- Run automated tasks via:
+```
+script import recon_script.rc
+```
+
+Generate reports automatically:
+```
+modules load reporting/html
+options set CREATOR g3n3ric
+options set CUSTOMER "Target Company"
+run
+```
+
+---
+
+6. Real-world Recon Scenarios
+
+Subdomain Enumeration:
+```
+modules load recon/domains-hosts/ssl_san
+options set SOURCE example.com
+run
+```
+
+Gather Public Credentials:
+```
+modules load recon/domains-credentials/haveibeenpwned
+options set SOURCE example.com
+run
+```
+
+Social Media Discovery:
+```
+modules load recon/profiles-profiles/fullcontact
+options set SOURCE user@example.com
+run
+```
+
+--- 
+
+7. Exporting and Managing Data
+
+CSV Export:
+```
+modules load reporting/csv
+options set FILENAME results.csv
+run
+```
+
+JSON Export:
+```
+modules load reporting/json
+options set FILENAME results.json
+run
+```
+
+Database Storage:
+- All collected data is stored in an internal SQLite database.
+- Use `db schema` to view structure.
+
+---
+
+8. Troubleshooting and Tips
+
+Missing Modules:
+- Use `marketplace refresh` to update module list.
+
+API Key Errors:
+- Ensure you’ve configured keys:
+```
+keys add bing_api KEY_HERE
+```
+
+Data Not Found:
+- Validate target/source spelling.
+- Try alternative modules.
+
+---
+
+9. Ethical and Legal Considerations
+
+- Always gain explicit consent before gathering OSINT on individuals or organizations.
+- Avoid scraping sensitive or private information without authorization.
+- Comply with all local laws and data protection regulations.
+
+---
+
+10. Further Reading and Resources
+
+- GitHub: https://github.com/lanmaster53/recon-ng
+- Official Wiki: https://github.com/lanmaster53/recon-ng/wiki
+- API Key Requirements: https://github.com/lanmaster53/recon-ng/wiki/Configuring-API-Keys
+- OSINT Tools: https://osintframework.com/
+
+---
+
+Conclusion
+
+Recon-ng combines the flexibility of Python scripting with the structure of a professional OSINT framework. When used ethically and methodically, it becomes an indispensable tool for reconnaissance during penetration testing and threat intelligence operations.
+

@@ -1,0 +1,160 @@
+
+Author: g3n3ric
+
+Extensive Nikto Tutorial
+
+---
+
+Introduction to Nikto
+
+Nikto is a robust, open-source web server vulnerability scanner that quickly detects security issues such as outdated servers, dangerous files, and insecure configurations. It is widely used by penetration testers and security professionals to secure web applications effectively.
+
+This tutorial covers installation, configuration, advanced scanning techniques, practical scenarios, and ethical considerations.
+
+---
+
+1. Installation and Configuration
+
+Linux (Debian-based):
+```
+sudo apt update
+sudo apt install nikto
+```
+
+Linux (RedHat-based):
+```
+sudo yum install nikto
+```
+
+macOS:
+```
+brew install nikto
+```
+
+Windows:
+- Download from GitHub: https://github.com/sullo/nikto
+- Run via Perl:
+```
+perl nikto.pl -h
+```
+
+Verification:
+```
+nikto -Version
+```
+
+---
+
+2. Basic and Advanced Scanning Techniques
+
+Basic Scan:
+```
+nikto -h http://example.com
+```
+
+SSL Scan:
+```
+nikto -h https://example.com -ssl
+```
+
+Scan Specific Port:
+```
+nikto -h example.com -p 8080
+```
+
+Custom Scan Options:
+- Scan using a specific plugin:
+```
+nikto -h example.com -Plugins apacheusers
+```
+
+- Save scan results:
+```
+nikto -h example.com -output report.txt
+```
+
+---
+
+3. Practical Scenarios and Real-world Examples
+
+Identifying Outdated Software:
+- Common web software vulnerabilities:
+```
+nikto -h example.com -Tuning x
+```
+
+Enumerating Web Directories and Files:
+- Enumerate directories:
+```
+nikto -h example.com -Cgidirs all
+```
+
+Detecting Misconfigured Servers:
+- Detect dangerous HTTP methods:
+```
+nikto -h example.com -Tuning 3
+```
+
+---
+
+4. Advanced Techniques and Integration
+
+Integration with Other Tools:
+- Automating with Burp Suite or OWASP ZAP using Nikto output.
+
+Proxying Requests:
+- Proxy through Burp Suite:
+```
+nikto -h example.com -useproxy http://127.0.0.1:8080
+```
+
+False Positive Management:
+- Use tuning and mutation techniques to reduce false positives:
+```
+nikto -h example.com -mutate 3
+```
+
+---
+
+5. Troubleshooting Common Issues
+
+Slow Scans:
+- Use timeout option:
+```
+nikto -h example.com -timeout 2
+```
+
+Blocked by WAF:
+- Use evasive techniques:
+```
+nikto -h example.com -evasion 1
+```
+
+SSL Errors:
+- Disable SSL verification (use cautiously):
+```
+nikto -h example.com -ssl -nocheckssl
+```
+
+---
+
+6. Ethical and Legal Considerations
+
+- Always have explicit permission before scanning.
+- Clearly define the scope of testing to avoid unintended disruption.
+- Responsibly handle all discovered vulnerabilities.
+
+---
+
+7. Extensive External Resources
+
+- Official Documentation: https://github.com/sullo/nikto/wiki
+- OWASP Testing Guide: https://owasp.org/www-project-web-security-testing-guide/
+- Security community discussions: https://security.stackexchange.com/
+
+---
+
+Conclusion
+
+Nikto provides essential insights into web server security vulnerabilities. Continuous learning, ethical application, and careful interpretation of results ensure effective and responsible use.
+

@@ -1,0 +1,166 @@
+
+Author: g3n3ric
+
+Extensive Dirb Tutorial
+
+---
+
+Introduction to Dirb
+
+Dirb is a web content scanner that brute forces directories and file names on web servers using wordlists. It helps uncover hidden or unlinked resources such as admin panels, backup files, and misconfigurations that may be missed during normal crawling.
+
+This tutorial provides installation guidance, usage techniques, practical scanning examples, and ethical considerations for using Dirb effectively in web application reconnaissance.
+
+---
+
+1. Installation and Setup
+
+Linux (Debian/Ubuntu):
+```
+sudo apt update
+sudo apt install dirb
+```
+
+macOS:
+```
+brew install dirb
+```
+
+Verify installation:
+```
+dirb -h
+```
+
+Dirb is pre-installed on Kali Linux and Parrot OS.
+
+---
+
+2. Basic Usage
+
+Simple Directory Scan:
+```
+dirb http://example.com/
+```
+
+Using a Custom Wordlist:
+```
+dirb http://example.com/ /path/to/wordlist.txt
+```
+
+Scan HTTPS:
+```
+dirb https://example.com/
+```
+
+--- 
+
+3. File Extension and Type Discovery
+
+Adding Extensions:
+```
+dirb http://example.com/ -X .php,.html,.bak
+```
+
+Scan for Backup Files:
+```
+dirb http://example.com/ -X .bak,.old,.zip
+```
+
+Combine with Common Wordlist:
+```
+dirb http://example.com/ /usr/share/wordlists/dirb/common.txt -X .php
+```
+
+---
+
+4. Practical Recon Scenarios
+
+Finding Admin Interfaces:
+```
+dirb http://target.com/ /usr/share/wordlists/dirb/small.txt
+```
+
+Locating Hidden Upload or Debug Pages:
+```
+dirb http://example.com/ -X .php -w
+```
+
+Auditing Test Environments:
+- Identify dev/test/admin panels:
+```
+dirb http://dev.example.com/ /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+```
+
+---
+
+5. Output and Logging
+
+Save Output to File:
+```
+dirb http://example.com/ -o results.txt
+```
+
+Quiet Mode (only show positives):
+```
+dirb http://example.com/ -q
+```
+
+Colorless Output (for parsing):
+```
+dirb http://example.com/ -n
+```
+
+---
+
+6. Performance Tuning
+
+Set Delay Between Requests:
+```
+dirb http://example.com/ -z 1000
+```
+
+Set Maximum Recursion Level:
+```
+dirb http://example.com/ -r
+```
+
+Limit Scan Depth:
+- Dirb does not do recursive scanning by default; it works on flat directory listings.
+
+---
+
+7. Troubleshooting and Tips
+
+False Positives:
+- Analyze HTTP response codes.
+- Compare response sizes to detect redirects or errors.
+
+SSL Issues:
+- Ensure you use `https://` correctly or try the `--ssl` option in alternate tools.
+
+Slow Performance:
+- Use smaller wordlists or optimize with faster scanners like Gobuster for large scopes.
+
+--- 
+
+8. Ethical and Legal Considerations
+
+- Only scan websites you own or are authorized to test.
+- Avoid scanning production systems without permission.
+- Use delay and quiet modes to reduce server load.
+- Report any findings responsibly.
+
+---
+
+9. External Resources
+
+- Official Site: https://tools.kali.org/web-applications/dirb
+- Wordlists: https://github.com/danielmiessler/SecLists
+- Dirb Wrapper Tool: https://github.com/v0re/dirbust
+
+---
+
+Conclusion
+
+Dirb is a reliable tool for uncovering hidden paths in web applications. While not as fast as newer tools like Gobuster, its stability and simplicity make it a great option for methodical scanning. Combine Dirb with strong wordlists and careful scope definition for effective web reconnaissance.
+

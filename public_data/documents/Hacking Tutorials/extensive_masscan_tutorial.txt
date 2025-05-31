@@ -1,0 +1,184 @@
+
+Author: g3n3ric
+
+Extensive Masscan Tutorial
+
+---
+
+Introduction to Masscan
+
+Masscan is an extremely fast TCP port scanner designed to scan large ranges of IP addresses quickly. It works similarly to Nmap but uses its own asynchronous network engine, making it capable of scanning the entire internet in minutes from a powerful machine.
+
+This tutorial covers installation, syntax, tuning, practical applications, and responsible use of Masscan.
+
+---
+
+1. Installation and Setup
+
+Linux (Debian/Ubuntu):
+```
+sudo apt update
+sudo apt install git gcc make
+git clone https://github.com/robertdavidgraham/masscan
+cd masscan
+make
+sudo make install
+```
+
+macOS:
+```
+brew install masscan
+```
+
+Windows:
+- Download binaries or build using MinGW/Cygwin (recommended for advanced users).
+
+Verify installation:
+```
+masscan --help
+```
+
+---
+
+2. Basic Scanning Usage
+
+Scan a Single IP:
+```
+masscan 192.168.1.1 -p80
+```
+
+Scan an IP Range:
+```
+masscan 192.168.1.0/24 -p80,443,22
+```
+
+Scan Entire Internet (use responsibly!):
+```
+masscan 0.0.0.0/0 -p80 --rate=1000
+```
+
+Note: Always limit scope to targets you are authorized to scan.
+
+---
+
+3. Advanced Configuration and Features
+
+Specify Interface:
+```
+masscan 192.168.1.0/24 -p80 --interface eth0
+```
+
+Custom Source IP:
+```
+masscan 192.168.1.0/24 -p80 --source-ip 192.168.1.10
+```
+
+Scan High Ports:
+```
+masscan 192.168.1.1 -p30000-40000
+```
+
+Output Formats:
+```
+masscan 192.168.1.1 -p80 -oX output.xml
+masscan 192.168.1.1 -p80 -oG output.gnmap
+masscan 192.168.1.1 -p80 -oL output.txt
+```
+
+---
+
+4. Performance Tuning
+
+Speed Control:
+- Rate determines number of packets per second:
+```
+--rate 1000
+```
+
+- Reduce rate for stealth:
+```
+--rate 100
+```
+
+Timing Out Unresponsive Hosts:
+```
+--wait 10
+```
+
+Avoiding Detection:
+- Slow scanning with random source port:
+```
+--rate 50 --source-port 4444
+```
+
+---
+
+5. Real-World Scenarios
+
+Large Internal Network Recon:
+```
+masscan 10.0.0.0/8 -p21-443 --rate 5000
+```
+
+Identify Open RDP Servers:
+```
+masscan 192.168.1.0/24 -p3389
+```
+
+Find Exposed Databases:
+```
+masscan 192.168.1.0/24 -p3306,5432,6379
+```
+
+--- 
+
+6. Combining with Nmap
+
+Masscan to discover hosts:
+```
+masscan 192.168.1.0/24 -p80 -oG hosts.txt
+```
+
+Parse for Nmap:
+```
+awk '/Up$/{print $2}' hosts.txt | xargs -I{} nmap -sV {}
+```
+
+This combines speed of Masscan with service fingerprinting from Nmap.
+
+---
+
+7. Troubleshooting and Tips
+
+"Adapter doesn't have an IPv4 address":
+- Use `--adapter` to specify NIC or `--router-mac` to define a MAC address.
+
+Masscan shows no results:
+- Check `iptables`, `ufw`, or host firewall rules.
+
+Random Scans:
+- Use `--randomize-hosts` to shuffle scanning IPs.
+
+---
+
+8. Ethical and Legal Considerations
+
+- Never scan IP ranges without written authorization.
+- Masscan can easily overload networks — adjust rate and scope carefully.
+- Respect terms of engagement in assessments or bug bounty programs.
+
+---
+
+9. Resources and References
+
+- GitHub Repo: https://github.com/robertdavidgraham/masscan
+- Masscan Wiki: https://github.com/robertdavidgraham/masscan/wiki
+- Blog Post on Internet-wide Scans: https://blog.rapid7.com/2014/03/26/masscan/
+- Speed Tips: https://null-byte.wonderhowto.com/how-to/use-masscan-worlds-fastest-port-scanner-0183562/
+
+---
+
+Conclusion
+
+Masscan is a valuable tool for high-speed network reconnaissance, especially when dealing with large ranges. Its power demands careful and ethical usage. Combine it with analysis tools like Nmap and scripting for efficient recon workflows.
+

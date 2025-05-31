@@ -1,6 +1,15 @@
 // static/js/apps/space-shooter.js
-
-class SpaceShooter {
+/**
+ * APP_METADATA
+ * @name Space Shooter
+ * @icon fas fa-star
+ * @description Spacegame Sidescroller
+ * @category System
+ * @version 1.0.0
+ * @author EmberFrame Team
+ * @enabled true
+ */
+class SpaceGame {
   // Internal state
   static _container = null;
   static _canvas = null;
@@ -55,30 +64,30 @@ class SpaceShooter {
       `,
       onInit: (container) => {
         // Store container and elements
-        SpaceShooter._container = container;
-        SpaceShooter._canvas = container.querySelector('#ss-canvas');
-        SpaceShooter._ctx = SpaceShooter._canvas.getContext('2d');
+        SpaceGame._container = container;
+        SpaceGame._canvas = container.querySelector('#ss-canvas');
+        SpaceGame._ctx = SpaceGame._canvas.getContext('2d');
 
         // Load high scores from localStorage
         const stored = localStorage.getItem('spaceShooterHighScores');
         if (stored) {
           try {
-            SpaceShooter._highScores = JSON.parse(stored);
+            SpaceGame._highScores = JSON.parse(stored);
           } catch {
-            SpaceShooter._highScores = [];
+            SpaceGame._highScores = [];
           }
         }
 
         // Initialize stars, player, etc.
-        SpaceShooter._initStars();
-        SpaceShooter._initPlayer();
-        SpaceShooter._bindKeys();
+        SpaceGame._initStars();
+        SpaceGame._initPlayer();
+        SpaceGame._bindKeys();
 
         // Show high score on UI bar
-        SpaceShooter._updateHighScoreDisplay();
+        SpaceGame._updateHighScoreDisplay();
 
         // Listen for ENTER to start
-        container.addEventListener('keydown', SpaceShooter._handleStartEnter);
+        container.addEventListener('keydown', SpaceGame._handleStartEnter);
 
         // Ensure the canvas (and its parent) can receive keyboard focus
         container.tabIndex = 0;
@@ -86,8 +95,8 @@ class SpaceShooter {
       },
       onDestroy: () => {
         // Clean up: stop animation, remove listeners
-        SpaceShooter._stop();
-        SpaceShooter._unbindKeys();
+        SpaceGame._stop();
+        SpaceGame._unbindKeys();
       }
     };
   }
@@ -95,22 +104,22 @@ class SpaceShooter {
   // ─────────────────────────────────────────────────────────────────────────────
   // Initialization helpers
   static _initStars() {
-    SpaceShooter._stars = [];
-    for (let i = 0; i < SpaceShooter._numStars; i++) {
-      SpaceShooter._stars.push({
-        x: Math.random() * SpaceShooter._width,
-        y: Math.random() * SpaceShooter._height,
+    SpaceGame._stars = [];
+    for (let i = 0; i < SpaceGame._numStars; i++) {
+      SpaceGame._stars.push({
+        x: Math.random() * SpaceGame._width,
+        y: Math.random() * SpaceGame._height,
         size: Math.random() * 2 + 1,
-        speed: (Math.random() * 0.5 + 0.5) * SpaceShooter._gameSpeed
+        speed: (Math.random() * 0.5 + 0.5) * SpaceGame._gameSpeed
       });
     }
   }
 
   static _initPlayer() {
     // Player is a triangle; start at left-center
-    SpaceShooter._player = {
+    SpaceGame._player = {
       x: 50,
-      y: SpaceShooter._height / 2,
+      y: SpaceGame._height / 2,
       width: 20,
       height: 20,
       speed: 200, // pixels per second
@@ -120,55 +129,55 @@ class SpaceShooter {
   }
 
   static _initEnemies() {
-    SpaceShooter._enemies = [];
+    SpaceGame._enemies = [];
   }
 
   static _initAsteroids() {
-    SpaceShooter._asteroids = [];
+    SpaceGame._asteroids = [];
   }
 
   static _bindKeys() {
     // Use container’s keydown/keyup so that multiple windows don’t conflict
-    const c = SpaceShooter._container;
-    c.addEventListener('keydown', SpaceShooter._onKeyDown);
-    c.addEventListener('keyup', SpaceShooter._onKeyUp);
+    const c = SpaceGame._container;
+    c.addEventListener('keydown', SpaceGame._onKeyDown);
+    c.addEventListener('keyup', SpaceGame._onKeyUp);
   }
 
   static _unbindKeys() {
-    const c = SpaceShooter._container;
-    c.removeEventListener('keydown', SpaceShooter._onKeyDown);
-    c.removeEventListener('keyup', SpaceShooter._onKeyUp);
+    const c = SpaceGame._container;
+    c.removeEventListener('keydown', SpaceGame._onKeyDown);
+    c.removeEventListener('keyup', SpaceGame._onKeyUp);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Key handlers
 
   static _onKeyDown(e) {
-    SpaceShooter._keys[e.code] = true;
+    SpaceGame._keys[e.code] = true;
 
     // If in playing state and SPACE, prevent default to avoid page scroll
-    if (SpaceShooter._state === 'playing' && e.code === 'Space') {
+    if (SpaceGame._state === 'playing' && e.code === 'Space') {
       e.preventDefault();
     }
     // If pressed P, toggle pause
-    if (SpaceShooter._state === 'playing' && e.code === 'KeyP') {
-      SpaceShooter._togglePause();
+    if (SpaceGame._state === 'playing' && e.code === 'KeyP') {
+      SpaceGame._togglePause();
     }
   }
 
   static _onKeyUp(e) {
-    SpaceShooter._keys[e.code] = false;
+    SpaceGame._keys[e.code] = false;
   }
 
   static _handleStartEnter(e) {
     if (e.code === 'Enter') {
       e.preventDefault();
-      if (SpaceShooter._state === 'start') {
-        SpaceShooter._start();
-      } else if (SpaceShooter._state === 'gameover') {
+      if (SpaceGame._state === 'start') {
+        SpaceGame._start();
+      } else if (SpaceGame._state === 'gameover') {
         // Restart game
-        SpaceShooter._resetGame();
-        SpaceShooter._start();
+        SpaceGame._resetGame();
+        SpaceGame._start();
       }
     }
   }
@@ -177,88 +186,88 @@ class SpaceShooter {
   // Game control
 
   static _start() {
-    SpaceShooter._state = 'playing';
-    SpaceShooter._score = 0;
-    SpaceShooter._gameSpeed = 1;
-    SpaceShooter._spawnInterval = 2000;
-    SpaceShooter._spawnTimer = 0;
-    SpaceShooter._player.x = 50;
-    SpaceShooter._player.y = SpaceShooter._height / 2;
-    SpaceShooter._player.cooldown = 0;
-    SpaceShooter._playerBullets = [];
-    SpaceShooter._enemies = [];
-    SpaceShooter._enemyBullets = [];
-    SpaceShooter._asteroids = [];
-    SpaceShooter._initStars();
-    SpaceShooter._updateScoreDisplay();
+    SpaceGame._state = 'playing';
+    SpaceGame._score = 0;
+    SpaceGame._gameSpeed = 1;
+    SpaceGame._spawnInterval = 2000;
+    SpaceGame._spawnTimer = 0;
+    SpaceGame._player.x = 50;
+    SpaceGame._player.y = SpaceGame._height / 2;
+    SpaceGame._player.cooldown = 0;
+    SpaceGame._playerBullets = [];
+    SpaceGame._enemies = [];
+    SpaceGame._enemyBullets = [];
+    SpaceGame._asteroids = [];
+    SpaceGame._initStars();
+    SpaceGame._updateScoreDisplay();
 
     // Hide overlay
-    const overlay = SpaceShooter._container.querySelector('#ss-overlay');
+    const overlay = SpaceGame._container.querySelector('#ss-overlay');
     overlay.style.display = 'none';
 
     // Start loop
-    SpaceShooter._lastTime = performance.now();
-    SpaceShooter._running = true;
-    SpaceShooter._loop(SpaceShooter._lastTime);
+    SpaceGame._lastTime = performance.now();
+    SpaceGame._running = true;
+    SpaceGame._loop(SpaceGame._lastTime);
   }
 
   static _stop() {
-    SpaceShooter._running = false;
-    if (SpaceShooter._animationId) {
-      cancelAnimationFrame(SpaceShooter._animationId);
-      SpaceShooter._animationId = null;
+    SpaceGame._running = false;
+    if (SpaceGame._animationId) {
+      cancelAnimationFrame(SpaceGame._animationId);
+      SpaceGame._animationId = null;
     }
   }
 
   static _resetGame() {
     // Show start text
-    const overlayText = SpaceShooter._container.querySelector('#ss-overlay-text');
+    const overlayText = SpaceGame._container.querySelector('#ss-overlay-text');
     overlayText.textContent = 'Press ENTER to Start';
-    const overlaySub = SpaceShooter._container.querySelector('#ss-overlay-sub');
+    const overlaySub = SpaceGame._container.querySelector('#ss-overlay-sub');
     overlaySub.textContent = 'Use ↑/↓/←/→ or W/A/S/D to move, SPACE to shoot';
-    const overlay = SpaceShooter._container.querySelector('#ss-overlay');
+    const overlay = SpaceGame._container.querySelector('#ss-overlay');
     overlay.style.display = 'flex';
-    SpaceShooter._state = 'start';
+    SpaceGame._state = 'start';
   }
 
   static _togglePause() {
-    if (SpaceShooter._state !== 'playing') return;
-    SpaceShooter._state = 'paused';
+    if (SpaceGame._state !== 'playing') return;
+    SpaceGame._state = 'paused';
     // Show pause overlay
-    const overlay = SpaceShooter._container.querySelector('#ss-overlay');
-    const overlayText = SpaceShooter._container.querySelector('#ss-overlay-text');
+    const overlay = SpaceGame._container.querySelector('#ss-overlay');
+    const overlayText = SpaceGame._container.querySelector('#ss-overlay-text');
     overlayText.textContent = 'Paused';
-    const overlaySub = SpaceShooter._container.querySelector('#ss-overlay-sub');
+    const overlaySub = SpaceGame._container.querySelector('#ss-overlay-sub');
     overlaySub.textContent = 'Press P to Resume';
     overlay.style.display = 'flex';
-    SpaceShooter._stop();
+    SpaceGame._stop();
   }
 
   static _resume() {
-    if (SpaceShooter._state !== 'paused') return;
-    SpaceShooter._state = 'playing';
+    if (SpaceGame._state !== 'paused') return;
+    SpaceGame._state = 'playing';
     // Hide overlay
-    const overlay = SpaceShooter._container.querySelector('#ss-overlay');
+    const overlay = SpaceGame._container.querySelector('#ss-overlay');
     overlay.style.display = 'none';
     // Continue loop
-    SpaceShooter._lastTime = performance.now();
-    SpaceShooter._running = true;
-    SpaceShooter._loop(SpaceShooter._lastTime);
+    SpaceGame._lastTime = performance.now();
+    SpaceGame._running = true;
+    SpaceGame._loop(SpaceGame._lastTime);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Main loop
 
   static _loop(timestamp) {
-    if (!SpaceShooter._running) return;
+    if (!SpaceGame._running) return;
 
-    const delta = timestamp - SpaceShooter._lastTime;
-    SpaceShooter._lastTime = timestamp;
+    const delta = timestamp - SpaceGame._lastTime;
+    SpaceGame._lastTime = timestamp;
 
-    SpaceShooter._update(delta);
-    SpaceShooter._draw();
+    SpaceGame._update(delta);
+    SpaceGame._draw();
 
-    SpaceShooter._animationId = requestAnimationFrame(SpaceShooter._loop.bind(SpaceShooter));
+    SpaceGame._animationId = requestAnimationFrame(SpaceGame._loop.bind(SpaceGame));
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -268,124 +277,124 @@ class SpaceShooter {
     const dt = delta / 1000; // in seconds
 
     // If paused, do nothing
-    if (SpaceShooter._state !== 'playing') {
+    if (SpaceGame._state !== 'playing') {
       // Check if P pressed to resume
-      if (SpaceShooter._keys['KeyP']) {
-        SpaceShooter._keys['KeyP'] = false;
-        SpaceShooter._resume();
+      if (SpaceGame._keys['KeyP']) {
+        SpaceGame._keys['KeyP'] = false;
+        SpaceGame._resume();
       }
       return;
     }
 
     // 1) Update starfield
-    for (let star of SpaceShooter._stars) {
-      star.x -= star.speed * dt * 50 * SpaceShooter._gameSpeed;
+    for (let star of SpaceGame._stars) {
+      star.x -= star.speed * dt * 50 * SpaceGame._gameSpeed;
       if (star.x < 0) {
-        star.x = SpaceShooter._width;
-        star.y = Math.random() * SpaceShooter._height;
+        star.x = SpaceGame._width;
+        star.y = Math.random() * SpaceGame._height;
         star.size = Math.random() * 2 + 1;
-        star.speed = (Math.random() * 0.5 + 0.5) * SpaceShooter._gameSpeed;
+        star.speed = (Math.random() * 0.5 + 0.5) * SpaceGame._gameSpeed;
       }
     }
 
     // 2) Update player movement
-    const p = SpaceShooter._player;
+    const p = SpaceGame._player;
     let mvX = 0, mvY = 0;
-    if (SpaceShooter._keys['ArrowUp'] || SpaceShooter._keys['KeyW'])    mvY = -1;
-    if (SpaceShooter._keys['ArrowDown'] || SpaceShooter._keys['KeyS'])  mvY =  1;
-    if (SpaceShooter._keys['ArrowLeft'] || SpaceShooter._keys['KeyA'])  mvX = -1;
-    if (SpaceShooter._keys['ArrowRight'] || SpaceShooter._keys['KeyD']) mvX =  1;
+    if (SpaceGame._keys['ArrowUp'] || SpaceGame._keys['KeyW'])    mvY = -1;
+    if (SpaceGame._keys['ArrowDown'] || SpaceGame._keys['KeyS'])  mvY =  1;
+    if (SpaceGame._keys['ArrowLeft'] || SpaceGame._keys['KeyA'])  mvX = -1;
+    if (SpaceGame._keys['ArrowRight'] || SpaceGame._keys['KeyD']) mvX =  1;
     const norm = Math.hypot(mvX, mvY) || 1;
     p.x += (mvX / norm) * p.speed * dt;
     p.y += (mvY / norm) * p.speed * dt;
 
     // Boundaries
-    p.x = Math.max(0, Math.min(p.x, SpaceShooter._width - p.width));
-    p.y = Math.max(0, Math.min(p.y, SpaceShooter._height - p.height));
+    p.x = Math.max(0, Math.min(p.x, SpaceGame._width - p.width));
+    p.y = Math.max(0, Math.min(p.y, SpaceGame._height - p.height));
 
     // 3) Player shooting (cooldown ~0.3s)
     p.cooldown -= delta;
-    if ((SpaceShooter._keys['Space'] || SpaceShooter._keys['KeyK']) && p.cooldown <= 0) {
-      SpaceShooter._playerBullets.push({
+    if ((SpaceGame._keys['Space'] || SpaceGame._keys['KeyK']) && p.cooldown <= 0) {
+      SpaceGame._playerBullets.push({
         x: p.x + p.width,
         y: p.y + p.height / 2 - 3,
         width: 6,
         height: 6,
-        speed: 400 * SpaceShooter._gameSpeed,
+        speed: 400 * SpaceGame._gameSpeed,
         color: '#ff0'
       });
       p.cooldown = 300; // ms
     }
 
     // 4) Update player bullets
-    for (let i = SpaceShooter._playerBullets.length - 1; i >= 0; i--) {
-      const b = SpaceShooter._playerBullets[i];
+    for (let i = SpaceGame._playerBullets.length - 1; i >= 0; i--) {
+      const b = SpaceGame._playerBullets[i];
       b.x += b.speed * dt;
-      if (b.x > SpaceShooter._width) {
-        SpaceShooter._playerBullets.splice(i, 1);
+      if (b.x > SpaceGame._width) {
+        SpaceGame._playerBullets.splice(i, 1);
       }
     }
 
     // 5) Spawn enemies & asteroids
-    SpaceShooter._spawnTimer += delta;
-    if (SpaceShooter._spawnTimer >= SpaceShooter._spawnInterval) {
-      SpaceShooter._spawnTimer = 0;
-      SpaceShooter._spawnEnemyOrAsteroid();
+    SpaceGame._spawnTimer += delta;
+    if (SpaceGame._spawnTimer >= SpaceGame._spawnInterval) {
+      SpaceGame._spawnTimer = 0;
+      SpaceGame._spawnEnemyOrAsteroid();
       // Gradually increase speed and spawn rate
-      SpaceShooter._gameSpeed += 0.01;
-      SpaceShooter._spawnInterval = Math.max(500, 2000 - (SpaceShooter._score * 5));
+      SpaceGame._gameSpeed += 0.01;
+      SpaceGame._spawnInterval = Math.max(500, 2000 - (SpaceGame._score * 5));
     }
 
     // 6) Update enemies
-    for (let i = SpaceShooter._enemies.length - 1; i >= 0; i--) {
-      const e = SpaceShooter._enemies[i];
-      e.x -= e.speed * dt * SpaceShooter._gameSpeed;
+    for (let i = SpaceGame._enemies.length - 1; i >= 0; i--) {
+      const e = SpaceGame._enemies[i];
+      e.x -= e.speed * dt * SpaceGame._gameSpeed;
       // Occasionally fire a bullet toward the player
       e.fireTimer -= delta;
       if (e.fireTimer <= 0) {
         e.fireTimer = 2000; // next shot in 2s
-        SpaceShooter._enemyBullets.push({
+        SpaceGame._enemyBullets.push({
           x: e.x,
           y: e.y + e.size / 2 - 3,
           width: 6,
           height: 6,
-          speed: 300 * SpaceShooter._gameSpeed,
+          speed: 300 * SpaceGame._gameSpeed,
           color: '#f00'
         });
       }
       // Remove if off-screen
       if (e.x + e.size < 0) {
-        SpaceShooter._enemies.splice(i, 1);
+        SpaceGame._enemies.splice(i, 1);
       }
     }
 
     // 7) Update enemy bullets
-    for (let i = SpaceShooter._enemyBullets.length - 1; i >= 0; i--) {
-      const eb = SpaceShooter._enemyBullets[i];
+    for (let i = SpaceGame._enemyBullets.length - 1; i >= 0; i--) {
+      const eb = SpaceGame._enemyBullets[i];
       eb.x -= eb.speed * dt;
       if (eb.x + eb.width < 0) {
-        SpaceShooter._enemyBullets.splice(i, 1);
+        SpaceGame._enemyBullets.splice(i, 1);
       }
     }
 
     // 8) Update asteroids
-    for (let i = SpaceShooter._asteroids.length - 1; i >= 0; i--) {
-      const a = SpaceShooter._asteroids[i];
-      a.x -= a.speed * dt * SpaceShooter._gameSpeed;
+    for (let i = SpaceGame._asteroids.length - 1; i >= 0; i--) {
+      const a = SpaceGame._asteroids[i];
+      a.x -= a.speed * dt * SpaceGame._gameSpeed;
       if (a.x + a.size < 0) {
-        SpaceShooter._asteroids.splice(i, 1);
+        SpaceGame._asteroids.splice(i, 1);
       }
     }
 
     // 9) Collision detection
-    SpaceShooter._checkCollisions();
+    SpaceGame._checkCollisions();
 
     // 10) Update score & UI
-    SpaceShooter._updateScoreDisplay();
+    SpaceGame._updateScoreDisplay();
 
     // If game over, stop and show overlay
-    if (SpaceShooter._state === 'gameover') {
-      SpaceShooter._handleGameOver();
+    if (SpaceGame._state === 'gameover') {
+      SpaceGame._handleGameOver();
     }
   }
 
@@ -397,9 +406,9 @@ class SpaceShooter {
     if (choice < 0.6) {
       // Spawn enemy ship
       const size = 30;
-      SpaceShooter._enemies.push({
-        x: SpaceShooter._width + size,
-        y: Math.random() * (SpaceShooter._height - size),
+      SpaceGame._enemies.push({
+        x: SpaceGame._width + size,
+        y: Math.random() * (SpaceGame._height - size),
         size: size,
         speed: 100 + Math.random() * 50, // base speed
         color: '#f0f',
@@ -408,9 +417,9 @@ class SpaceShooter {
     } else {
       // Spawn asteroid
       const size = 20 + Math.random() * 30;
-      SpaceShooter._asteroids.push({
-        x: SpaceShooter._width + size,
-        y: Math.random() * (SpaceShooter._height - size),
+      SpaceGame._asteroids.push({
+        x: SpaceGame._width + size,
+        y: Math.random() * (SpaceGame._height - size),
         size: size,
         speed: 80 + Math.random() * 40,
         color: '#888'
@@ -440,79 +449,79 @@ class SpaceShooter {
   }
 
   static _checkCollisions() {
-    const p = SpaceShooter._player;
+    const p = SpaceGame._player;
 
     // 1) Player bullets vs enemies
-    for (let i = SpaceShooter._playerBullets.length - 1; i >= 0; i--) {
-      const b = SpaceShooter._playerBullets[i];
-      for (let j = SpaceShooter._enemies.length - 1; j >= 0; j--) {
-        const e = SpaceShooter._enemies[j];
+    for (let i = SpaceGame._playerBullets.length - 1; i >= 0; i--) {
+      const b = SpaceGame._playerBullets[i];
+      for (let j = SpaceGame._enemies.length - 1; j >= 0; j--) {
+        const e = SpaceGame._enemies[j];
         // treat both as rectangles
-        if (SpaceShooter._rectsIntersect(
+        if (SpaceGame._rectsIntersect(
               { x: b.x, y: b.y, width: b.width, height: b.height },
               { x: e.x, y: e.y, width: e.size, height: e.size }
             )) {
           // Destroy enemy & bullet
-          SpaceShooter._playerBullets.splice(i, 1);
-          SpaceShooter._enemies.splice(j, 1);
-          SpaceShooter._score += 10;
+          SpaceGame._playerBullets.splice(i, 1);
+          SpaceGame._enemies.splice(j, 1);
+          SpaceGame._score += 10;
           break;
         }
       }
     }
 
     // 2) Player bullets vs asteroids
-    for (let i = SpaceShooter._playerBullets.length - 1; i >= 0; i--) {
-      const b = SpaceShooter._playerBullets[i];
-      for (let j = SpaceShooter._asteroids.length - 1; j >= 0; j--) {
-        const a = SpaceShooter._asteroids[j];
+    for (let i = SpaceGame._playerBullets.length - 1; i >= 0; i--) {
+      const b = SpaceGame._playerBullets[i];
+      for (let j = SpaceGame._asteroids.length - 1; j >= 0; j--) {
+        const a = SpaceGame._asteroids[j];
         // treat bullet as rect, asteroid as square
-        if (SpaceShooter._rectsIntersect(
+        if (SpaceGame._rectsIntersect(
               { x: b.x, y: b.y, width: b.width, height: b.height },
               { x: a.x, y: a.y, width: a.size, height: a.size }
             )) {
           // Only bullet destroyed; asteroid remains (or you can break it into smaller ones)
-          SpaceShooter._playerBullets.splice(i, 1);
-          SpaceShooter._score += 5;
+          SpaceGame._playerBullets.splice(i, 1);
+          SpaceGame._score += 5;
           break;
         }
       }
     }
 
     // 3) Enemy bullets vs player
-    for (let i = SpaceShooter._enemyBullets.length - 1; i >= 0; i--) {
-      const eb = SpaceShooter._enemyBullets[i];
-      if (SpaceShooter._rectsIntersect(
+    for (let i = SpaceGame._enemyBullets.length - 1; i >= 0; i--) {
+      const eb = SpaceGame._enemyBullets[i];
+      if (SpaceGame._rectsIntersect(
             { x: eb.x, y: eb.y, width: eb.width, height: eb.height },
             { x: p.x,  y: p.y,  width: p.width, height: p.height }
           )) {
         // Player hit
-        SpaceShooter._state = 'gameover';
+        SpaceGame._state = 'gameover';
         return;
       }
     }
 
     // 4) Asteroids vs player (circle-style collision)
-    for (let a of SpaceShooter._asteroids) {
+    for (let a of SpaceGame._asteroids) {
       const cx = a.x + a.size / 2;
       const cy = a.y + a.size / 2;
       const radius = a.size / 2;
-      if (SpaceShooter._circleRectIntersect(
+      if (SpaceGame._circleRectIntersect(
             cx, cy, radius,
             p.x, p.y, p.width, p.height
           )) {
-        SpaceShooter._state = 'gameover';
+        SpaceGame._state = 'gameover';
         return;
       }
     }
 
     // 5) Enemies vs player (rect collision)
-    for (let e of SpaceShooter._enemies) {
-      if (SpaceShooter._rectsIntersect(
+    for (let e of SpaceGame._enemies) {
+      if (SpaceGame._rectsIntersect(
             { x: e.x, y: e.y, width: e.size, height: e.size },
             { x: p.x, y: p.y, width: p.width, height: p.height }
           )) {
-        SpaceShooter._state = 'gameover';
+        SpaceGame._state = 'gameover';
         return;
       }
     }
@@ -522,19 +531,19 @@ class SpaceShooter {
   // Draw everything
 
   static _draw() {
-    const ctx = SpaceShooter._ctx;
+    const ctx = SpaceGame._ctx;
     // Clear
     ctx.fillStyle = '#000';
-    ctx.fillRect(0, 0, SpaceShooter._width, SpaceShooter._height);
+    ctx.fillRect(0, 0, SpaceGame._width, SpaceGame._height);
 
     // 1) Draw stars
-    for (let star of SpaceShooter._stars) {
+    for (let star of SpaceGame._stars) {
       ctx.fillStyle = '#fff';
       ctx.fillRect(star.x, star.y, star.size, star.size);
     }
 
     // 2) Draw player (triangle)
-    const p = SpaceShooter._player;
+    const p = SpaceGame._player;
     ctx.fillStyle = p.color;
     ctx.beginPath();
     ctx.moveTo(p.x, p.y + p.height / 2);
@@ -544,13 +553,13 @@ class SpaceShooter {
     ctx.fill();
 
     // 3) Draw player bullets
-    for (let b of SpaceShooter._playerBullets) {
+    for (let b of SpaceGame._playerBullets) {
       ctx.fillStyle = b.color;
       ctx.fillRect(b.x, b.y, b.width, b.height);
     }
 
     // 4) Draw enemies
-    for (let e of SpaceShooter._enemies) {
+    for (let e of SpaceGame._enemies) {
       ctx.fillStyle = e.color;
       ctx.fillRect(e.x, e.y, e.size, e.size);
       // Engine glow (simple colored rectangle)
@@ -559,13 +568,13 @@ class SpaceShooter {
     }
 
     // 5) Draw enemy bullets
-    for (let eb of SpaceShooter._enemyBullets) {
+    for (let eb of SpaceGame._enemyBullets) {
       ctx.fillStyle = eb.color;
       ctx.fillRect(eb.x, eb.y, eb.width, eb.height);
     }
 
     // 6) Draw asteroids (circles)
-    for (let a of SpaceShooter._asteroids) {
+    for (let a of SpaceGame._asteroids) {
       const cx = a.x + a.size / 2;
       const cy = a.y + a.size / 2;
       const r = a.size / 2;
@@ -583,16 +592,16 @@ class SpaceShooter {
   // Update UI elements
 
   static _updateScoreDisplay() {
-    const scoreEl = SpaceShooter._container.querySelector('#ss-score');
-    scoreEl.textContent = `Score: ${SpaceShooter._score}`;
+    const scoreEl = SpaceGame._container.querySelector('#ss-score');
+    scoreEl.textContent = `Score: ${SpaceGame._score}`;
   }
 
   static _updateHighScoreDisplay() {
     let best = 0;
-    if (SpaceShooter._highScores.length) {
-      best = Math.max(...SpaceShooter._highScores);
+    if (SpaceGame._highScores.length) {
+      best = Math.max(...SpaceGame._highScores);
     }
-    const hsEl = SpaceShooter._container.querySelector('#ss-highscore');
+    const hsEl = SpaceGame._container.querySelector('#ss-highscore');
     hsEl.textContent = `High Score: ${best}`;
   }
 
@@ -600,34 +609,34 @@ class SpaceShooter {
   // Handle game over: stop loop, show overlay, update high scores
 
   static _handleGameOver() {
-    SpaceShooter._stop();
+    SpaceGame._stop();
 
     // Update high scores array
-    SpaceShooter._highScores.push(SpaceShooter._score);
-    SpaceShooter._highScores.sort((a, b) => b - a);
-    SpaceShooter._highScores = SpaceShooter._highScores.slice(0, 5);
+    SpaceGame._highScores.push(SpaceGame._score);
+    SpaceGame._highScores.sort((a, b) => b - a);
+    SpaceGame._highScores = SpaceGame._highScores.slice(0, 5);
     try {
-      localStorage.setItem('spaceShooterHighScores', JSON.stringify(SpaceShooter._highScores));
+      localStorage.setItem('spaceShooterHighScores', JSON.stringify(SpaceGame._highScores));
     } catch {}
 
     // Show overlay with final score and high-score table
-    const overlay = SpaceShooter._container.querySelector('#ss-overlay');
+    const overlay = SpaceGame._container.querySelector('#ss-overlay');
     overlay.style.display = 'flex';
-    const overlayText = SpaceShooter._container.querySelector('#ss-overlay-text');
-    overlayText.textContent = `Game Over! Score: ${SpaceShooter._score}`;
+    const overlayText = SpaceGame._container.querySelector('#ss-overlay-text');
+    overlayText.textContent = `Game Over! Score: ${SpaceGame._score}`;
 
     // Build high-score list
-    const sub = SpaceShooter._container.querySelector('#ss-overlay-sub');
+    const sub = SpaceGame._container.querySelector('#ss-overlay-sub');
     let lines = ['High Scores:'];
-    for (let i = 0; i < SpaceShooter._highScores.length; i++) {
-      lines.push(`${i + 1}. ${SpaceShooter._highScores[i]}`);
+    for (let i = 0; i < SpaceGame._highScores.length; i++) {
+      lines.push(`${i + 1}. ${SpaceGame._highScores[i]}`);
     }
     lines.push('');
     lines.push('Press ENTER to Play Again');
     sub.innerHTML = lines.join('<br>');
-    SpaceShooter._updateHighScoreDisplay();
+    SpaceGame._updateHighScoreDisplay();
   }
 }
 
 // Expose globally so WindowManager can find it:
-window.SpaceShooter = SpaceShooter;
+window.SpaceGame = SpaceGame;
