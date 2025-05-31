@@ -1,11 +1,11 @@
 // EmberFrame Media Player - Advanced Music & Video Player
 /**
  * APP_METADATA
- * @name Terminal
- * @icon fas fa-terminal
- * @description Command line interface with Unix-like commands
- * @category System
- * @version 1.1.0
+ * @name Media Player
+ * @icon fas fa-music
+ * @description Simple Media Player Application
+ * @category Media
+ * @version 1.0.0
  * @author EmberFrame Team
  * @enabled true
  */

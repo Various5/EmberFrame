@@ -4,7 +4,7 @@
  * @name Admin Panel
  * @icon fas fa-shield-alt
  * @description Administrative tools and file management
- * @category System
+ * @category Administration
  * @version 1.0.0
  * @author EmberFrame Team
  * @enabled true

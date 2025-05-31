@@ -4,7 +4,7 @@
  * @name Terminal
  * @icon fas fa-terminal
  * @description Command line interface with Unix-like commands
- * @category System
+ * @category Shell
  * @version 1.1.0
  * @author EmberFrame Team
  * @enabled true

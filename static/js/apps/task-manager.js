@@ -4,7 +4,7 @@
  * @name Task Manager
  * @icon fas fa-tasks
  * @description Monitor and manage running applications
- * @category System
+ * @category Administration
  * @version 1.0.0
  * @author EmberFrame Team
  * @enabled true

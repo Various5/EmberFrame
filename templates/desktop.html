@@ -854,7 +854,8 @@
             userInfo: {},
             draggedElement: null,
             draggedFromTaskbar: false,
-            currentTheme: 'cyber-blue'
+            currentTheme: 'cyber-blue',
+            loadedAppScripts: new Set()
         };
 
         // Device detection
@@ -1043,7 +1044,7 @@
             }
         }
 
-        // App Discovery System
+        // Enhanced App Discovery System with Dynamic Loading
         class AppDiscovery {
             static async discoverApps() {
                 console.log('🔍 Discovering available applications...');
@@ -1054,11 +1055,18 @@
 
                     if (data.success) {
                         window.EmberFrame.availableApps = new Map();
-                        data.apps.forEach(app => {
-                            window.EmberFrame.availableApps.set(app.id, app);
-                        });
 
-                        console.log(`🎯 Discovery complete: ${data.apps.length} apps found`);
+                        // Store apps and dynamically load their scripts
+                        for (const app of data.apps) {
+                            window.EmberFrame.availableApps.set(app.id, app);
+
+                            // Load app script if it has a file and isn't already loaded
+                            if (app.file && !window.EmberFrame.loadedAppScripts.has(app.file)) {
+                                await this.loadAppScript(app.file, app.name);
+                            }
+                        }
+
+                        console.log(`🎯 Discovery complete: ${data.apps.length} apps found and loaded`);
                         return window.EmberFrame.availableApps;
                     } else {
                         throw new Error(data.error || 'Failed to discover apps');
@@ -1066,6 +1074,43 @@
                 } catch (error) {
                     console.error('Failed to discover apps:', error);
                     return this.getFallbackApps();
+                }
+            }
+
+            static async loadAppScript(filename, appName) {
+                try {
+                    const scriptUrl = `/static/js/apps/${filename}`;
+
+                    // Check if script already exists
+                    const existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+                    if (existingScript) {
+                        console.log(`📜 Script already loaded: ${filename}`);
+                        return true;
+                    }
+
+                    console.log(`📜 Loading app script: ${filename} for ${appName}`);
+
+                    return new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = scriptUrl;
+                        script.async = true;
+
+                        script.onload = () => {
+                            window.EmberFrame.loadedAppScripts.add(filename);
+                            console.log(`✅ Loaded script: ${filename}`);
+                            resolve(true);
+                        };
+
+                        script.onerror = () => {
+                            console.error(`❌ Failed to load script: ${filename}`);
+                            resolve(false); // Don't reject, just continue
+                        };
+
+                        document.head.appendChild(script);
+                    });
+                } catch (error) {
+                    console.error(`❌ Error loading script ${filename}:`, error);
+                    return false;
                 }
             }
 
@@ -1559,7 +1604,10 @@
                         }
                         break;
                     case 'refresh':
-                        window.location.reload();
+                        // Refresh apps and reload
+                        fetch('/api/apps/reload').then(() => {
+                            window.location.reload();
+                        });
                         break;
                 }
             }
@@ -1744,6 +1792,7 @@
             'Loading User Preferences...',
             'Applying Personal Theme...',
             'Discovering Applications...',
+            'Loading App Scripts...',
             'Loading Shortcuts...',
             'Setting Up Desktop...',
             'Preparing Start Menu...',
@@ -1771,9 +1820,9 @@
             }, 500);
         }
 
-        // Main initialization with preferences
+        // Main initialization with preferences and dynamic app loading
         async function initializeDesktop() {
-            console.log('🚀 Initializing personalized desktop environment');
+            console.log('🚀 Initializing personalized desktop environment with dynamic app discovery');
 
             try {
                 // Initialize core systems
@@ -1782,7 +1831,7 @@
                 // Load user preferences first
                 await UserPreferencesManager.loadUserPreferences();
 
-                // Discover available applications
+                // Discover and dynamically load applications
                 await AppDiscovery.discoverApps();
 
                 // Load user shortcuts
@@ -1793,7 +1842,7 @@
                 ShortcutManager.updateDesktopShortcuts();
                 ShortcutManager.updateTaskbarShortcuts();
 
-                console.log('✅ Personalized desktop initialization complete');
+                console.log('✅ Personalized desktop initialization complete with dynamic app loading');
 
                 // Show welcome message
                 showWelcomeMessage();
@@ -1814,9 +1863,10 @@
 
             const adminText = window.EmberFrame.isAdmin ? ' (Administrator)' : '';
             const themeText = window.EmberFrame.currentTheme ? ` with ${window.EmberFrame.currentTheme} theme` : '';
+            const appCount = window.EmberFrame.availableApps.size;
 
             if (window.Notification) {
-                window.Notification.success(`${greeting}, {{ username }}${adminText}! Welcome to your personalized EmberFrame${themeText}.`, 5000);
+                window.Notification.success(`${greeting}, {{ username }}${adminText}! Welcome to your personalized EmberFrame${themeText}. ${appCount} applications are ready.`, 5000);
             }
         }
 
@@ -1841,25 +1891,25 @@
         // Start loading sequence
         updateLoading();
 
-        console.log('✅ Personalized desktop script loaded successfully');
+        console.log('✅ Personalized desktop script loaded successfully with dynamic app discovery');
     </script>
 
     <!-- Load core systems -->
     <script src="{{ url_for('static', filename='js/notification.js') }}"></script>
     <script src="{{ url_for('static', filename='js/window-manager.js') }}"></script>
 
-    <!-- Load applications dynamically -->
+    <!-- Load essential applications that should always be available -->
     <script src="{{ url_for('static', filename='js/apps/file-manager.js') }}"></script>
     <script src="{{ url_for('static', filename='js/apps/terminal.js') }}"></script>
     <script src="{{ url_for('static', filename='js/apps/text-editor.js') }}"></script>
     <script src="{{ url_for('static', filename='js/apps/media-player.js') }}"></script>
     <script src="{{ url_for('static', filename='js/apps/settings.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/apps/admin-panel.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/apps/task-manager.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/apps/space-game.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/apps/public-folder.js') }}"></script>
+
+    <!-- Additional apps will be loaded dynamically based on discovery -->
 
     <script>
-        console.log('🔥 All systems loaded - Personalized EmberFrame ready');
+        console.log('🔥 All core systems loaded - Dynamic EmberFrame ready');
     </script>
 </body>
 </html>

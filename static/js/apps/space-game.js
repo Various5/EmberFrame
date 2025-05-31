@@ -4,7 +4,7 @@
  * @name Space Shooter
  * @icon fas fa-star
  * @description Spacegame Sidescroller
- * @category System
+ * @category Games
  * @version 1.0.0
  * @author EmberFrame Team
  * @enabled true
