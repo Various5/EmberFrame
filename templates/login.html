@@ -620,6 +620,12 @@
     <script>
         console.log('🔥 EmberFrame Login System Loaded');
 
+        // Get CSRF token from meta tag
+        function getCSRFToken() {
+            const token = document.querySelector('meta[name="csrf-token"]');
+            return token ? token.getAttribute('content') : '';
+        }
+
         // Utility functions
         function showMessage(text, type = 'error') {
             const errorMsg = document.getElementById('error-message');
@@ -688,21 +694,42 @@
             try {
                 console.log('📡 Establishing secure connection...');
 
+                // Get CSRF token
+                const csrfToken = getCSRFToken();
+                console.log('🔒 CSRF token:', csrfToken ? 'Found' : 'Missing');
+
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                };
+
+                // Add CSRF token to headers if available
+                if (csrfToken) {
+                    headers['X-CSRFToken'] = csrfToken;
+                    headers['X-CSRF-Token'] = csrfToken;
+                }
+
+                const requestBody = {
+                    username: username,
+                    password: password
+                };
+
+                // Add CSRF token to request body as well
+                if (csrfToken) {
+                    requestBody.csrf_token = csrfToken;
+                }
+
                 const response = await fetch('/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username: username,
-                        password: password
-                    })
+                    headers: headers,
+                    body: JSON.stringify(requestBody)
                 });
 
                 console.log('📡 Response status:', response.status);
 
                 if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('📡 Response error:', errorText);
                     throw new Error(`Connection failed: ${response.status} ${response.statusText}`);
                 }
 
@@ -782,7 +809,7 @@
             clearInterval(securityAnimation);
         });
 
-        console.log('✅ Login system initialized');
+        console.log('✅ Login system initialized with CSRF support');
     </script>
 </body>
 </html>
