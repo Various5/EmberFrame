@@ -2,9 +2,9 @@
  * APP_METADATA
  * @name Really Racer
  * @icon fas fa-car
- * @description High-speed racing game with tracks and power-ups
+ * @description Physics-based 2D sidescrolling racing adventure
  * @category Games
- * @version 2.0.0
+ * @version 5.0.0
  * @author EmberFrame Team
  * @enabled true
  */
@@ -16,132 +16,153 @@ class ReallyRacer {
   static _container = null;
   static _canvas = null;
   static _ctx = null;
-  static _width = 800;
+  static _width = 1000;
   static _height = 600;
 
   // Game State
-  static _gameState = 'menu'; // menu, playing, paused, finished, gameover
-  static _currentTrack = 0;
-  static _lapTime = 0;
-  static _bestLapTime = Infinity;
-  static _currentLap = 1;
-  static _totalLaps = 3;
-  static _raceStartTime = 0;
-  static _raceFinished = false;
+  static _gameState = 'menu'; // menu, playing, paused, finished, crashed
+  static _currentLevel = 0;
+  static _distance = 0;
+  static _maxDistance = 0;
+  static _time = 0;
+  static _fuel = 100;
+  static _coins = 0;
+  static _totalCoins = 0;
 
-  // Player Car
-  static _player = {
-    x: 0,
-    y: 0,
-    angle: 0,
-    speed: 0,
-    maxSpeed: 300,
-    acceleration: 400,
-    deceleration: 600,
-    turnSpeed: 3,
-    width: 20,
-    height: 40,
-    friction: 0.95,
-    velocityX: 0,
-    velocityY: 0,
-    drifting: false,
-    nitro: 100,
-    maxNitro: 100,
-    nitroActive: false
+  // Physics Vehicle
+  static _vehicle = {
+    // Position and rotation
+    x: 100, y: 400, angle: 0,
+
+    // Physics
+    velocityX: 0, velocityY: 0, angularVelocity: 0,
+    speed: 0, onGround: false, crashed: false,
+
+    // Vehicle properties
+    width: 50, height: 30, wheelBase: 40,
+    enginePower: 800, maxSpeed: 25, brakeForce: 600,
+    mass: 1, friction: 0.9, airResistance: 0.98,
+
+    // Wheels
+    frontWheel: { x: 0, y: 0, rotation: 0, onGround: false, grip: 0.9 },
+    rearWheel: { x: 0, y: 0, rotation: 0, onGround: false, grip: 0.9 },
+
+    // Visual effects
+    exhaustParticles: [], sparks: [], smokeTrail: []
   };
 
-  // Track System
-  static _track = {
-    checkpoints: [],
-    currentCheckpoint: 0,
-    width: 100,
-    centerLine: [],
-    barriers: [],
-    powerups: [],
-    obstacles: []
-  };
-
-  // Camera
+  // Camera System
   static _camera = {
-    x: 0,
-    y: 0,
-    targetX: 0,
-    targetY: 0,
-    smoothing: 0.1
+    x: 0, y: 0, targetX: 0, targetY: 0,
+    smoothing: 0.08, shake: 0, zoom: 1
   };
 
-  // Particles and Effects
-  static _particles = [];
-  static _explosions = [];
-  static _skidMarks = [];
+  // World Physics
+  static _world = {
+    gravity: 1200, friction: 0.7, airDensity: 0.02,
+    wind: 0, temperature: 20
+  };
 
-  // AI Cars
-  static _aiCars = [];
+  // Terrain System
+  static _terrain = {
+    points: [], segments: [], obstacles: [],
+    coins: [], powerups: [], checkpoints: [],
+    width: 5000, segmentLength: 20
+  };
 
-  // Input
+  // Particle Systems
+  static _particles = {
+    dust: [], exhaust: [], sparks: [], coins: [],
+    explosion: [], smoke: [], debris: []
+  };
+
+  // Input State
   static _keys = {};
+  static _mouseDown = false;
+
+  // Game Systems
+  static _soundQueue = [];
+  static _screenEffects = { shake: 0, flash: 0 };
 
   // Timing
   static _lastTime = 0;
   static _running = false;
   static _animationId = null;
 
-  // Audio (Visual feedback)
-  static _soundQueue = [];
-
-  // Track Data
-  static _tracks = [
+  // Level Definitions
+  static _levels = [
     {
-      name: "Speed Circuit",
+      name: "Gentle Hills",
       difficulty: "Easy",
-      color: "#00ff00",
-      length: 2000,
-      curves: [
-        { x: 400, y: 100, radius: 150, angle: 0 },
-        { x: 700, y: 200, radius: 100, angle: Math.PI/2 },
-        { x: 600, y: 500, radius: 120, angle: Math.PI },
-        { x: 200, y: 400, radius: 140, angle: -Math.PI/2 }
-      ]
-    },
-    {
-      name: "Danger Valley",
-      difficulty: "Medium",
-      color: "#ffaa00",
-      length: 2500,
-      curves: [
-        { x: 400, y: 100, radius: 100, angle: 0 },
-        { x: 650, y: 150, radius: 80, angle: Math.PI/3 },
-        { x: 700, y: 350, radius: 90, angle: Math.PI },
-        { x: 500, y: 500, radius: 110, angle: Math.PI * 1.5 },
-        { x: 200, y: 450, radius: 100, angle: -Math.PI/2 },
-        { x: 150, y: 250, radius: 120, angle: 0 }
-      ]
-    },
-    {
-      name: "Death Track",
-      difficulty: "Hard",
-      color: "#ff0000",
+      theme: "grassland",
       length: 3000,
-      curves: [
-        { x: 400, y: 100, radius: 80, angle: 0 },
-        { x: 600, y: 120, radius: 60, angle: Math.PI/4 },
-        { x: 750, y: 200, radius: 70, angle: Math.PI/2 },
-        { x: 720, y: 350, radius: 90, angle: Math.PI * 0.8 },
-        { x: 550, y: 500, radius: 85, angle: Math.PI * 1.2 },
-        { x: 350, y: 520, radius: 75, angle: Math.PI * 1.5 },
-        { x: 200, y: 400, radius: 80, angle: -Math.PI/2 },
-        { x: 150, y: 250, radius: 90, angle: -Math.PI/4 },
-        { x: 250, y: 150, radius: 70, angle: 0 }
-      ]
+      maxHeight: 200,
+      roughness: 0.3,
+      obstacles: 5,
+      coins: 15,
+      description: "Perfect for beginners - rolling green hills"
+    },
+    {
+      name: "Mountain Madness",
+      difficulty: "Medium",
+      theme: "mountain",
+      length: 4000,
+      maxHeight: 300,
+      roughness: 0.6,
+      obstacles: 10,
+      coins: 25,
+      description: "Steep climbs and dangerous drops"
+    },
+    {
+      name: "Desert Dunes",
+      difficulty: "Hard",
+      theme: "desert",
+      length: 4500,
+      maxHeight: 350,
+      roughness: 0.8,
+      obstacles: 15,
+      coins: 30,
+      description: "Sandy slopes and treacherous jumps"
+    },
+    {
+      name: "Arctic Adventure",
+      difficulty: "Expert",
+      theme: "arctic",
+      length: 5000,
+      maxHeight: 400,
+      roughness: 1.0,
+      obstacles: 20,
+      coins: 40,
+      description: "Icy terrain with extreme challenges"
+    },
+    {
+      name: "Volcano Valley",
+      difficulty: "Extreme",
+      theme: "volcano",
+      length: 6000,
+      maxHeight: 500,
+      roughness: 1.2,
+      obstacles: 25,
+      coins: 50,
+      description: "Lava pits and explosive obstacles"
     }
   ];
 
+  // Vehicle Upgrades
+  static _upgrades = {
+    engine: { level: 1, cost: 100, maxLevel: 5 },
+    tires: { level: 1, cost: 150, maxLevel: 5 },
+    suspension: { level: 1, cost: 200, maxLevel: 5 },
+    fuel: { level: 1, cost: 75, maxLevel: 5 },
+    armor: { level: 1, cost: 250, maxLevel: 5 }
+  };
+
   // Save Data
   static _saveData = {
-    bestTimes: [Infinity, Infinity, Infinity],
-    unlockedTracks: [true, false, false],
-    totalRaces: 0,
-    totalWins: 0
+    totalCoins: 0, bestDistances: [0, 0, 0, 0, 0],
+    unlockedLevels: [true, false, false, false, false],
+    upgrades: { engine: 1, tires: 1, suspension: 1, fuel: 1, armor: 1 },
+    totalDistance: 0, totalTime: 0, crashes: 0
   };
 
   // ═══════════════════════════════════════════════════════════════
@@ -150,199 +171,360 @@ class ReallyRacer {
 
   static createWindow() {
     return {
-      title: 'Really Racer',
-      width: '820px',
+      title: 'Hill Racer Physics',
+      width: '1020px',
       height: '720px',
       content: `
-        <div id="really-racer" style="position: relative; width: 100%; height: 100%; background: #000; overflow: hidden; font-family: 'Orbitron', monospace;">
-          <!-- Main Game Canvas -->
-          <canvas id="racer-canvas" width="800" height="600"
-                  style="display: block; background: #001122; margin: 10px auto; border: 2px solid #00ffff; 
-                         border-radius: 8px; box-shadow: 0 0 20px #00ffff40;"></canvas>
+        <div id="hill-racer" style="position: relative; width: 100%; height: 100%; background: linear-gradient(180deg, #87CEEB 0%, #98FB98 100%); overflow: hidden; font-family: 'Arial', sans-serif;">
           
-          <!-- HUD -->
-          <div id="racer-hud" style="position: absolute; top: 20px; left: 20px; right: 20px; display: flex; justify-content: space-between; color: #00ffff; font-size: 14px; z-index: 10; pointer-events: none;">
+          <!-- Main Game Canvas -->
+          <canvas id="physics-canvas" width="1000" height="600"
+                  style="display: block; margin: 10px auto; border: 3px solid #228B22; border-radius: 15px; 
+                         box-shadow: 0 0 20px rgba(34,139,34,0.4); background: linear-gradient(180deg, #87CEEB 0%, #90EE90 50%, #228B22 100%);"></canvas>
+          
+          <!-- Game HUD -->
+          <div id="game-hud" style="position: absolute; top: 20px; left: 20px; right: 20px; display: none; z-index: 10; pointer-events: none;">
             
-            <!-- Left HUD -->
-            <div style="background: rgba(0, 20, 40, 0.9); padding: 12px; border-radius: 8px; border: 1px solid #00ffff40;">
-              <div style="display: flex; flex-direction: column; gap: 8px;">
-                <div id="racer-speed" style="color: #ffff00; font-weight: bold; font-size: 18px;">SPEED: 0 mph</div>
-                <div id="racer-lap" style="color: #00ff00; font-weight: bold;">LAP: 1 / 3</div>
-                <div id="racer-position" style="color: #ff8800; font-weight: bold;">POSITION: 1st</div>
+            <!-- Top HUD -->
+            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+              
+              <!-- Vehicle Status -->
+              <div style="background: linear-gradient(135deg, rgba(0,50,0,0.9), rgba(0,100,50,0.7)); padding: 15px 20px; border-radius: 12px; border: 2px solid rgba(34,139,34,0.8); color: white; min-width: 200px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <div style="font-size: 20px; font-weight: bold; color: #90EE90;">🏎️ VEHICLE</div>
+                  <div id="speed-display" style="font-size: 24px; font-weight: bold; color: #FFD700;">0 mph</div>
+                </div>
                 
-                <!-- Nitro Bar -->
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span style="color: #ff00ff; font-size: 12px;">NITRO:</span>
-                  <div style="width: 100px; height: 8px; background: #330033; border: 1px solid #ff00ff; border-radius: 4px; overflow: hidden;">
-                    <div id="nitro-fill" style="width: 100%; height: 100%; background: linear-gradient(90deg, #ff00ff, #ff88ff); transition: width 0.2s;"></div>
+                <!-- Fuel Bar -->
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                  <span style="font-size: 14px; color: #FFD700; min-width: 45px;">FUEL:</span>
+                  <div style="flex: 1; height: 8px; background: #333; border-radius: 4px; overflow: hidden; border: 1px solid #555;">
+                    <div id="fuel-bar" style="height: 100%; background: linear-gradient(90deg, #ff4444, #ffaa00, #44ff44); width: 100%; transition: width 0.3s;"></div>
+                  </div>
+                  <span id="fuel-percent" style="font-size: 12px; color: #ccc;">100%</span>
+                </div>
+                
+                <!-- Vehicle Angle -->
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-size: 14px; color: #FFD700; min-width: 45px;">ANGLE:</span>
+                  <div id="angle-display" style="font-size: 14px; color: #87CEEB;">0°</div>
+                  <div style="flex: 1; text-align: right;">
+                    <span id="air-time" style="font-size: 12px; color: #ff6666;">🛩️ AIRBORNE</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Progress & Stats -->
+              <div style="background: linear-gradient(135deg, rgba(0,50,0,0.9), rgba(0,100,50,0.7)); padding: 15px 20px; border-radius: 12px; border: 2px solid rgba(34,139,34,0.8); color: white; text-align: right;">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                  <div style="display: flex; gap: 25px; justify-content: end; align-items: center;">
+                    <div>
+                      <span style="color: #87CEEB; font-size: 12px;">DISTANCE:</span>
+                      <span id="distance-display" style="color: #FFD700; font-weight: bold; margin-left: 8px; font-size: 18px;">0m</span>
+                    </div>
+                    <div>
+                      <span style="color: #87CEEB; font-size: 12px;">COINS:</span>
+                      <span id="coins-display" style="color: #FFA500; font-weight: bold; margin-left: 8px; font-size: 16px;">💰 0</span>
+                    </div>
+                  </div>
+                  
+                  <div style="display: flex; gap: 25px; justify-content: end;">
+                    <div>
+                      <span style="color: #87CEEB; font-size: 12px;">TIME:</span>
+                      <span id="time-display" style="color: #87CEEB; font-weight: bold; margin-left: 8px;">0:00</span>
+                    </div>
+                    <div>
+                      <span style="color: #87CEEB; font-size: 12px;">BEST:</span>
+                      <span id="best-distance" style="color: #90EE90; font-weight: bold; margin-left: 8px;">0m</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Right HUD -->
-            <div style="background: rgba(0, 20, 40, 0.9); padding: 12px; border-radius: 8px; border: 1px solid #00ffff40;">
-              <div style="display: flex; flex-direction: column; gap: 8px; text-align: right;">
-                <div id="racer-time" style="color: #00ffff; font-weight: bold; font-size: 16px;">TIME: 0:00.000</div>
-                <div id="racer-best" style="color: #ffff00; font-weight: bold;">BEST: --:--.---</div>
-                <div id="racer-track" style="color: #ff8800; font-weight: bold;">TRACK: Speed Circuit</div>
+            <!-- Controls Hint -->
+            <div style="position: absolute; bottom: 20px; right: 20px; background: linear-gradient(135deg, rgba(0,50,0,0.9), rgba(0,100,50,0.7)); padding: 12px 16px; border-radius: 10px; border: 2px solid rgba(34,139,34,0.8); color: white;">
+              <div style="font-size: 11px; line-height: 1.4; text-align: center;">
+                <div><strong>W/↑</strong> Gas • <strong>S/↓</strong> Brake • <strong>A/D</strong> Balance</div>
+                <div><strong>SPACE</strong> Handbrake • <strong>R</strong> Reset • <strong>ESC</strong> Menu</div>
               </div>
             </div>
           </div>
 
-          <!-- Mini Map -->
-          <div id="minimap-container" style="position: absolute; bottom: 20px; right: 20px; width: 150px; height: 150px; background: rgba(0, 20, 40, 0.9); border: 2px solid #00ffff; border-radius: 8px; z-index: 10;">
-            <canvas id="minimap-canvas" width="146" height="146" style="border-radius: 6px;"></canvas>
-          </div>
-
-          <!-- Game Overlays -->
-          <div id="racer-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.95); z-index: 20;">
+          <!-- Menu System -->
+          <div id="menu-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: linear-gradient(135deg, rgba(0,20,0,0.95), rgba(0,40,20,0.9)); z-index: 20; backdrop-filter: blur(10px);">
             
             <!-- Main Menu -->
-            <div id="main-menu" style="text-align: center; color: #00ffff;">
-              <div style="font-size: 48px; font-weight: bold; margin-bottom: 20px; text-shadow: 0 0 20px #00ffff; background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                REALLY RACER
+            <div id="main-menu" style="text-align: center; color: #90EE90;">
+              <div style="font-size: 64px; font-weight: bold; margin-bottom: 20px; background: linear-gradient(45deg, #90EE90, #FFD700, #FFA500, #FF6347); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px rgba(144,238,144,0.6);">
+                🏔️ HILL RACER PHYSICS
               </div>
-              <div style="font-size: 18px; margin-bottom: 30px; color: #aaaaaa;">
-                High-Speed Circuit Racing
+              <div style="font-size: 20px; margin-bottom: 40px; color: #87CEEB;">
+                Master the Art of Physics-Based Racing
               </div>
               
-              <div style="display: flex; flex-direction: column; gap: 15px; align-items: center; margin-bottom: 30px;">
-                <button id="start-race-btn" class="menu-button" style="padding: 15px 40px; font-size: 18px; background: linear-gradient(45deg, #00ffff, #0088ff); color: #000; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; transition: all 0.3s;">
-                  START RACE
+              <div style="display: flex; flex-direction: column; gap: 20px; align-items: center; margin-bottom: 40px;">
+                <button id="start-adventure-btn" class="menu-btn primary" style="padding: 20px 50px; font-size: 20px;">
+                  🚀 START ADVENTURE
                 </button>
-                <button id="track-select-btn" class="menu-button" style="padding: 12px 35px; font-size: 16px; background: linear-gradient(45deg, #ff8800, #ffaa00); color: #000; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; transition: all 0.3s;">
-                  SELECT TRACK
+                <button id="level-select-btn" class="menu-btn secondary" style="padding: 15px 40px; font-size: 16px;">
+                  🏔️ SELECT LEVEL
                 </button>
-                <button id="controls-btn" class="menu-button" style="padding: 10px 30px; font-size: 14px; background: linear-gradient(45deg, #888888, #aaaaaa); color: #000; border: none; border-radius: 15px; cursor: pointer; font-weight: bold; transition: all 0.3s;">
-                  CONTROLS
+                <button id="garage-workshop-btn" class="menu-btn secondary" style="padding: 15px 40px; font-size: 16px;">
+                  🔧 GARAGE & UPGRADES
+                </button>
+                <button id="help-controls-btn" class="menu-btn secondary" style="padding: 15px 40px; font-size: 16px;">
+                  ❓ HOW TO PLAY
                 </button>
               </div>
 
-              <div style="font-size: 14px; color: #666;">
-                <div>BEST TIME: <span id="best-time-display">--:--.---</span></div>
-                <div>RACES WON: <span id="wins-display">0</span></div>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 500px; margin: 0 auto; font-size: 14px; color: #666;">
+                <div style="text-align: center;">
+                  <div style="color: #87CEEB; margin-bottom: 5px;">TOTAL DISTANCE</div>
+                  <div id="total-distance-display" style="color: #FFD700; font-weight: bold;">0m</div>
+                </div>
+                <div style="text-align: center;">
+                  <div style="color: #87CEEB; margin-bottom: 5px;">TOTAL COINS</div>
+                  <div id="total-coins-display" style="color: #FFA500; font-weight: bold;">💰 0</div>
+                </div>
+                <div style="text-align: center;">
+                  <div style="color: #87CEEB; margin-bottom: 5px;">CRASHES</div>
+                  <div id="total-crashes-display" style="color: #FF6347; font-weight: bold;">💥 0</div>
+                </div>
               </div>
             </div>
 
-            <!-- Track Selection -->
-            <div id="track-selection" style="display: none; color: #00ffff; text-align: center;">
-              <h2 style="font-size: 36px; margin-bottom: 30px;">SELECT TRACK</h2>
-              <div id="track-list" style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 30px;">
-                <!-- Tracks will be populated here -->
+            <!-- Level Selection -->
+            <div id="level-selection" style="display: none; color: #90EE90; text-align: center; max-width: 900px;">
+              <h2 style="font-size: 48px; margin-bottom: 30px; text-shadow: 0 0 20px rgba(144,238,144,0.5);">🏔️ CHOOSE YOUR CHALLENGE</h2>
+              <div id="level-cards" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px;">
+                <!-- Level cards will be generated here -->
               </div>
-              <button id="back-to-menu-btn" class="menu-button" style="padding: 12px 30px; font-size: 16px; background: #666; color: #fff; border: none; border-radius: 20px; cursor: pointer;">
-                BACK
+              <button id="back-to-main-btn" class="menu-btn secondary">
+                ← BACK TO MAIN MENU
               </button>
             </div>
 
-            <!-- Controls -->
-            <div id="controls-screen" style="display: none; color: #00ffff; text-align: center; max-width: 600px;">
-              <h2 style="font-size: 36px; margin-bottom: 30px;">CONTROLS</h2>
-              <div style="text-align: left; font-size: 16px; line-height: 1.8; margin-bottom: 30px;">
-                <div style="display: grid; grid-template-columns: 200px 1fr; gap: 20px; margin-bottom: 30px;">
-                  <div style="font-weight: bold; color: #ffff00;">MOVEMENT:</div>
-                  <div></div>
-                  <div>🎮 <strong>W / ↑</strong></div>
-                  <div>Accelerate</div>
-                  <div>🎮 <strong>S / ↓</strong></div>
-                  <div>Brake / Reverse</div>
-                  <div>🎮 <strong>A / ←</strong></div>
-                  <div>Turn Left</div>
-                  <div>🎮 <strong>D / →</strong></div>
-                  <div>Turn Right</div>
-                </div>
+            <!-- Garage & Upgrades -->
+            <div id="garage-workshop" style="display: none; color: #90EE90; text-align: center; max-width: 800px;">
+              <h2 style="font-size: 48px; margin-bottom: 30px;">🔧 GARAGE & UPGRADES</h2>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
+                <div style="font-size: 24px; color: #FFD700;">💰 Coins: <span id="garage-coins">0</span></div>
+              </div>
+              
+              <div id="upgrade-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin-bottom: 40px;">
+                <!-- Upgrade cards will be generated here -->
+              </div>
+              
+              <button id="back-from-garage-btn" class="menu-btn secondary">
+                ← BACK
+              </button>
+            </div>
+
+            <!-- How to Play -->
+            <div id="help-controls" style="display: none; color: #90EE90; text-align: center; max-width: 700px;">
+              <h2 style="font-size: 48px; margin-bottom: 30px;">❓ HOW TO PLAY</h2>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; text-align: left;">
                 
-                <div style="display: grid; grid-template-columns: 200px 1fr; gap: 20px;">
-                  <div style="font-weight: bold; color: #ffff00;">SPECIAL:</div>
-                  <div></div>
-                  <div>🚀 <strong>SPACE</strong></div>
-                  <div>Nitro Boost</div>
-                  <div>⏸️ <strong>P</strong></div>
-                  <div>Pause Race</div>
-                  <div>🎯 <strong>ESC</strong></div>
-                  <div>Back to Menu</div>
+                <div style="background: rgba(0,50,0,0.7); padding: 25px; border-radius: 15px; border: 2px solid rgba(144,238,144,0.3);">
+                  <h3 style="color: #FFD700; margin-bottom: 20px; text-align: center;">🎮 CONTROLS</h3>
+                  <div style="line-height: 2; font-size: 16px;">
+                    <div><strong>W / ↑</strong> - Accelerate (Gas pedal)</div>
+                    <div><strong>S / ↓</strong> - Brake / Reverse</div>
+                    <div><strong>A / ←</strong> - Lean Backward (Air control)</div>
+                    <div><strong>D / →</strong> - Lean Forward (Air control)</div>
+                    <div><strong>SPACE</strong> - Handbrake</div>
+                    <div><strong>R</strong> - Reset Vehicle</div>
+                  </div>
+                </div>
+
+                <div style="background: rgba(0,50,0,0.7); padding: 25px; border-radius: 15px; border: 2px solid rgba(144,238,144,0.3);">
+                  <h3 style="color: #FFD700; margin-bottom: 20px; text-align: center;">🎯 OBJECTIVES</h3>
+                  <div style="line-height: 2; font-size: 16px;">
+                    <div><strong>🏁</strong> Reach maximum distance</div>
+                    <div><strong>💰</strong> Collect coins for upgrades</div>
+                    <div><strong>⛽</strong> Manage your fuel carefully</div>
+                    <div><strong>🚗</strong> Don't crash or flip over</div>
+                    <div><strong>🏔️</strong> Master challenging terrain</div>
+                    <div><strong>⚡</strong> Upgrade your vehicle</div>
+                  </div>
                 </div>
               </div>
-              <button id="back-from-controls-btn" class="menu-button" style="padding: 12px 30px; font-size: 16px; background: #666; color: #fff; border: none; border-radius: 20px; cursor: pointer;">
-                BACK
+
+              <div style="background: rgba(0,50,20,0.7); padding: 20px; border-radius: 12px; border: 2px solid rgba(255,215,0,0.3); margin-bottom: 30px;">
+                <h4 style="color: #FFD700; margin-bottom: 15px;">💡 PRO TIPS</h4>
+                <div style="font-size: 14px; line-height: 1.8; text-align: left;">
+                  <div>• Use air control (A/D) to land safely and prevent crashes</div>
+                  <div>• Build momentum on downhills to climb steep sections</div>
+                  <div>• Brake before jumps to control your landing angle</div>
+                  <div>• Collect coins to upgrade engine, tires, suspension, and fuel</div>
+                  <div>• Watch your fuel gauge - running out means game over!</div>
+                  <div>• Each terrain type requires different driving techniques</div>
+                </div>
+              </div>
+
+              <button id="back-from-help-btn" class="menu-btn secondary">
+                ← BACK
               </button>
             </div>
 
-            <!-- Race Finished -->
-            <div id="race-finished" style="display: none; color: #00ff00; text-align: center;">
-              <div style="font-size: 48px; font-weight: bold; margin-bottom: 20px; text-shadow: 0 0 20px #00ff00;">
-                RACE COMPLETE!
+            <!-- Game Over Screen -->
+            <div id="game-over-screen" style="display: none; color: #FF6347; text-align: center;">
+              <div style="font-size: 56px; font-weight: bold; margin-bottom: 25px; text-shadow: 0 0 30px rgba(255,99,71,0.8);">
+                💥 GAME OVER
               </div>
-              <div id="race-stats" style="font-size: 18px; margin-bottom: 30px; color: #aaaaaa;"></div>
-              <div style="display: flex; gap: 20px; justify-content: center;">
-                <button id="race-again-btn" class="menu-button" style="padding: 15px 30px; background: linear-gradient(45deg, #00ff00, #88ff88); color: #000; border: none; border-radius: 20px; cursor: pointer; font-weight: bold;">
-                  RACE AGAIN
+              <div id="crash-stats" style="font-size: 20px; margin-bottom: 35px; color: #ffffff; line-height: 1.8;"></div>
+              <div style="display: flex; gap: 25px; justify-content: center;">
+                <button id="retry-level-btn" class="menu-btn primary">
+                  🔄 TRY AGAIN
                 </button>
-                <button id="menu-btn" class="menu-button" style="padding: 15px 30px; background: #666; color: #fff; border: none; border-radius: 20px; cursor: pointer; font-weight: bold;">
-                  MAIN MENU
+                <button id="upgrade-after-crash-btn" class="menu-btn secondary">
+                  🔧 UPGRADE VEHICLE
+                </button>
+                <button id="crash-menu-btn" class="menu-btn secondary">
+                  🏠 MAIN MENU
                 </button>
               </div>
             </div>
 
-            <!-- Countdown -->
-            <div id="countdown" style="display: none; font-size: 120px; font-weight: bold; color: #ffff00; text-shadow: 0 0 30px #ffff00;">
-              3
+            <!-- Level Complete -->
+            <div id="level-complete" style="display: none; color: #90EE90; text-align: center;">
+              <div style="font-size: 56px; font-weight: bold; margin-bottom: 25px; text-shadow: 0 0 30px rgba(144,238,144,0.8);">
+                🏆 LEVEL COMPLETE!
+              </div>
+              <div id="completion-stats" style="font-size: 20px; margin-bottom: 35px; color: #ffffff; line-height: 1.8;"></div>
+              <div style="display: flex; gap: 25px; justify-content: center;">
+                <button id="next-level-btn" class="menu-btn primary" style="display: none;">
+                  ➡️ NEXT LEVEL
+                </button>
+                <button id="replay-level-btn" class="menu-btn secondary">
+                  🔄 REPLAY
+                </button>
+                <button id="complete-menu-btn" class="menu-btn secondary">
+                  🏠 MAIN MENU
+                </button>
+              </div>
             </div>
           </div>
 
           <style>
-            @keyframes glow {
-              0%, 100% { box-shadow: 0 0 20px #00ffff40; }
-              50% { box-shadow: 0 0 30px #00ffff80; }
-            }
-
-            .menu-button:hover {
-              transform: translateY(-2px) scale(1.05);
-              box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            }
-
-            #racer-canvas {
-              animation: glow 3s infinite alternate;
-            }
-
-            .track-button {
-              padding: 15px 25px;
-              margin: 5px;
-              border: 2px solid;
+            .menu-btn {
+              background: linear-gradient(135deg, rgba(34,139,34,0.4), rgba(144,238,144,0.2));
+              border: 2px solid #228B22;
+              color: #90EE90;
+              padding: 15px 30px;
               border-radius: 12px;
               cursor: pointer;
-              transition: all 0.3s;
-              background: rgba(0, 0, 0, 0.5);
-              color: white;
+              font-family: inherit;
               font-weight: bold;
-              min-width: 300px;
+              transition: all 0.3s ease;
+              backdrop-filter: blur(10px);
+              text-transform: uppercase;
+              letter-spacing: 1px;
+              box-shadow: 0 0 20px rgba(34,139,34,0.3);
             }
 
-            .track-button:hover {
-              transform: scale(1.05);
-              box-shadow: 0 0 20px;
+            .menu-btn.primary {
+              background: linear-gradient(135deg, rgba(255,215,0,0.4), rgba(255,165,0,0.2));
+              border-color: #FFD700;
+              color: #FFD700;
+              font-size: 18px;
+              box-shadow: 0 0 25px rgba(255,215,0,0.4);
             }
 
-            .track-button.locked {
-              opacity: 0.5;
+            .menu-btn:hover {
+              transform: translateY(-3px) scale(1.05);
+              box-shadow: 0 10px 30px rgba(34,139,34,0.5);
+              background: linear-gradient(135deg, rgba(144,238,144,0.6), rgba(34,139,34,0.3));
+              border-color: #90EE90;
+            }
+
+            .menu-btn.primary:hover {
+              box-shadow: 0 10px 35px rgba(255,215,0,0.6);
+              background: linear-gradient(135deg, rgba(255,215,0,0.6), rgba(255,165,0,0.4));
+              border-color: #FFA500;
+            }
+
+            .level-card {
+              background: linear-gradient(135deg, rgba(0,50,20,0.8), rgba(0,100,50,0.6));
+              border: 2px solid rgba(144,238,144,0.4);
+              border-radius: 15px;
+              padding: 25px;
+              cursor: pointer;
+              transition: all 0.4s ease;
+              backdrop-filter: blur(10px);
+              position: relative;
+              overflow: hidden;
+            }
+
+            .level-card:hover {
+              transform: translateY(-8px) scale(1.03);
+              border-color: #90EE90;
+              box-shadow: 0 20px 40px rgba(144,238,144,0.3);
+            }
+
+            .level-card.locked {
+              opacity: 0.6;
               cursor: not-allowed;
+              filter: grayscale(0.7);
             }
 
-            .track-button.locked:hover {
+            .level-card.locked:hover {
               transform: none;
               box-shadow: none;
+            }
+
+            .level-card.selected {
+              border-color: #FFD700;
+              background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,165,0,0.1));
+              box-shadow: 0 0 30px rgba(255,215,0,0.5);
+            }
+
+            .upgrade-card {
+              background: linear-gradient(135deg, rgba(0,50,20,0.8), rgba(0,80,40,0.6));
+              border: 2px solid rgba(144,238,144,0.4);
+              border-radius: 12px;
+              padding: 20px;
+              cursor: pointer;
+              transition: all 0.3s ease;
+              text-align: center;
+            }
+
+            .upgrade-card:hover {
+              transform: scale(1.05);
+              border-color: #90EE90;
+              box-shadow: 0 10px 20px rgba(144,238,144,0.3);
+            }
+
+            .upgrade-card.maxed {
+              border-color: #FFD700;
+              background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,165,0,0.1));
+            }
+
+            #physics-canvas {
+              transition: filter 0.3s ease;
+            }
+
+            #physics-canvas.crashed {
+              filter: sepia(50%) hue-rotate(-30deg) saturate(150%);
+            }
+
+            @keyframes bounce {
+              0%, 100% { transform: scale(1); }
+              50% { transform: scale(1.1); }
+            }
+
+            .coin-collected {
+              animation: bounce 0.3s ease;
             }
           </style>
         </div>
       `,
       onInit: (container) => {
         ReallyRacer._container = container;
-        ReallyRacer._canvas = container.querySelector('#racer-canvas');
+        ReallyRacer._canvas = container.querySelector('#physics-canvas');
         ReallyRacer._ctx = ReallyRacer._canvas.getContext('2d');
-        ReallyRacer._minimapCanvas = container.querySelector('#minimap-canvas');
-        ReallyRacer._minimapCtx = ReallyRacer._minimapCanvas.getContext('2d');
-
         ReallyRacer._init();
       },
       onDestroy: () => {
@@ -352,34 +534,27 @@ class ReallyRacer {
   }
 
   static _init() {
-    console.log('🏎️ Initializing Really Racer');
+    console.log('🏔️ Initializing Hill Racer Physics');
 
     // Load save data
     ReallyRacer._loadGameData();
 
-    // Initialize systems
+    // Setup event listeners
     ReallyRacer._setupEventListeners();
     ReallyRacer._setupMenuButtons();
-    ReallyRacer._populateTrackSelection();
-    ReallyRacer._generateTrack(0);
-    ReallyRacer._updateUI();
+
+    // Initialize systems
+    ReallyRacer._populateLevelSelection();
+    ReallyRacer._populateGarage();
+    ReallyRacer._generateTerrain(ReallyRacer._currentLevel);
 
     // Show main menu
     ReallyRacer._showScreen('main-menu');
 
-    // Set focus for keyboard input
-    ReallyRacer._container.tabIndex = 0;
-    ReallyRacer._container.focus();
-  }
+    // Start render loop
+    ReallyRacer._startRenderLoop();
 
-  static _cleanup() {
-    ReallyRacer._stopGame();
-    const container = ReallyRacer._container;
-
-    if (container) {
-      container.removeEventListener('keydown', ReallyRacer._onKeyDown);
-      container.removeEventListener('keyup', ReallyRacer._onKeyUp);
-    }
+    console.log('✅ Hill Racer Physics initialized successfully');
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -389,47 +564,53 @@ class ReallyRacer {
   static _setupEventListeners() {
     const container = ReallyRacer._container;
 
-    // Keyboard events
     container.addEventListener('keydown', ReallyRacer._onKeyDown.bind(ReallyRacer));
     container.addEventListener('keyup', ReallyRacer._onKeyUp.bind(ReallyRacer));
+
+    container.tabIndex = 0;
+    container.focus();
   }
 
   static _setupMenuButtons() {
-    const startBtn = ReallyRacer._container.querySelector('#start-race-btn');
-    const trackSelectBtn = ReallyRacer._container.querySelector('#track-select-btn');
-    const controlsBtn = ReallyRacer._container.querySelector('#controls-btn');
-    const backToMenuBtn = ReallyRacer._container.querySelector('#back-to-menu-btn');
-    const backFromControlsBtn = ReallyRacer._container.querySelector('#back-from-controls-btn');
-    const raceAgainBtn = ReallyRacer._container.querySelector('#race-again-btn');
-    const menuBtn = ReallyRacer._container.querySelector('#menu-btn');
+    const buttons = {
+      'start-adventure-btn': () => ReallyRacer._startLevel(),
+      'level-select-btn': () => ReallyRacer._showScreen('level-selection'),
+      'garage-workshop-btn': () => ReallyRacer._showScreen('garage-workshop'),
+      'help-controls-btn': () => ReallyRacer._showScreen('help-controls'),
+      'back-to-main-btn': () => ReallyRacer._showScreen('main-menu'),
+      'back-from-garage-btn': () => ReallyRacer._showScreen('main-menu'),
+      'back-from-help-btn': () => ReallyRacer._showScreen('main-menu'),
+      'retry-level-btn': () => ReallyRacer._startLevel(),
+      'crash-menu-btn': () => ReallyRacer._showScreen('main-menu'),
+      'replay-level-btn': () => ReallyRacer._startLevel(),
+      'complete-menu-btn': () => ReallyRacer._showScreen('main-menu'),
+      'upgrade-after-crash-btn': () => ReallyRacer._showScreen('garage-workshop'),
+      'next-level-btn': () => ReallyRacer._nextLevel()
+    };
 
-    if (startBtn) startBtn.addEventListener('click', () => ReallyRacer._startRace());
-    if (trackSelectBtn) trackSelectBtn.addEventListener('click', () => ReallyRacer._showScreen('track-selection'));
-    if (controlsBtn) controlsBtn.addEventListener('click', () => ReallyRacer._showScreen('controls-screen'));
-    if (backToMenuBtn) backToMenuBtn.addEventListener('click', () => ReallyRacer._showScreen('main-menu'));
-    if (backFromControlsBtn) backFromControlsBtn.addEventListener('click', () => ReallyRacer._showScreen('main-menu'));
-    if (raceAgainBtn) raceAgainBtn.addEventListener('click', () => ReallyRacer._startRace());
-    if (menuBtn) menuBtn.addEventListener('click', () => ReallyRacer._showScreen('main-menu'));
+    Object.entries(buttons).forEach(([id, handler]) => {
+      const element = ReallyRacer._container.querySelector(`#${id}`);
+      if (element) element.addEventListener('click', handler);
+    });
   }
 
   static _onKeyDown(e) {
     ReallyRacer._keys[e.code] = true;
 
-    // Prevent default for game keys
     if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(e.code)) {
       e.preventDefault();
     }
 
-    // Handle special keys
-    if (e.code === 'KeyP' && ReallyRacer._gameState === 'playing') {
-      ReallyRacer._pauseGame();
+    // Special keys
+    if (e.code === 'KeyR' && ReallyRacer._gameState === 'playing') {
+      ReallyRacer._resetVehicle();
     }
 
     if (e.code === 'Escape') {
-      if (ReallyRacer._gameState === 'playing' || ReallyRacer._gameState === 'paused') {
+      if (ReallyRacer._gameState === 'playing') {
         ReallyRacer._showScreen('main-menu');
-        ReallyRacer._stopGame();
         ReallyRacer._gameState = 'menu';
+        ReallyRacer._running = false;
       }
     }
   }
@@ -439,546 +620,456 @@ class ReallyRacer {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // TRACK GENERATION
+  // TERRAIN GENERATION
   // ═══════════════════════════════════════════════════════════════
 
-  static _generateTrack(trackIndex) {
-    const trackData = ReallyRacer._tracks[trackIndex];
-    ReallyRacer._track.checkpoints = [];
-    ReallyRacer._track.centerLine = [];
-    ReallyRacer._track.barriers = [];
-    ReallyRacer._track.powerups = [];
-    ReallyRacer._track.obstacles = [];
-    ReallyRacer._track.currentCheckpoint = 0;
+  static _generateTerrain(levelIndex) {
+    const level = ReallyRacer._levels[levelIndex];
+    ReallyRacer._terrain.points = [];
+    ReallyRacer._terrain.coins = [];
+    ReallyRacer._terrain.obstacles = [];
 
-    // Generate center line from curves
-    const curves = trackData.curves;
-    const totalPoints = 200;
+    // Generate height map using Perlin-like noise
+    const baseHeight = ReallyRacer._height - 150;
+    let currentHeight = baseHeight;
 
-    for (let i = 0; i < totalPoints; i++) {
-      const t = i / totalPoints;
-      const curveIndex = Math.floor(t * curves.length);
-      const nextCurveIndex = (curveIndex + 1) % curves.length;
-      const localT = (t * curves.length) - curveIndex;
+    for (let x = 0; x < level.length; x += ReallyRacer._terrain.segmentLength) {
+      // Create varied terrain
+      const noise = Math.sin(x * 0.01) * level.maxHeight * 0.3 +
+                   Math.sin(x * 0.005) * level.maxHeight * 0.5 +
+                   Math.sin(x * 0.002) * level.maxHeight * 0.2;
 
-      const curve1 = curves[curveIndex];
-      const curve2 = curves[nextCurveIndex];
+      const heightVariation = (Math.random() - 0.5) * level.roughness * 50;
+      currentHeight = baseHeight - noise + heightVariation;
 
-      // Interpolate between curves
-      const x = curve1.x + (curve2.x - curve1.x) * localT;
-      const y = curve1.y + (curve2.y - curve1.y) * localT;
+      // Clamp height to reasonable bounds
+      currentHeight = Math.max(100, Math.min(ReallyRacer._height - 50, currentHeight));
 
-      ReallyRacer._track.centerLine.push({ x, y });
-
-      // Add checkpoints every 20 points
-      if (i % 20 === 0) {
-        ReallyRacer._track.checkpoints.push({ x, y, passed: false });
-      }
+      ReallyRacer._terrain.points.push({
+        x: x,
+        y: currentHeight,
+        type: 'normal'
+      });
     }
 
-    // Generate barriers along the track
-    ReallyRacer._generateBarriers();
+    // Add special terrain features
+    ReallyRacer._addTerrainFeatures(level);
 
-    // Generate power-ups
-    ReallyRacer._generatePowerups();
+    // Generate coins
+    ReallyRacer._generateCoins(level);
 
-    // Generate obstacles for harder tracks
-    if (trackIndex > 0) {
-      ReallyRacer._generateObstacles(trackIndex);
-    }
+    // Generate obstacles
+    ReallyRacer._generateObstacles(level);
 
-    // Set player start position
-    if (ReallyRacer._track.centerLine.length > 0) {
-      const start = ReallyRacer._track.centerLine[0];
-      ReallyRacer._player.x = start.x;
-      ReallyRacer._player.y = start.y;
-      ReallyRacer._player.angle = 0;
-      ReallyRacer._player.speed = 0;
-      ReallyRacer._player.velocityX = 0;
-      ReallyRacer._player.velocityY = 0;
-    }
-
-    // Generate AI cars
-    ReallyRacer._generateAICars();
+    // Reset vehicle position
+    ReallyRacer._resetVehicle();
   }
 
-  static _generateBarriers() {
-    const trackWidth = ReallyRacer._track.width;
+  static _addTerrainFeatures(level) {
+    const points = ReallyRacer._terrain.points;
 
-    for (let i = 0; i < ReallyRacer._track.centerLine.length; i++) {
-      const point = ReallyRacer._track.centerLine[i];
-      const nextPoint = ReallyRacer._track.centerLine[(i + 1) % ReallyRacer._track.centerLine.length];
+    // Add jumps and special sections
+    for (let i = 0; i < points.length - 10; i += 50 + Math.floor(Math.random() * 100)) {
+      const featureType = Math.random();
 
-      // Calculate perpendicular direction
-      const dx = nextPoint.x - point.x;
-      const dy = nextPoint.y - point.y;
-      const length = Math.sqrt(dx * dx + dy * dy);
-
-      if (length > 0) {
-        const perpX = -dy / length;
-        const perpY = dx / length;
-
-        // Left barrier
-        ReallyRacer._track.barriers.push({
-          x: point.x + perpX * trackWidth / 2,
-          y: point.y + perpY * trackWidth / 2,
-          width: 10,
-          height: 10
-        });
-
-        // Right barrier
-        ReallyRacer._track.barriers.push({
-          x: point.x - perpX * trackWidth / 2,
-          y: point.y - perpY * trackWidth / 2,
-          width: 10,
-          height: 10
-        });
+      if (featureType < 0.3) {
+        // Add jump ramp
+        for (let j = 0; j < 8 && i + j < points.length; j++) {
+          points[i + j].y -= j * 8;
+          points[i + j].type = 'ramp';
+        }
+      } else if (featureType < 0.5) {
+        // Add steep hill
+        for (let j = 0; j < 15 && i + j < points.length; j++) {
+          const hillHeight = Math.sin((j / 15) * Math.PI) * 80;
+          points[i + j].y -= hillHeight;
+          points[i + j].type = 'hill';
+        }
       }
     }
   }
 
-  static _generatePowerups() {
-    const powerupTypes = ['nitro', 'speed', 'shield'];
+  static _generateCoins(level) {
+    for (let i = 0; i < level.coins; i++) {
+      const x = Math.random() * (level.length - 200) + 100;
+      const terrainY = ReallyRacer._getTerrainHeightAt(x);
 
-    for (let i = 0; i < 10; i++) {
-      const pointIndex = Math.floor(Math.random() * ReallyRacer._track.centerLine.length);
-      const point = ReallyRacer._track.centerLine[pointIndex];
-
-      ReallyRacer._track.powerups.push({
-        x: point.x + (Math.random() - 0.5) * 40,
-        y: point.y + (Math.random() - 0.5) * 40,
-        type: powerupTypes[Math.floor(Math.random() * powerupTypes.length)],
+      ReallyRacer._terrain.coins.push({
+        x: x,
+        y: terrainY - 30 - Math.random() * 50,
         collected: false,
         rotation: 0,
-        pulsePhase: Math.random() * Math.PI * 2
+        bob: Math.random() * Math.PI * 2
       });
     }
   }
 
-  static _generateObstacles(trackIndex) {
-    const obstacleCount = trackIndex * 5;
+  static _generateObstacles(level) {
+    for (let i = 0; i < level.obstacles; i++) {
+      const x = Math.random() * (level.length - 300) + 200;
+      const terrainY = ReallyRacer._getTerrainHeightAt(x);
 
-    for (let i = 0; i < obstacleCount; i++) {
-      const pointIndex = Math.floor(Math.random() * ReallyRacer._track.centerLine.length);
-      const point = ReallyRacer._track.centerLine[pointIndex];
+      const obstacleTypes = ['rock', 'tree', 'barrel'];
+      const type = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
 
-      ReallyRacer._track.obstacles.push({
-        x: point.x + (Math.random() - 0.5) * 60,
-        y: point.y + (Math.random() - 0.5) * 60,
-        width: 15,
-        height: 15,
-        type: 'oil'
+      ReallyRacer._terrain.obstacles.push({
+        x: x,
+        y: terrainY,
+        type: type,
+        width: 20 + Math.random() * 20,
+        height: 30 + Math.random() * 30
       });
     }
   }
 
-  static _generateAICars() {
-    ReallyRacer._aiCars = [];
-    const carCount = 3;
+  static _getTerrainHeightAt(x) {
+    const points = ReallyRacer._terrain.points;
+    const segmentLength = ReallyRacer._terrain.segmentLength;
 
-    for (let i = 0; i < carCount; i++) {
-      const startIndex = Math.floor((i + 1) * 10) % ReallyRacer._track.centerLine.length;
-      const startPoint = ReallyRacer._track.centerLine[startIndex];
+    const index = Math.floor(x / segmentLength);
+    if (index >= points.length - 1) return points[points.length - 1].y;
+    if (index < 0) return points[0].y;
 
-      ReallyRacer._aiCars.push({
-        x: startPoint.x,
-        y: startPoint.y,
-        angle: 0,
-        speed: 0,
-        targetIndex: startIndex,
-        checkpoint: 0,
-        lap: 1,
-        width: 18,
-        height: 35,
-        color: `hsl(${i * 120}, 70%, 60%)`,
-        maxSpeed: 200 + Math.random() * 50,
-        finished: false
-      });
-    }
+    // Linear interpolation between points
+    const t = (x % segmentLength) / segmentLength;
+    return points[index].y + (points[index + 1].y - points[index].y) * t;
   }
 
   // ═══════════════════════════════════════════════════════════════
   // GAME LOOP
   // ═══════════════════════════════════════════════════════════════
 
-  static _startRace() {
-    console.log('🏁 Starting race');
+  static _startLevel() {
+    console.log('🚀 Starting level');
 
-    ReallyRacer._gameState = 'countdown';
-    ReallyRacer._currentLap = 1;
-    ReallyRacer._lapTime = 0;
-    ReallyRacer._raceStartTime = 0;
-    ReallyRacer._raceFinished = false;
+    ReallyRacer._gameState = 'playing';
+    ReallyRacer._distance = 0;
+    ReallyRacer._time = 0;
+    ReallyRacer._fuel = 100;
+    ReallyRacer._coins = 0;
 
-    // Reset player
-    ReallyRacer._player.speed = 0;
-    ReallyRacer._player.velocityX = 0;
-    ReallyRacer._player.velocityY = 0;
-    ReallyRacer._player.nitro = ReallyRacer._player.maxNitro;
-    ReallyRacer._player.nitroActive = false;
+    // Reset vehicle
+    ReallyRacer._resetVehicle();
 
-    // Reset track progress
-    ReallyRacer._track.currentCheckpoint = 0;
-    ReallyRacer._track.checkpoints.forEach(cp => cp.passed = false);
-    ReallyRacer._track.powerups.forEach(pu => pu.collected = false);
+    // Generate terrain for current level
+    ReallyRacer._generateTerrain(ReallyRacer._currentLevel);
 
-    // Clear effects
-    ReallyRacer._particles = [];
-    ReallyRacer._explosions = [];
-    ReallyRacer._skidMarks = [];
+    // Clear particles
+    Object.keys(ReallyRacer._particles).forEach(key => {
+      ReallyRacer._particles[key] = [];
+    });
 
-    // Reset AI cars
-    ReallyRacer._generateAICars();
-
-    // Hide overlay and start countdown
+    // Hide menu, show HUD
     ReallyRacer._hideAllScreens();
-    ReallyRacer._startCountdown();
-  }
+    const gameHUD = ReallyRacer._container.querySelector('#game-hud');
+    if (gameHUD) gameHUD.style.display = 'block';
 
-  static _startCountdown() {
-    let count = 3;
-    const countdownEl = ReallyRacer._container.querySelector('#countdown');
-    const overlay = ReallyRacer._container.querySelector('#racer-overlay');
-
-    overlay.style.display = 'flex';
-    countdownEl.style.display = 'block';
-    countdownEl.textContent = count;
-
-    const countInterval = setInterval(() => {
-      count--;
-      if (count > 0) {
-        countdownEl.textContent = count;
-      } else if (count === 0) {
-        countdownEl.textContent = 'GO!';
-        countdownEl.style.color = '#00ff00';
-      } else {
-        clearInterval(countInterval);
-        overlay.style.display = 'none';
-        countdownEl.style.display = 'none';
-        countdownEl.style.color = '#ffff00';
-
-        // Start the actual race
-        ReallyRacer._gameState = 'playing';
-        ReallyRacer._raceStartTime = performance.now();
-        ReallyRacer._startGameLoop();
-      }
-    }, 1000);
-  }
-
-  static _startGameLoop() {
-    ReallyRacer._lastTime = performance.now();
     ReallyRacer._running = true;
-    ReallyRacer._gameLoop(ReallyRacer._lastTime);
+    ReallyRacer._container.focus();
   }
 
-  static _stopGame() {
-    ReallyRacer._running = false;
-    if (ReallyRacer._animationId) {
-      cancelAnimationFrame(ReallyRacer._animationId);
-      ReallyRacer._animationId = null;
-    }
+  static _startRenderLoop() {
+    const gameLoop = (timestamp) => {
+      ReallyRacer._animationId = requestAnimationFrame(gameLoop);
+
+      const deltaTime = Math.min((timestamp - ReallyRacer._lastTime) / 1000, 1/30);
+      ReallyRacer._lastTime = timestamp;
+
+      if (ReallyRacer._gameState === 'playing' && ReallyRacer._running) {
+        ReallyRacer._update(deltaTime);
+      }
+
+      ReallyRacer._render();
+    };
+
+    ReallyRacer._lastTime = performance.now();
+    gameLoop(ReallyRacer._lastTime);
   }
-
-  static _gameLoop(timestamp) {
-    if (!ReallyRacer._running) return;
-
-    const deltaTime = (timestamp - ReallyRacer._lastTime) / 1000;
-    ReallyRacer._lastTime = timestamp;
-
-    if (ReallyRacer._gameState === 'playing') {
-      ReallyRacer._update(deltaTime);
-    }
-
-    ReallyRacer._render();
-    ReallyRacer._renderMinimap();
-    ReallyRacer._animationId = requestAnimationFrame(ReallyRacer._gameLoop.bind(ReallyRacer));
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // UPDATE LOGIC
-  // ═══════════════════════════════════════════════════════════════
 
   static _update(deltaTime) {
-    // Update race time
-    ReallyRacer._lapTime += deltaTime;
+    // Update game time
+    ReallyRacer._time += deltaTime;
 
-    // Update player
-    ReallyRacer._updatePlayer(deltaTime);
-
-    // Update AI cars
-    ReallyRacer._updateAICars(deltaTime);
+    // Update vehicle physics
+    ReallyRacer._updateVehiclePhysics(deltaTime);
 
     // Update camera
     ReallyRacer._updateCamera(deltaTime);
 
-    // Update effects
+    // Update particles
     ReallyRacer._updateParticles(deltaTime);
-    ReallyRacer._updatePowerups(deltaTime);
+
+    // Update coins
+    ReallyRacer._updateCoins(deltaTime);
 
     // Check collisions
     ReallyRacer._checkCollisions();
 
-    // Check lap progress
-    ReallyRacer._checkLapProgress();
+    // Update distance
+    ReallyRacer._distance = Math.max(ReallyRacer._distance, ReallyRacer._vehicle.x - 100);
+
+    // Check game conditions
+    ReallyRacer._checkGameConditions();
 
     // Update UI
-    ReallyRacer._updateUI();
+    ReallyRacer._updateGameUI();
+
+    // Update screen effects
+    ReallyRacer._screenEffects.shake *= 0.9;
+    ReallyRacer._screenEffects.flash *= 0.9;
   }
 
-  static _updatePlayer(deltaTime) {
-    const player = ReallyRacer._player;
+  static _updateVehiclePhysics(deltaTime) {
+    const vehicle = ReallyRacer._vehicle;
+    const upgrades = ReallyRacer._saveData.upgrades;
 
-    // Handle input
-    let accelerating = false;
-    let braking = false;
-    let turningLeft = false;
-    let turningRight = false;
+    // Input handling
+    let throttle = 0;
+    let brake = 0;
+    let lean = 0;
 
-    if (ReallyRacer._keys['ArrowUp'] || ReallyRacer._keys['KeyW']) accelerating = true;
-    if (ReallyRacer._keys['ArrowDown'] || ReallyRacer._keys['KeyS']) braking = true;
-    if (ReallyRacer._keys['ArrowLeft'] || ReallyRacer._keys['KeyA']) turningLeft = true;
-    if (ReallyRacer._keys['ArrowRight'] || ReallyRacer._keys['KeyD']) turningRight = true;
+    if (ReallyRacer._keys['ArrowUp'] || ReallyRacer._keys['KeyW']) throttle = 1;
+    if (ReallyRacer._keys['ArrowDown'] || ReallyRacer._keys['KeyS']) brake = 1;
+    if (ReallyRacer._keys['ArrowLeft'] || ReallyRacer._keys['KeyA']) lean = -1;
+    if (ReallyRacer._keys['ArrowRight'] || ReallyRacer._keys['KeyD']) lean = 1;
+    if (ReallyRacer._keys['Space']) brake = 1;
 
-    // Nitro
-    if (ReallyRacer._keys['Space'] && player.nitro > 0) {
-      player.nitroActive = true;
-      player.nitro = Math.max(0, player.nitro - 50 * deltaTime);
-    } else {
-      player.nitroActive = false;
-      player.nitro = Math.min(player.maxNitro, player.nitro + 20 * deltaTime);
+    // Calculate forces
+    const enginePower = vehicle.enginePower * (1 + upgrades.engine * 0.3);
+    const maxSpeed = vehicle.maxSpeed * (1 + upgrades.tires * 0.2);
+    const grip = vehicle.frontWheel.grip * (1 + upgrades.tires * 0.15);
+
+    // Apply throttle
+    if (throttle > 0 && ReallyRacer._fuel > 0) {
+      const force = Math.cos(vehicle.angle) * enginePower * throttle * deltaTime;
+      vehicle.velocityX += force;
+      vehicle.velocityY += Math.sin(vehicle.angle) * enginePower * throttle * deltaTime;
+
+      // Consume fuel
+      ReallyRacer._fuel -= deltaTime * 5 * (1 - upgrades.fuel * 0.15);
+      ReallyRacer._fuel = Math.max(0, ReallyRacer._fuel);
+
+      // Create exhaust particles
+      ReallyRacer._createExhaustParticles();
     }
 
-    // Calculate acceleration
-    let acceleration = 0;
-    if (accelerating) {
-      acceleration = player.acceleration;
-      if (player.nitroActive) {
-        acceleration *= 2;
-        ReallyRacer._createNitroParticles();
-      }
-    } else if (braking) {
-      acceleration = -player.deceleration;
+    // Apply braking
+    if (brake > 0) {
+      vehicle.velocityX *= Math.pow(0.5, deltaTime * 5);
+      vehicle.velocityY *= Math.pow(0.5, deltaTime * 5);
     }
 
-    // Update speed
-    player.speed += acceleration * deltaTime;
-    player.speed = Math.max(-player.maxSpeed * 0.5, Math.min(player.maxSpeed, player.speed));
+    // Apply gravity
+    vehicle.velocityY += ReallyRacer._world.gravity * deltaTime;
 
-    // Apply friction
-    if (!accelerating && !braking) {
-      player.speed *= Math.pow(player.friction, deltaTime * 60);
+    // Air resistance
+    const airResistanceX = vehicle.velocityX * vehicle.velocityX * ReallyRacer._world.airDensity * Math.sign(vehicle.velocityX);
+    const airResistanceY = vehicle.velocityY * vehicle.velocityY * ReallyRacer._world.airDensity * Math.sign(vehicle.velocityY);
+
+    vehicle.velocityX -= airResistanceX * deltaTime;
+    vehicle.velocityY -= airResistanceY * deltaTime;
+
+    // Air control (when not on ground)
+    if (!vehicle.onGround && Math.abs(lean) > 0.1) {
+      vehicle.angularVelocity += lean * 3 * deltaTime;
     }
 
-    // Handle turning
-    if (Math.abs(player.speed) > 10) {
-      if (turningLeft) {
-        player.angle -= player.turnSpeed * deltaTime * (Math.abs(player.speed) / player.maxSpeed);
-        if (Math.abs(player.speed) > 150) ReallyRacer._createSkidMarks();
-      }
-      if (turningRight) {
-        player.angle += player.turnSpeed * deltaTime * (Math.abs(player.speed) / player.maxSpeed);
-        if (Math.abs(player.speed) > 150) ReallyRacer._createSkidMarks();
-      }
-    }
+    // Apply angular damping
+    vehicle.angularVelocity *= Math.pow(0.95, deltaTime * 60);
 
-    // Update velocity based on angle and speed
-    player.velocityX = Math.cos(player.angle) * player.speed;
-    player.velocityY = Math.sin(player.angle) * player.speed;
+    // Update angle
+    vehicle.angle += vehicle.angularVelocity * deltaTime;
 
     // Update position
-    player.x += player.velocityX * deltaTime;
-    player.y += player.velocityY * deltaTime;
+    vehicle.x += vehicle.velocityX * deltaTime;
+    vehicle.y += vehicle.velocityY * deltaTime;
 
-    // Keep player in bounds
-    player.x = Math.max(0, Math.min(ReallyRacer._width, player.x));
-    player.y = Math.max(0, Math.min(ReallyRacer._height, player.y));
+    // Calculate speed
+    vehicle.speed = Math.sqrt(vehicle.velocityX * vehicle.velocityX + vehicle.velocityY * vehicle.velocityY);
+
+    // Ground collision
+    ReallyRacer._checkGroundCollision();
+
+    // Update wheel positions
+    const wheelOffsetX = vehicle.wheelBase / 2;
+    vehicle.frontWheel.x = vehicle.x + Math.cos(vehicle.angle) * wheelOffsetX;
+    vehicle.frontWheel.y = vehicle.y + Math.sin(vehicle.angle) * wheelOffsetX;
+    vehicle.rearWheel.x = vehicle.x - Math.cos(vehicle.angle) * wheelOffsetX;
+    vehicle.rearWheel.y = vehicle.y - Math.sin(vehicle.angle) * wheelOffsetX;
+
+    // Wheel rotation
+    vehicle.frontWheel.rotation += vehicle.velocityX * deltaTime * 0.1;
+    vehicle.rearWheel.rotation += vehicle.velocityX * deltaTime * 0.1;
   }
 
-  static _updateAICars(deltaTime) {
-    for (const aiCar of ReallyRacer._aiCars) {
-      if (aiCar.finished) continue;
+  static _checkGroundCollision() {
+    const vehicle = ReallyRacer._vehicle;
+    const terrainY = ReallyRacer._getTerrainHeightAt(vehicle.x);
 
-      // Find target point on track
-      const targetPoint = ReallyRacer._track.centerLine[aiCar.targetIndex];
+    vehicle.onGround = false;
 
-      // Calculate direction to target
-      const dx = targetPoint.x - aiCar.x;
-      const dy = targetPoint.y - aiCar.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+    // Check if vehicle is touching ground
+    if (vehicle.y + vehicle.height / 2 >= terrainY) {
+      vehicle.y = terrainY - vehicle.height / 2;
 
-      // Update target if close enough
-      if (distance < 30) {
-        aiCar.targetIndex = (aiCar.targetIndex + 1) % ReallyRacer._track.centerLine.length;
+      // Ground reaction
+      if (vehicle.velocityY > 0) {
+        vehicle.velocityY = -vehicle.velocityY * 0.3; // Bounce
+        vehicle.onGround = true;
+
+        // Landing effects
+        if (vehicle.velocityY < -200) {
+          ReallyRacer._createLandingParticles();
+          ReallyRacer._addScreenShake(Math.abs(vehicle.velocityY) * 0.05);
+        }
       }
 
-      // Calculate desired angle
-      const targetAngle = Math.atan2(dy, dx);
+      // Ground friction
+      if (vehicle.onGround) {
+        vehicle.velocityX *= Math.pow(ReallyRacer._world.friction, 1/60);
 
-      // Smooth angle transition
-      let angleDiff = targetAngle - aiCar.angle;
-      while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
-      while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
-
-      aiCar.angle += angleDiff * 2 * deltaTime;
-
-      // Update speed (AI cars maintain consistent speed)
-      aiCar.speed = aiCar.maxSpeed * 0.8;
-
-      // Update position
-      aiCar.x += Math.cos(aiCar.angle) * aiCar.speed * deltaTime;
-      aiCar.y += Math.sin(aiCar.angle) * aiCar.speed * deltaTime;
-
-      // Keep AI cars in bounds
-      aiCar.x = Math.max(0, Math.min(ReallyRacer._width, aiCar.x));
-      aiCar.y = Math.max(0, Math.min(ReallyRacer._height, aiCar.y));
+        // Align with ground angle (simplified)
+        const groundAngle = ReallyRacer._getGroundAngleAt(vehicle.x);
+        vehicle.angle = vehicle.angle * 0.9 + groundAngle * 0.1;
+      }
     }
+  }
+
+  static _getGroundAngleAt(x) {
+    const segmentLength = ReallyRacer._terrain.segmentLength;
+    const y1 = ReallyRacer._getTerrainHeightAt(x - segmentLength);
+    const y2 = ReallyRacer._getTerrainHeightAt(x + segmentLength);
+    return Math.atan2(y2 - y1, segmentLength * 2);
   }
 
   static _updateCamera(deltaTime) {
-    const player = ReallyRacer._player;
+    const vehicle = ReallyRacer._vehicle;
 
-    // Camera follows player with some offset based on speed
-    const speedOffset = player.speed * 0.1;
-    ReallyRacer._camera.targetX = player.x - ReallyRacer._width / 2 + Math.cos(player.angle) * speedOffset;
-    ReallyRacer._camera.targetY = player.y - ReallyRacer._height / 2 + Math.sin(player.angle) * speedOffset;
+    // Camera follows vehicle with offset
+    ReallyRacer._camera.targetX = vehicle.x - ReallyRacer._width * 0.3;
+    ReallyRacer._camera.targetY = vehicle.y - ReallyRacer._height * 0.6;
 
     // Smooth camera movement
     ReallyRacer._camera.x += (ReallyRacer._camera.targetX - ReallyRacer._camera.x) * ReallyRacer._camera.smoothing;
     ReallyRacer._camera.y += (ReallyRacer._camera.targetY - ReallyRacer._camera.y) * ReallyRacer._camera.smoothing;
-  }
 
-  static _updateParticles(deltaTime) {
-    for (let i = ReallyRacer._particles.length - 1; i >= 0; i--) {
-      const particle = ReallyRacer._particles[i];
-
-      particle.x += particle.velocityX * deltaTime;
-      particle.y += particle.velocityY * deltaTime;
-      particle.life -= deltaTime;
-      particle.size *= 0.98;
-
-      if (particle.life <= 0 || particle.size < 0.5) {
-        ReallyRacer._particles.splice(i, 1);
-      }
-    }
-  }
-
-  static _updatePowerups(deltaTime) {
-    for (const powerup of ReallyRacer._track.powerups) {
-      if (!powerup.collected) {
-        powerup.rotation += 2 * deltaTime;
-        powerup.pulsePhase += 3 * deltaTime;
-      }
+    // Camera shake
+    if (ReallyRacer._screenEffects.shake > 0) {
+      ReallyRacer._camera.x += (Math.random() - 0.5) * ReallyRacer._screenEffects.shake;
+      ReallyRacer._camera.y += (Math.random() - 0.5) * ReallyRacer._screenEffects.shake;
     }
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // COLLISION AND GAME LOGIC
+  // PARTICLE SYSTEMS
+  // ═══════════════════════════════════════════════════════════════
+
+  static _updateParticles(deltaTime) {
+    Object.keys(ReallyRacer._particles).forEach(type => {
+      for (let i = ReallyRacer._particles[type].length - 1; i >= 0; i--) {
+        const particle = ReallyRacer._particles[type][i];
+
+        // Update particle
+        particle.x += particle.velocityX * deltaTime;
+        particle.y += particle.velocityY * deltaTime;
+        particle.life -= deltaTime;
+        particle.size *= 0.98;
+
+        // Apply gravity to some particles
+        if (type === 'dust' || type === 'debris') {
+          particle.velocityY += ReallyRacer._world.gravity * deltaTime * 0.3;
+        }
+
+        // Remove dead particles
+        if (particle.life <= 0 || particle.size < 0.5) {
+          ReallyRacer._particles[type].splice(i, 1);
+        }
+      }
+    });
+  }
+
+  static _createExhaustParticles() {
+    const vehicle = ReallyRacer._vehicle;
+    const backX = vehicle.x - Math.cos(vehicle.angle) * vehicle.width / 2;
+    const backY = vehicle.y - Math.sin(vehicle.angle) * vehicle.width / 2;
+
+    for (let i = 0; i < 2; i++) {
+      ReallyRacer._particles.exhaust.push({
+        x: backX + (Math.random() - 0.5) * 10,
+        y: backY + (Math.random() - 0.5) * 10,
+        velocityX: -Math.cos(vehicle.angle) * 50 + (Math.random() - 0.5) * 30,
+        velocityY: -Math.sin(vehicle.angle) * 50 + (Math.random() - 0.5) * 30,
+        size: 3 + Math.random() * 4,
+        life: 0.5 + Math.random() * 0.3,
+        color: '#666666'
+      });
+    }
+  }
+
+  static _createLandingParticles() {
+    const vehicle = ReallyRacer._vehicle;
+
+    for (let i = 0; i < 8; i++) {
+      ReallyRacer._particles.dust.push({
+        x: vehicle.x + (Math.random() - 0.5) * vehicle.width,
+        y: vehicle.y + vehicle.height / 2,
+        velocityX: (Math.random() - 0.5) * 100,
+        velocityY: -Math.random() * 50,
+        size: 2 + Math.random() * 3,
+        life: 1.0,
+        color: '#8B4513'
+      });
+    }
+  }
+
+  static _createCrashParticles() {
+    const vehicle = ReallyRacer._vehicle;
+
+    for (let i = 0; i < 12; i++) {
+      ReallyRacer._particles.debris.push({
+        x: vehicle.x,
+        y: vehicle.y,
+        velocityX: (Math.random() - 0.5) * 200,
+        velocityY: -Math.random() * 100,
+        size: 3 + Math.random() * 5,
+        life: 1.5,
+        color: '#FF6347'
+      });
+    }
+  }
+
+  static _updateCoins(deltaTime) {
+    ReallyRacer._terrain.coins.forEach(coin => {
+      if (!coin.collected) {
+        coin.rotation += deltaTime * 5;
+        coin.bob += deltaTime * 3;
+      }
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // COLLISION DETECTION
   // ═══════════════════════════════════════════════════════════════
 
   static _checkCollisions() {
-    const player = ReallyRacer._player;
+    const vehicle = ReallyRacer._vehicle;
 
-    // Check powerup collisions
-    for (const powerup of ReallyRacer._track.powerups) {
-      if (!powerup.collected && ReallyRacer._checkCircleCollision(player, powerup, 20)) {
-        powerup.collected = true;
-        ReallyRacer._collectPowerup(powerup.type);
+    // Check coin collisions
+    ReallyRacer._terrain.coins.forEach(coin => {
+      if (!coin.collected && ReallyRacer._checkCircleCollision(vehicle, coin, 25)) {
+        coin.collected = true;
+        ReallyRacer._coins++;
+        ReallyRacer._totalCoins++;
+        ReallyRacer._createCoinParticles(coin.x, coin.y);
       }
-    }
-
-    // Check barrier collisions
-    for (const barrier of ReallyRacer._track.barriers) {
-      if (ReallyRacer._checkRectCollision(player, barrier)) {
-        // Bounce off barriers
-        player.speed *= -0.3;
-        player.x -= player.velocityX * 0.1;
-        player.y -= player.velocityY * 0.1;
-        ReallyRacer._createCrashParticles();
-      }
-    }
+    });
 
     // Check obstacle collisions
-    for (const obstacle of ReallyRacer._track.obstacles) {
-      if (ReallyRacer._checkRectCollision(player, obstacle)) {
-        if (obstacle.type === 'oil') {
-          // Oil slick - lose control temporarily
-          player.angle += (Math.random() - 0.5) * 0.5;
-          player.speed *= 0.7;
-        }
+    ReallyRacer._terrain.obstacles.forEach(obstacle => {
+      if (ReallyRacer._checkRectCollision(vehicle, obstacle)) {
+        ReallyRacer._crashVehicle();
       }
-    }
-  }
-
-  static _checkLapProgress() {
-    const player = ReallyRacer._player;
-    const checkpoints = ReallyRacer._track.checkpoints;
-
-    // Check checkpoint progression
-    for (let i = 0; i < checkpoints.length; i++) {
-      const checkpoint = checkpoints[i];
-
-      if (!checkpoint.passed && ReallyRacer._checkCircleCollision(player, checkpoint, 40)) {
-        if (i === ReallyRacer._track.currentCheckpoint) {
-          checkpoint.passed = true;
-          ReallyRacer._track.currentCheckpoint = (ReallyRacer._track.currentCheckpoint + 1) % checkpoints.length;
-
-          // Check if lap completed
-          if (ReallyRacer._track.currentCheckpoint === 0 && ReallyRacer._currentLap > 0) {
-            ReallyRacer._completeLap();
-          }
-        }
-      }
-    }
-  }
-
-  static _completeLap() {
-    const lapTime = ReallyRacer._lapTime;
-
-    if (lapTime < ReallyRacer._bestLapTime) {
-      ReallyRacer._bestLapTime = lapTime;
-    }
-
-    ReallyRacer._currentLap++;
-    ReallyRacer._lapTime = 0;
-
-    // Reset checkpoints
-    ReallyRacer._track.checkpoints.forEach(cp => cp.passed = false);
-
-    if (ReallyRacer._currentLap > ReallyRacer._totalLaps) {
-      ReallyRacer._finishRace();
-    }
-  }
-
-  static _finishRace() {
-    ReallyRacer._gameState = 'finished';
-    ReallyRacer._raceFinished = true;
-    ReallyRacer._stopGame();
-
-    // Update save data
-    if (ReallyRacer._bestLapTime < ReallyRacer._saveData.bestTimes[ReallyRacer._currentTrack]) {
-      ReallyRacer._saveData.bestTimes[ReallyRacer._currentTrack] = ReallyRacer._bestLapTime;
-    }
-
-    ReallyRacer._saveData.totalRaces++;
-
-    // Unlock next track
-    if (ReallyRacer._currentTrack < ReallyRacer._tracks.length - 1) {
-      ReallyRacer._saveData.unlockedTracks[ReallyRacer._currentTrack + 1] = true;
-    }
-
-    ReallyRacer._saveGameData();
-    ReallyRacer._showRaceResults();
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // UTILITY FUNCTIONS
-  // ═══════════════════════════════════════════════════════════════
-
-  static _checkRectCollision(rect1, rect2) {
-    return rect1.x < rect2.x + rect2.width &&
-           rect1.x + rect1.width > rect2.x &&
-           rect1.y < rect2.y + rect2.height &&
-           rect1.y + rect1.height > rect2.y;
+    });
   }
 
   static _checkCircleCollision(obj1, obj2, radius) {
@@ -988,86 +1079,88 @@ class ReallyRacer {
     return distance < radius;
   }
 
-  static _collectPowerup(type) {
-    switch (type) {
-      case 'nitro':
-        ReallyRacer._player.nitro = Math.min(ReallyRacer._player.maxNitro, ReallyRacer._player.nitro + 30);
-        break;
-      case 'speed':
-        ReallyRacer._player.speed += 50;
-        break;
-      case 'shield':
-        // Temporary invincibility
-        break;
-    }
-
-    ReallyRacer._createCollectParticles();
+  static _checkRectCollision(obj1, obj2) {
+    return obj1.x - obj1.width/2 < obj2.x + obj2.width/2 &&
+           obj1.x + obj1.width/2 > obj2.x - obj2.width/2 &&
+           obj1.y - obj1.height/2 < obj2.y + obj2.height/2 &&
+           obj1.y + obj1.height/2 > obj2.y - obj2.height/2;
   }
 
-  static _createNitroParticles() {
-    const player = ReallyRacer._player;
-    const count = 3;
-
-    for (let i = 0; i < count; i++) {
-      ReallyRacer._particles.push({
-        x: player.x - Math.cos(player.angle) * 25,
-        y: player.y - Math.sin(player.angle) * 25,
-        velocityX: (Math.random() - 0.5) * 100 - Math.cos(player.angle) * 50,
-        velocityY: (Math.random() - 0.5) * 100 - Math.sin(player.angle) * 50,
-        size: 4 + Math.random() * 6,
-        life: 0.5,
-        color: '#00ffff'
-      });
-    }
-  }
-
-  static _createSkidMarks() {
-    const player = ReallyRacer._player;
-
-    ReallyRacer._skidMarks.push({
-      x: player.x,
-      y: player.y,
-      life: 3.0
-    });
-
-    // Limit skid marks
-    if (ReallyRacer._skidMarks.length > 100) {
-      ReallyRacer._skidMarks.shift();
-    }
-  }
-
-  static _createCrashParticles() {
-    const player = ReallyRacer._player;
-    const count = 8;
-
-    for (let i = 0; i < count; i++) {
-      ReallyRacer._particles.push({
-        x: player.x,
-        y: player.y,
-        velocityX: (Math.random() - 0.5) * 200,
-        velocityY: (Math.random() - 0.5) * 200,
-        size: 3 + Math.random() * 5,
-        life: 1.0,
-        color: '#ff4400'
-      });
-    }
-  }
-
-  static _createCollectParticles() {
-    const player = ReallyRacer._player;
-    const count = 6;
-
-    for (let i = 0; i < count; i++) {
-      ReallyRacer._particles.push({
-        x: player.x,
-        y: player.y,
-        velocityX: (Math.random() - 0.5) * 150,
-        velocityY: (Math.random() - 0.5) * 150,
-        size: 2 + Math.random() * 4,
+  static _createCoinParticles(x, y) {
+    for (let i = 0; i < 6; i++) {
+      ReallyRacer._particles.coins.push({
+        x: x,
+        y: y,
+        velocityX: (Math.random() - 0.5) * 60,
+        velocityY: -Math.random() * 40,
+        size: 2 + Math.random() * 2,
         life: 0.8,
-        color: '#ffff00'
+        color: '#FFD700'
       });
     }
+  }
+
+  static _checkGameConditions() {
+    const vehicle = ReallyRacer._vehicle;
+
+    // Check if crashed (flipped over or high speed collision)
+    if ((Math.abs(vehicle.angle) > Math.PI * 0.6 && vehicle.onGround) ||
+        (vehicle.speed > 200 && !vehicle.onGround && vehicle.y > ReallyRacer._height)) {
+      ReallyRacer._crashVehicle();
+    }
+
+    // Check if out of fuel
+    if (ReallyRacer._fuel <= 0 && vehicle.speed < 5) {
+      ReallyRacer._gameOver('Out of fuel!');
+    }
+
+    // Check if reached end of level
+    const level = ReallyRacer._levels[ReallyRacer._currentLevel];
+    if (ReallyRacer._distance >= level.length - 100) {
+      ReallyRacer._levelComplete();
+    }
+  }
+
+  static _crashVehicle() {
+    if (ReallyRacer._gameState !== 'playing') return;
+
+    ReallyRacer._createCrashParticles();
+    ReallyRacer._addScreenShake(20);
+    ReallyRacer._gameOver('Vehicle crashed!');
+  }
+
+  static _gameOver(reason) {
+    ReallyRacer._gameState = 'crashed';
+    ReallyRacer._running = false;
+
+    // Update save data
+    ReallyRacer._saveData.totalDistance += ReallyRacer._distance;
+    ReallyRacer._saveData.totalCoins += ReallyRacer._coins;
+    ReallyRacer._saveData.crashes++;
+
+    if (ReallyRacer._distance > ReallyRacer._saveData.bestDistances[ReallyRacer._currentLevel]) {
+      ReallyRacer._saveData.bestDistances[ReallyRacer._currentLevel] = ReallyRacer._distance;
+    }
+
+    ReallyRacer._saveGameData();
+    ReallyRacer._showGameOverScreen(reason);
+  }
+
+  static _levelComplete() {
+    ReallyRacer._gameState = 'finished';
+    ReallyRacer._running = false;
+
+    // Update save data
+    ReallyRacer._saveData.totalDistance += ReallyRacer._distance;
+    ReallyRacer._saveData.totalCoins += ReallyRacer._coins;
+
+    // Unlock next level
+    if (ReallyRacer._currentLevel < ReallyRacer._levels.length - 1) {
+      ReallyRacer._saveData.unlockedLevels[ReallyRacer._currentLevel + 1] = true;
+    }
+
+    ReallyRacer._saveGameData();
+    ReallyRacer._showLevelCompleteScreen();
   }
 
   // ═══════════════════════════════════════════════════════════════
@@ -1076,388 +1169,490 @@ class ReallyRacer {
 
   static _render() {
     const ctx = ReallyRacer._ctx;
+    const camera = ReallyRacer._camera;
+
+    // Clear canvas with sky gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, ReallyRacer._height);
+    gradient.addColorStop(0, '#87CEEB');
+    gradient.addColorStop(1, '#90EE90');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, ReallyRacer._width, ReallyRacer._height);
 
     ctx.save();
+    ctx.translate(-camera.x, -camera.y);
 
-    // Apply camera transformation
-    ctx.translate(-ReallyRacer._camera.x, -ReallyRacer._camera.y);
+    // Render background elements
+    ReallyRacer._renderBackground(ctx);
 
-    // Clear canvas
-    ctx.fillStyle = '#001122';
-    ctx.fillRect(ReallyRacer._camera.x, ReallyRacer._camera.y, ReallyRacer._width, ReallyRacer._height);
-
-    // Render track
-    ReallyRacer._renderTrack(ctx);
+    // Render terrain
+    ReallyRacer._renderTerrain(ctx);
 
     // Render game objects
-    ReallyRacer._renderSkidMarks(ctx);
-    ReallyRacer._renderPowerups(ctx);
     ReallyRacer._renderObstacles(ctx);
-    ReallyRacer._renderAICars(ctx);
-    ReallyRacer._renderPlayer(ctx);
+    ReallyRacer._renderCoins(ctx);
+
+    // Render particles
     ReallyRacer._renderParticles(ctx);
-    ReallyRacer._renderCheckpoints(ctx);
+
+    // Render vehicle
+    ReallyRacer._renderVehicle(ctx);
 
     ctx.restore();
+
+    // Render UI effects
+    ReallyRacer._renderScreenEffects(ctx);
   }
 
-  static _renderTrack(ctx) {
-    const centerLine = ReallyRacer._track.centerLine;
+  static _renderBackground(ctx) {
+    const camera = ReallyRacer._camera;
 
-    if (centerLine.length === 0) return;
+    // Render distant mountains/hills for parallax effect
+    ctx.fillStyle = 'rgba(34, 139, 34, 0.3)';
+    for (let x = Math.floor(camera.x / 100) * 100; x < camera.x + ReallyRacer._width; x += 100) {
+      const height = 50 + Math.sin(x * 0.002) * 30;
+      ctx.fillRect(x, ReallyRacer._height - height - camera.y, 100, height);
+    }
+  }
 
-    // Draw track surface
-    ctx.strokeStyle = '#333333';
-    ctx.lineWidth = ReallyRacer._track.width;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+  static _renderTerrain(ctx) {
+    const points = ReallyRacer._terrain.points;
 
+    // Render terrain fill
+    ctx.fillStyle = '#228B22';
     ctx.beginPath();
-    ctx.moveTo(centerLine[0].x, centerLine[0].y);
-    for (let i = 1; i < centerLine.length; i++) {
-      ctx.lineTo(centerLine[i].x, centerLine[i].y);
+    ctx.moveTo(points[0].x, points[0].y);
+
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
     }
+
+    ctx.lineTo(points[points.length - 1].x, ReallyRacer._height + 100);
+    ctx.lineTo(points[0].x, ReallyRacer._height + 100);
     ctx.closePath();
-    ctx.stroke();
+    ctx.fill();
 
-    // Draw center line
-    ctx.strokeStyle = '#666666';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([10, 10]);
-
+    // Render terrain surface line
+    ctx.strokeStyle = '#006400';
+    ctx.lineWidth = 3;
     ctx.beginPath();
-    ctx.moveTo(centerLine[0].x, centerLine[0].y);
-    for (let i = 1; i < centerLine.length; i++) {
-      ctx.lineTo(centerLine[i].x, centerLine[i].y);
+    ctx.moveTo(points[0].x, points[0].y);
+
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
     }
-    ctx.closePath();
     ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Draw barriers
-    ctx.fillStyle = '#ff0000';
-    for (const barrier of ReallyRacer._track.barriers) {
-      ctx.fillRect(barrier.x - 2, barrier.y - 2, 4, 4);
-    }
-  }
-
-  static _renderPlayer(ctx) {
-    const player = ReallyRacer._player;
-
-    ctx.save();
-    ctx.translate(player.x, player.y);
-    ctx.rotate(player.angle);
-
-    // Car body
-    ctx.fillStyle = player.nitroActive ? '#00ffff' : '#0088ff';
-    ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
-
-    // Car details
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(-player.width/2 + 3, -player.height/2 + 5, player.width - 6, 4);
-    ctx.fillRect(-player.width/2 + 3, player.height/2 - 9, player.width - 6, 4);
-
-    // Wheels
-    ctx.fillStyle = '#222222';
-    ctx.fillRect(-player.width/2 - 2, -player.height/2 + 8, 4, 8);
-    ctx.fillRect(player.width/2 - 2, -player.height/2 + 8, 4, 8);
-    ctx.fillRect(-player.width/2 - 2, player.height/2 - 16, 4, 8);
-    ctx.fillRect(player.width/2 - 2, player.height/2 - 16, 4, 8);
-
-    ctx.restore();
-  }
-
-  static _renderAICars(ctx) {
-    for (const aiCar of ReallyRacer._aiCars) {
-      if (aiCar.finished) continue;
-
-      ctx.save();
-      ctx.translate(aiCar.x, aiCar.y);
-      ctx.rotate(aiCar.angle);
-
-      // Car body
-      ctx.fillStyle = aiCar.color;
-      ctx.fillRect(-aiCar.width/2, -aiCar.height/2, aiCar.width, aiCar.height);
-
-      // Car details
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(-aiCar.width/2 + 2, -aiCar.height/2 + 4, aiCar.width - 4, 3);
-      ctx.fillRect(-aiCar.width/2 + 2, aiCar.height/2 - 7, aiCar.width - 4, 3);
-
-      ctx.restore();
-    }
-  }
-
-  static _renderPowerups(ctx) {
-    for (const powerup of ReallyRacer._track.powerups) {
-      if (powerup.collected) continue;
-
-      ctx.save();
-      ctx.translate(powerup.x, powerup.y);
-      ctx.rotate(powerup.rotation);
-
-      const pulse = 0.8 + 0.2 * Math.sin(powerup.pulsePhase);
-      ctx.scale(pulse, pulse);
-
-      // Draw powerup based on type
-      switch (powerup.type) {
-        case 'nitro':
-          ctx.fillStyle = '#00ffff';
-          ctx.beginPath();
-          ctx.arc(0, 0, 8, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = '#ffffff';
-          ctx.fillText('N', -3, 3);
-          break;
-        case 'speed':
-          ctx.fillStyle = '#ffff00';
-          ctx.fillRect(-6, -6, 12, 12);
-          ctx.fillStyle = '#000000';
-          ctx.fillText('S', -3, 3);
-          break;
-        case 'shield':
-          ctx.fillStyle = '#00ff00';
-          ctx.beginPath();
-          ctx.arc(0, 0, 8, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.fillStyle = '#ffffff';
-          ctx.fillText('⚡', -4, 4);
-          break;
-      }
-
-      ctx.restore();
-    }
   }
 
   static _renderObstacles(ctx) {
-    for (const obstacle of ReallyRacer._track.obstacles) {
-      ctx.fillStyle = '#444444';
-      ctx.fillRect(obstacle.x - obstacle.width/2, obstacle.y - obstacle.height/2, obstacle.width, obstacle.height);
-    }
+    ReallyRacer._terrain.obstacles.forEach(obstacle => {
+      ctx.fillStyle = ReallyRacer._getObstacleColor(obstacle.type);
+
+      if (obstacle.type === 'rock') {
+        // Draw rock as irregular shape
+        ctx.beginPath();
+        ctx.ellipse(obstacle.x, obstacle.y - obstacle.height/2, obstacle.width/2, obstacle.height/2, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (obstacle.type === 'tree') {
+        // Draw tree trunk
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(obstacle.x - 5, obstacle.y - obstacle.height, 10, obstacle.height);
+
+        // Draw tree foliage
+        ctx.fillStyle = '#228B22';
+        ctx.beginPath();
+        ctx.arc(obstacle.x, obstacle.y - obstacle.height + 10, obstacle.width/2, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // Draw barrel or box
+        ctx.fillRect(obstacle.x - obstacle.width/2, obstacle.y - obstacle.height, obstacle.width, obstacle.height);
+      }
+    });
+  }
+
+  static _renderCoins(ctx) {
+    ReallyRacer._terrain.coins.forEach(coin => {
+      if (coin.collected) return;
+
+      ctx.save();
+      ctx.translate(coin.x, coin.y + Math.sin(coin.bob) * 5);
+      ctx.rotate(coin.rotation);
+
+      // Coin glow
+      const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 15);
+      gradient.addColorStop(0, '#FFD700');
+      gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(0, 0, 15, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Coin body
+      ctx.fillStyle = '#FFD700';
+      ctx.beginPath();
+      ctx.arc(0, 0, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Coin highlight
+      ctx.fillStyle = '#FFFF99';
+      ctx.beginPath();
+      ctx.arc(-2, -2, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    });
   }
 
   static _renderParticles(ctx) {
-    for (const particle of ReallyRacer._particles) {
-      const alpha = particle.life / 1.0;
-      ctx.fillStyle = particle.color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
-      ctx.fillRect(particle.x - particle.size/2, particle.y - particle.size/2, particle.size, particle.size);
-    }
+    Object.keys(ReallyRacer._particles).forEach(type => {
+      ReallyRacer._particles[type].forEach(particle => {
+        const alpha = particle.life / 1.0;
+        ctx.fillStyle = particle.color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+        ctx.fillRect(particle.x - particle.size/2, particle.y - particle.size/2, particle.size, particle.size);
+      });
+    });
   }
 
-  static _renderSkidMarks(ctx) {
-    ctx.strokeStyle = '#222222';
-    ctx.lineWidth = 2;
+  static _renderVehicle(ctx) {
+    const vehicle = ReallyRacer._vehicle;
 
-    for (let i = 1; i < ReallyRacer._skidMarks.length; i++) {
-      const mark1 = ReallyRacer._skidMarks[i - 1];
-      const mark2 = ReallyRacer._skidMarks[i];
+    ctx.save();
+    ctx.translate(vehicle.x, vehicle.y);
+    ctx.rotate(vehicle.angle);
 
-      const alpha = mark2.life / 3.0;
-      ctx.globalAlpha = alpha;
-
-      ctx.beginPath();
-      ctx.moveTo(mark1.x, mark1.y);
-      ctx.lineTo(mark2.x, mark2.y);
-      ctx.stroke();
+    // Vehicle shadow (if airborne)
+    if (!vehicle.onGround) {
+      const shadowY = ReallyRacer._getTerrainHeightAt(vehicle.x) - vehicle.y + 20;
+      ctx.save();
+      ctx.translate(0, shadowY);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.fillRect(-vehicle.width/2, -vehicle.height/2, vehicle.width, vehicle.height);
+      ctx.restore();
     }
 
-    ctx.globalAlpha = 1;
+    // Vehicle body
+    ctx.fillStyle = '#FF4500';
+    ctx.fillRect(-vehicle.width/2, -vehicle.height/2, vehicle.width, vehicle.height);
+
+    // Vehicle details
+    ctx.fillStyle = '#FF6347';
+    ctx.fillRect(-vehicle.width/2 + 5, -vehicle.height/2 + 5, vehicle.width - 10, vehicle.height - 10);
+
+    // Windshield
+    ctx.fillStyle = '#87CEEB';
+    ctx.fillRect(vehicle.width/4, -vehicle.height/2 + 8, vehicle.width/4, vehicle.height/3);
+
+    // Wheels
+    ctx.fillStyle = '#2F4F4F';
+
+    // Front wheel
+    ctx.save();
+    ctx.translate(vehicle.width/4, vehicle.height/2 - 5);
+    ctx.rotate(vehicle.frontWheel.rotation);
+    ctx.fillRect(-8, -8, 16, 16);
+    ctx.restore();
+
+    // Rear wheel
+    ctx.save();
+    ctx.translate(-vehicle.width/4, vehicle.height/2 - 5);
+    ctx.rotate(vehicle.rearWheel.rotation);
+    ctx.fillRect(-8, -8, 16, 16);
+    ctx.restore();
+
+    ctx.restore();
   }
 
-  static _renderCheckpoints(ctx) {
-    for (let i = 0; i < ReallyRacer._track.checkpoints.length; i++) {
-      const checkpoint = ReallyRacer._track.checkpoints[i];
-
-      if (i === ReallyRacer._track.currentCheckpoint) {
-        // Current checkpoint
-        ctx.strokeStyle = '#00ff00';
-        ctx.lineWidth = 3;
-        ctx.setLineDash([5, 5]);
-        ctx.beginPath();
-        ctx.arc(checkpoint.x, checkpoint.y, 30, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.setLineDash([]);
-      } else if (checkpoint.passed) {
-        // Passed checkpoint
-        ctx.fillStyle = '#006600';
-        ctx.beginPath();
-        ctx.arc(checkpoint.x, checkpoint.y, 15, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-  }
-
-  static _renderMinimap() {
-    const ctx = ReallyRacer._minimapCtx;
-    const scale = 0.1;
-
-    // Clear minimap
-    ctx.fillStyle = '#000033';
-    ctx.fillRect(0, 0, 146, 146);
-
-    // Draw track on minimap
-    ctx.strokeStyle = '#666666';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-
-    const centerLine = ReallyRacer._track.centerLine;
-    if (centerLine.length > 0) {
-      ctx.moveTo(centerLine[0].x * scale, centerLine[0].y * scale);
-      for (let i = 1; i < centerLine.length; i++) {
-        ctx.lineTo(centerLine[i].x * scale, centerLine[i].y * scale);
-      }
-      ctx.closePath();
-      ctx.stroke();
+  static _renderScreenEffects(ctx) {
+    // Screen flash for crashes
+    if (ReallyRacer._screenEffects.flash > 0) {
+      ctx.fillStyle = `rgba(255, 0, 0, ${ReallyRacer._screenEffects.flash})`;
+      ctx.fillRect(0, 0, ReallyRacer._width, ReallyRacer._height);
     }
 
-    // Draw player on minimap
-    ctx.fillStyle = '#00ffff';
-    ctx.beginPath();
-    ctx.arc(ReallyRacer._player.x * scale, ReallyRacer._player.y * scale, 3, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Draw AI cars on minimap
-    for (const aiCar of ReallyRacer._aiCars) {
-      ctx.fillStyle = aiCar.color;
-      ctx.beginPath();
-      ctx.arc(aiCar.x * scale, aiCar.y * scale, 2, 0, Math.PI * 2);
-      ctx.fill();
+    // Low fuel warning
+    if (ReallyRacer._fuel < 20 && ReallyRacer._gameState === 'playing') {
+      const flash = Math.sin(Date.now() * 0.01) * 0.3 + 0.3;
+      ctx.fillStyle = `rgba(255, 0, 0, ${flash})`;
+      ctx.fillRect(0, 0, ReallyRacer._width, 10);
+      ctx.fillRect(0, ReallyRacer._height - 10, ReallyRacer._width, 10);
     }
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // UI AND MENU MANAGEMENT
+  // UI FUNCTIONS
   // ═══════════════════════════════════════════════════════════════
 
-  static _updateUI() {
+  static _updateGameUI() {
     // Update speed display
-    const speedMph = Math.abs(ReallyRacer._player.speed) * 0.5; // Convert to "mph"
-    const speedEl = ReallyRacer._container.querySelector('#racer-speed');
-    if (speedEl) speedEl.textContent = `SPEED: ${Math.floor(speedMph)} mph`;
-
-    // Update lap display
-    const lapEl = ReallyRacer._container.querySelector('#racer-lap');
-    if (lapEl) lapEl.textContent = `LAP: ${ReallyRacer._currentLap} / ${ReallyRacer._totalLaps}`;
-
-    // Update position (simplified)
-    const positionEl = ReallyRacer._container.querySelector('#racer-position');
-    if (positionEl) positionEl.textContent = `POSITION: 1st`;
-
-    // Update nitro bar
-    const nitroFill = ReallyRacer._container.querySelector('#nitro-fill');
-    if (nitroFill) nitroFill.style.width = `${(ReallyRacer._player.nitro / ReallyRacer._player.maxNitro) * 100}%`;
-
-    // Update time display
-    const timeEl = ReallyRacer._container.querySelector('#racer-time');
-    if (timeEl) timeEl.textContent = `TIME: ${ReallyRacer._formatTime(ReallyRacer._lapTime)}`;
-
-    // Update best time
-    const bestEl = ReallyRacer._container.querySelector('#racer-best');
-    if (bestEl) {
-      const bestTime = ReallyRacer._bestLapTime === Infinity ? '--:--.---' : ReallyRacer._formatTime(ReallyRacer._bestLapTime);
-      bestEl.textContent = `BEST: ${bestTime}`;
+    const speedDisplay = ReallyRacer._container.querySelector('#speed-display');
+    if (speedDisplay) {
+      const speedMph = Math.floor(ReallyRacer._vehicle.speed * 0.5);
+      speedDisplay.textContent = `${speedMph} mph`;
     }
 
-    // Update track name
-    const trackEl = ReallyRacer._container.querySelector('#racer-track');
-    if (trackEl) trackEl.textContent = `TRACK: ${ReallyRacer._tracks[ReallyRacer._currentTrack].name}`;
+    // Update fuel bar
+    const fuelBar = ReallyRacer._container.querySelector('#fuel-bar');
+    const fuelPercent = ReallyRacer._container.querySelector('#fuel-percent');
+    if (fuelBar && fuelPercent) {
+      fuelBar.style.width = `${ReallyRacer._fuel}%`;
+      fuelPercent.textContent = `${Math.floor(ReallyRacer._fuel)}%`;
+    }
+
+    // Update angle display
+    const angleDisplay = ReallyRacer._container.querySelector('#angle-display');
+    if (angleDisplay) {
+      const angleDegrees = Math.floor(ReallyRacer._vehicle.angle * 180 / Math.PI);
+      angleDisplay.textContent = `${angleDegrees}°`;
+    }
+
+    // Update airborne indicator
+    const airTime = ReallyRacer._container.querySelector('#air-time');
+    if (airTime) {
+      airTime.style.display = ReallyRacer._vehicle.onGround ? 'none' : 'inline';
+    }
+
+    // Update distance
+    const distanceDisplay = ReallyRacer._container.querySelector('#distance-display');
+    if (distanceDisplay) {
+      distanceDisplay.textContent = `${Math.floor(ReallyRacer._distance)}m`;
+    }
+
+    // Update coins
+    const coinsDisplay = ReallyRacer._container.querySelector('#coins-display');
+    if (coinsDisplay) {
+      coinsDisplay.textContent = `💰 ${ReallyRacer._coins}`;
+    }
+
+    // Update time
+    const timeDisplay = ReallyRacer._container.querySelector('#time-display');
+    if (timeDisplay) {
+      const minutes = Math.floor(ReallyRacer._time / 60);
+      const seconds = Math.floor(ReallyRacer._time % 60);
+      timeDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // Update best distance
+    const bestDistance = ReallyRacer._container.querySelector('#best-distance');
+    if (bestDistance) {
+      const best = ReallyRacer._saveData.bestDistances[ReallyRacer._currentLevel];
+      bestDistance.textContent = `${Math.floor(best)}m`;
+    }
   }
 
-  static _formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    const ms = Math.floor((secs % 1) * 1000);
-    return `${mins}:${Math.floor(secs).toString().padStart(2, '0')}.${ms.toString().padStart(3, '0')}`;
-  }
+  static _populateLevelSelection() {
+    const levelCards = ReallyRacer._container.querySelector('#level-cards');
 
-  static _populateTrackSelection() {
-    const trackList = ReallyRacer._container.querySelector('#track-list');
+    ReallyRacer._levels.forEach((level, index) => {
+      const card = document.createElement('div');
+      card.className = 'level-card';
 
-    ReallyRacer._tracks.forEach((track, index) => {
-      const button = document.createElement('button');
-      button.className = 'track-button';
-      button.style.borderColor = track.color;
-
-      if (!ReallyRacer._saveData.unlockedTracks[index]) {
-        button.classList.add('locked');
-        button.innerHTML = `
-          <div style="font-size: 18px; margin-bottom: 8px;">🔒 ${track.name}</div>
-          <div style="font-size: 14px;">LOCKED</div>
+      if (!ReallyRacer._saveData.unlockedLevels[index]) {
+        card.classList.add('locked');
+        card.innerHTML = `
+          <div style="font-size: 32px; margin-bottom: 15px;">🔒</div>
+          <div style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">${level.name}</div>
+          <div style="font-size: 14px; color: #888;">LOCKED</div>
+          <div style="font-size: 12px; margin-top: 10px; color: #666;">Complete previous levels to unlock</div>
         `;
       } else {
-        button.innerHTML = `
-          <div style="font-size: 18px; margin-bottom: 8px;">${track.name}</div>
-          <div style="font-size: 14px;">Difficulty: ${track.difficulty}</div>
-          <div style="font-size: 12px;">Best: ${ReallyRacer._saveData.bestTimes[index] === Infinity ? '--:--.---' : ReallyRacer._formatTime(ReallyRacer._saveData.bestTimes[index])}</div>
+        if (index === ReallyRacer._currentLevel) {
+          card.classList.add('selected');
+        }
+
+        const difficultyColors = {
+          'Easy': '#90EE90',
+          'Medium': '#FFD700',
+          'Hard': '#FFA500',
+          'Expert': '#FF6347',
+          'Extreme': '#FF1493'
+        };
+
+        const themeIcons = {
+          'grassland': '🌱',
+          'mountain': '🏔️',
+          'desert': '🏜️',
+          'arctic': '🧊',
+          'volcano': '🌋'
+        };
+
+        card.innerHTML = `
+          <div style="font-size: 32px; margin-bottom: 15px;">${themeIcons[level.theme]}</div>
+          <div style="font-size: 20px; font-weight: bold; margin-bottom: 10px;">${level.name}</div>
+          <div style="font-size: 14px; color: ${difficultyColors[level.difficulty]}; margin-bottom: 8px;">${level.difficulty}</div>
+          <div style="font-size: 12px; color: #888; margin-bottom: 10px;">${level.description}</div>
+          <div style="font-size: 12px;">
+            <div>Length: ${level.length}m • Coins: ${level.coins}</div>
+            <div>Best: ${ReallyRacer._saveData.bestDistances[index] === 0 ? '--' : Math.floor(ReallyRacer._saveData.bestDistances[index]) + 'm'}</div>
+          </div>
         `;
 
-        button.addEventListener('click', () => {
-          ReallyRacer._currentTrack = index;
-          ReallyRacer._generateTrack(index);
-          ReallyRacer._showScreen('main-menu');
+        card.addEventListener('click', () => {
+          ReallyRacer._currentLevel = index;
+
+          // Update level selection
+          document.querySelectorAll('.level-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+
+          // Generate new terrain
+          ReallyRacer._generateTerrain(index);
         });
       }
 
-      button.addEventListener('mouseover', () => {
-        if (!button.classList.contains('locked')) {
-          button.style.boxShadow = `0 0 20px ${track.color}`;
-        }
-      });
+      levelCards.appendChild(card);
+    });
+  }
 
-      button.addEventListener('mouseout', () => {
-        button.style.boxShadow = '';
-      });
+  static _populateGarage() {
+    const upgradeGrid = ReallyRacer._container.querySelector('#upgrade-grid');
+    const garageCoins = ReallyRacer._container.querySelector('#garage-coins');
 
-      trackList.appendChild(button);
+    if (garageCoins) {
+      garageCoins.textContent = ReallyRacer._saveData.totalCoins;
+    }
+
+    const upgradeTypes = [
+      { id: 'engine', name: 'Engine', icon: '🔧', description: 'More power' },
+      { id: 'tires', name: 'Tires', icon: '🛞', description: 'Better grip' },
+      { id: 'suspension', name: 'Suspension', icon: '🔩', description: 'Smoother ride' },
+      { id: 'fuel', name: 'Fuel Tank', icon: '⛽', description: 'More fuel' },
+      { id: 'armor', name: 'Armor', icon: '🛡️', description: 'Crash protection' }
+    ];
+
+    upgradeTypes.forEach(upgrade => {
+      const card = document.createElement('div');
+      card.className = 'upgrade-card';
+
+      const currentLevel = ReallyRacer._saveData.upgrades[upgrade.id];
+      const maxLevel = ReallyRacer._upgrades[upgrade.id].maxLevel;
+      const cost = ReallyRacer._upgrades[upgrade.id].cost * currentLevel;
+
+      if (currentLevel >= maxLevel) {
+        card.classList.add('maxed');
+      }
+
+      card.innerHTML = `
+        <div style="font-size: 24px; margin-bottom: 10px;">${upgrade.icon}</div>
+        <div style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">${upgrade.name}</div>
+        <div style="font-size: 12px; color: #ccc; margin-bottom: 10px;">${upgrade.description}</div>
+        <div style="font-size: 12px; margin-bottom: 10px;">Level: ${currentLevel}/${maxLevel}</div>
+        <div style="font-size: 12px; color: #FFD700;">
+          ${currentLevel >= maxLevel ? 'MAX LEVEL' : `Upgrade: 💰${cost}`}
+        </div>
+      `;
+
+      if (currentLevel < maxLevel) {
+        card.addEventListener('click', () => {
+          if (ReallyRacer._saveData.totalCoins >= cost) {
+            ReallyRacer._saveData.totalCoins -= cost;
+            ReallyRacer._saveData.upgrades[upgrade.id]++;
+            ReallyRacer._saveGameData();
+            ReallyRacer._populateGarage(); // Refresh garage
+          }
+        });
+      }
+
+      upgradeGrid.appendChild(card);
     });
   }
 
   static _showScreen(screenId) {
-    // Hide all screens
     ReallyRacer._hideAllScreens();
 
-    // Show specific screen
     const screen = ReallyRacer._container.querySelector(`#${screenId}`);
-    if (screen) {
-      screen.style.display = 'block';
-    }
+    if (screen) screen.style.display = 'block';
 
-    const overlay = ReallyRacer._container.querySelector('#racer-overlay');
-    if (overlay) {
-      overlay.style.display = 'flex';
+    const menuOverlay = ReallyRacer._container.querySelector('#menu-overlay');
+    if (menuOverlay) menuOverlay.style.display = 'flex';
+
+    const gameHUD = ReallyRacer._container.querySelector('#game-hud');
+    if (gameHUD) gameHUD.style.display = 'none';
+
+    // Update garage coins when showing garage
+    if (screenId === 'garage-workshop') {
+      ReallyRacer._populateGarage();
     }
   }
 
   static _hideAllScreens() {
-    const screens = ['main-menu', 'track-selection', 'controls-screen', 'race-finished'];
+    const screens = ['main-menu', 'level-selection', 'garage-workshop', 'help-controls', 'game-over-screen', 'level-complete'];
     screens.forEach(screenId => {
       const screen = ReallyRacer._container.querySelector(`#${screenId}`);
       if (screen) screen.style.display = 'none';
     });
-
-    const overlay = ReallyRacer._container.querySelector('#racer-overlay');
-    if (overlay) {
-      overlay.style.display = 'none';
-    }
   }
 
-  static _showRaceResults() {
-    const raceStats = ReallyRacer._container.querySelector('#race-stats');
-    if (raceStats) {
-      raceStats.innerHTML = `
-        Best Lap Time: ${ReallyRacer._formatTime(ReallyRacer._bestLapTime)}<br>
-        Track: ${ReallyRacer._tracks[ReallyRacer._currentTrack].name}<br>
-        Total Races: ${ReallyRacer._saveData.totalRaces}
+  static _showGameOverScreen(reason) {
+    const crashStats = ReallyRacer._container.querySelector('#crash-stats');
+    if (crashStats) {
+      crashStats.innerHTML = `
+        ${reason}<br>
+        Distance Reached: ${Math.floor(ReallyRacer._distance)}m<br>
+        Coins Collected: ${ReallyRacer._coins}<br>
+        Time: ${Math.floor(ReallyRacer._time / 60)}:${Math.floor(ReallyRacer._time % 60).toString().padStart(2, '0')}
       `;
     }
 
-    ReallyRacer._showScreen('race-finished');
+    ReallyRacer._showScreen('game-over-screen');
   }
 
-  static _pauseGame() {
-    if (ReallyRacer._gameState === 'playing') {
-      ReallyRacer._gameState = 'paused';
-      ReallyRacer._stopGame();
+  static _showLevelCompleteScreen() {
+    const completionStats = ReallyRacer._container.querySelector('#completion-stats');
+    if (completionStats) {
+      completionStats.innerHTML = `
+        Level Complete!<br>
+        Distance: ${Math.floor(ReallyRacer._distance)}m<br>
+        Coins Collected: ${ReallyRacer._coins}<br>
+        Time: ${Math.floor(ReallyRacer._time / 60)}:${Math.floor(ReallyRacer._time % 60).toString().padStart(2, '0')}
+      `;
+    }
+
+    // Show next level button if available
+    const nextLevelBtn = ReallyRacer._container.querySelector('#next-level-btn');
+    if (nextLevelBtn && ReallyRacer._currentLevel < ReallyRacer._levels.length - 1) {
+      nextLevelBtn.style.display = 'inline-block';
+    }
+
+    ReallyRacer._showScreen('level-complete');
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // UTILITY FUNCTIONS
+  // ═══════════════════════════════════════════════════════════════
+
+  static _getObstacleColor(type) {
+    const colors = {
+      'rock': '#696969',
+      'tree': '#8B4513',
+      'barrel': '#DEB887'
+    };
+    return colors[type] || '#696969';
+  }
+
+  static _addScreenShake(intensity) {
+    ReallyRacer._screenEffects.shake = Math.max(ReallyRacer._screenEffects.shake, intensity);
+  }
+
+  static _resetVehicle() {
+    const vehicle = ReallyRacer._vehicle;
+
+    // Reset position
+    vehicle.x = 100;
+    vehicle.y = 300;
+    vehicle.angle = 0;
+
+    // Reset physics
+    vehicle.velocityX = 0;
+    vehicle.velocityY = 0;
+    vehicle.angularVelocity = 0;
+    vehicle.speed = 0;
+    vehicle.onGround = false;
+    vehicle.crashed = false;
+  }
+
+  static _nextLevel() {
+    if (ReallyRacer._currentLevel < ReallyRacer._levels.length - 1) {
+      ReallyRacer._currentLevel++;
+      ReallyRacer._generateTerrain(ReallyRacer._currentLevel);
+      ReallyRacer._startLevel();
     }
   }
 
@@ -1467,7 +1662,7 @@ class ReallyRacer {
 
   static _saveGameData() {
     try {
-      localStorage.setItem('reallyRacerSave', JSON.stringify(ReallyRacer._saveData));
+      localStorage.setItem('hillRacerPhysicsSave', JSON.stringify(ReallyRacer._saveData));
     } catch (e) {
       console.warn('Could not save game data');
     }
@@ -1475,24 +1670,35 @@ class ReallyRacer {
 
   static _loadGameData() {
     try {
-      const saved = localStorage.getItem('reallyRacerSave');
+      const saved = localStorage.getItem('hillRacerPhysicsSave');
       if (saved) {
         ReallyRacer._saveData = { ...ReallyRacer._saveData, ...JSON.parse(saved) };
       }
 
-      // Update displays
-      const bestTimeEl = ReallyRacer._container.querySelector('#best-time-display');
-      if (bestTimeEl) {
-        const bestTime = Math.min(...ReallyRacer._saveData.bestTimes.filter(t => t !== Infinity));
-        bestTimeEl.textContent = bestTime === Infinity ? '--:--.---' : ReallyRacer._formatTime(bestTime);
-      }
+      // Update menu displays
+      const totalDistanceDisplay = ReallyRacer._container.querySelector('#total-distance-display');
+      if (totalDistanceDisplay) totalDistanceDisplay.textContent = `${Math.floor(ReallyRacer._saveData.totalDistance)}m`;
 
-      const winsEl = ReallyRacer._container.querySelector('#wins-display');
-      if (winsEl) winsEl.textContent = ReallyRacer._saveData.totalWins;
+      const totalCoinsDisplay = ReallyRacer._container.querySelector('#total-coins-display');
+      if (totalCoinsDisplay) totalCoinsDisplay.textContent = `💰 ${ReallyRacer._saveData.totalCoins}`;
+
+      const totalCrashesDisplay = ReallyRacer._container.querySelector('#total-crashes-display');
+      if (totalCrashesDisplay) totalCrashesDisplay.textContent = `💥 ${ReallyRacer._saveData.crashes}`;
 
     } catch (e) {
       console.warn('Could not load game data');
     }
+  }
+
+  static _cleanup() {
+    ReallyRacer._running = false;
+
+    if (ReallyRacer._animationId) {
+      cancelAnimationFrame(ReallyRacer._animationId);
+      ReallyRacer._animationId = null;
+    }
+
+    console.log('🧹 Hill Racer Physics cleaned up');
   }
 }
 
