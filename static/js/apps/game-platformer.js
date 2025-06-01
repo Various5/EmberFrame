@@ -1643,4 +1643,4 @@ class GamePlatformer {
 }
 
 // Expose globally for WindowManager
-window.GamePlatformer = GamePlatformer;
+window.EmberFrame.registerApp('game-platformer', GamePlatformer);

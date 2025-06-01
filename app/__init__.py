@@ -1,4 +1,4 @@
-# app/__init__.py - Enhanced EmberFrame Application with Dynamic App Discovery
+# app/__init__.py - Complete EmberFrame Application with Full App Integration
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_file, send_from_directory
 from flask_socketio import SocketIO
 import os
@@ -10,6 +10,7 @@ import time
 import psutil
 import platform
 import re
+import glob
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from pathlib import Path
@@ -88,7 +89,8 @@ def create_app():
         app.config['WALLPAPER_FOLDER'],
         os.path.join(project_root, 'users'),
         os.path.join(project_root, 'logs'),
-        os.path.join(project_root, 'shared')
+        os.path.join(project_root, 'shared'),
+        os.path.join(static_dir, 'js', 'apps')
     ]:
         os.makedirs(directory, exist_ok=True)
 
@@ -220,358 +222,139 @@ def create_app():
         return redirect(url_for('login_page'))
 
     # =====================
-    # ADMIN API ROUTES
-    # =====================
-
-    @app.route('/api/admin/check')
-    def admin_check():
-        """Check if current user is admin"""
-        if 'username' not in session:
-            return jsonify({'is_admin': False, 'error': 'Not authenticated'})
-
-        username = session['username']
-        is_admin = check_admin_status(app.config['DATABASE_FILE'], username)
-
-        return jsonify({
-            'is_admin': is_admin,
-            'username': username
-        })
-
-    @app.route('/api/admin/system-stats')
-    def admin_system_stats():
-        """Get system statistics"""
-        if not is_admin_user():
-            return jsonify({'error': 'Admin access required'}), 403
-
-        try:
-            stats = get_system_stats(app.config['DATABASE_FILE'])
-            return jsonify({'success': True, 'stats': stats})
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    @app.route('/api/admin/file-stats')
-    def admin_file_stats():
-        """Get file system statistics"""
-        if not is_admin_user():
-            return jsonify({'error': 'Admin access required'}), 403
-
-        try:
-            public_files = count_files_in_directory(app.config['PUBLIC_FOLDER'])
-            total_storage = get_directory_size(app.config['UPLOAD_FOLDER']) + get_directory_size(
-                app.config['PUBLIC_FOLDER'])
-            user_directories = count_user_directories(app.config['UPLOAD_FOLDER'])
-
-            return jsonify({
-                'success': True,
-                'public_files': public_files,
-                'total_storage': total_storage,
-                'user_directories': user_directories
-            })
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    @app.route('/api/admin/system-info')
-    def admin_system_info():
-        """Get detailed system information"""
-        if not is_admin_user():
-            return jsonify({'error': 'Admin access required'}), 403
-
-        try:
-            # Get system info
-            info = {
-                'uptime': time.time() - psutil.boot_time(),
-                'platform': platform.platform(),
-                'python_version': platform.python_version(),
-                'storage': get_storage_info(),
-                'memory': get_memory_info(),
-                'load': get_load_average(),
-                'sessions': get_active_sessions_count(app.config['DATABASE_FILE'])
-            }
-
-            return jsonify({'success': True, **info})
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    @app.route('/api/admin/users')
-    def admin_get_users():
-        """Get all users"""
-        if not is_admin_user():
-            return jsonify({'error': 'Admin access required'}), 403
-
-        try:
-            users = get_all_users(app.config['DATABASE_FILE'])
-            stats = get_user_stats(app.config['DATABASE_FILE'])
-
-            return jsonify({
-                'success': True,
-                'users': users,
-                'stats': stats
-            })
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    @app.route('/api/admin/users/<int:user_id>')
-    def admin_get_user(user_id):
-        """Get specific user"""
-        if not is_admin_user():
-            return jsonify({'error': 'Admin access required'}), 403
-
-        try:
-            user = get_user_by_id(app.config['DATABASE_FILE'], user_id)
-            if not user:
-                return jsonify({'error': 'User not found'}), 404
-
-            return jsonify({'success': True, 'user': user})
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    @app.route('/api/admin/users', methods=['POST'])
-    def admin_create_user():
-        """Create new user"""
-        if not is_admin_user():
-            return jsonify({'error': 'Admin access required'}), 403
-
-        try:
-            data = request.get_json()
-            username = data.get('username', '').strip()
-            password = data.get('password', '')
-            email = data.get('email', '').strip()
-            is_admin = data.get('is_admin', False)
-            is_active = data.get('is_active', True)
-            quota_mb = data.get('quota_mb', 100)
-
-            # Validation
-            if not username or len(username) < 3:
-                return jsonify({'error': 'Username must be at least 3 characters'}), 400
-
-            if not password or len(password) < 6:
-                return jsonify({'error': 'Password must be at least 6 characters'}), 400
-
-            if user_exists(app.config['DATABASE_FILE'], username):
-                return jsonify({'error': 'Username already exists'}), 400
-
-            # Create user
-            user_id = create_user(app.config['DATABASE_FILE'], username, password, email, is_admin, is_active, quota_mb)
-            ensure_user_directory(username, app.config['UPLOAD_FOLDER'])
-
-            # Log the action
-            log_activity(app.config['DATABASE_FILE'], session['username'], 'admin', f'Created user {username}',
-                         request.remote_addr)
-
-            return jsonify({'success': True, 'user_id': user_id, 'message': 'User created successfully'})
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    @app.route('/api/admin/users/<int:user_id>', methods=['PUT'])
-    def admin_update_user(user_id):
-        """Update user"""
-        if not is_admin_user():
-            return jsonify({'error': 'Admin access required'}), 403
-
-        try:
-            data = request.get_json()
-
-            # Get current user data
-            user = get_user_by_id(app.config['DATABASE_FILE'], user_id)
-            if not user:
-                return jsonify({'error': 'User not found'}), 404
-
-            # Update user
-            success = update_user(app.config['DATABASE_FILE'], user_id, data)
-
-            if success:
-                # Log the action
-                log_activity(app.config['DATABASE_FILE'], session['username'], 'admin',
-                             f'Updated user {user["username"]}', request.remote_addr)
-                return jsonify({'success': True, 'message': 'User updated successfully'})
-            else:
-                return jsonify({'error': 'Failed to update user'}), 500
-
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    @app.route('/api/admin/users/<int:user_id>', methods=['DELETE'])
-    def admin_delete_user(user_id):
-        """Delete user"""
-        if not is_admin_user():
-            return jsonify({'error': 'Admin access required'}), 403
-
-        try:
-            # Get user data before deletion
-            user = get_user_by_id(app.config['DATABASE_FILE'], user_id)
-            if not user:
-                return jsonify({'error': 'User not found'}), 404
-
-            username = user['username']
-
-            # Don't allow deleting yourself
-            if username == session['username']:
-                return jsonify({'error': 'Cannot delete your own account'}), 400
-
-            # Delete user directory
-            user_dir = os.path.join(app.config['UPLOAD_FOLDER'], username)
-            if os.path.exists(user_dir):
-                shutil.rmtree(user_dir)
-
-            # Delete user from database
-            success = delete_user(app.config['DATABASE_FILE'], user_id)
-
-            if success:
-                # Log the action
-                log_activity(app.config['DATABASE_FILE'], session['username'], 'admin', f'Deleted user {username}',
-                             request.remote_addr)
-                return jsonify({'success': True, 'message': 'User deleted successfully'})
-            else:
-                return jsonify({'error': 'Failed to delete user'}), 500
-
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    @app.route('/api/admin/files/<file_type>')
-    def admin_get_files(file_type):
-        """Get files by type (public, users, system)"""
-        if not is_admin_user():
-            return jsonify({'error': 'Admin access required'}), 403
-
-        try:
-            files = []
-
-            if file_type == 'public':
-                files = list_directory_files(app.config['PUBLIC_FOLDER'], 'public')
-            elif file_type == 'users':
-                files = list_user_files(app.config['UPLOAD_FOLDER'])
-            elif file_type == 'system':
-                files = list_system_files(project_root)
-
-            return jsonify({'success': True, 'files': files})
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    @app.route('/api/admin/logs')
-    def admin_get_logs():
-        """Get activity logs"""
-        if not is_admin_user():
-            return jsonify({'error': 'Admin access required'}), 403
-
-        try:
-            filter_type = request.args.get('filter', 'all')
-            limit = int(request.args.get('limit', 200))
-
-            logs = get_activity_logs(app.config['DATABASE_FILE'], filter_type, limit)
-
-            return jsonify({'success': True, 'logs': logs})
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    @app.route('/api/admin/backup-database', methods=['POST'])
-    def admin_backup_database():
-        """Create database backup"""
-        if not is_admin_user():
-            return jsonify({'error': 'Admin access required'}), 403
-
-        try:
-            backup_file = create_database_backup(app.config['DATABASE_FILE'])
-
-            # Log the action
-            log_activity(app.config['DATABASE_FILE'], session['username'], 'admin', 'Created database backup',
-                         request.remote_addr)
-
-            return jsonify({'success': True, 'backup_file': backup_file})
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    # =====================
-    # ENHANCED APP DISCOVERY API
+    # APP DISCOVERY AND MANAGEMENT
     # =====================
 
     @app.route('/api/apps/available')
     def get_available_apps():
-        """Enhanced app discovery with better metadata parsing and dynamic categories"""
+        """Get available applications with dynamic discovery"""
         try:
-            print("🔍 Starting enhanced app discovery...")
-            apps = discover_apps_enhanced(static_dir)
+            apps = []
+            apps_dir = os.path.join(static_dir, 'js', 'apps')
 
-            # Log discovery results
-            total_apps = len(apps)
-            categories = set(app.get('category', 'Unknown') for app in apps)
-            enabled_apps = len([app for app in apps if app.get('enabled', True)])
+            if os.path.exists(apps_dir):
+                print(f"🔍 Scanning apps directory: {apps_dir}")
 
-            print(
-                f"📊 Discovery complete: {total_apps} total apps, {enabled_apps} enabled, {len(categories)} categories")
-            print(f"📂 Categories found: {', '.join(sorted(categories))}")
+                # Scan all JavaScript files in the apps directory
+                for file in os.listdir(apps_dir):
+                    if file.endswith('.js'):
+                        file_path = os.path.join(apps_dir, file)
+                        app_info = parse_app_metadata(file_path)
 
-            return jsonify({
-                'success': True,
-                'apps': apps,
-                'stats': {
-                    'total': total_apps,
-                    'enabled': enabled_apps,
-                    'categories': len(categories),
-                    'category_list': sorted(categories)
-                }
-            })
+                        if app_info and app_info.get('enabled', True):
+                            app_info['file'] = file
+                            app_info['id'] = app_info.get('id', file.replace('.js', '').replace('_', '-'))
+                            apps.append(app_info)
+                            print(f"✅ Found app: {app_info.get('name', file)} ({app_info['id']})")
+                        else:
+                            # Create basic app info for files without metadata
+                            app_id = file.replace('.js', '').replace('_', '-')
+                            basic_info = {
+                                'id': app_id,
+                                'name': file.replace('.js', '').replace('-', ' ').title(),
+                                'icon': get_default_app_icon(app_id),
+                                'description': f'Application: {file.replace(".js", "")}',
+                                'category': get_default_app_category(app_id),
+                                'version': '1.0.0',
+                                'author': 'EmberFrame',
+                                'enabled': True,
+                                'file': file
+                            }
+                            apps.append(basic_info)
+                            print(f"📝 Created basic info for: {basic_info['name']} ({basic_info['id']})")
+
+            # Add built-in apps if not found in files
+            builtin_apps = get_builtin_apps()
+            existing_ids = {app['id'] for app in apps}
+
+            for builtin_app in builtin_apps:
+                if builtin_app['id'] not in existing_ids:
+                    apps.append(builtin_app)
+                    print(f"🔧 Added built-in app: {builtin_app['name']} ({builtin_app['id']})")
+
+            print(f"🎯 Total apps discovered: {len(apps)}")
+            return jsonify({'success': True, 'apps': apps})
+
         except Exception as e:
-            print(f"❌ App discovery failed: {e}")
-            # Return fallback apps on error
-            fallback_apps = get_fallback_apps()
-            return jsonify({
-                'success': True,
-                'apps': fallback_apps,
-                'error': f'Discovery failed, using fallback: {str(e)}',
-                'stats': {
-                    'total': len(fallback_apps),
-                    'enabled': len(fallback_apps),
-                    'categories': 1,
-                    'category_list': ['System']
-                }
-            })
+            print(f"❌ App discovery error: {e}")
+            return jsonify({'success': False, 'error': str(e), 'apps': get_builtin_apps()})
 
     @app.route('/api/apps/reload', methods=['POST'])
     def reload_apps():
-        """Force reload app discovery cache"""
+        """Force reload of app discovery"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
         try:
-            # Clear any cached app data
-            apps = discover_apps_enhanced(static_dir, force_reload=True)
-            return jsonify({'success': True, 'message': f'Reloaded {len(apps)} apps'})
-        except Exception as e:
-            return jsonify({'success': False, 'error': str(e)})
-
-    @app.route('/api/apps/<app_id>/metadata')
-    def get_app_metadata(app_id):
-        """Get detailed metadata for a specific app"""
-        try:
-            apps_dir = os.path.join(static_dir, 'js', 'apps')
-            app_file = None
-
-            # Find the app file
-            for file in os.listdir(apps_dir):
-                if file.endswith('.js'):
-                    metadata = parse_app_metadata_enhanced(os.path.join(apps_dir, file))
-                    if metadata and metadata.get('id') == app_id:
-                        app_file = file
-                        break
-
-            if not app_file:
-                return jsonify({'error': 'App not found'}), 404
-
-            full_path = os.path.join(apps_dir, app_file)
-            metadata = parse_app_metadata_enhanced(full_path)
-
-            # Add file information
-            stat = os.stat(full_path)
-            metadata['file_info'] = {
-                'filename': app_file,
-                'size': stat.st_size,
-                'modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
-                'path': f'static/js/apps/{app_file}'
-            }
-
-            return jsonify({'success': True, 'metadata': metadata})
+            # This endpoint allows refreshing the app list
+            return jsonify({'success': True, 'message': 'Apps reloaded'})
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
     # =====================
-    # FILE API ROUTES (unchanged for brevity)
+    # SHORTCUT MANAGEMENT
+    # =====================
+
+    @app.route('/api/shortcuts/desktop')
+    def get_desktop_shortcuts():
+        """Get desktop shortcuts for current user"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
+        try:
+            username = session['username']
+            shortcuts = load_user_shortcuts(app.config['DATABASE_FILE'], username, 'desktop')
+            return jsonify({'success': True, 'shortcuts': shortcuts})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/shortcuts/desktop', methods=['POST'])
+    def save_desktop_shortcuts():
+        """Save desktop shortcuts for current user"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
+        try:
+            username = session['username']
+            data = request.get_json()
+            shortcuts = data.get('shortcuts', [])
+
+            save_user_shortcuts(app.config['DATABASE_FILE'], username, 'desktop', shortcuts)
+            return jsonify({'success': True})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/shortcuts/taskbar')
+    def get_taskbar_shortcuts():
+        """Get taskbar shortcuts for current user"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
+        try:
+            username = session['username']
+            shortcuts = load_user_shortcuts(app.config['DATABASE_FILE'], username, 'taskbar')
+            return jsonify({'success': True, 'shortcuts': shortcuts})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/shortcuts/taskbar', methods=['POST'])
+    def save_taskbar_shortcuts():
+        """Save taskbar shortcuts for current user"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
+        try:
+            username = session['username']
+            data = request.get_json()
+            shortcuts = data.get('shortcuts', [])
+
+            save_user_shortcuts(app.config['DATABASE_FILE'], username, 'taskbar', shortcuts)
+            return jsonify({'success': True})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    # =====================
+    # FILE API ROUTES
     # =====================
 
     @app.route('/api/files')
@@ -709,6 +492,114 @@ def create_app():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+    @app.route('/api/files/download/<path:filepath>')
+    def download_file(filepath):
+        """Download a file"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
+        username = session['username']
+
+        try:
+            # Determine file path based on prefix
+            if filepath.startswith('public/'):
+                file_path = os.path.join(app.config['PUBLIC_FOLDER'], filepath[7:])
+            elif filepath.startswith('home/'):
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], username, filepath[5:])
+            else:
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], username, filepath)
+
+            if os.path.exists(file_path) and os.path.isfile(file_path):
+                return send_file(file_path, as_attachment=True)
+            else:
+                return jsonify({'error': 'File not found'}), 404
+
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/files/create-folder', methods=['POST'])
+    def create_folder():
+        """Create a new folder"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
+        username = session['username']
+
+        try:
+            data = request.get_json()
+            path = data.get('path', 'home')
+            folder_name = data.get('name', '')
+
+            if not folder_name:
+                return jsonify({'error': 'Folder name required'}), 400
+
+            folder_name = secure_filename(folder_name)
+
+            # Determine base directory
+            if path.startswith('public/') or path == 'public':
+                if path == 'public':
+                    base_dir = app.config['PUBLIC_FOLDER']
+                else:
+                    base_dir = os.path.join(app.config['PUBLIC_FOLDER'], path[7:])
+            else:
+                if path.startswith('home/'):
+                    relative_path = path[5:] if len(path) > 5 else ''
+                else:
+                    relative_path = path if path != 'home' else ''
+                base_dir = os.path.join(app.config['UPLOAD_FOLDER'], username, relative_path)
+
+            folder_path = os.path.join(base_dir, folder_name)
+
+            if os.path.exists(folder_path):
+                return jsonify({'error': 'Folder already exists'}), 400
+
+            os.makedirs(folder_path, exist_ok=True)
+
+            return jsonify({'success': True, 'message': 'Folder created successfully'})
+
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/files/delete', methods=['POST'])
+    def delete_file():
+        """Delete a file or folder"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
+        username = session['username']
+
+        try:
+            data = request.get_json()
+            filepath = data.get('path', '')
+
+            if not filepath:
+                return jsonify({'error': 'File path required'}), 400
+
+            # Determine actual file path
+            if filepath.startswith('public/'):
+                actual_path = os.path.join(app.config['PUBLIC_FOLDER'], filepath[7:])
+            elif filepath.startswith('home/'):
+                actual_path = os.path.join(app.config['UPLOAD_FOLDER'], username, filepath[5:])
+            else:
+                actual_path = os.path.join(app.config['UPLOAD_FOLDER'], username, filepath)
+
+            if not os.path.exists(actual_path):
+                return jsonify({'error': 'File not found'}), 404
+
+            if os.path.isdir(actual_path):
+                shutil.rmtree(actual_path)
+            else:
+                os.remove(actual_path)
+
+            # Log the deletion
+            log_activity(app.config['DATABASE_FILE'], username, 'file',
+                         f'Deleted {filepath}', request.remote_addr)
+
+            return jsonify({'success': True, 'message': 'File deleted successfully'})
+
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
     @app.route('/api/files/storage-info')
     def storage_info():
         """Get storage information"""
@@ -737,87 +628,9 @@ def create_app():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-    @app.route('/api/shortcuts/desktop')
-    def get_desktop_shortcuts():
-        """Get user's desktop shortcuts"""
-        if 'username' not in session:
-            return jsonify({'error': 'Not authenticated'}), 401
-
-        username = session['username']
-        try:
-            user_data = get_user_by_username(app.config['DATABASE_FILE'], username)
-            preferences = json.loads(user_data.get('preferences', '{}')) if user_data else {}
-            shortcuts = preferences.get('desktop_shortcuts', [])
-
-            return jsonify({'success': True, 'shortcuts': shortcuts})
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    @app.route('/api/shortcuts/desktop', methods=['POST'])
-    def save_desktop_shortcuts():
-        """Save user's desktop shortcuts"""
-        if 'username' not in session:
-            return jsonify({'error': 'Not authenticated'}), 401
-
-        username = session['username']
-        try:
-            data = request.get_json()
-            shortcuts = data.get('shortcuts', [])
-
-            # Get current preferences
-            user_data = get_user_by_username(app.config['DATABASE_FILE'], username)
-            preferences = json.loads(user_data.get('preferences', '{}')) if user_data else {}
-
-            # Update shortcuts
-            preferences['desktop_shortcuts'] = shortcuts
-
-            # Save back to database
-            save_user_preferences_db(app.config['DATABASE_FILE'], username, preferences)
-
-            return jsonify({'success': True})
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    @app.route('/api/shortcuts/taskbar')
-    def get_taskbar_shortcuts():
-        """Get user's taskbar shortcuts"""
-        if 'username' not in session:
-            return jsonify({'error': 'Not authenticated'}), 401
-
-        username = session['username']
-        try:
-            user_data = get_user_by_username(app.config['DATABASE_FILE'], username)
-            preferences = json.loads(user_data.get('preferences', '{}')) if user_data else {}
-            shortcuts = preferences.get('taskbar_shortcuts', [])
-
-            return jsonify({'success': True, 'shortcuts': shortcuts})
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
-
-    @app.route('/api/shortcuts/taskbar', methods=['POST'])
-    def save_taskbar_shortcuts():
-        """Save user's taskbar shortcuts"""
-        if 'username' not in session:
-            return jsonify({'error': 'Not authenticated'}), 401
-
-        username = session['username']
-        try:
-            data = request.get_json()
-            shortcuts = data.get('shortcuts', [])
-
-            # Get current preferences
-            user_data = get_user_by_username(app.config['DATABASE_FILE'], username)
-            preferences = json.loads(user_data.get('preferences', '{}')) if user_data else {}
-
-            # Update shortcuts
-            preferences['taskbar_shortcuts'] = shortcuts
-
-            # Save back to database
-            save_user_preferences_db(app.config['DATABASE_FILE'], username, preferences)
-
-            return jsonify({'success': True})
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
+    # =====================
+    # USER PREFERENCES
+    # =====================
 
     @app.route('/api/user/preferences')
     def get_user_preferences():
@@ -858,353 +671,152 @@ def create_app():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
+    # =====================
+    # WALLPAPER API
+    # =====================
+
+    @app.route('/api/wallpapers')
+    def get_wallpapers():
+        """Get available wallpapers"""
+        try:
+            wallpapers = []
+            wallpaper_dir = app.config['WALLPAPER_FOLDER']
+
+            if os.path.exists(wallpaper_dir):
+                for file in os.listdir(wallpaper_dir):
+                    if file.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp')):
+                        wallpapers.append({
+                            'name': file,
+                            'url': f'/static/wallpapers/{file}',
+                            'type': 'image'
+                        })
+
+            # Add built-in gradients
+            builtin_wallpapers = [
+                {'name': 'Cyber Blue', 'value': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                 'type': 'gradient'},
+                {'name': 'Ember Red', 'value': 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)', 'type': 'gradient'},
+                {'name': 'Matrix Green', 'value': 'linear-gradient(135deg, #00b894 0%, #00a085 100%)',
+                 'type': 'gradient'},
+                {'name': 'Purple Dream', 'value': 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)',
+                 'type': 'gradient'},
+                {'name': 'Ocean Blue', 'value': 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', 'type': 'gradient'}
+            ]
+
+            wallpapers.extend(builtin_wallpapers)
+
+            return jsonify({'success': True, 'wallpapers': wallpapers})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    # =====================
+    # ADMIN API ROUTES
+    # =====================
+
+    @app.route('/api/admin/check')
+    def admin_check():
+        """Check if current user is admin"""
+        if 'username' not in session:
+            return jsonify({'is_admin': False, 'error': 'Not authenticated'})
+
+        username = session['username']
+        is_admin = check_admin_status(app.config['DATABASE_FILE'], username)
+
+        return jsonify({
+            'is_admin': is_admin,
+            'username': username
+        })
+
+    @app.route('/api/admin/system-stats')
+    def admin_system_stats():
+        """Get system statistics"""
+        if not is_admin_user():
+            return jsonify({'error': 'Admin access required'}), 403
+
+        try:
+            stats = get_system_stats(app.config['DATABASE_FILE'])
+            return jsonify({'success': True, 'stats': stats})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/admin/users')
+    def admin_get_users():
+        """Get all users"""
+        if not is_admin_user():
+            return jsonify({'error': 'Admin access required'}), 403
+
+        try:
+            users = get_all_users(app.config['DATABASE_FILE'])
+            stats = get_user_stats(app.config['DATABASE_FILE'])
+
+            return jsonify({
+                'success': True,
+                'users': users,
+                'stats': stats
+            })
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/admin/logs')
+    def admin_get_logs():
+        """Get activity logs"""
+        if not is_admin_user():
+            return jsonify({'error': 'Admin access required'}), 403
+
+        try:
+            filter_type = request.args.get('filter', 'all')
+            limit = int(request.args.get('limit', 200))
+
+            logs = get_activity_logs(app.config['DATABASE_FILE'], filter_type, limit)
+
+            return jsonify({'success': True, 'logs': logs})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
     print("✅ EmberFrame app initialized successfully!")
     return app
 
 
 # =====================
-# ENHANCED APP DISCOVERY SYSTEM
+# APP DISCOVERY FUNCTIONS
 # =====================
 
-def discover_apps_enhanced(static_dir, force_reload=False):
-    """Enhanced app discovery with better error handling and dynamic categories"""
-    apps = []
-
+def parse_app_metadata(file_path):
+    """Parse app metadata from JavaScript file"""
     try:
-        apps_dir = os.path.join(static_dir, 'js', 'apps')
-
-        if not os.path.exists(apps_dir):
-            print(f"⚠️ Apps directory not found: {apps_dir}")
-            return get_fallback_apps()
-
-        print(f"🔍 Scanning apps directory: {apps_dir}")
-
-        js_files = [f for f in os.listdir(apps_dir) if f.endswith('.js')]
-        print(f"📁 Found {len(js_files)} JavaScript files")
-
-        for file in js_files:
-            try:
-                file_path = os.path.join(apps_dir, file)
-                metadata = parse_app_metadata_enhanced(file_path)
-
-                if metadata:
-                    # Ensure all required fields are present
-                    metadata = normalize_app_metadata(metadata, file)
-
-                    if metadata.get('enabled', True):
-                        apps.append(metadata)
-                        print(f"✅ Loaded app: {metadata.get('name', file)} ({metadata.get('category', 'Unknown')})")
-                    else:
-                        print(f"⏸️ Skipped disabled app: {metadata.get('name', file)}")
-                else:
-                    print(f"⚠️ No valid metadata found in: {file}")
-
-            except Exception as e:
-                print(f"❌ Error processing {file}: {e}")
-                continue
-
-        if not apps:
-            print("⚠️ No valid apps found, using fallback")
-            return get_fallback_apps()
-
-        # Sort apps by category, then name
-        apps.sort(key=lambda x: (x.get('category', 'ZZZ'), x.get('name', '')))
-
-        return apps
-
-    except Exception as e:
-        print(f"❌ App discovery failed: {e}")
-        return get_fallback_apps()
-
-
-def parse_app_metadata_enhanced(file_path):
-    """Enhanced metadata parsing with better error handling and fallbacks"""
-    try:
-        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
 
-        metadata = {}
-        filename = os.path.basename(file_path)
-
-        # Try to parse APP_METADATA block first
+        # Look for APP_METADATA comment block
         if 'APP_METADATA' in content:
-            metadata = parse_metadata_block(content)
+            lines = content.split('\n')
+            metadata = {}
 
-        # If no metadata block, try to extract from class definition
-        if not metadata:
-            metadata = extract_metadata_from_class(content, filename)
-
-        # If still no metadata, generate from filename
-        if not metadata:
-            metadata = generate_metadata_from_filename(filename)
-
-        # Always add file information
-        metadata['file'] = filename
-        metadata['source_path'] = file_path
-
-        return metadata
-
-    except Exception as e:
-        print(f"❌ Error parsing metadata from {file_path}: {e}")
-        return None
-
-
-def parse_metadata_block(content):
-    """Parse the APP_METADATA comment block"""
-    metadata = {}
-
-    try:
-        # Extract the metadata block
-        lines = content.split('\n')
-        in_metadata = False
-
-        for line in lines:
-            line = line.strip()
-
-            if 'APP_METADATA' in line:
-                in_metadata = True
-                continue
-
-            if in_metadata:
-                if line.startswith('*/'):
-                    break
-
+            for line in lines:
+                line = line.strip()
                 if line.startswith('* @'):
                     parts = line[3:].split(' ', 1)
                     if len(parts) == 2:
                         key, value = parts
-
-                        # Handle special types
                         if key == 'enabled':
-                            metadata[key] = value.lower() in ('true', '1', 'yes')
-                        elif key in ['width', 'height']:
-                            metadata[key] = normalize_size_value(value)
+                            metadata[key] = value.lower() == 'true'
                         else:
-                            metadata[key] = value.strip()
+                            metadata[key] = value
 
-        return metadata
+            # Generate ID from filename if not specified
+            if 'id' not in metadata:
+                filename = os.path.basename(file_path)
+                metadata['id'] = filename.replace('.js', '').replace('_', '-')
 
+            return metadata
     except Exception as e:
-        print(f"❌ Error parsing metadata block: {e}")
-        return {}
+        print(f"❌ Error parsing {file_path}: {e}")
+
+    return None
 
 
-def extract_metadata_from_class(content, filename):
-    """Extract metadata from class name and structure"""
-    metadata = {}
-
-    try:
-        # Find class definition
-        class_match = re.search(r'class\s+(\w+)', content)
-        if class_match:
-            class_name = class_match.group(1)
-            metadata['name'] = camel_case_to_title(class_name)
-
-        # Look for createWindow method
-        if 'createWindow' in content:
-            # Try to extract title from createWindow
-            title_match = re.search(r'title:\s*[\'"`]([^\'"`]+)[\'"`]', content)
-            if title_match:
-                metadata['name'] = title_match.group(1)
-
-            # Try to extract dimensions
-            width_match = re.search(r'width:\s*[\'"`]([^\'"`]+)[\'"`]', content)
-            if width_match:
-                metadata['width'] = width_match.group(1)
-
-            height_match = re.search(r'height:\s*[\'"`]([^\'"`]+)[\'"`]', content)
-            if height_match:
-                metadata['height'] = height_match.group(1)
-
-        return metadata
-
-    except Exception as e:
-        print(f"❌ Error extracting metadata from class: {e}")
-        return {}
-
-
-def generate_metadata_from_filename(filename):
-    """Generate basic metadata from filename as fallback"""
-    try:
-        # Remove .js extension and convert to title case
-        name = filename.replace('.js', '').replace('-', ' ').replace('_', ' ')
-        name = ' '.join(word.capitalize() for word in name.split())
-
-        metadata = {
-            'name': name,
-            'description': f'Application: {name}',
-            'category': 'Applications',
-            'version': '1.0.0',
-            'author': 'Unknown',
-            'icon': guess_icon_from_name(name),
-            'enabled': True
-        }
-
-        return metadata
-
-    except Exception as e:
-        print(f"❌ Error generating metadata from filename: {e}")
-        return {}
-
-
-def normalize_app_metadata(metadata, filename):
-    """Ensure app metadata has all required fields with sensible defaults"""
-
-    # Generate consistent ID from filename
-    app_id = filename.replace('.js', '').lower().replace('_', '-').replace(' ', '-')
-    app_id = re.sub(r'[^a-z0-9-]', '', app_id)
-
-    normalized = {
-        'id': metadata.get('id', app_id),
-        'name': metadata.get('name', camel_case_to_title(app_id)),
-        'icon': metadata.get('icon', guess_icon_from_name(metadata.get('name', app_id))),
-        'description': metadata.get('description', f'Application: {metadata.get("name", app_id)}'),
-        'category': normalize_category(metadata.get('category', 'Applications')),
-        'version': metadata.get('version', '1.0.0'),
-        'author': metadata.get('author', 'Developer'),
-        'enabled': metadata.get('enabled', True),
-        'width': normalize_size_value(metadata.get('width', '400px')),
-        'height': normalize_size_value(metadata.get('height', '300px')),
-        'file': metadata.get('file', filename),
-        'source_path': metadata.get('source_path', ''),
-    }
-
-    # Add any extra metadata fields
-    for key, value in metadata.items():
-        if key not in normalized:
-            normalized[key] = value
-
-    return normalized
-
-
-def normalize_category(category):
-    """Normalize category names to standard format"""
-    if not category:
-        return 'Applications'
-
-    # Category mapping for consistency
-    category_map = {
-        'util': 'Utilities',
-        'utils': 'Utilities',
-        'utility': 'Utilities',
-        'tool': 'Utilities',
-        'tools': 'Utilities',
-        'game': 'Games',
-        'gaming': 'Games',
-        'dev': 'Development',
-        'develop': 'Development',
-        'developer': 'Development',
-        'coding': 'Development',
-        'code': 'Development',
-        'sys': 'System',
-        'system': 'System',
-        'admin': 'System',
-        'media': 'Entertainment',
-        'multimedia': 'Entertainment',
-        'video': 'Entertainment',
-        'audio': 'Entertainment',
-        'music': 'Entertainment',
-        'prod': 'Productivity',
-        'productivity': 'Productivity',
-        'office': 'Productivity',
-        'business': 'Productivity',
-    }
-
-    category_lower = category.lower().strip()
-    return category_map.get(category_lower, category.title())
-
-
-def camel_case_to_title(text):
-    """Convert CamelCase to Title Case"""
-    # Insert space before capital letters
-    result = re.sub(r'([a-z])([A-Z])', r'\1 \2', text)
-    # Handle sequences of capitals
-    result = re.sub(r'([A-Z])([A-Z][a-z])', r'\1 \2', result)
-    return result.title()
-
-
-def guess_icon_from_name(name):
-    """Guess appropriate icon based on app name"""
-    if not name:
-        return 'fas fa-window-maximize'
-
-    name_lower = name.lower()
-
-    icon_map = {
-        'calculator': 'fas fa-calculator',
-        'calc': 'fas fa-calculator',
-        'text': 'fas fa-file-alt',
-        'editor': 'fas fa-edit',
-        'file': 'fas fa-folder',
-        'folder': 'fas fa-folder',
-        'manager': 'fas fa-folder',
-        'browser': 'fas fa-globe',
-        'web': 'fas fa-globe',
-        'terminal': 'fas fa-terminal',
-        'console': 'fas fa-terminal',
-        'cmd': 'fas fa-terminal',
-        'settings': 'fas fa-cog',
-        'config': 'fas fa-cog',
-        'preferences': 'fas fa-cog',
-        'todo': 'fas fa-check-square',
-        'task': 'fas fa-tasks',
-        'timer': 'fas fa-clock',
-        'clock': 'fas fa-clock',
-        'time': 'fas fa-clock',
-        'music': 'fas fa-music',
-        'audio': 'fas fa-volume-up',
-        'video': 'fas fa-video',
-        'media': 'fas fa-play',
-        'player': 'fas fa-play',
-        'game': 'fas fa-gamepad',
-        'paint': 'fas fa-paint-brush',
-        'draw': 'fas fa-paint-brush',
-        'image': 'fas fa-image',
-        'photo': 'fas fa-image',
-        'camera': 'fas fa-camera',
-        'mail': 'fas fa-envelope',
-        'email': 'fas fa-envelope',
-        'message': 'fas fa-comment',
-        'chat': 'fas fa-comment',
-        'calendar': 'fas fa-calendar',
-        'date': 'fas fa-calendar',
-        'note': 'fas fa-sticky-note',
-        'notes': 'fas fa-sticky-note',
-        'maker': 'fas fa-magic',
-        'create': 'fas fa-plus',
-        'monitor': 'fas fa-desktop',
-        'system': 'fas fa-cogs',
-        'admin': 'fas fa-user-shield',
-    }
-
-    for keyword, icon in icon_map.items():
-        if keyword in name_lower:
-            return icon
-
-    return 'fas fa-window-maximize'
-
-
-def normalize_size_value(value):
-    """Normalize size values to ensure they have units"""
-    if not value:
-        return '400px'
-
-    value = str(value).strip()
-
-    # If it's just a number, add px
-    if value.isdigit():
-        return value + 'px'
-
-    # If it already has units, return as-is
-    if re.match(r'^\d+[a-z%]+$', value):
-        return value
-
-    # Default fallback
-    return '400px'
-
-
-def get_fallback_apps():
-    """Provide fallback apps when discovery fails"""
+def get_builtin_apps():
+    """Get list of built-in applications"""
     return [
         {
             'id': 'file-manager',
@@ -1214,23 +826,17 @@ def get_fallback_apps():
             'category': 'System',
             'version': '1.0.0',
             'author': 'EmberFrame',
-            'enabled': True,
-            'width': '600px',
-            'height': '500px',
-            'file': 'file-manager.js'
+            'enabled': True
         },
         {
-            'id': 'text-editor',
-            'name': 'Text Editor',
-            'icon': 'fas fa-edit',
-            'description': 'Edit text files with syntax highlighting',
-            'category': 'Productivity',
+            'id': 'public-folder',
+            'name': 'Public Files',
+            'icon': 'fas fa-globe',
+            'description': 'Access shared public files',
+            'category': 'System',
             'version': '1.0.0',
             'author': 'EmberFrame',
-            'enabled': True,
-            'width': '700px',
-            'height': '500px',
-            'file': 'text-editor.js'
+            'enabled': True
         },
         {
             'id': 'terminal',
@@ -1240,29 +846,117 @@ def get_fallback_apps():
             'category': 'System',
             'version': '1.0.0',
             'author': 'EmberFrame',
-            'enabled': True,
-            'width': '600px',
-            'height': '400px',
-            'file': 'terminal.js'
+            'enabled': True
+        },
+        {
+            'id': 'text-editor',
+            'name': 'Text Editor',
+            'icon': 'fas fa-file-alt',
+            'description': 'Edit text and code files',
+            'category': 'Development',
+            'version': '1.0.0',
+            'author': 'EmberFrame',
+            'enabled': True
         },
         {
             'id': 'settings',
             'name': 'Settings',
             'icon': 'fas fa-cog',
-            'description': 'Configure your desktop environment',
+            'description': 'Customize your experience',
             'category': 'System',
             'version': '1.0.0',
             'author': 'EmberFrame',
-            'enabled': True,
-            'width': '500px',
-            'height': '600px',
-            'file': 'settings.js'
+            'enabled': True
+        },
+        {
+            'id': 'task-manager',
+            'name': 'Task Manager',
+            'icon': 'fas fa-tasks',
+            'description': 'Monitor running applications',
+            'category': 'System',
+            'version': '1.0.0',
+            'author': 'EmberFrame',
+            'enabled': True
+        },
+        {
+            'id': 'media-player',
+            'name': 'Media Player',
+            'icon': 'fas fa-play',
+            'description': 'Play audio and video files',
+            'category': 'Entertainment',
+            'version': '1.0.0',
+            'author': 'EmberFrame',
+            'enabled': True
+        },
+        {
+            'id': 'appmaker',
+            'name': 'AppMaker 2.0',
+            'icon': 'fas fa-magic',
+            'description': 'Create your own applications',
+            'category': 'Development',
+            'version': '2.0.0',
+            'author': 'EmberFrame',
+            'enabled': True
         }
     ]
 
 
+def get_default_app_icon(app_id):
+    """Get default icon for app based on ID"""
+    icon_map = {
+        'file-manager': 'fas fa-folder',
+        'terminal': 'fas fa-terminal',
+        'text-editor': 'fas fa-file-alt',
+        'media-player': 'fas fa-play',
+        'settings': 'fas fa-cog',
+        'task-manager': 'fas fa-tasks',
+        'appmaker': 'fas fa-magic',
+        'calculator': 'fas fa-calculator',
+        'notepad': 'fas fa-sticky-note',
+        'browser': 'fas fa-globe',
+        'image-viewer': 'fas fa-image',
+        'music-player': 'fas fa-music',
+        'video-player': 'fas fa-video',
+        'clock': 'fas fa-clock',
+        'calendar': 'fas fa-calendar',
+        'chat': 'fas fa-comments',
+        'email': 'fas fa-envelope',
+        'paint': 'fas fa-paint-brush',
+        'code-editor': 'fas fa-code',
+        'database': 'fas fa-database'
+    }
+    return icon_map.get(app_id, 'fas fa-cube')
+
+
+def get_default_app_category(app_id):
+    """Get default category for app based on ID"""
+    category_map = {
+        'file-manager': 'System',
+        'terminal': 'System',
+        'settings': 'System',
+        'task-manager': 'System',
+        'text-editor': 'Development',
+        'code-editor': 'Development',
+        'appmaker': 'Development',
+        'database': 'Development',
+        'media-player': 'Entertainment',
+        'music-player': 'Entertainment',
+        'video-player': 'Entertainment',
+        'image-viewer': 'Entertainment',
+        'paint': 'Entertainment',
+        'calculator': 'Utilities',
+        'notepad': 'Utilities',
+        'clock': 'Utilities',
+        'calendar': 'Utilities',
+        'browser': 'Internet',
+        'chat': 'Internet',
+        'email': 'Internet'
+    }
+    return category_map.get(app_id, 'Applications')
+
+
 # =====================
-# DATABASE FUNCTIONS (unchanged for brevity)
+# DATABASE FUNCTIONS
 # =====================
 
 def init_database(app):
@@ -1343,6 +1037,34 @@ def init_database(app):
                        ip_address
                        TEXT,
                        timestamp
+                       TIMESTAMP
+                       DEFAULT
+                       CURRENT_TIMESTAMP
+                   )
+                   ''')
+
+    # Create shortcuts table
+    cursor.execute('''
+                   CREATE TABLE IF NOT EXISTS user_shortcuts
+                   (
+                       id
+                       INTEGER
+                       PRIMARY
+                       KEY
+                       AUTOINCREMENT,
+                       username
+                       TEXT
+                       NOT
+                       NULL,
+                       shortcut_type
+                       TEXT
+                       NOT
+                       NULL,
+                       shortcuts_data
+                       TEXT
+                       DEFAULT
+                       '[]',
+                       updated_at
                        TIMESTAMP
                        DEFAULT
                        CURRENT_TIMESTAMP
@@ -1449,19 +1171,6 @@ def get_all_users(db_path):
     return users
 
 
-def get_user_by_id(db_path, user_id):
-    """Get user by ID"""
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    cursor = conn.cursor()
-
-    cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
-    result = cursor.fetchone()
-
-    conn.close()
-    return dict(result) if result else None
-
-
 def get_user_by_username(db_path, username):
     """Get user by username"""
     conn = sqlite3.connect(db_path)
@@ -1473,52 +1182,6 @@ def get_user_by_username(db_path, username):
 
     conn.close()
     return dict(result) if result else None
-
-
-def update_user(db_path, user_id, data):
-    """Update user"""
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    # Build update query dynamically
-    fields = []
-    values = []
-
-    for field in ['username', 'email', 'is_admin', 'is_active', 'quota_mb']:
-        if field in data:
-            fields.append(f'{field} = ?')
-            values.append(data[field])
-
-    if 'password' in data and data['password']:
-        fields.append('password_hash = ?')
-        values.append(hashlib.sha256(data['password'].encode()).hexdigest())
-
-    if fields:
-        values.append(user_id)
-        query = f'UPDATE users SET {", ".join(fields)} WHERE id = ?'
-        cursor.execute(query, values)
-        success = cursor.rowcount > 0
-    else:
-        success = True
-
-    conn.commit()
-    conn.close()
-
-    return success
-
-
-def delete_user(db_path, user_id):
-    """Delete user"""
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    cursor.execute('DELETE FROM users WHERE id = ?', (user_id,))
-    success = cursor.rowcount > 0
-
-    conn.commit()
-    conn.close()
-
-    return success
 
 
 def get_user_stats(db_path):
@@ -1613,8 +1276,64 @@ def save_user_preferences_db(db_path, username, preferences):
     conn.close()
 
 
+def load_user_shortcuts(db_path, username, shortcut_type):
+    """Load user shortcuts"""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+                   SELECT shortcuts_data
+                   FROM user_shortcuts
+                   WHERE username = ?
+                     AND shortcut_type = ?
+                   ''', (username, shortcut_type))
+
+    result = cursor.fetchone()
+    conn.close()
+
+    if result:
+        try:
+            return json.loads(result[0])
+        except:
+            return []
+
+    # Return default shortcuts for new users
+    if shortcut_type == 'desktop':
+        return [
+            {'app': 'file-manager', 'x': 50, 'y': 50},
+            {'app': 'terminal', 'x': 50, 'y': 170},
+            {'app': 'text-editor', 'x': 50, 'y': 290}
+        ]
+
+    return []
+
+
+def save_user_shortcuts(db_path, username, shortcut_type, shortcuts):
+    """Save user shortcuts"""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        INSERT OR REPLACE INTO user_shortcuts (username, shortcut_type, shortcuts_data, updated_at)
+        VALUES (?, ?, ?, ?)
+    ''', (username, shortcut_type, json.dumps(shortcuts), datetime.now()))
+
+    conn.commit()
+    conn.close()
+
+
+def get_system_stats(db_path):
+    """Get system statistics"""
+    stats = {}
+
+    # User stats
+    stats['users'] = get_user_stats(db_path)
+
+    return stats
+
+
 # =====================
-# UTILITY FUNCTIONS (unchanged for brevity)
+# UTILITY FUNCTIONS
 # =====================
 
 def ensure_user_directory(username, upload_folder):
@@ -1645,14 +1364,34 @@ def get_file_icon(filename):
     icon_map = {
         'folder': 'fas fa-folder',
         'txt': 'fas fa-file-alt',
+        'md': 'fas fa-file-alt',
         'pdf': 'fas fa-file-pdf',
         'doc': 'fas fa-file-word',
+        'docx': 'fas fa-file-word',
         'xls': 'fas fa-file-excel',
+        'xlsx': 'fas fa-file-excel',
+        'ppt': 'fas fa-file-powerpoint',
+        'pptx': 'fas fa-file-powerpoint',
         'jpg': 'fas fa-image',
+        'jpeg': 'fas fa-image',
         'png': 'fas fa-image',
+        'gif': 'fas fa-image',
+        'svg': 'fas fa-image',
         'mp3': 'fas fa-music',
+        'wav': 'fas fa-music',
         'mp4': 'fas fa-video',
-        'zip': 'fas fa-file-archive'
+        'avi': 'fas fa-video',
+        'mov': 'fas fa-video',
+        'zip': 'fas fa-file-archive',
+        'rar': 'fas fa-file-archive',
+        '7z': 'fas fa-file-archive',
+        'js': 'fas fa-file-code',
+        'html': 'fas fa-file-code',
+        'css': 'fas fa-file-code',
+        'py': 'fas fa-file-code',
+        'java': 'fas fa-file-code',
+        'cpp': 'fas fa-file-code',
+        'c': 'fas fa-file-code'
     }
 
     return icon_map.get(ext, 'fas fa-file')
@@ -1670,157 +1409,3 @@ def get_directory_size(directory):
     except OSError:
         pass
     return total_size
-
-
-def count_files_in_directory(directory):
-    """Count files in directory"""
-    count = 0
-    try:
-        for root, dirs, files in os.walk(directory):
-            count += len(files)
-    except OSError:
-        pass
-    return count
-
-
-def count_user_directories(upload_folder):
-    """Count user directories"""
-    try:
-        return len([d for d in os.listdir(upload_folder) if os.path.isdir(os.path.join(upload_folder, d))])
-    except OSError:
-        return 0
-
-
-def get_system_stats(db_path):
-    """Get system statistics"""
-    stats = {}
-
-    # User stats
-    stats['users'] = get_user_stats(db_path)
-
-    return stats
-
-
-def get_storage_info():
-    """Get storage information"""
-    try:
-        statvfs = os.statvfs('.')
-        total = statvfs.f_frsize * statvfs.f_blocks
-        free = statvfs.f_frsize * statvfs.f_available
-        used = total - free
-
-        return {
-            'total': total,
-            'used': used,
-            'free': free
-        }
-    except:
-        return {'total': 0, 'used': 0, 'free': 0}
-
-
-def get_memory_info():
-    """Get memory information"""
-    try:
-        memory = psutil.virtual_memory()
-        return f"{memory.percent}% ({memory.used // (1024 ** 3)}GB / {memory.total // (1024 ** 3)}GB)"
-    except:
-        return "N/A"
-
-
-def get_load_average():
-    """Get load average"""
-    try:
-        load = os.getloadavg()
-        return f"{load[0]:.2f}, {load[1]:.2f}, {load[2]:.2f}"
-    except:
-        return "N/A"
-
-
-def get_active_sessions_count(db_path):
-    """Get count of active sessions"""
-    # This is simplified - in a real app you'd track active sessions
-    return {'active': 1}
-
-
-def list_directory_files(directory, prefix=''):
-    """List files in directory for admin"""
-    files = []
-    try:
-        for item in os.listdir(directory):
-            item_path = os.path.join(directory, item)
-            file_info = {
-                'name': item,
-                'type': 'folder' if os.path.isdir(item_path) else 'file',
-                'size': os.path.getsize(item_path) if os.path.isfile(item_path) else 0,
-                'modified': datetime.fromtimestamp(os.path.getmtime(item_path)).isoformat(),
-                'path': f"{prefix}/{item}" if prefix else item,
-                'owner': 'system'
-            }
-            files.append(file_info)
-    except OSError:
-        pass
-
-    return files
-
-
-def list_user_files(upload_folder):
-    """List user files for admin"""
-    files = []
-    try:
-        for user_dir in os.listdir(upload_folder):
-            user_path = os.path.join(upload_folder, user_dir)
-            if os.path.isdir(user_path):
-                for root, dirs, filenames in os.walk(user_path):
-                    for filename in filenames:
-                        file_path = os.path.join(root, filename)
-                        rel_path = os.path.relpath(file_path, upload_folder)
-
-                        file_info = {
-                            'name': filename,
-                            'type': 'file',
-                            'size': os.path.getsize(file_path),
-                            'modified': datetime.fromtimestamp(os.path.getmtime(file_path)).isoformat(),
-                            'path': rel_path,
-                            'owner': user_dir
-                        }
-                        files.append(file_info)
-    except OSError:
-        pass
-
-    return files
-
-
-def list_system_files(project_root):
-    """List system files for admin"""
-    files = []
-    system_files = ['app.py', 'run.py', 'config.py', 'requirements.txt', 'README.md']
-
-    for filename in system_files:
-        file_path = os.path.join(project_root, filename)
-        if os.path.exists(file_path):
-            file_info = {
-                'name': filename,
-                'type': 'file',
-                'size': os.path.getsize(file_path),
-                'modified': datetime.fromtimestamp(os.path.getmtime(file_path)).isoformat(),
-                'path': filename,
-                'owner': 'system'
-            }
-            files.append(file_info)
-
-    return files
-
-
-def create_database_backup(db_path):
-    """Create database backup"""
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    backup_filename = f"emberframe_backup_{timestamp}.db"
-    backup_path = os.path.join(os.path.dirname(db_path), 'backups', backup_filename)
-
-    # Create backups directory
-    os.makedirs(os.path.dirname(backup_path), exist_ok=True)
-
-    # Copy database
-    shutil.copy2(db_path, backup_path)
-
-    return backup_filename

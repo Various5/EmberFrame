@@ -170,4 +170,4 @@ class Calculator {
 }
 
 // Export for WindowManager
-window.Calculator = Calculator;
+window.EmberFrame.registerApp('calculator', Calculator);

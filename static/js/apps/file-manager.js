@@ -1852,4 +1852,4 @@ class FileManager {
     }
 }
 
-window.FileManager = FileManager;
+window.EmberFrame.registerApp('file-manager', FileManager);

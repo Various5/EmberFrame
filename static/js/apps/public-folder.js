@@ -23,4 +23,4 @@ class PublicFolder {
     }
 }
 
-window.PublicFolder = PublicFolder;
+window.EmberFrame.registerApp('public-folder', PublicFolder);

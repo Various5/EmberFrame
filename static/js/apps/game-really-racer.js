@@ -1769,4 +1769,4 @@ class GameReallyRacer {
 }
 
 // Export for WindowManager
-window.GameReallyRacer = GameReallyRacer;
+window.EmberFrame.registerApp('game-really-racer', GameReallyRacer);

@@ -1479,4 +1479,4 @@ class GameSpaceShooter {
 }
 
 // Export for WindowManager
-window.GameSpaceShooter = GameSpaceShooter;
+window.EmberFrame.registerApp('game-space-shooter', GameSpaceShooter);

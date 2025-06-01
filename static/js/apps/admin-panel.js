@@ -2698,4 +2698,4 @@ class AdminPanel {
     }
 }
 
-window.AdminPanel = AdminPanel;
+window.EmberFrame.registerApp('admin-panel', AdminPanel);

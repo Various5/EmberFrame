@@ -1,6 +1,6 @@
 /**
- * Enhanced Window Manager with Automatic App Registration
- * Now supports self‐registering apps—no per‐app modifications required.
+ * Enhanced Window Manager with App Registration System
+ * Apps must register using: EmberFrame.registerApp('app-id', AppClass)
  */
 
 // Ensure EmberFrame namespace exists
@@ -10,6 +10,7 @@ window.EmberFrame = window.EmberFrame || {};
 window.EmberFrame.AppRegistry = window.EmberFrame.AppRegistry || {};
 window.EmberFrame.registerApp = function(id, appClass) {
   window.EmberFrame.AppRegistry[id] = appClass;
+  console.log(`✅ App registered: ${id}`);
 };
 
 class WindowManager {
@@ -34,7 +35,8 @@ class WindowManager {
 
     console.log('Enhanced WindowManager initialized', {
       mobile: this.isMobile,
-      touchSupported: 'ontouchstart' in window
+      touchSupported: 'ontouchstart' in window,
+      registeredApps: Object.keys(window.EmberFrame.AppRegistry)
     });
   }
 
@@ -53,7 +55,7 @@ class WindowManager {
     const uniqueId = `${appName}-${timestamp}`;
     let windowData = null;
 
-    // Check registry: apps should call EmberFrame.registerApp('app-id', AppClass) in their script
+    // Check registry for registered apps
     const appClass = window.EmberFrame.AppRegistry[appName];
     if (appClass && typeof appClass.createWindow === 'function') {
       try {
@@ -63,9 +65,10 @@ class WindowManager {
         console.error(`❌ Failed to create window for ${appName}:`, error);
       }
     } else {
-      console.error(`❌ App class not registered: ${appName}`);
+      console.error(`❌ App not registered: ${appName}`);
+      console.log('Available apps:', Object.keys(window.EmberFrame.AppRegistry));
       if (window.Notification) {
-        window.Notification.error(`App "${appName}" not available or not loaded`);
+        window.Notification.error(`App "${appName}" not registered. Available apps: ${Object.keys(window.EmberFrame.AppRegistry).join(', ')}`);
       }
       return;
     }
@@ -145,7 +148,7 @@ class WindowManager {
     // Update taskbar
     this.updateTaskbar();
 
-    // Call app’s onInit if provided
+    // Call app's onInit if provided
     if (windowData.onInit) {
       try {
         windowData.onInit(windowElement);
@@ -391,7 +394,7 @@ class WindowManager {
     }, 3000);
   }
 
-  // Utility: get a cascading “smart” position for new windows
+  // Utility: get a cascading "smart" position for new windows
   getSmartPosition() {
     const padding = this.isMobile ? 10 : 20;
     const offset = (this.windowCounter % 8) * (this.isMobile ? 15 : 30);
@@ -707,5 +710,5 @@ class WindowManager {
 // Initialize Enhanced Window Manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   window.WindowManager = new WindowManager();
-  console.log('Enhanced Window Manager ready with automatic app registration');
+  console.log('Enhanced Window Manager ready - apps must register with EmberFrame.registerApp()');
 });

@@ -1122,4 +1122,4 @@ THEME: ${AppMaker._appData.theme}
   }
 }
 
-window.AppMaker = AppMaker;
+window.EmberFrame.registerApp('app-maker', AppMaker);

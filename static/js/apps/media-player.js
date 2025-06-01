@@ -1619,4 +1619,4 @@ class MediaPlayer {
     }
 }
 
-window.MediaPlayer = MediaPlayer;
+window.EmberFrame.registerApp('media-player', MediaPlayer);

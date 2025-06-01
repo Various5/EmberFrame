@@ -809,4 +809,4 @@ class Terminal {
     }
 }
 
-window.Terminal = Terminal;
+window.EmberFrame.registerApp('terminal', Terminal);

@@ -761,4 +761,4 @@ Use the quick command buttons or type commands directly!`;
     }
 }
 
-window.TextAdventure = TextAdventure;
+window.EmberFrame.registerApp('game-text-adventure', TextAdventure);

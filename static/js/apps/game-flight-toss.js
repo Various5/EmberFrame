@@ -665,4 +665,4 @@ class GameFlightToss {
 }
 
 // Expose globally for EmberFrame WindowManager
-window.GameFlightToss = GameFlightToss;
+window.EmberFrame.registerApp('game-flight-toss', GameFlightToss);

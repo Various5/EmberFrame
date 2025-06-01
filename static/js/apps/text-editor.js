@@ -937,4 +937,4 @@ class TextEditorInstance {
 }
 
 // Register the TextEditor with the window manager
-window.TextEditor = TextEditor;
+window.EmberFrame.registerApp('text-editor', TextEditor);

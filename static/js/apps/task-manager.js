@@ -2456,4 +2456,4 @@ class TaskManager {
   }
 }
 
-window.TaskManager = TaskManager;
+window.EmberFrame.registerApp('task-manager', TaskManager);

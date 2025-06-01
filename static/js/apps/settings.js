@@ -5101,7 +5101,7 @@ class EffectsSystem {
 }
 
 // Make Settings available globally
-window.Settings = Settings;
+window.EmberFrame.registerApp('settings', Settings);
 
 // Auto-apply startup settings when page loads
 document.addEventListener('DOMContentLoaded', () => {

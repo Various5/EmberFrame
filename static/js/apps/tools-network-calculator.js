@@ -432,5 +432,4 @@ class ToolsNetworkCalculator {
   }
 }
 
-// Export for WindowManager
-window.ToolsNetworkCalculator = ToolsNetworkCalculator;
+window.EmberFrame.registerApp('tools-network-calculator', ToolsNetworkCalculator);

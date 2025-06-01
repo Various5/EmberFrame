@@ -674,4 +674,4 @@ class GameTetrisArcade {
 }
 
 // Expose globally
-window.GameTetrisArcade = GameTetrisArcade;
+window.EmberFrame.registerApp('game-tetris-arcade', GameTetrisArcade);

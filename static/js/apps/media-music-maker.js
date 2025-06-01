@@ -2635,4 +2635,4 @@ MediaMusicMaker.registerPlugin = function (PluginClass) {
 };
 
 // Expose globally
-window.MediaMusicMaker = MediaMusicMaker;
+window.EmberFrame.registerApp('media-music-maker', MediaMusicMaker);
