@@ -90,7 +90,7 @@ class WindowManager {
         // Update taskbar
         this.updateTaskbar();
 
-        // Initialize app-specific functionality
+        // Initialize app-specific functionality (this is where Quark3Arena.onInit or AppMaker.onInit actually runs)
         if (windowData.onInit) {
             try {
                 windowData.onInit(windowElement);
@@ -367,47 +367,47 @@ class WindowManager {
         const uniqueId = `${appName}-${timestamp}`;
         let windowData = null;
 
-    // Handle special cases first
-    if (appName === 'public-folder') {
-        if (window.FileManager) {
-            windowData = window.FileManager.createWindow('public/');
-            windowData.title = 'File Manager - Public';
-        }
-    } else {
-        // Dynamic app loading - try to find the app class
-        const className = this.getAppClassName(appName);
-        const appClass = window[className];
-
-        if (appClass && typeof appClass.createWindow === 'function') {
-            try {
-                windowData = appClass.createWindow();
-                console.log(`✅ Loaded app dynamically: ${appName} (${className})`);
-            } catch (error) {
-                console.error(`❌ Failed to create window for ${appName}:`, error);
+        // Handle special cases first
+        if (appName === 'public-folder') {
+            if (window.FileManager) {
+                windowData = window.FileManager.createWindow('public/');
+                windowData.title = 'File Manager - Public';
             }
         } else {
-            console.error(`❌ App class not found: ${className} for app: ${appName}`);
-            if (window.Notification) {
-                window.Notification.error(`App "${appName}" not available or not loaded`);
+            // Dynamic app loading - try to find the app class
+            const className = this.getAppClassName(appName);
+            const appClass = window[className];
+
+            if (appClass && typeof appClass.createWindow === 'function') {
+                try {
+                    windowData = appClass.createWindow();
+                    console.log(`✅ Loaded app dynamically: ${appName} (${className})`);
+                } catch (error) {
+                    console.error(`❌ Failed to create window for ${appName}:`, error);
+                }
+            } else {
+                console.error(`❌ App class not found: ${className} for app: ${appName}`);
+                if (window.Notification) {
+                    window.Notification.error(`App "${appName}" not available or not loaded`);
+                }
+                return;
             }
-            return;
-        }
-    }
-
-    if (windowData) {
-        // Mobile-specific window adjustments
-        if (this.isMobile) {
-            windowData.width = 'calc(100vw - 20px)';
-            windowData.height = 'calc(100vh - 90px)';
-            windowData.autoSize = false;
         }
 
-        this.createWindow(uniqueId, windowData, appName);
-    } else {
-        console.error('Failed to create window data for:', appName);
-        if (window.Notification) {
-            window.Notification.error(`Failed to open ${appName}`);
-        }
+        if (windowData) {
+            // Mobile-specific window adjustments
+            if (this.isMobile) {
+                windowData.width = 'calc(100vw - 20px)';
+                windowData.height = 'calc(100vh - 90px)';
+                windowData.autoSize = false;
+            }
+
+            this.createWindow(uniqueId, windowData, appName);
+        } else {
+            console.error('Failed to create window data for:', appName);
+            if (window.Notification) {
+                window.Notification.error(`Failed to open ${appName}`);
+            }
         }
     }
 
@@ -625,11 +625,25 @@ class WindowManager {
         return title.length > maxLength ? title.substring(0, maxLength) + '...' : title;
     }
 
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Here is the new, “smart” getAppClassName:
     getAppClassName(appType) {
-        return appType.split('-').map(part =>
-            part.charAt(0).toUpperCase() + part.slice(1)
-        ).join('');
+        const lower = appType.toLowerCase();
+
+        // 1) First try: if there’s already a global whose lowercase name matches exactly
+        for (let key in window) {
+            if (key.toLowerCase() === lower) {
+                return key;
+            }
+        }
+
+        // 2) Otherwise, Title-Case each hyphen-separated segment
+        return appType
+            .split('-')
+            .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+            .join('');
     }
+    // ─────────────────────────────────────────────────────────────────────────────
 
     autoFocusInput(windowElement) {
         setTimeout(() => {
