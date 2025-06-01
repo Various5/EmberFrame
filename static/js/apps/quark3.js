@@ -1,14 +1,14 @@
 /**
  * APP_METADATA
- * @name Placeholder
+ * @name Quark3
  * @icon fas fa-square
  * @description Simple test app that opens a “Placeholder” window
- * @category Utilities
+ * @category Games
  * @version 1.0.0
  * @author ChatGPT
  * @enabled true
  */
-class Placeholder {
+class quark3 {
   static createWindow() {
     return {
       title: '🔲 Placeholder App',
@@ -40,4 +40,4 @@ class Placeholder {
 }
 
 // Expose globally so WindowManager can find it
-window.Placeholder = Placeholder;
+window.Quark3 = Quark3;

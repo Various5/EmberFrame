@@ -1,6 +1,6 @@
 /**
  * APP_METADATA
- * @name Text Adventure
+ * @name TextAdventure
  * @icon fas fa-scroll
  * @description Classic text-based adventure game
  * @category Games

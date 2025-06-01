@@ -1,4 +1,4 @@
-# app/__init__.py - Complete EmberFrame Application with Admin API
+# app/__init__.py - Enhanced EmberFrame Application with Dynamic App Discovery
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_file, send_from_directory
 from flask_socketio import SocketIO
 import os
@@ -9,6 +9,7 @@ import sqlite3
 import time
 import psutil
 import platform
+import re
 from datetime import datetime, timedelta
 from werkzeug.utils import secure_filename
 from pathlib import Path
@@ -480,7 +481,97 @@ def create_app():
             return jsonify({'error': str(e)}), 500
 
     # =====================
-    # FILE API ROUTES
+    # ENHANCED APP DISCOVERY API
+    # =====================
+
+    @app.route('/api/apps/available')
+    def get_available_apps():
+        """Enhanced app discovery with better metadata parsing and dynamic categories"""
+        try:
+            print("🔍 Starting enhanced app discovery...")
+            apps = discover_apps_enhanced(static_dir)
+
+            # Log discovery results
+            total_apps = len(apps)
+            categories = set(app.get('category', 'Unknown') for app in apps)
+            enabled_apps = len([app for app in apps if app.get('enabled', True)])
+
+            print(
+                f"📊 Discovery complete: {total_apps} total apps, {enabled_apps} enabled, {len(categories)} categories")
+            print(f"📂 Categories found: {', '.join(sorted(categories))}")
+
+            return jsonify({
+                'success': True,
+                'apps': apps,
+                'stats': {
+                    'total': total_apps,
+                    'enabled': enabled_apps,
+                    'categories': len(categories),
+                    'category_list': sorted(categories)
+                }
+            })
+        except Exception as e:
+            print(f"❌ App discovery failed: {e}")
+            # Return fallback apps on error
+            fallback_apps = get_fallback_apps()
+            return jsonify({
+                'success': True,
+                'apps': fallback_apps,
+                'error': f'Discovery failed, using fallback: {str(e)}',
+                'stats': {
+                    'total': len(fallback_apps),
+                    'enabled': len(fallback_apps),
+                    'categories': 1,
+                    'category_list': ['System']
+                }
+            })
+
+    @app.route('/api/apps/reload', methods=['POST'])
+    def reload_apps():
+        """Force reload app discovery cache"""
+        try:
+            # Clear any cached app data
+            apps = discover_apps_enhanced(static_dir, force_reload=True)
+            return jsonify({'success': True, 'message': f'Reloaded {len(apps)} apps'})
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)})
+
+    @app.route('/api/apps/<app_id>/metadata')
+    def get_app_metadata(app_id):
+        """Get detailed metadata for a specific app"""
+        try:
+            apps_dir = os.path.join(static_dir, 'js', 'apps')
+            app_file = None
+
+            # Find the app file
+            for file in os.listdir(apps_dir):
+                if file.endswith('.js'):
+                    metadata = parse_app_metadata_enhanced(os.path.join(apps_dir, file))
+                    if metadata and metadata.get('id') == app_id:
+                        app_file = file
+                        break
+
+            if not app_file:
+                return jsonify({'error': 'App not found'}), 404
+
+            full_path = os.path.join(apps_dir, app_file)
+            metadata = parse_app_metadata_enhanced(full_path)
+
+            # Add file information
+            stat = os.stat(full_path)
+            metadata['file_info'] = {
+                'filename': app_file,
+                'size': stat.st_size,
+                'modified': datetime.fromtimestamp(stat.st_mtime).isoformat(),
+                'path': f'static/js/apps/{app_file}'
+            }
+
+            return jsonify({'success': True, 'metadata': metadata})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    # =====================
+    # FILE API ROUTES (unchanged for brevity)
     # =====================
 
     @app.route('/api/files')
@@ -646,23 +737,85 @@ def create_app():
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
-    @app.route('/api/apps/available')
-    def get_available_apps():
-        """Get available applications"""
+    @app.route('/api/shortcuts/desktop')
+    def get_desktop_shortcuts():
+        """Get user's desktop shortcuts"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
+        username = session['username']
         try:
-            apps = []
+            user_data = get_user_by_username(app.config['DATABASE_FILE'], username)
+            preferences = json.loads(user_data.get('preferences', '{}')) if user_data else {}
+            shortcuts = preferences.get('desktop_shortcuts', [])
 
-            # Scan the apps directory for available apps
-            apps_dir = os.path.join(static_dir, 'js', 'apps')
-            if os.path.exists(apps_dir):
-                for file in os.listdir(apps_dir):
-                    if file.endswith('.js'):
-                        app_info = parse_app_metadata(os.path.join(apps_dir, file))
-                        if app_info and app_info.get('enabled', True):
-                            app_info['file'] = file
-                            apps.append(app_info)
+            return jsonify({'success': True, 'shortcuts': shortcuts})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
 
-            return jsonify({'success': True, 'apps': apps})
+    @app.route('/api/shortcuts/desktop', methods=['POST'])
+    def save_desktop_shortcuts():
+        """Save user's desktop shortcuts"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
+        username = session['username']
+        try:
+            data = request.get_json()
+            shortcuts = data.get('shortcuts', [])
+
+            # Get current preferences
+            user_data = get_user_by_username(app.config['DATABASE_FILE'], username)
+            preferences = json.loads(user_data.get('preferences', '{}')) if user_data else {}
+
+            # Update shortcuts
+            preferences['desktop_shortcuts'] = shortcuts
+
+            # Save back to database
+            save_user_preferences_db(app.config['DATABASE_FILE'], username, preferences)
+
+            return jsonify({'success': True})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/shortcuts/taskbar')
+    def get_taskbar_shortcuts():
+        """Get user's taskbar shortcuts"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
+        username = session['username']
+        try:
+            user_data = get_user_by_username(app.config['DATABASE_FILE'], username)
+            preferences = json.loads(user_data.get('preferences', '{}')) if user_data else {}
+            shortcuts = preferences.get('taskbar_shortcuts', [])
+
+            return jsonify({'success': True, 'shortcuts': shortcuts})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+
+    @app.route('/api/shortcuts/taskbar', methods=['POST'])
+    def save_taskbar_shortcuts():
+        """Save user's taskbar shortcuts"""
+        if 'username' not in session:
+            return jsonify({'error': 'Not authenticated'}), 401
+
+        username = session['username']
+        try:
+            data = request.get_json()
+            shortcuts = data.get('shortcuts', [])
+
+            # Get current preferences
+            user_data = get_user_by_username(app.config['DATABASE_FILE'], username)
+            preferences = json.loads(user_data.get('preferences', '{}')) if user_data else {}
+
+            # Update shortcuts
+            preferences['taskbar_shortcuts'] = shortcuts
+
+            # Save back to database
+            save_user_preferences_db(app.config['DATABASE_FILE'], username, preferences)
+
+            return jsonify({'success': True})
         except Exception as e:
             return jsonify({'error': str(e)}), 500
 
@@ -710,7 +863,406 @@ def create_app():
 
 
 # =====================
-# DATABASE FUNCTIONS
+# ENHANCED APP DISCOVERY SYSTEM
+# =====================
+
+def discover_apps_enhanced(static_dir, force_reload=False):
+    """Enhanced app discovery with better error handling and dynamic categories"""
+    apps = []
+
+    try:
+        apps_dir = os.path.join(static_dir, 'js', 'apps')
+
+        if not os.path.exists(apps_dir):
+            print(f"⚠️ Apps directory not found: {apps_dir}")
+            return get_fallback_apps()
+
+        print(f"🔍 Scanning apps directory: {apps_dir}")
+
+        js_files = [f for f in os.listdir(apps_dir) if f.endswith('.js')]
+        print(f"📁 Found {len(js_files)} JavaScript files")
+
+        for file in js_files:
+            try:
+                file_path = os.path.join(apps_dir, file)
+                metadata = parse_app_metadata_enhanced(file_path)
+
+                if metadata:
+                    # Ensure all required fields are present
+                    metadata = normalize_app_metadata(metadata, file)
+
+                    if metadata.get('enabled', True):
+                        apps.append(metadata)
+                        print(f"✅ Loaded app: {metadata.get('name', file)} ({metadata.get('category', 'Unknown')})")
+                    else:
+                        print(f"⏸️ Skipped disabled app: {metadata.get('name', file)}")
+                else:
+                    print(f"⚠️ No valid metadata found in: {file}")
+
+            except Exception as e:
+                print(f"❌ Error processing {file}: {e}")
+                continue
+
+        if not apps:
+            print("⚠️ No valid apps found, using fallback")
+            return get_fallback_apps()
+
+        # Sort apps by category, then name
+        apps.sort(key=lambda x: (x.get('category', 'ZZZ'), x.get('name', '')))
+
+        return apps
+
+    except Exception as e:
+        print(f"❌ App discovery failed: {e}")
+        return get_fallback_apps()
+
+
+def parse_app_metadata_enhanced(file_path):
+    """Enhanced metadata parsing with better error handling and fallbacks"""
+    try:
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read()
+
+        metadata = {}
+        filename = os.path.basename(file_path)
+
+        # Try to parse APP_METADATA block first
+        if 'APP_METADATA' in content:
+            metadata = parse_metadata_block(content)
+
+        # If no metadata block, try to extract from class definition
+        if not metadata:
+            metadata = extract_metadata_from_class(content, filename)
+
+        # If still no metadata, generate from filename
+        if not metadata:
+            metadata = generate_metadata_from_filename(filename)
+
+        # Always add file information
+        metadata['file'] = filename
+        metadata['source_path'] = file_path
+
+        return metadata
+
+    except Exception as e:
+        print(f"❌ Error parsing metadata from {file_path}: {e}")
+        return None
+
+
+def parse_metadata_block(content):
+    """Parse the APP_METADATA comment block"""
+    metadata = {}
+
+    try:
+        # Extract the metadata block
+        lines = content.split('\n')
+        in_metadata = False
+
+        for line in lines:
+            line = line.strip()
+
+            if 'APP_METADATA' in line:
+                in_metadata = True
+                continue
+
+            if in_metadata:
+                if line.startswith('*/'):
+                    break
+
+                if line.startswith('* @'):
+                    parts = line[3:].split(' ', 1)
+                    if len(parts) == 2:
+                        key, value = parts
+
+                        # Handle special types
+                        if key == 'enabled':
+                            metadata[key] = value.lower() in ('true', '1', 'yes')
+                        elif key in ['width', 'height']:
+                            metadata[key] = normalize_size_value(value)
+                        else:
+                            metadata[key] = value.strip()
+
+        return metadata
+
+    except Exception as e:
+        print(f"❌ Error parsing metadata block: {e}")
+        return {}
+
+
+def extract_metadata_from_class(content, filename):
+    """Extract metadata from class name and structure"""
+    metadata = {}
+
+    try:
+        # Find class definition
+        class_match = re.search(r'class\s+(\w+)', content)
+        if class_match:
+            class_name = class_match.group(1)
+            metadata['name'] = camel_case_to_title(class_name)
+
+        # Look for createWindow method
+        if 'createWindow' in content:
+            # Try to extract title from createWindow
+            title_match = re.search(r'title:\s*[\'"`]([^\'"`]+)[\'"`]', content)
+            if title_match:
+                metadata['name'] = title_match.group(1)
+
+            # Try to extract dimensions
+            width_match = re.search(r'width:\s*[\'"`]([^\'"`]+)[\'"`]', content)
+            if width_match:
+                metadata['width'] = width_match.group(1)
+
+            height_match = re.search(r'height:\s*[\'"`]([^\'"`]+)[\'"`]', content)
+            if height_match:
+                metadata['height'] = height_match.group(1)
+
+        return metadata
+
+    except Exception as e:
+        print(f"❌ Error extracting metadata from class: {e}")
+        return {}
+
+
+def generate_metadata_from_filename(filename):
+    """Generate basic metadata from filename as fallback"""
+    try:
+        # Remove .js extension and convert to title case
+        name = filename.replace('.js', '').replace('-', ' ').replace('_', ' ')
+        name = ' '.join(word.capitalize() for word in name.split())
+
+        metadata = {
+            'name': name,
+            'description': f'Application: {name}',
+            'category': 'Applications',
+            'version': '1.0.0',
+            'author': 'Unknown',
+            'icon': guess_icon_from_name(name),
+            'enabled': True
+        }
+
+        return metadata
+
+    except Exception as e:
+        print(f"❌ Error generating metadata from filename: {e}")
+        return {}
+
+
+def normalize_app_metadata(metadata, filename):
+    """Ensure app metadata has all required fields with sensible defaults"""
+
+    # Generate consistent ID from filename
+    app_id = filename.replace('.js', '').lower().replace('_', '-').replace(' ', '-')
+    app_id = re.sub(r'[^a-z0-9-]', '', app_id)
+
+    normalized = {
+        'id': metadata.get('id', app_id),
+        'name': metadata.get('name', camel_case_to_title(app_id)),
+        'icon': metadata.get('icon', guess_icon_from_name(metadata.get('name', app_id))),
+        'description': metadata.get('description', f'Application: {metadata.get("name", app_id)}'),
+        'category': normalize_category(metadata.get('category', 'Applications')),
+        'version': metadata.get('version', '1.0.0'),
+        'author': metadata.get('author', 'Developer'),
+        'enabled': metadata.get('enabled', True),
+        'width': normalize_size_value(metadata.get('width', '400px')),
+        'height': normalize_size_value(metadata.get('height', '300px')),
+        'file': metadata.get('file', filename),
+        'source_path': metadata.get('source_path', ''),
+    }
+
+    # Add any extra metadata fields
+    for key, value in metadata.items():
+        if key not in normalized:
+            normalized[key] = value
+
+    return normalized
+
+
+def normalize_category(category):
+    """Normalize category names to standard format"""
+    if not category:
+        return 'Applications'
+
+    # Category mapping for consistency
+    category_map = {
+        'util': 'Utilities',
+        'utils': 'Utilities',
+        'utility': 'Utilities',
+        'tool': 'Utilities',
+        'tools': 'Utilities',
+        'game': 'Games',
+        'gaming': 'Games',
+        'dev': 'Development',
+        'develop': 'Development',
+        'developer': 'Development',
+        'coding': 'Development',
+        'code': 'Development',
+        'sys': 'System',
+        'system': 'System',
+        'admin': 'System',
+        'media': 'Entertainment',
+        'multimedia': 'Entertainment',
+        'video': 'Entertainment',
+        'audio': 'Entertainment',
+        'music': 'Entertainment',
+        'prod': 'Productivity',
+        'productivity': 'Productivity',
+        'office': 'Productivity',
+        'business': 'Productivity',
+    }
+
+    category_lower = category.lower().strip()
+    return category_map.get(category_lower, category.title())
+
+
+def camel_case_to_title(text):
+    """Convert CamelCase to Title Case"""
+    # Insert space before capital letters
+    result = re.sub(r'([a-z])([A-Z])', r'\1 \2', text)
+    # Handle sequences of capitals
+    result = re.sub(r'([A-Z])([A-Z][a-z])', r'\1 \2', result)
+    return result.title()
+
+
+def guess_icon_from_name(name):
+    """Guess appropriate icon based on app name"""
+    if not name:
+        return 'fas fa-window-maximize'
+
+    name_lower = name.lower()
+
+    icon_map = {
+        'calculator': 'fas fa-calculator',
+        'calc': 'fas fa-calculator',
+        'text': 'fas fa-file-alt',
+        'editor': 'fas fa-edit',
+        'file': 'fas fa-folder',
+        'folder': 'fas fa-folder',
+        'manager': 'fas fa-folder',
+        'browser': 'fas fa-globe',
+        'web': 'fas fa-globe',
+        'terminal': 'fas fa-terminal',
+        'console': 'fas fa-terminal',
+        'cmd': 'fas fa-terminal',
+        'settings': 'fas fa-cog',
+        'config': 'fas fa-cog',
+        'preferences': 'fas fa-cog',
+        'todo': 'fas fa-check-square',
+        'task': 'fas fa-tasks',
+        'timer': 'fas fa-clock',
+        'clock': 'fas fa-clock',
+        'time': 'fas fa-clock',
+        'music': 'fas fa-music',
+        'audio': 'fas fa-volume-up',
+        'video': 'fas fa-video',
+        'media': 'fas fa-play',
+        'player': 'fas fa-play',
+        'game': 'fas fa-gamepad',
+        'paint': 'fas fa-paint-brush',
+        'draw': 'fas fa-paint-brush',
+        'image': 'fas fa-image',
+        'photo': 'fas fa-image',
+        'camera': 'fas fa-camera',
+        'mail': 'fas fa-envelope',
+        'email': 'fas fa-envelope',
+        'message': 'fas fa-comment',
+        'chat': 'fas fa-comment',
+        'calendar': 'fas fa-calendar',
+        'date': 'fas fa-calendar',
+        'note': 'fas fa-sticky-note',
+        'notes': 'fas fa-sticky-note',
+        'maker': 'fas fa-magic',
+        'create': 'fas fa-plus',
+        'monitor': 'fas fa-desktop',
+        'system': 'fas fa-cogs',
+        'admin': 'fas fa-user-shield',
+    }
+
+    for keyword, icon in icon_map.items():
+        if keyword in name_lower:
+            return icon
+
+    return 'fas fa-window-maximize'
+
+
+def normalize_size_value(value):
+    """Normalize size values to ensure they have units"""
+    if not value:
+        return '400px'
+
+    value = str(value).strip()
+
+    # If it's just a number, add px
+    if value.isdigit():
+        return value + 'px'
+
+    # If it already has units, return as-is
+    if re.match(r'^\d+[a-z%]+$', value):
+        return value
+
+    # Default fallback
+    return '400px'
+
+
+def get_fallback_apps():
+    """Provide fallback apps when discovery fails"""
+    return [
+        {
+            'id': 'file-manager',
+            'name': 'File Manager',
+            'icon': 'fas fa-folder',
+            'description': 'Browse and manage your files',
+            'category': 'System',
+            'version': '1.0.0',
+            'author': 'EmberFrame',
+            'enabled': True,
+            'width': '600px',
+            'height': '500px',
+            'file': 'file-manager.js'
+        },
+        {
+            'id': 'text-editor',
+            'name': 'Text Editor',
+            'icon': 'fas fa-edit',
+            'description': 'Edit text files with syntax highlighting',
+            'category': 'Productivity',
+            'version': '1.0.0',
+            'author': 'EmberFrame',
+            'enabled': True,
+            'width': '700px',
+            'height': '500px',
+            'file': 'text-editor.js'
+        },
+        {
+            'id': 'terminal',
+            'name': 'Terminal',
+            'icon': 'fas fa-terminal',
+            'description': 'Command line interface',
+            'category': 'System',
+            'version': '1.0.0',
+            'author': 'EmberFrame',
+            'enabled': True,
+            'width': '600px',
+            'height': '400px',
+            'file': 'terminal.js'
+        },
+        {
+            'id': 'settings',
+            'name': 'Settings',
+            'icon': 'fas fa-cog',
+            'description': 'Configure your desktop environment',
+            'category': 'System',
+            'version': '1.0.0',
+            'author': 'EmberFrame',
+            'enabled': True,
+            'width': '500px',
+            'height': '600px',
+            'file': 'settings.js'
+        }
+    ]
+
+
+# =====================
+# DATABASE FUNCTIONS (unchanged for brevity)
 # =====================
 
 def init_database(app):
@@ -1062,7 +1614,7 @@ def save_user_preferences_db(db_path, username, preferences):
 
 
 # =====================
-# UTILITY FUNCTIONS
+# UTILITY FUNCTIONS (unchanged for brevity)
 # =====================
 
 def ensure_user_directory(username, upload_folder):
@@ -1188,39 +1740,6 @@ def get_active_sessions_count(db_path):
     """Get count of active sessions"""
     # This is simplified - in a real app you'd track active sessions
     return {'active': 1}
-
-
-def parse_app_metadata(file_path):
-    """Parse app metadata from JavaScript file"""
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-
-        # Look for APP_METADATA comment block
-        if 'APP_METADATA' in content:
-            lines = content.split('\n')
-            metadata = {}
-
-            for line in lines:
-                line = line.strip()
-                if line.startswith('* @'):
-                    parts = line[3:].split(' ', 1)
-                    if len(parts) == 2:
-                        key, value = parts
-                        if key == 'enabled':
-                            metadata[key] = value.lower() == 'true'
-                        else:
-                            metadata[key] = value
-
-            # Generate ID from filename
-            filename = os.path.basename(file_path)
-            metadata['id'] = filename.replace('.js', '').replace('_', '-')
-
-            return metadata
-    except:
-        pass
-
-    return None
 
 
 def list_directory_files(directory, prefix=''):
