@@ -1,12 +1,25 @@
 /**
- * Quark3Arena II (Raycasting Version)
+ * Quark3Arena II (WebGL / Three.js Version)
  *
- * - Uses a 2D “map” array of 10×10 tiles (1 = wall, 0 = empty).
- * - Performs DDA‐based raycasting each frame to draw a 3D view.
- * - Shows a minimap in the top‐right.
- * - Includes Start menu, Pause overlay, HUD (Health & Ammo), and Game Over.
- * - FOV and mouse sensitivity are adjustable in the Options.
- * - Requires a `textures/wall.png` file for wall texturing.
+ * - Real 3D scene built with Three.js.
+ * - Textured floor, walls, crates (enemies), and a simple “gun” sprite.
+ * - First‐person controls: W/A/S/D for movement, mouse‐look via Pointer Lock.
+ * - Left‐click shoots small bullets that collide with crates and destroy them.
+ * - Main menu, pause overlay, HUD (Health & Ammo), and Game Over screen.
+ * - You must supply these textures in a `textures/` folder alongside this file:
+ *     • wall.png    (wall tile, e.g. 512×512)
+ *     • floor.png   (floor tile, e.g. 512×512)
+ *     • crate.png   (crate/box tile, e.g. 512×512)
+ *     • crosshair.png (32×32 crosshair)
+ *     • health.png  (28×28 health icon)
+ *     • ammo.png    (28×28 ammo icon)
+ *     • gun.png     (weapon sprite, e.g. 900×512)
+ *
+ * - Uses a minimal Three.js setup (no external PointerLockControls file).
+ * - Bullets are small spheres that fly forward and “destroy” crates on impact.
+ * - Ammo decreases on each shot. When ammo hits 0, Game Over triggers.
+ *
+ * (c) 2025 EmberFrame Team
  */
 
 class Quark3 {
@@ -17,66 +30,95 @@ class Quark3 {
       height: '650px',
       content: `
         <style>
-          /* === Quark3 CSS === */
+          /* ================================================ */
+          /* === Quark3Arena II — WebGL / Three.js Style === */
+          /* ================================================ */
 
-          /* Container & Canvas */
-          #quark3-container { position: relative; width: 100%; height: 100%; background: #000; overflow: hidden; }
-          canvas { display: block; width: 100%; height: 100%; outline: none; }
+          #quark3-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+          }
+          canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+          }
 
           /* Main Menu */
           #quark3-menu {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); display: flex; flex-direction: column;
-            align-items: center; justify-content: center; color: #fff;
-            font-family: 'Orbitron', sans-serif; z-index: 10;
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: #fff; font-family: 'Orbitron', sans-serif;
+            z-index: 10;
           }
           #quark3-menu h1 {
-            font-size: 56px; margin-bottom: 20px; letter-spacing: 4px; color: #00ff88;
-            text-shadow: 0 0 10px rgba(0,255,136,0.7), 0 0 20px rgba(0,255,136,0.5);
+            font-size: 56px; margin-bottom: 20px;
+            letter-spacing: 4px; color: #00ff88;
+            text-shadow: 0 0 10px rgba(0,255,136,0.7),
+                         0 0 20px rgba(0,255,136,0.5);
           }
           .quark3-button {
-            margin: 12px; padding: 16px 32px; background: #111; border: 2px solid #00ff88;
-            color: #fff; cursor: pointer; font-size: 24px; border-radius: 6px;
-            transition: background 0.2s, border-color 0.2s, transform 0.2s;
+            margin: 12px; padding: 16px 32px;
+            background: #111; border: 2px solid #00ff88;
+            color: #fff; cursor: pointer; font-size: 24px;
+            border-radius: 6px;
+            transition: background 0.2s,
+                        border-color 0.2s,
+                        transform 0.2s;
           }
           .quark3-button:hover {
-            background: #00ff88; border-color: #ffffff; color: #111; transform: scale(1.05);
+            background: #00ff88; border-color: #fff;
+            color: #111; transform: scale(1.05);
             box-shadow: 0 0 15px rgba(0,255,136,0.8);
           }
           #quark3-options {
             margin-top: 30px; width: 420px; text-align: left;
           }
           .quark3-label {
-            display: block; margin: 14px 0 6px 0; font-size: 18px; color: #fff;
+            display: block; margin: 14px 0 6px 0;
+            font-size: 18px; color: #fff;
           }
           .quark3-slider {
-            width: 100%; -webkit-appearance: none; height: 6px; border-radius: 3px;
-            background: #444; outline: none;
+            width: 100%; -webkit-appearance: none; height: 6px;
+            border-radius: 3px; background: #444; outline: none;
           }
           .quark3-slider::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
-            background: #00ff88; cursor: pointer; box-shadow: 0 0 8px rgba(0,255,136,0.8);
+            -webkit-appearance: none; width: 18px; height: 18px;
+            border-radius: 50%; background: #00ff88; cursor: pointer;
+            box-shadow: 0 0 8px rgba(0,255,136,0.8);
           }
           .quark3-select {
-            width: 100%; padding: 8px; font-size: 18px; border-radius: 4px;
-            background: #222; color: #fff; border: 2px solid #00ff88;
-            appearance: none; cursor: pointer; outline: none;
+            width: 100%; padding: 8px; font-size: 18px;
+            border-radius: 4px; background: #222; color: #fff;
+            border: 2px solid #00ff88; appearance: none;
+            cursor: pointer; outline: none;
           }
 
           /* Crosshair */
           #quark3-crosshair {
-            position: absolute; top: 50%; left: 50%; width: 32px; height: 32px;
-            margin-left: -16px; margin-top: -16px; z-index: 5;
-            pointer-events: none; background: url('textures/crosshair.png') no-repeat center center;
+            position: absolute; top: 50%; left: 50%;
+            width: 32px; height: 32px;
+            margin-left: -16px; margin-top: -16px;
+            z-index: 5; pointer-events: none;
+            background: url('textures/crosshair.png') no-repeat center center;
             background-size: contain;
           }
 
           /* Pause Overlay */
           #quark3-pause {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); display: none; flex-direction: column;
-            align-items: center; justify-content: center; color: #fff;
-            font-family: 'Orbitron', sans-serif; z-index: 20;
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: #fff; font-family: 'Orbitron', sans-serif;
+            z-index: 20;
           }
           #quark3-pause h2 {
             font-size: 44px; margin-bottom: 20px; color: #ff5555;
@@ -88,47 +130,63 @@ class Quark3 {
 
           /* HUD */
           #quark3-hud {
-            position: absolute; bottom: 20px; left: 20px; color: #fff;
-            font-family: 'Orbitron', sans-serif; z-index: 5; text-shadow: 1px 1px 4px #000;
+            position: absolute; bottom: 20px; left: 20px;
+            color: #fff; font-family: 'Orbitron', sans-serif;
+            z-index: 5; text-shadow: 1px 1px 4px #000;
           }
-          #quark3-hud .hud-group { display: flex; align-items: center; margin-bottom: 8px; }
-          #quark3-hud img { width: 28px; height: 28px; margin-right: 8px; }
-          #quark3-hud span { font-size: 20px; }
+          #quark3-hud .hud-group {
+            display: flex; align-items: center; margin-bottom: 8px;
+          }
+          #quark3-hud img {
+            width: 28px; height: 28px; margin-right: 8px;
+          }
+          #quark3-hud span {
+            font-size: 20px;
+          }
 
           /* Minimap */
           #quark3-minimap {
-            position: absolute; top: 20px; right: 20px; width: 200px; height: 200px;
-            background: rgba(0,0,0,0.6); border: 2px solid #00ff88; border-radius: 6px;
-            z-index: 5;
+            position: absolute; top: 20px; right: 20px;
+            width: 200px; height: 200px;
+            background: rgba(0,0,0,0.6);
+            border: 2px solid #00ff88;
+            border-radius: 6px; z-index: 5;
           }
 
-          /* Weapon */
+          /* Weapon Sprite (billboard) */
           #quark3-weapon {
-            position: absolute; bottom: 0; left: 50%; width: 900px; height: 512px;
-            margin-left: -450px; z-index: 4; pointer-events: none;
-            background: url('textures/gun.png') no-repeat bottom center; background-size: 90%;
+            position: absolute; bottom: 0; left: 50%;
+            width: 900px; height: 512px;
+            margin-left: -450px; z-index: 4;
+            pointer-events: none;
+            background: url('textures/gun.png') no-repeat bottom center;
+            background-size: 90%;
           }
 
           /* Game Over */
           #quark3-gameover {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); display: none; flex-direction: column;
-            align-items: center; justify-content: center; color: #ff2222;
-            font-family: 'Orbitron', sans-serif; z-index: 30;
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none; flex-direction: column;
+            align-items: center; justify-content: center;
+            color: #ff2222; font-family: 'Orbitron', sans-serif;
+            z-index: 30;
           }
           #quark3-gameover h1 {
             font-size: 64px; margin-bottom: 20px;
             text-shadow: 0 0 15px rgba(255,34,34,0.8);
           }
           #quark3-gameover button {
-            margin-top: 20px; padding: 12px 24px; font-size: 22px;
-            background: #222; border: 2px solid #ff2222; color: #fff;
+            margin-top: 20px; padding: 12px 24px;
+            font-size: 22px; background: #222;
+            border: 2px solid #ff2222; color: #fff;
             border-radius: 6px; cursor: pointer;
             transition: background 0.2s, border-color 0.2s;
           }
           #quark3-gameover button:hover {
-            background: #ff2222; border-color: #fff; color: #222;
-            box-shadow: 0 0 15px rgba(255,34,34,0.7);
+            background: #ff2222; border-color: #fff;
+            color: #222; box-shadow: 0 0 15px rgba(255,34,34,0.7);
           }
         </style>
 
@@ -151,7 +209,7 @@ class Quark3 {
             </div>
           </div>
 
-          <!-- ===== Game Canvas ===== -->
+          <!-- ===== WebGL Canvas ===== -->
           <canvas id="quark3-canvas" tabindex="0"></canvas>
 
           <!-- ===== Crosshair ===== -->
@@ -190,7 +248,9 @@ class Quark3 {
         </div>
       `,
       onInit: (container) => {
-        // ===== Element References =====
+        // ====================
+        // References & Canvas
+        // ====================
         const canvas       = container.querySelector('#quark3-canvas');
         const miniCanvas   = container.querySelector('#quark3-minimap');
         const menu         = container.querySelector('#quark3-menu');
@@ -208,364 +268,56 @@ class Quark3 {
         const sensValue    = container.querySelector('#sens-value');
         const diffSelect   = container.querySelector('#quark3-difficulty');
 
-        // ===== 2D Contexts =====
-        const ctx     = canvas.getContext('2d');
         const miniCtx = miniCanvas.getContext('2d');
 
-        // ===== Canvas & Minimap Size =====
-        let width  = canvas.width  = container.clientWidth;
-        let height = canvas.height = container.clientHeight;
+        // Resize canvases to container size
+        let cw = canvas.width  = container.clientWidth;
+        let ch = canvas.height = container.clientHeight;
         const miniSize = 200;
         miniCanvas.width  = miniSize;
         miniCanvas.height = miniSize;
 
-        // ===== Game State Flags =====
+        // ====================
+        // Game State & Flags
+        // ====================
         let isRunning  = false;
         let isPaused   = false;
         let isGameOver = false;
 
-        // ===== Player State =====
-        let px  = 3.5, py = 3.5; // Player position (center of tile)
-        let pa  = 0;            // Player angle (radians)
-        let pdx = Math.cos(pa), pdy = Math.sin(pa);
+        // Player state
+        let playerHealth = 10;
+        let playerAmmo   = 30;
 
-        // Movement/Rotation deltas
-        let pdMove = 0, pdRot = 0;
-
-        // ===== Options =====
-        let fov         = parseInt(fovSlider.value) * Math.PI / 180; // Field of view (radians)
-        let sensitivity = parseFloat(sensSlider.value);
-        let difficulty  = diffSelect.value;
-        let player      = { health: 10, ammo: 30 };
-
-        // ===== Simple 10×10 Map =====
-        // 1 = Wall, 0 = Empty
-        const map = [
-          [1,1,1,1,1,1,1,1,1,1],
-          [1,0,0,0,0,0,0,0,0,1],
-          [1,0,1,0,1,0,1,0,0,1],
-          [1,0,1,0,1,0,1,0,0,1],
-          [1,0,0,0,0,0,0,0,0,1],
-          [1,0,1,1,1,1,1,1,0,1],
-          [1,0,0,0,0,0,0,0,0,1],
-          [1,0,1,0,1,0,1,0,0,1],
-          [1,0,0,0,0,0,0,0,0,1],
-          [1,1,1,1,1,1,1,1,1,1],
-        ];
-        const mapWidth  = map[0].length;
-        const mapHeight = map.length;
-        const tileSize  = 64; // each cell is 64×64 units
-
-        // ===== Load Wall Texture =====
-        const wallTex = new Image();
-        let texReady   = false;
-        wallTex.src    = 'textures/wall.png';
-        wallTex.onload = () => { texReady = true; };
-        wallTex.onerror = () => {
-          console.warn('Failed to load textures/wall.png');
-          texReady = true; // proceed anyway with solid‐color walls
-        };
-
-        // ===== Input Handling =====
+        // Movement & look
         const keys = {};
         document.addEventListener('keydown', (e) => {
           keys[e.code] = true;
-
-          // Toggle Pause on ESC
+          // ESC toggles pause if running
           if (e.code === 'Escape' && isRunning && !isGameOver) {
             isPaused = !isPaused;
             pauseOverlay.style.display = isPaused ? 'flex' : 'none';
-            if (!isPaused) requestAnimationFrame(gameLoop);
+            if (!isPaused) lastTime = performance.now(), animate();
           }
         });
-        document.addEventListener('keyup', (e) => {
-          keys[e.code] = false;
+        document.addEventListener('keyup', (e) => { keys[e.code] = false; });
+
+        // ====================
+        // Options (FOV, Sens)
+        // ====================
+        let fov = parseInt(fovSlider.value) * (Math.PI / 180);
+        let sensitivity = parseFloat(sensSlider.value);
+        let difficulty  = diffSelect.value;
+
+        fovValue.textContent = fovSlider.value + '°';
+        sensValue.textContent = sensSlider.value;
+        diffSelect.querySelectorAll('option').forEach(opt => {
+          if (opt.value === difficulty) opt.selected = true;
         });
 
-        // ===== Mouse Look (Pointer Lock) =====
-        canvas.addEventListener('click', () => {
-          canvas.requestPointerLock();
-        });
-        document.addEventListener('pointerlockchange', () => {
-          if (document.pointerLockElement === canvas) {
-            document.addEventListener('mousemove', onMouseMove);
-          } else {
-            document.removeEventListener('mousemove', onMouseMove);
-          }
-        });
-        function onMouseMove(e) {
-          const moveX = e.movementX || 0;
-          pa += moveX * 0.002 * sensitivity;
-          pdx = Math.cos(pa);
-          pdy = Math.sin(pa);
-        }
-
-        // ===== Raycasting & Rendering =====
-        function castRays() {
-          // Each vertical column = one ray
-          for (let col = 0; col < width; col++) {
-            // Calculate current ray angle
-            const rayScreenPos = (col / width - 0.5) * fov;
-            const ra = pa + rayScreenPos;
-
-            // Ray direction
-            const sinRA = Math.sin(ra);
-            const cosRA = Math.cos(ra);
-
-            // DDA initialization
-            let mapX  = Math.floor(px);
-            let mapY  = Math.floor(py);
-            let side  = 0; // 0 = hit vertical wall, 1 = hit horizontal wall
-            let dist  = 0;
-            let stepX, stepY;
-            let sideDistX, sideDistY;
-            const deltaDistX = Math.abs(1 / cosRA);
-            const deltaDistY = Math.abs(1 / sinRA);
-
-            // Calculate step and initial sideDist
-            if (cosRA < 0) {
-              stepX    = -1;
-              sideDistX = (px - mapX) * deltaDistX;
-            } else {
-              stepX    = 1;
-              sideDistX = (mapX + 1.0 - px) * deltaDistX;
-            }
-            if (sinRA < 0) {
-              stepY    = -1;
-              sideDistY = (py - mapY) * deltaDistY;
-            } else {
-              stepY    = 1;
-              sideDistY = (mapY + 1.0 - py) * deltaDistY;
-            }
-
-            // Perform DDA
-            while (true) {
-              if (sideDistX < sideDistY) {
-                sideDistX += deltaDistX;
-                mapX += stepX;
-                side = 0;
-              } else {
-                sideDistY += deltaDistY;
-                mapY += stepY;
-                side = 1;
-              }
-              // If ray is out of bounds, break
-              if (mapX < 0 || mapX >= mapWidth || mapY < 0 || mapY >= mapHeight) {
-                dist = 1e6;
-                break;
-              }
-              // Check if ray hit a wall
-              if (map[mapY][mapX] > 0) {
-                if (side === 0) {
-                  dist = (mapX - px + (1 - stepX) / 2) / cosRA;
-                } else {
-                  dist = (mapY - py + (1 - stepY) / 2) / sinRA;
-                }
-                break;
-              }
-            }
-
-            // Remove fish-eye effect
-            const fixDist = dist * Math.cos(rayScreenPos);
-
-            // Calculate line height on screen
-            const lineHeight = fixDist > 0
-              ? Math.floor((tileSize / fixDist) * (width / 2))
-              : height;
-
-            // Vertical drawing boundaries
-            const drawStart = Math.max(0, Math.floor((height - lineHeight) / 2));
-            const drawEnd   = Math.min(height, drawStart + lineHeight);
-
-            // Texture X coordinate
-            let wallX;
-            if (side === 0) {
-              wallX = py + dist * sinRA;
-            } else {
-              wallX = px + dist * cosRA;
-            }
-            wallX -= Math.floor(wallX);
-            let texX = Math.floor(wallX * tileSize);
-            if ((side === 0 && cosRA > 0) || (side === 1 && sinRA < 0)) {
-              texX = tileSize - texX - 1;
-            }
-
-            // Draw textured wall slice (1 pixel wide)
-            if (wallTex && texReady) {
-              ctx.drawImage(
-                wallTex,
-                texX, 0, 1, tileSize,    // source slice
-                col, drawStart, 1, lineHeight
-              );
-            } else {
-              // Fallback solid color if texture fails
-              ctx.fillStyle = side === 1 ? '#888' : '#aaa';
-              ctx.fillRect(col, drawStart, 1, lineHeight);
-            }
-          }
-        }
-
-        function drawScene() {
-          // Draw ceiling
-          ctx.fillStyle = '#333';
-          ctx.fillRect(0, 0, width, height / 2);
-          // Draw floor
-          ctx.fillStyle = '#666';
-          ctx.fillRect(0, height / 2, width, height / 2);
-          // Cast and draw walls
-          castRays();
-        }
-
-        // ===== Minimap Rendering =====
-        function drawMinimap() {
-          miniCtx.fillStyle = '#000';
-          miniCtx.fillRect(0, 0, miniSize, miniSize);
-          // Draw map grid
-          for (let y = 0; y < mapHeight; y++) {
-            for (let x = 0; x < mapWidth; x++) {
-              if (map[y][x] > 0) {
-                miniCtx.fillStyle = '#888';
-                miniCtx.fillRect(
-                  x * (miniSize / mapWidth),
-                  y * (miniSize / mapHeight),
-                  (miniSize / mapWidth),
-                  (miniSize / mapHeight)
-                );
-              }
-            }
-          }
-          // Draw player on minimap
-          miniCtx.fillStyle = '#f00';
-          miniCtx.beginPath();
-          miniCtx.arc(
-            px * (miniSize / mapWidth),
-            py * (miniSize / mapHeight),
-            5, 0, Math.PI * 2
-          );
-          miniCtx.fill();
-          // Draw player direction line
-          miniCtx.strokeStyle = '#0f0';
-          miniCtx.beginPath();
-          miniCtx.moveTo(
-            px * (miniSize / mapWidth),
-            py * (miniSize / mapHeight)
-          );
-          miniCtx.lineTo(
-            (px + pdx * 0.5) * (miniSize / mapWidth),
-            (py + pdy * 0.5) * (miniSize / mapHeight)
-          );
-          miniCtx.stroke();
-        }
-
-        // ===== Player Movement & Collision =====
-        function updatePlayer() {
-          const moveSpeed = 2.0 / 60.0; // adjust as desired
-          // Forward / Backward
-          if (keys['KeyW']) {
-            const nx = px + pdx * moveSpeed;
-            const ny = py + pdy * moveSpeed;
-            if (map[Math.floor(ny)][Math.floor(nx)] === 0) {
-              px = nx; py = ny;
-            }
-          }
-          if (keys['KeyS']) {
-            const nx = px - pdx * moveSpeed;
-            const ny = py - pdy * moveSpeed;
-            if (map[Math.floor(ny)][Math.floor(nx)] === 0) {
-              px = nx; py = ny;
-            }
-          }
-          // Strafe Left / Right
-          if (keys['KeyA']) {
-            const nx = px + pdy * moveSpeed;
-            const ny = py - pdx * moveSpeed;
-            if (map[Math.floor(ny)][Math.floor(nx)] === 0) {
-              px = nx; py = ny;
-            }
-          }
-          if (keys['KeyD']) {
-            const nx = px - pdy * moveSpeed;
-            const ny = py + pdx * moveSpeed;
-            if (map[Math.floor(ny)][Math.floor(nx)] === 0) {
-              px = nx; py = ny;
-            }
-          }
-          // Turn Left / Right with arrow keys
-          if (keys['ArrowLeft']) {
-            pa -= 0.04 * sensitivity;
-            pdx = Math.cos(pa);
-            pdy = Math.sin(pa);
-          }
-          if (keys['ArrowRight']) {
-            pa += 0.04 * sensitivity;
-            pdx = Math.cos(pa);
-            pdy = Math.sin(pa);
-          }
-        }
-
-        // ===== HUD Update =====
-        function updateHUD() {
-          hudHealth.textContent = player.health;
-          hudAmmo.textContent   = player.ammo;
-        }
-
-        // ===== Main Game Loop =====
-        function gameLoop() {
-          if (!isRunning || isPaused || isGameOver) return;
-          updatePlayer();
-          drawScene();
-          drawMinimap();
-          updateHUD();
-          requestAnimationFrame(gameLoop);
-        }
-
-        // ===== Start Button Handler =====
-        startBtn.addEventListener('click', () => {
-          // Wait for texture to load
-          if (!texReady) return;
-          menu.style.display = 'none';
-          isRunning = true;
-          canvas.focus();
-          requestAnimationFrame(gameLoop);
-        });
-
-        // ===== Pause Overlay Buttons =====
-        resumeBtn.addEventListener('click', () => {
-          isPaused = false;
-          pauseOverlay.style.display = 'none';
-          requestAnimationFrame(gameLoop);
-        });
-        exitBtn.addEventListener('click', () => {
-          isPaused = false;
-          pauseOverlay.style.display = 'none';
-          isRunning = false;
-          menu.style.display = 'flex';
-        });
-
-        // ===== Game Over (Example: run out of ammo) =====
-        function triggerGameOver() {
-          isGameOver = true;
-          isRunning  = false;
-          gameover.style.display = 'flex';
-        }
-        // In this demo, if ammo ≤ 0, we trigger Game Over (you can change as needed)
-        const ammoWatcher = setInterval(() => {
-          if (isRunning && player.ammo <= 0) {
-            clearInterval(ammoWatcher);
-            triggerGameOver();
-          }
-        }, 100);
-
-        goMenuBtn.addEventListener('click', () => {
-          gameover.style.display = 'none';
-          isGameOver = false;
-          menu.style.display = 'flex';
-        });
-
-        // ===== Options Adjustments =====
         fovSlider.addEventListener('input', () => {
-          fov = parseInt(fovSlider.value) * Math.PI / 180;
+          fov = parseInt(fovSlider.value) * (Math.PI / 180);
           fovValue.textContent = fovSlider.value + '°';
+          if (camera) camera.fov = (fovSlider.value), camera.updateProjectionMatrix();
         });
         sensSlider.addEventListener('input', () => {
           sensitivity = parseFloat(sensSlider.value);
@@ -575,17 +327,434 @@ class Quark3 {
           difficulty = diffSelect.value;
         });
 
-        // ===== Handle Window Resize =====
-        window.addEventListener('resize', () => {
-          width = container.clientWidth;
-          height = container.clientHeight;
-          canvas.width  = width;
-          canvas.height = height;
-          miniCanvas.width  = miniSize;
-          miniCanvas.height = miniSize;
+        // ====================
+        // Pause & Menu Handlers
+        // ====================
+        startBtn.addEventListener('click', () => {
+          // Only start once textures are loaded
+          if (!threeReady) return;
+          menu.style.display = 'none';
+          isRunning = true;
+          canvas.focus();
+          lastTime = performance.now();
+          animate();
+        });
+        resumeBtn.addEventListener('click', () => {
+          isPaused = false;
+          pauseOverlay.style.display = 'none';
+          lastTime = performance.now();
+          animate();
+        });
+        exitBtn.addEventListener('click', () => {
+          isPaused = false;
+          pauseOverlay.style.display = 'none';
+          isRunning = false;
+          menu.style.display = 'flex';
+        });
+        goMenuBtn.addEventListener('click', () => {
+          gameover.style.display = 'none';
+          isGameOver = false;
+          menu.style.display = 'flex';
         });
 
-        console.log('✅ Quark3Arena II (raycasting) initialized');
+        // ====================
+        // Three.js Globals
+        // ====================
+        let scene, camera, renderer;
+        let controlsEnabled = false;
+        let velocity = new THREE.Vector3();
+        let direction = new THREE.Vector3();
+        const moveSpeed = 6.0; // units per second
+        let prevTime = performance.now();
+        let pointers = { x: 0, y: 0 };
+
+        // Arrays to hold bullet objects and crates
+        const bullets = [];
+        const crates  = [];
+
+        // Flag to know when Three.js is loaded
+        let threeReady = false;
+
+        // ====================
+        // Dynamic Load of Three.js
+        // ====================
+        (function loadThree() {
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+          script.onload = () => {
+            // Once three.js is loaded, init the scene
+            initThree();
+          };
+          script.onerror = () => {
+            console.error('Failed to load Three.js from CDN');
+          };
+          document.head.appendChild(script);
+        })();
+
+        // ====================
+        // Initialize Three.js Scene
+        // ====================
+        function initThree() {
+          // 1. Create Scene & Camera
+          scene = new THREE.Scene();
+          scene.background = new THREE.Color(0x3366ff); // sky‐blue
+
+          camera = new THREE.PerspectiveCamera(
+            (fovSlider.value),        // fov in degrees
+            cw / ch,                  // aspect
+            0.1,                      // near
+            1000                      // far
+          );
+          camera.position.set(0, 1.6, 0); // eye height at y=1.6
+
+          // 2. Renderer
+          renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+          renderer.setSize(cw, ch);
+          renderer.shadowMap.enabled = true;
+          renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
+
+          // 3. Lights
+          const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+          hemiLight.position.set(0, 200, 0);
+          scene.add(hemiLight);
+
+          const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+          dirLight.position.set(5, 10, 5);
+          dirLight.castShadow = true;
+          dirLight.shadow.camera.top    = 10;
+          dirLight.shadow.camera.bottom = -10;
+          dirLight.shadow.camera.left   = -10;
+          dirLight.shadow.camera.right  = 10;
+          scene.add(dirLight);
+
+          // 4. Floor
+          const floorTex = new THREE.TextureLoader().load('textures/floor.png');
+          floorTex.wrapS = floorTex.wrapT = THREE.RepeatWrapping;
+          floorTex.repeat.set(10, 10);
+          const floorMat = new THREE.MeshStandardMaterial({ map: floorTex });
+          const floorGeo = new THREE.PlaneBufferGeometry(50, 50);
+          const floor    = new THREE.Mesh(floorGeo, floorMat);
+          floor.rotation.x = -Math.PI / 2;
+          floor.receiveShadow = true;
+          scene.add(floor);
+
+          // 5. Walls (a simple box‐shaped room)
+          const wallTex = new THREE.TextureLoader().load('textures/wall.png');
+          wallTex.wrapS = wallTex.wrapT = THREE.RepeatWrapping;
+          wallTex.repeat.set(5, 2);
+
+          const wallMat = new THREE.MeshStandardMaterial({ map: wallTex });
+          const wallGeo = new THREE.PlaneBufferGeometry(50, 5);
+
+          // Back wall (positive z)
+          const backWall = new THREE.Mesh(wallGeo, wallMat);
+          backWall.position.set(0, 2.5, -25);
+          backWall.receiveShadow = true;
+          scene.add(backWall);
+
+          // Front wall (negative z)
+          const frontWall = new THREE.Mesh(wallGeo, wallMat);
+          frontWall.position.set(0, 2.5, 25);
+          frontWall.rotation.y = Math.PI;
+          frontWall.receiveShadow = true;
+          scene.add(frontWall);
+
+          // Left wall (negative x)
+          const leftWall = new THREE.Mesh(wallGeo, wallMat);
+          leftWall.position.set(-25, 2.5, 0);
+          leftWall.rotation.y = Math.PI / 2;
+          leftWall.receiveShadow = true;
+          scene.add(leftWall);
+
+          // Right wall (positive x)
+          const rightWall = new THREE.Mesh(wallGeo, wallMat);
+          rightWall.position.set(25, 2.5, 0);
+          rightWall.rotation.y = -Math.PI / 2;
+          rightWall.receiveShadow = true;
+          scene.add(rightWall);
+
+          // 6. Crates (enemies) – several boxes scattered
+          const crateTex = new THREE.TextureLoader().load('textures/crate.png');
+          const crateMat = new THREE.MeshStandardMaterial({ map: crateTex });
+          const crateGeo = new THREE.BoxBufferGeometry(2, 2, 2);
+
+          const cratePositions = [
+            { x:  5, z: -5 },
+            { x: -5, z: -8 },
+            { x:  8, z:  5 },
+            { x: -10, z: 3 },
+          ];
+          cratePositions.forEach((pos) => {
+            const crate = new THREE.Mesh(crateGeo, crateMat);
+            crate.position.set(pos.x, 1, pos.z);
+            crate.castShadow = true;
+            crate.receiveShadow = true;
+            scene.add(crate);
+            crates.push(crate);
+          });
+
+          // 7. Simple “Gun” as a textured plane in front of camera
+          const gunMap = new THREE.TextureLoader().load('textures/gun.png');
+          const gunMat = new THREE.MeshBasicMaterial({ map: gunMap, transparent: true });
+          const gunGeo = new THREE.PlaneGeometry(1.2, 0.7);
+          const gunMesh = new THREE.Mesh(gunGeo, gunMat);
+          gunMesh.position.set(0, -0.4, -1.2);
+          camera.add(gunMesh);
+          scene.add(camera); // add camera (and gun) to the scene
+
+          // 8. Raycaster for shooting
+          raycaster   = new THREE.Raycaster();
+          const origin = new THREE.Vector3();
+          const dir    = new THREE.Vector3();
+
+          // 9. Pointer Lock (Mouse Look)
+          canvas.requestPointerLock = canvas.requestPointerLock ||
+                                      canvas.mozRequestPointerLock;
+          document.exitPointerLock  = document.exitPointerLock  ||
+                                      document.mozExitPointerLock;
+
+          canvas.addEventListener('click', () => {
+            canvas.requestPointerLock();
+          });
+          document.addEventListener('pointerlockchange', onPointerLockChange, false);
+          document.addEventListener('mozpointerlockchange', onPointerLockChange, false);
+
+          // 10. Window Resize Handling
+          window.addEventListener('resize', () => {
+            cw = container.clientWidth;
+            ch = container.clientHeight;
+            renderer.setSize(cw, ch);
+            camera.aspect = cw / ch;
+            camera.updateProjectionMatrix();
+          });
+
+          threeReady = true;
+        }
+
+        // ====================
+        // Pointer Lock Change
+        // ====================
+        function onPointerLockChange() {
+          if (document.pointerLockElement === canvas ||
+              document.mozPointerLockElement === canvas) {
+            controlsEnabled = true;
+            document.addEventListener('mousemove', onMouseMove, false);
+          } else {
+            controlsEnabled = false;
+            document.removeEventListener('mousemove', onMouseMove, false);
+          }
+        }
+
+        // ====================
+        // Mouse Move → Look
+        // ====================
+        let pitchObject = new THREE.Object3D();
+        let yawObject   = new THREE.Object3D();
+        yawObject.add(camera);
+        pitchObject.add(yawObject);
+
+        function onMouseMove(event) {
+          if (!controlsEnabled) return;
+          const movementX = event.movementX || 0;
+          const movementY = event.movementY || 0;
+
+          yawObject.rotation.y   -= movementX * 0.002 * sensitivity;
+          pitchObject.rotation.x -= movementY * 0.002 * sensitivity;
+          pitchObject.rotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, pitchObject.rotation.x));
+        }
+
+        // ====================
+        // Shooting Logic
+        // ====================
+        let raycaster;
+        window.addEventListener('mousedown', (event) => {
+          if (!isRunning || isPaused || isGameOver) return;
+          if (event.button === 0) { // left click → shoot
+            if (playerAmmo <= 0) return;
+            playerAmmo--;
+            spawnBullet();
+            updateHUD();
+            if (playerAmmo <= 0) {
+              // Delay a bit then trigger Game Over
+              setTimeout(() => {
+                triggerGameOver();
+              }, 1500);
+            }
+          }
+        });
+
+        function spawnBullet() {
+          const bulletGeo = new THREE.SphereBufferGeometry(0.05, 8, 8);
+          const bulletMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+          const bullet    = new THREE.Mesh(bulletGeo, bulletMat);
+
+          // Position at camera
+          bullet.position.set(
+            camera.position.x,
+            camera.position.y - 0.1,
+            camera.position.z
+          );
+
+          // Determine forward direction
+          const forward = new THREE.Vector3(0, 0, -1);
+          forward.applyQuaternion(camera.quaternion);
+          forward.normalize();
+
+          bullet.userData.velocity = forward.clone().multiplyScalar(40); // speed
+          scene.add(bullet);
+          bullets.push(bullet);
+        }
+
+        // ====================
+        // Player Movement & Collision
+        // ====================
+        function updatePlayer(delta) {
+          velocity.x -= velocity.x * 10.0 * delta;
+          velocity.z -= velocity.z * 10.0 * delta;
+
+          direction.z = Number(keys['KeyW']) - Number(keys['KeyS']);
+          direction.x = Number(keys['KeyD']) - Number(keys['KeyA']);
+          direction.normalize();
+
+          if (keys['KeyW'] || keys['KeyS']) {
+            velocity.z -= direction.z * moveSpeed * delta;
+          }
+          if (keys['KeyA'] || keys['KeyD']) {
+            velocity.x -= direction.x * moveSpeed * delta;
+          }
+
+          // Move camera via yawObject and pitchObject
+          yawObject.translateX(velocity.x * delta);
+          yawObject.translateZ(velocity.z * delta);
+
+          // Simple collision: keep us within the 25×25 room
+          const px = yawObject.position.x, pz = yawObject.position.z;
+          const limit = 24.5;
+          if (px > limit) yawObject.position.x = limit;
+          if (px < -limit) yawObject.position.x = -limit;
+          if (pz > limit) yawObject.position.z = limit;
+          if (pz < -limit) yawObject.position.z = -limit;
+        }
+
+        // ====================
+        // Bullets Update
+        // ====================
+        function updateBullets(delta) {
+          for (let i = bullets.length-1; i >= 0; i--) {
+            const b = bullets[i];
+            // Move bullet
+            b.position.add(b.userData.velocity.clone().multiplyScalar(delta));
+
+            // Check if bullet is out of range
+            if (b.position.length() > 100) {
+              scene.remove(b);
+              bullets.splice(i,1);
+              continue;
+            }
+
+            // Check collision with crates
+            for (let j = crates.length-1; j >= 0; j--) {
+              const crate = crates[j];
+              const dist = crate.position.distanceTo(b.position);
+              if (dist < 1.0) {
+                // Remove crate & bullet
+                scene.remove(crate);
+                crates.splice(j,1);
+                scene.remove(b);
+                bullets.splice(i,1);
+                break;
+              }
+            }
+          }
+        }
+
+        // ====================
+        // Minimap Rendering
+        // ====================
+        function drawMinimap() {
+          miniCtx.fillStyle = '#000';
+          miniCtx.fillRect(0,0,miniSize,miniSize);
+
+          // Draw floor plan grid
+          const scale = miniSize / 50; // since room is 50×50
+          miniCtx.fillStyle = '#444';
+          miniCtx.fillRect(0,0,miniSize,miniSize);
+
+          // Draw walls
+          miniCtx.fillStyle = '#888';
+          // four border walls:
+          miniCtx.fillRect(0,0,miniSize, scale*2);           // top
+          miniCtx.fillRect(0, scale*48, miniSize, scale*2);   // bottom
+          miniCtx.fillRect(0,0, scale*2, miniSize);           // left
+          miniCtx.fillRect(scale*48, 0, scale*2, miniSize);   // right
+
+          // Draw crates on minimap
+          crates.forEach((crate) => {
+            miniCtx.fillStyle = '#ff8800';
+            miniCtx.fillRect(
+              (crate.position.x+25)*scale - 5,
+              (crate.position.z+25)*scale - 5,
+              10, 10
+            );
+          });
+
+          // Draw player
+          miniCtx.fillStyle = '#00ff00';
+          const px = (yawObject.position.x + 25)*scale;
+          const pz = (yawObject.position.z + 25)*scale;
+          miniCtx.beginPath();
+          miniCtx.arc(px, pz, 6, 0, Math.PI*2);
+          miniCtx.fill();
+
+          // Draw player direction line
+          miniCtx.strokeStyle = '#00ff00';
+          miniCtx.beginPath();
+          miniCtx.moveTo(px, pz);
+          const forward = new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
+          miniCtx.lineTo(
+            px + forward.x * 15,
+            pz + forward.z * 15
+          );
+          miniCtx.stroke();
+        }
+
+        // ====================
+        // HUD Update
+        // ====================
+        function updateHUD() {
+          hudHealth.textContent = playerHealth;
+          hudAmmo.textContent   = playerAmmo;
+        }
+
+        // ====================
+        // Trigger Game Over
+        // ====================
+        function triggerGameOver() {
+          isGameOver = true;
+          isRunning  = false;
+          gameover.style.display = 'flex';
+        }
+
+        // ====================
+        // Render Loop
+        // ====================
+        let lastTime = performance.now();
+        function animate() {
+          if (!isRunning || isPaused || isGameOver) return;
+          const now = performance.now();
+          const delta = (now - lastTime) / 1000; // in seconds
+          lastTime = now;
+
+          updatePlayer(delta);
+          updateBullets(delta);
+          drawMinimap();
+          updateHUD();
+
+          renderer.render(scene, camera);
+          requestAnimationFrame(animate);
+        }
+
+        console.log('✅ Quark3Arena II (WebGL) initialized');
       }
     };
   }
