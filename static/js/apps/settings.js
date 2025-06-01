@@ -183,10 +183,6 @@ class Settings {
                                         <i class="fas fa-paint-brush"></i>
                                         <span>Gradient</span>
                                     </div>
-                                    <div class="bg-type" data-type="animated">
-                                        <i class="fas fa-magic"></i>
-                                        <span>Animated</span>
-                                    </div>
                                     <div class="bg-type" data-type="media">
                                         <i class="fas fa-video"></i>
                                         <span>Media</span>
@@ -835,664 +831,6 @@ class Settings {
                 </div>
 
                 ${Settings.getStyles()}
-
-// FPS Counter
-class FPSCounter {
-    constructor() {
-        this.fps = 0;
-        this.frameCount = 0;
-        this.lastTime = performance.now();
-        this.element = null;
-
-        this.init();
-    }
-
-    init() {
-        this.element = document.createElement('div');
-        this.element.style.cssText = `
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #00ff00;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 14px;
-            z-index: 10000;
-        `;
-        document.body.appendChild(this.element);
-
-        this.update();
-    }
-
-    update() {
-        this.frameCount++;
-        const now = performance.now();
-
-        if (now - this.lastTime >= 1000) {
-            this.fps = Math.round((this.frameCount * 1000) / (now - this.lastTime));
-            this.element.textContent = `FPS: ${this.fps}`;
-            this.frameCount = 0;
-            this.lastTime = now;
-        }
-
-        requestAnimationFrame(() => this.update());
-    }
-
-    destroy() {
-        if (this.element && this.element.parentNode) {
-            this.element.parentNode.removeChild(this.element);
-        }
-    }
-}
-
-// Make Settings available globally
-window.Settings = Settings;
-
-// Simple particle system for immediate testing
-window.createTestParticles = function() {
-    console.log('🧪 Creating test particles directly...');
-
-    // Remove any existing particle canvas
-    const existing = document.getElementById('test-particles-canvas');
-    if (existing) existing.remove();
-
-    // Create test canvas
-    const canvas = document.createElement('canvas');
-    canvas.id = 'test-particles-canvas';
-    canvas.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        pointer-events: none;
-        z-index: -5;
-        background: rgba(255, 0, 0, 0.1);
-    `;
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const ctx = canvas.getContext('2d');
-    document.body.appendChild(canvas);
-
-    // Create simple particles
-    const particles = [];
-    for (let i = 0; i < 50; i++) {
-        particles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            vx: (Math.random() - 0.5) * 2,
-            vy: (Math.random() - 0.5) * 2
-        });
-    }
-
-    // Simple animation
-    function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Update and draw particles
-        particles.forEach(p => {
-            p.x += p.vx;
-            p.y += p.vy;
-
-            // Wrap around edges
-            if (p.x < 0) p.x = canvas.width;
-            if (p.x > canvas.width) p.x = 0;
-            if (p.y < 0) p.y = canvas.height;
-            if (p.y > canvas.height) p.y = 0;
-
-            // Draw particle
-            ctx.fillStyle = '#00d4ff';
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-            ctx.fill();
-        });
-
-        requestAnimationFrame(animate);
-    }
-
-    animate();
-    console.log('✅ Test particles should now be visible!');
-};
-
-// Global function to test advanced particles
-window.testAdvancedParticles = function() {
-    console.log('🚀 Testing advanced particle system...');
-    if (window.Settings) {
-        Settings.destroyParticleSystem();
-        setTimeout(() => {
-            Settings.initializeParticleSystem();
-        }, 200);
-    } else {
-        console.error('❌ Settings not available');
-    }
-};
-
-// Auto-apply startup settings when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 DOM loaded, starting initialization...');
-
-    // Create test particles immediately for testing
-    window.createTestParticles();
-
-    // Apply settings after a short delay
-    setTimeout(() => {
-        try {
-            Settings.applyStartupSettings();
-        } catch (error) {
-            console.error('❌ Error applying startup settings:', error);
-        }
-    }, 500);
-});
-
-// Also apply when scripts load (for hot reloading)
-if (document.readyState === 'loading') {
-    console.log('🚀 Script loaded, DOM not ready yet...');
-} else {
-    console.log('🚀 Script loaded, DOM already ready...');
-    window.createTestParticles();
-    setTimeout(() => {
-        Settings.applyStartupSettings();
-    }, 500);
-}
-
-// Animated Background System
-class BackgroundSystem {
-    constructor(settings) {
-        this.settings = settings;
-        this.canvas = null;
-        this.ctx = null;
-        this.animationId = null;
-        this.time = 0;
-        this.currentAnimation = settings.backgroundAnimation || 'matrix';
-
-        this.init();
-    }
-
-    init() {
-        this.createCanvas();
-        this.animate();
-    }
-
-    setAnimation(animation) {
-        this.currentAnimation = animation;
-        console.log(`🎬 Background animation changed to: ${animation}`);
-    }
-
-    createCanvas() {
-        this.canvas = document.createElement('canvas');
-        this.canvas.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: -9;
-        `;
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-        this.ctx = this.canvas.getContext('2d');
-        document.body.appendChild(this.canvas);
-
-        window.addEventListener('resize', () => {
-            this.canvas.width = window.innerWidth;
-            this.canvas.height = window.innerHeight;
-        });
-    }
-
-    animate() {
-        const speed = this.settings['animation-speed'] || 1;
-        const intensity = this.settings['animation-intensity'] || 1;
-        this.time += 0.02 * speed;
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        const animation = this.currentAnimation;
-
-        switch (animation) {
-            case 'matrix':
-                this.drawMatrixRain(intensity);
-                break;
-            case 'waves':
-                this.drawWaves(intensity);
-                break;
-            case 'neural':
-                this.drawNeuralNetwork(intensity);
-                break;
-            case 'plasma':
-                this.drawPlasmaField(intensity);
-                break;
-            case 'geometry':
-                this.drawGeometricLines(intensity);
-                break;
-            case 'stars':
-                this.drawStarfield(intensity);
-                break;
-            case 'particles':
-                this.drawParticleFlow(intensity);
-                break;
-            case 'fractals':
-                this.drawFractalTree(intensity);
-                break;
-            case 'cellular':
-                this.drawCellularAutomata(intensity);
-                break;
-            case 'lightning':
-                this.drawLightning(intensity);
-                break;
-            case 'ripples':
-                this.drawWaterRipples(intensity);
-                break;
-            case 'crystals':
-                this.drawGrowingCrystals(intensity);
-                break;
-            case 'dna':
-                this.drawDNAStrands(intensity);
-                break;
-            case 'galaxy':
-                this.drawGalaxySpiral(intensity);
-                break;
-            case 'fire':
-                this.drawFireEffect(intensity);
-                break;
-            case 'code':
-                this.drawDigitalRain(intensity);
-                break;
-        }
-
-        this.animationId = requestAnimationFrame(() => this.animate());
-    }
-
-    drawMatrixRain() {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.fillStyle = '#00ff00';
-        this.ctx.font = '15px monospace';
-
-        const columns = this.canvas.width / 20;
-        for (let i = 0; i < columns; i++) {
-            const text = String.fromCharCode(Math.random() * 128);
-            const x = i * 20;
-            const y = (this.time * 100 + i * 50) % this.canvas.height;
-            this.ctx.fillText(text, x, y);
-        }
-    }
-
-    drawWaves() {
-        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-        gradient.addColorStop(0, 'rgba(0, 212, 255, 0.1)');
-        gradient.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
-        this.ctx.fillStyle = gradient;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.5)';
-        this.ctx.lineWidth = 2;
-
-        for (let i = 0; i < 5; i++) {
-            this.ctx.beginPath();
-            for (let x = 0; x <= this.canvas.width; x += 10) {
-                const y = this.canvas.height / 2 + Math.sin((x + this.time * 100) * 0.01 + i) * 50;
-                if (x === 0) {
-                    this.ctx.moveTo(x, y);
-                } else {
-                    this.ctx.lineTo(x, y);
-                }
-            }
-            this.ctx.stroke();
-        }
-    }
-
-    drawNeuralNetwork() {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        const nodes = 20;
-        const nodePositions = [];
-
-        for (let i = 0; i < nodes; i++) {
-            const x = (Math.sin(this.time + i) + 1) * this.canvas.width / 2;
-            const y = (Math.cos(this.time * 0.7 + i) + 1) * this.canvas.height / 2;
-            nodePositions.push({ x, y });
-
-            // Draw node
-            this.ctx.fillStyle = 'rgba(0, 212, 255, 0.8)';
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, 3, 0, Math.PI * 2);
-            this.ctx.fill();
-        }
-
-        // Draw connections
-        this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.2)';
-        this.ctx.lineWidth = 1;
-        for (let i = 0; i < nodePositions.length; i++) {
-            for (let j = i + 1; j < nodePositions.length; j++) {
-                const dist = Math.sqrt(
-                    Math.pow(nodePositions[i].x - nodePositions[j].x, 2) +
-                    Math.pow(nodePositions[i].y - nodePositions[j].y, 2)
-                );
-                if (dist < 150) {
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(nodePositions[i].x, nodePositions[i].y);
-                    this.ctx.lineTo(nodePositions[j].x, nodePositions[j].y);
-                    this.ctx.stroke();
-                }
-            }
-        }
-    }
-
-    drawPlasmaField() {
-        const imageData = this.ctx.createImageData(this.canvas.width, this.canvas.height);
-        const data = imageData.data;
-
-        for (let x = 0; x < this.canvas.width; x += 2) {
-            for (let y = 0; y < this.canvas.height; y += 2) {
-                const value = Math.sin(x * 0.01 + this.time) +
-                             Math.sin(y * 0.01 + this.time) +
-                             Math.sin((x + y) * 0.01 + this.time);
-
-                const color = Math.floor((value + 3) * 42.5);
-                const index = (y * this.canvas.width + x) * 4;
-
-                data[index] = color; // R
-                data[index + 1] = color * 0.5; // G
-                data[index + 2] = 255 - color; // B
-                data[index + 3] = 100; // A
-            }
-        }
-
-        this.ctx.putImageData(imageData, 0, 0);
-    }
-
-    drawGeometricLines() {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.3)';
-        this.ctx.lineWidth = 1;
-
-        const step = 50;
-        for (let x = 0; x < this.canvas.width; x += step) {
-            for (let y = 0; y < this.canvas.height; y += step) {
-                const offset = Math.sin(this.time + x * 0.01 + y * 0.01) * 20;
-                this.ctx.beginPath();
-                this.ctx.moveTo(x, y);
-                this.ctx.lineTo(x + step + offset, y + step + offset);
-                this.ctx.stroke();
-            }
-        }
-    }
-
-    drawStarfield() {
-        this.ctx.fillStyle = 'rgba(0, 0, 20, 0.1)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.fillStyle = 'white';
-        for (let i = 0; i < 200; i++) {
-            const x = (Math.sin(this.time * 0.1 + i) + 1) * this.canvas.width / 2;
-            const y = (Math.cos(this.time * 0.1 + i * 0.7) + 1) * this.canvas.height / 2;
-            const size = Math.sin(this.time + i) * 2 + 2;
-
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, size, 0, Math.PI * 2);
-            this.ctx.fill();
-        }
-    }
-
-    drawParticleFlow(intensity) {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.03)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.fillStyle = `rgba(0, 212, 255, ${0.6 * intensity})`;
-        for (let i = 0; i < 100 * intensity; i++) {
-            const x = (Math.sin(this.time + i * 0.1) + 1) * this.canvas.width / 2;
-            const y = (Math.cos(this.time * 0.7 + i * 0.05) + 1) * this.canvas.height / 2;
-            const size = Math.sin(this.time + i) * 3 + 3;
-
-            this.ctx.beginPath();
-            this.ctx.arc(x, y, size, 0, Math.PI * 2);
-            this.ctx.fill();
-        }
-    }
-
-    drawFractalTree(intensity) {
-        this.ctx.fillStyle = 'rgba(0, 0, 20, 0.1)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.strokeStyle = `rgba(0, 255, 0, ${0.7 * intensity})`;
-        this.ctx.lineWidth = 2;
-
-        const drawBranch = (x, y, angle, length, depth) => {
-            if (depth === 0 || length < 2) return;
-
-            const endX = x + Math.cos(angle) * length;
-            const endY = y + Math.sin(angle) * length;
-
-            this.ctx.beginPath();
-            this.ctx.moveTo(x, y);
-            this.ctx.lineTo(endX, endY);
-            this.ctx.stroke();
-
-            const newLength = length * 0.7;
-            const angleVariation = Math.sin(this.time + depth) * 0.5;
-
-            drawBranch(endX, endY, angle - 0.5 + angleVariation, newLength, depth - 1);
-            drawBranch(endX, endY, angle + 0.5 + angleVariation, newLength, depth - 1);
-        };
-
-        drawBranch(this.canvas.width / 2, this.canvas.height - 50, -Math.PI / 2, 60 * intensity, 8);
-    }
-
-    drawCellularAutomata(intensity) {
-        const cellSize = 5;
-        const cols = Math.floor(this.canvas.width / cellSize);
-        const rows = Math.floor(this.canvas.height / cellSize);
-
-        this.ctx.fillStyle = `rgba(0, 255, 255, ${0.8 * intensity})`;
-
-        for (let x = 0; x < cols; x++) {
-            for (let y = 0; y < rows; y++) {
-                const noise = Math.sin(x * 0.1 + this.time) * Math.cos(y * 0.1 + this.time);
-                if (noise > 0.3) {
-                    this.ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-                }
-            }
-        }
-    }
-
-    drawLightning(intensity) {
-        this.ctx.fillStyle = 'rgba(0, 0, 30, 0.1)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.strokeStyle = `rgba(255, 255, 255, ${0.9 * intensity})`;
-        this.ctx.lineWidth = 3;
-        this.ctx.shadowColor = 'rgba(0, 200, 255, 0.8)';
-        this.ctx.shadowBlur = 10;
-
-        const drawLightningBolt = (startX, startY, endX, endY, generations) => {
-            if (generations === 0) {
-                this.ctx.beginPath();
-                this.ctx.moveTo(startX, startY);
-                this.ctx.lineTo(endX, endY);
-                this.ctx.stroke();
-                return;
-            }
-
-            const midX = (startX + endX) / 2 + (Math.random() - 0.5) * 50;
-            const midY = (startY + endY) / 2 + (Math.random() - 0.5) * 50;
-
-            drawLightningBolt(startX, startY, midX, midY, generations - 1);
-            drawLightningBolt(midX, midY, endX, endY, generations - 1);
-        };
-
-        if (Math.random() < 0.1 * intensity) {
-            const startX = Math.random() * this.canvas.width;
-            const endX = Math.random() * this.canvas.width;
-            drawLightningBolt(startX, 0, endX, this.canvas.height, 4);
-        }
-
-        this.ctx.shadowBlur = 0;
-    }
-
-    drawWaterRipples(intensity) {
-        this.ctx.fillStyle = 'rgba(0, 50, 100, 0.05)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.strokeStyle = `rgba(0, 150, 255, ${0.5 * intensity})`;
-        this.ctx.lineWidth = 2;
-
-        const centerX = this.canvas.width / 2;
-        const centerY = this.canvas.height / 2;
-
-        for (let i = 0; i < 5; i++) {
-            const radius = (this.time * 50 + i * 30) % 300;
-            const alpha = 1 - radius / 300;
-
-            this.ctx.globalAlpha = alpha * intensity;
-            this.ctx.beginPath();
-            this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            this.ctx.stroke();
-        }
-        this.ctx.globalAlpha = 1;
-    }
-
-    drawGrowingCrystals(intensity) {
-        this.ctx.fillStyle = 'rgba(0, 0, 50, 0.02)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.strokeStyle = `rgba(255, 0, 255, ${0.7 * intensity})`;
-        this.ctx.lineWidth = 1;
-
-        const crystalCount = 20 * intensity;
-        for (let i = 0; i < crystalCount; i++) {
-            const centerX = (Math.sin(i + this.time * 0.5) + 1) * this.canvas.width / 2;
-            const centerY = (Math.cos(i + this.time * 0.3) + 1) * this.canvas.height / 2;
-            const size = Math.sin(this.time + i) * 20 + 30;
-
-            this.ctx.beginPath();
-            for (let j = 0; j < 6; j++) {
-                const angle = (j * Math.PI * 2) / 6;
-                const x = centerX + Math.cos(angle) * size;
-                const y = centerY + Math.sin(angle) * size;
-
-                if (j === 0) {
-                    this.ctx.moveTo(x, y);
-                } else {
-                    this.ctx.lineTo(x, y);
-                }
-            }
-            this.ctx.closePath();
-            this.ctx.stroke();
-        }
-    }
-
-    drawDNAStrands(intensity) {
-        this.ctx.fillStyle = 'rgba(0, 20, 0, 0.05)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.strokeStyle = `rgba(0, 255, 100, ${0.8 * intensity})`;
-        this.ctx.lineWidth = 3;
-
-        const centerX = this.canvas.width / 2;
-        const radius = 50;
-
-        for (let y = 0; y < this.canvas.height + 100; y += 10) {
-            const t = (y + this.time * 100) * 0.02;
-            const x1 = centerX + Math.cos(t) * radius;
-            const x2 = centerX + Math.cos(t + Math.PI) * radius;
-
-            this.ctx.beginPath();
-            this.ctx.moveTo(x1, y);
-            this.ctx.lineTo(x2, y);
-            this.ctx.stroke();
-
-            // Draw helix strands
-            this.ctx.beginPath();
-            this.ctx.arc(x1, y, 3, 0, Math.PI * 2);
-            this.ctx.stroke();
-
-            this.ctx.beginPath();
-            this.ctx.arc(x2, y, 3, 0, Math.PI * 2);
-            this.ctx.stroke();
-        }
-    }
-
-    drawGalaxySpiral(intensity) {
-        this.ctx.fillStyle = 'rgba(0, 0, 20, 0.03)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        const centerX = this.canvas.width / 2;
-        const centerY = this.canvas.height / 2;
-
-        this.ctx.fillStyle = `rgba(255, 255, 255, ${0.8 * intensity})`;
-
-        for (let i = 0; i < 1000 * intensity; i++) {
-            const angle = i * 0.1 + this.time;
-            const radius = i * 0.2;
-            const spiralAngle = angle + radius * 0.01;
-
-            const x = centerX + Math.cos(spiralAngle) * radius;
-            const y = centerY + Math.sin(spiralAngle) * radius;
-
-            if (x > 0 && x < this.canvas.width && y > 0 && y < this.canvas.height) {
-                const size = Math.random() * 2 + 1;
-                this.ctx.beginPath();
-                this.ctx.arc(x, y, size, 0, Math.PI * 2);
-                this.ctx.fill();
-            }
-        }
-    }
-
-    drawFireEffect(intensity) {
-        this.ctx.fillStyle = 'rgba(20, 0, 0, 0.1)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        for (let x = 0; x < this.canvas.width; x += 5) {
-            const height = Math.sin(x * 0.01 + this.time * 2) * 100 + 200;
-            const baseY = this.canvas.height - height;
-
-            for (let y = baseY; y < this.canvas.height; y += 3) {
-                const flicker = Math.random() * intensity;
-                const heat = (this.canvas.height - y) / height;
-
-                let r = Math.floor(255 * heat * flicker);
-                let g = Math.floor(100 * heat * flicker);
-                let b = 0;
-
-                this.ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-                this.ctx.fillRect(x, y, 5, 3);
-            }
-        }
-    }
-
-    drawDigitalRain(intensity) {
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
-        this.ctx.fillStyle = `rgba(0, 255, 0, ${0.8 * intensity})`;
-        this.ctx.font = '12px monospace';
-
-        const chars = '01';
-        const columns = this.canvas.width / 15;
-
-        for (let i = 0; i < columns * intensity; i++) {
-            const char = chars[Math.floor(Math.random() * chars.length)];
-            const x = i * 15;
-            const y = (this.time * 200 + i * 20) % this.canvas.height;
-
-            this.ctx.fillText(char, x, y);
-        }
-    }
-
-    destroy() {
-        if (this.animationId) {
-            cancelAnimationFrame(this.animationId);
-        }
-        if (this.canvas && this.canvas.parentNode) {
-            this.canvas.parentNode.removeChild(this.canvas);
-        }
-    }
             `,
             onInit: (windowElement) => {
                 Settings.init(windowElement);
@@ -1718,7 +1056,8 @@ class BackgroundSystem {
                 colors: {
                     '--bg-primary': '#1a1a1a',
                     '--bg-secondary': '#0f0f0f',
-                    '--text-primary': '#ffffff'
+                    '--text-primary': '#ffffff',
+                    '--accent-color': '#00d4ff'
                 }
             },
             'light': {
@@ -1726,7 +1065,8 @@ class BackgroundSystem {
                 colors: {
                     '--bg-primary': '#ffffff',
                     '--bg-secondary': '#f8f9fa',
-                    '--text-primary': '#333333'
+                    '--text-primary': '#333333',
+                    '--accent-color': '#007bff'
                 }
             },
             'cyber': {
@@ -1734,7 +1074,8 @@ class BackgroundSystem {
                 colors: {
                     '--bg-primary': '#0a0a0f',
                     '--bg-secondary': '#050508',
-                    '--text-primary': '#00d4ff'
+                    '--text-primary': '#00d4ff',
+                    '--accent-color': '#ff00ff'
                 }
             },
             'neon': {
@@ -1742,7 +1083,8 @@ class BackgroundSystem {
                 colors: {
                     '--bg-primary': '#0d0d0d',
                     '--bg-secondary': '#1a1a1a',
-                    '--text-primary': '#00ffff'
+                    '--text-primary': '#00ffff',
+                    '--accent-color': '#ff0080'
                 }
             },
             'matrix': {
@@ -1750,7 +1092,8 @@ class BackgroundSystem {
                 colors: {
                     '--bg-primary': '#000000',
                     '--bg-secondary': '#001100',
-                    '--text-primary': '#00ff00'
+                    '--text-primary': '#00ff00',
+                    '--accent-color': '#00aa00'
                 }
             },
             'synthwave': {
@@ -1758,7 +1101,8 @@ class BackgroundSystem {
                 colors: {
                     '--bg-primary': '#2d1b69',
                     '--bg-secondary': '#1a0f3d',
-                    '--text-primary': '#ff6b6b'
+                    '--text-primary': '#ff6b6b',
+                    '--accent-color': '#feca57'
                 }
             },
             'ocean': {
@@ -1766,7 +1110,8 @@ class BackgroundSystem {
                 colors: {
                     '--bg-primary': '#0f3460',
                     '--bg-secondary': '#16537e',
-                    '--text-primary': '#87ceeb'
+                    '--text-primary': '#87ceeb',
+                    '--accent-color': '#00bfff'
                 }
             },
             'sunset': {
@@ -1774,7 +1119,8 @@ class BackgroundSystem {
                 colors: {
                     '--bg-primary': '#2c1810',
                     '--bg-secondary': '#3d2418',
-                    '--text-primary': '#ffd700'
+                    '--text-primary': '#ffd700',
+                    '--accent-color': '#ff6347'
                 }
             },
             'forest': {
@@ -1782,7 +1128,8 @@ class BackgroundSystem {
                 colors: {
                     '--bg-primary': '#1a2e1a',
                     '--bg-secondary': '#0f1f0f',
-                    '--text-primary': '#90ee90'
+                    '--text-primary': '#90ee90',
+                    '--accent-color': '#32cd32'
                 }
             },
             'royal': {
@@ -1790,7 +1137,8 @@ class BackgroundSystem {
                 colors: {
                     '--bg-primary': '#1a0d33',
                     '--bg-secondary': '#2d1b4e',
-                    '--text-primary': '#daa520'
+                    '--text-primary': '#daa520',
+                    '--accent-color': '#9932cc'
                 }
             },
             'fire': {
@@ -1798,7 +1146,8 @@ class BackgroundSystem {
                 colors: {
                     '--bg-primary': '#2d0a0a',
                     '--bg-secondary': '#1a0000',
-                    '--text-primary': '#ff4500'
+                    '--text-primary': '#ff4500',
+                    '--accent-color': '#dc143c'
                 }
             },
             'ice': {
@@ -1806,7 +1155,8 @@ class BackgroundSystem {
                 colors: {
                     '--bg-primary': '#0a1a2d',
                     '--bg-secondary': '#041426',
-                    '--text-primary': '#b0e0e6'
+                    '--text-primary': '#b0e0e6',
+                    '--accent-color': '#00ffff'
                 }
             },
             'space': {
@@ -1814,7 +1164,8 @@ class BackgroundSystem {
                 colors: {
                     '--bg-primary': '#0c0c1e',
                     '--bg-secondary': '#1a1a3a',
-                    '--text-primary': '#e6e6fa'
+                    '--text-primary': '#e6e6fa',
+                    '--accent-color': '#9370db'
                 }
             },
             'toxic': {
@@ -1822,7 +1173,8 @@ class BackgroundSystem {
                 colors: {
                     '--bg-primary': '#1a2d0a',
                     '--bg-secondary': '#0f1f00',
-                    '--text-primary': '#adff2f'
+                    '--text-primary': '#adff2f',
+                    '--accent-color': '#7fff00'
                 }
             },
             'pastel': {
@@ -1830,7 +1182,8 @@ class BackgroundSystem {
                 colors: {
                     '--bg-primary': '#f5f5f5',
                     '--bg-secondary': '#e8e8e8',
-                    '--text-primary': '#333333'
+                    '--text-primary': '#333333',
+                    '--accent-color': '#ff91a4'
                 }
             }
         };
@@ -1848,45 +1201,10 @@ class BackgroundSystem {
         if (schemeData) {
             body.classList.add(schemeData.class);
 
-            // Apply only color-related CSS custom properties (not accent color)
+            // Apply CSS custom properties
             Object.keys(schemeData.colors).forEach(property => {
                 document.documentElement.style.setProperty(property, schemeData.colors[property]);
             });
-        }
-
-        // Preserve current accent color and other settings
-        if (this.settings.accentColor) {
-            document.documentElement.style.setProperty('--accent-color', this.settings.accentColor);
-        }
-
-        // Re-apply other visual settings that might have been affected
-        this.reapplyVisualSettings();
-    }
-
-    static reapplyVisualSettings() {
-        // Re-apply transparency
-        if (this.settings['window-transparency']) {
-            const opacity = 1 - (this.settings['window-transparency'] / 100);
-            document.documentElement.style.setProperty('--window-opacity', opacity);
-            document.querySelectorAll('.window').forEach(window => {
-                window.style.backgroundColor = `rgba(26, 26, 26, ${opacity})`;
-                window.style.backdropFilter = this.settings['window-transparency'] > 0 ? `blur(${this.settings['window-transparency']/10}px)` : 'none';
-            });
-        }
-
-        // Re-apply blur effects
-        if (this.settings['blur-effects'] === false) {
-            document.body.classList.add('no-blur');
-        }
-
-        // Re-apply window shadows
-        if (this.settings['window-shadows']) {
-            document.documentElement.style.setProperty('--window-shadow', '0 10px 30px rgba(0,0,0,0.3)');
-        }
-
-        // Re-apply animations
-        if (this.settings['smooth-animations'] === false) {
-            document.body.classList.add('no-animations');
         }
     }
 
@@ -1917,67 +1235,11 @@ class BackgroundSystem {
 
         // Show/hide relevant settings
         this.windowElement.querySelector('#gradient-settings').style.display = type === 'gradient' ? 'block' : 'none';
-        this.windowElement.querySelector('#animated-settings').style.display = type === 'animated' ? 'block' : 'none';
         this.windowElement.querySelector('#media-settings').style.display = type === 'media' ? 'block' : 'none';
         this.windowElement.querySelector('#pattern-settings').style.display = type === 'pattern' ? 'block' : 'none';
 
-        // Handle background system
-        if (type === 'animated') {
-            // Start animated background system if not already running
-            if (!this.backgroundSystem) {
-                this.initializeBackgroundSystem();
-            }
-        } else {
-            // Stop animated background system
-            this.destroyBackgroundSystem();
-            // Update static background
-            this.updateBackground();
-        }
-
+        this.updateBackground();
         this.saveSettings();
-    }
-
-    static setAnimatedBackground(animation) {
-        this.settings.backgroundAnimation = animation;
-        console.log(`🎬 Animated background changed to: ${animation}`);
-
-        // If we're not in animated mode, switch to it
-        if (this.settings.backgroundType !== 'animated') {
-            this.setBackgroundType('animated');
-            return;
-        }
-
-        // Initialize or update background system
-        if (this.backgroundSystem) {
-            this.backgroundSystem.setAnimation(animation);
-        } else {
-            this.initializeBackgroundSystem();
-        }
-
-        this.saveSettings();
-    }
-
-    static initializeBackgroundSystem() {
-        console.log('🎬 Initializing animated background system');
-
-        if (this.backgroundSystem) {
-            this.destroyBackgroundSystem();
-        }
-
-        try {
-            this.backgroundSystem = new BackgroundSystem(this.settings);
-            console.log('✅ Background system initialized');
-        } catch (error) {
-            console.error('❌ Failed to create background system:', error);
-        }
-    }
-
-    static destroyBackgroundSystem() {
-        if (this.backgroundSystem) {
-            this.backgroundSystem.destroy();
-            this.backgroundSystem = null;
-            console.log('🚫 Background system destroyed');
-        }
     }
 
     static setMediaType(mediaType) {
@@ -2053,16 +1315,7 @@ class BackgroundSystem {
             case 'pattern-animate':
             case 'pattern-glow':
             case 'pattern-3d':
-                if (this.settings.backgroundType !== 'animated') {
-                    this.updateBackground();
-                }
-                break;
-            case 'animation-speed':
-            case 'animation-intensity':
-                if (this.backgroundSystem) {
-                    // Background system will pick up the new settings automatically
-                    console.log(`🎬 Animation settings updated: ${settingId} = ${value}`);
-                }
+                this.updateBackground();
                 break;
             case 'gif-url':
             case 'youtube-url':
@@ -2364,19 +1617,12 @@ class BackgroundSystem {
             this.initializeParticleSystem();
         }
 
-        // Initialize animated background system if background type is animated
-        if (this.settings.backgroundType === 'animated') {
-            this.initializeBackgroundSystem();
-        }
-
         if (this.settings['show-fps']) {
             this.initializeFPSCounter();
         }
 
-        // Apply background after systems are ready (for non-animated backgrounds)
-        if (this.settings.backgroundType !== 'animated') {
-            this.updateBackground();
-        }
+        // Apply background after systems are ready
+        this.updateBackground();
     }
 
     static createWallpaperLayer() {
@@ -2563,9 +1809,6 @@ class BackgroundSystem {
 
             // Background
             backgroundType: 'gradient',
-            backgroundAnimation: 'matrix',
-            'animation-speed': 1,
-            'animation-intensity': 1,
             'gradient-start': '#667eea',
             'gradient-end': '#764ba2',
             'gradient-angle': 135,
@@ -4188,6 +3431,33 @@ class ParticleSystem {
         });
     }
 
+    createClickBurst(x, y) {
+        for (let i = 0; i < 20; i++) {
+            const angle = (Math.PI * 2 * i) / 20;
+            const speed = Math.random() * 5 + 2;
+            this.clickParticles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                life: 30,
+                maxLife: 30,
+                size: Math.random() * 3 + 1
+            });
+        }
+    }
+
+    updateClickParticles() {
+        this.clickParticles = this.clickParticles.filter(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vx *= 0.98;
+            p.vy *= 0.98;
+            p.life--;
+            return p.life > 0;
+        });
+    }
+
     drawParticles() {
         const size = parseInt(this.settings['particle-size']) || 3;
         const color = this.settings['particle-color'] || '#00d4ff';
@@ -4288,6 +3558,16 @@ class ParticleSystem {
         this.ctx.shadowBlur = 0;
     }
 
+    drawClickParticles() {
+        this.clickParticles.forEach(p => {
+            const alpha = p.life / p.maxLife;
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+    }
+
     drawStar(x, y, size) {
         const spikes = 5;
         const outerRadius = size;
@@ -4314,41 +3594,6 @@ class ParticleSystem {
 
         this.ctx.lineTo(x, y - outerRadius);
         this.ctx.closePath();
-    }
-
-    createClickBurst(x, y) {
-        for (let i = 0; i < 10; i++) {
-            this.clickParticles.push({
-                x: x,
-                y: y,
-                vx: (Math.random() - 0.5) * 10,
-                vy: (Math.random() - 0.5) * 10,
-                life: 0,
-                maxLife: 30,
-                size: Math.random() * 3 + 1
-            });
-        }
-    }
-
-    updateClickParticles() {
-        this.clickParticles = this.clickParticles.filter(particle => {
-            particle.x += particle.vx;
-            particle.y += particle.vy;
-            particle.vx *= 0.95;
-            particle.vy *= 0.95;
-            particle.life++;
-            return particle.life < particle.maxLife;
-        });
-    }
-
-    drawClickParticles() {
-        this.clickParticles.forEach(particle => {
-            const alpha = 1 - (particle.life / particle.maxLife);
-            this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-            this.ctx.beginPath();
-            this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-            this.ctx.fill();
-        });
     }
 
     animate() {
@@ -4408,4 +3653,354 @@ class ParticleSystem {
 
         console.log('✅ Particle system destroyed completely');
     }
+}
+
+// Animated Background System
+class BackgroundSystem {
+    constructor(settings) {
+        this.settings = settings;
+        this.canvas = null;
+        this.ctx = null;
+        this.animationId = null;
+        this.time = 0;
+
+        this.init();
+    }
+
+    init() {
+        this.createCanvas();
+        this.animate();
+    }
+
+    createCanvas() {
+        this.canvas = document.createElement('canvas');
+        this.canvas.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: -9;
+        `;
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.ctx = this.canvas.getContext('2d');
+        document.body.appendChild(this.canvas);
+
+        window.addEventListener('resize', () => {
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+        });
+    }
+
+    animate() {
+        const speed = this.settings['animation-speed'] || 1;
+        const intensity = this.settings['animation-intensity'] || 1;
+        this.time += 0.02 * speed;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        const animation = this.settings.backgroundAnimation;
+
+        switch (animation) {
+            case 'matrix':
+                this.drawMatrixRain(intensity);
+                break;
+            case 'waves':
+                this.drawWaves(intensity);
+                break;
+            case 'neural':
+                this.drawNeuralNetwork(intensity);
+                break;
+            case 'plasma':
+                this.drawPlasmaField(intensity);
+                break;
+            case 'geometry':
+                this.drawGeometricLines(intensity);
+                break;
+            case 'stars':
+                this.drawStarfield(intensity);
+                break;
+            case 'particles':
+                this.drawParticleFlow(intensity);
+                break;
+            case 'fractals':
+                this.drawFractalTree(intensity);
+                break;
+            case 'cellular':
+                this.drawCellularAutomata(intensity);
+                break;
+            case 'lightning':
+                this.drawLightning(intensity);
+                break;
+            case 'ripples':
+                this.drawWaterRipples(intensity);
+                break;
+            case 'crystals':
+                this.drawGrowingCrystals(intensity);
+                break;
+            case 'dna':
+                this.drawDNAStrands(intensity);
+                break;
+            case 'galaxy':
+                this.drawGalaxySpiral(intensity);
+                break;
+            case 'fire':
+                this.drawFireEffect(intensity);
+                break;
+            case 'code':
+                this.drawDigitalRain(intensity);
+                break;
+        }
+
+        this.animationId = requestAnimationFrame(() => this.animate());
+    }
+
+    drawMatrixRain() {
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.fillStyle = '#00ff00';
+        this.ctx.font = '15px monospace';
+
+        const columns = this.canvas.width / 20;
+        for (let i = 0; i < columns; i++) {
+            const text = String.fromCharCode(Math.random() * 128);
+            const x = i * 20;
+            const y = (this.time * 100 + i * 50) % this.canvas.height;
+            this.ctx.fillText(text, x, y);
+        }
+    }
+
+    drawWaves() {
+        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+        gradient.addColorStop(0, 'rgba(0, 212, 255, 0.1)');
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.5)';
+        this.ctx.lineWidth = 2;
+
+        for (let i = 0; i < 5; i++) {
+            this.ctx.beginPath();
+            for (let x = 0; x <= this.canvas.width; x += 10) {
+                const y = this.canvas.height / 2 + Math.sin((x + this.time * 100) * 0.01 + i) * 50;
+                if (x === 0) {
+                    this.ctx.moveTo(x, y);
+                } else {
+                    this.ctx.lineTo(x, y);
+                }
+            }
+            this.ctx.stroke();
+        }
+    }
+
+    drawNeuralNetwork() {
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        const nodes = 20;
+        const nodePositions = [];
+
+        for (let i = 0; i < nodes; i++) {
+            const x = (Math.sin(this.time + i) + 1) * this.canvas.width / 2;
+            const y = (Math.cos(this.time * 0.7 + i) + 1) * this.canvas.height / 2;
+            nodePositions.push({ x, y });
+
+            // Draw node
+            this.ctx.fillStyle = 'rgba(0, 212, 255, 0.8)';
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, 3, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+
+        // Draw connections
+        this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.2)';
+        this.ctx.lineWidth = 1;
+        for (let i = 0; i < nodePositions.length; i++) {
+            for (let j = i + 1; j < nodePositions.length; j++) {
+                const dist = Math.sqrt(
+                    Math.pow(nodePositions[i].x - nodePositions[j].x, 2) +
+                    Math.pow(nodePositions[i].y - nodePositions[j].y, 2)
+                );
+                if (dist < 150) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(nodePositions[i].x, nodePositions[i].y);
+                    this.ctx.lineTo(nodePositions[j].x, nodePositions[j].y);
+                    this.ctx.stroke();
+                }
+            }
+        }
+    }
+
+    destroy() {
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+        }
+        if (this.canvas && this.canvas.parentNode) {
+            this.canvas.parentNode.removeChild(this.canvas);
+        }
+    }
+}
+
+// FPS Counter
+class FPSCounter {
+    constructor() {
+        this.fps = 0;
+        this.frameCount = 0;
+        this.lastTime = performance.now();
+        this.element = null;
+
+        this.init();
+    }
+
+    init() {
+        this.element = document.createElement('div');
+        this.element.style.cssText = `
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            z-index: 10000;
+        `;
+        document.body.appendChild(this.element);
+
+        this.update();
+    }
+
+    update() {
+        this.frameCount++;
+        const now = performance.now();
+
+        if (now - this.lastTime >= 1000) {
+            this.fps = Math.round((this.frameCount * 1000) / (now - this.lastTime));
+            this.element.textContent = `FPS: ${this.fps}`;
+            this.frameCount = 0;
+            this.lastTime = now;
+        }
+
+        requestAnimationFrame(() => this.update());
+    }
+
+    destroy() {
+        if (this.element && this.element.parentNode) {
+            this.element.parentNode.removeChild(this.element);
+        }
+    }
+}
+
+// Make Settings available globally
+window.Settings = Settings;
+
+// Simple particle system for immediate testing
+window.createTestParticles = function() {
+    console.log('🧪 Creating test particles directly...');
+
+    // Remove any existing particle canvas
+    const existing = document.getElementById('test-particles-canvas');
+    if (existing) existing.remove();
+
+    // Create test canvas
+    const canvas = document.createElement('canvas');
+    canvas.id = 'test-particles-canvas';
+    canvas.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: -5;
+        background: rgba(255, 0, 0, 0.1);
+    `;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+    document.body.appendChild(canvas);
+
+    // Create simple particles
+    const particles = [];
+    for (let i = 0; i < 50; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 2,
+            vy: (Math.random() - 0.5) * 2
+        });
+    }
+
+    // Simple animation
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Update and draw particles
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Wrap around edges
+            if (p.x < 0) p.x = canvas.width;
+            if (p.x > canvas.width) p.x = 0;
+            if (p.y < 0) p.y = canvas.height;
+            if (p.y > canvas.height) p.y = 0;
+
+            // Draw particle
+            ctx.fillStyle = '#00d4ff';
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+    console.log('✅ Test particles should now be visible!');
+};
+
+// Global function to test advanced particles
+window.testAdvancedParticles = function() {
+    console.log('🚀 Testing advanced particle system...');
+    if (window.Settings) {
+        Settings.destroyParticleSystem();
+        setTimeout(() => {
+            Settings.initializeParticleSystem();
+        }, 200);
+    } else {
+        console.error('❌ Settings not available');
+    }
+};
+
+// Auto-apply startup settings when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 DOM loaded, starting initialization...');
+
+    // Create test particles immediately for testing
+    window.createTestParticles();
+
+    // Apply settings after a short delay
+    setTimeout(() => {
+        try {
+            Settings.applyStartupSettings();
+        } catch (error) {
+            console.error('❌ Error applying startup settings:', error);
+        }
+    }, 500);
+});
+
+// Also apply when scripts load (for hot reloading)
+if (document.readyState === 'loading') {
+    console.log('🚀 Script loaded, DOM not ready yet...');
+} else {
+    console.log('🚀 Script loaded, DOM already ready...');
+    window.createTestParticles();
+    setTimeout(() => {
+        Settings.applyStartupSettings();
+    }, 500);
 }
