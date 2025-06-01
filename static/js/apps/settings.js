@@ -184,16 +184,16 @@ class Settings {
                                         <span>Gradient</span>
                                     </div>
                                     <div class="bg-type" data-type="animated">
-                                        <i class="fas fa-play"></i>
+                                        <i class="fas fa-magic"></i>
                                         <span>Animated</span>
-                                    </div>
-                                    <div class="bg-type" data-type="pattern">
-                                        <i class="fas fa-th"></i>
-                                        <span>Pattern</span>
                                     </div>
                                     <div class="bg-type" data-type="media">
                                         <i class="fas fa-video"></i>
                                         <span>Media</span>
+                                    </div>
+                                    <div class="bg-type" data-type="pattern">
+                                        <i class="fas fa-th"></i>
+                                        <span>Pattern</span>
                                     </div>
                                 </div>
                             </div>
@@ -342,86 +342,49 @@ class Settings {
                                 </div>
                             </div>
 
-                            <!-- Media Settings -->
-                            <div class="setting-group" id="media-settings" style="display: none;">
-                                <label>Media Type</label>
-                                <div class="media-type-selector">
-                                    <div class="media-type active" data-media="video">
-                                        <i class="fas fa-video"></i>
-                                        <span>Video</span>
-                                    </div>
-                                    <div class="media-type" data-media="gif">
-                                        <i class="fas fa-images"></i>
-                                        <span>GIF</span>
-                                    </div>
-                                    <div class="media-type" data-media="youtube">
-                                        <i class="fab fa-youtube"></i>
-                                        <span>YouTube</span>
-                                    </div>
-                                </div>
-
-                                <!-- Video Controls -->
-                                <div id="video-controls" class="media-controls">
+                            <!-- Video Settings -->
+                            <div class="setting-group" id="video-settings" style="display: none;">
+                                <label>Video Background</label>
+                                <div class="video-controls">
                                     <div class="control-item">
-                                        <label>Video File or URL</label>
-                                        <input type="text" id="video-url" placeholder="Enter video URL or select file" class="media-input">
+                                        <label>Video URL or File</label>
+                                        <input type="text" id="video-url" placeholder="Enter video URL or upload file" class="video-input">
                                         <input type="file" id="video-file" accept="video/*" style="display: none;">
                                         <button id="video-browse" class="browse-btn">Browse Files</button>
                                     </div>
-                                </div>
-
-                                <!-- GIF Controls -->
-                                <div id="gif-controls" class="media-controls" style="display: none;">
-                                    <div class="control-item">
-                                        <label>GIF File or URL</label>
-                                        <input type="text" id="gif-url" placeholder="Enter GIF URL or select file" class="media-input">
-                                        <input type="file" id="gif-file" accept="image/gif" style="display: none;">
-                                        <button id="gif-browse" class="browse-btn">Browse Files</button>
-                                    </div>
-                                </div>
-
-                                <!-- YouTube Controls -->
-                                <div id="youtube-controls" class="media-controls" style="display: none;">
-                                    <div class="control-item">
-                                        <label>YouTube URL</label>
-                                        <input type="text" id="youtube-url" placeholder="https://www.youtube.com/watch?v=..." class="media-input">
-                                        <div class="help-text">Paste any YouTube video URL here</div>
-                                    </div>
-                                </div>
-
-                                <!-- Common Media Controls -->
-                                <div class="control-row">
-                                    <div class="control-item">
-                                        <label>Media Opacity</label>
-                                        <div class="slider-container">
-                                            <input type="range" id="media-opacity" min="10" max="100" value="50">
-                                            <span class="slider-value">50%</span>
+                                    <div class="control-row">
+                                        <div class="control-item">
+                                            <label>Video Opacity</label>
+                                            <div class="slider-container">
+                                                <input type="range" id="video-opacity" min="10" max="100" value="50">
+                                                <span class="slider-value">50%</span>
+                                            </div>
+                                        </div>
+                                        <div class="control-item">
+                                            <label>Playback Speed</label>
+                                            <div class="slider-container">
+                                                <input type="range" id="video-speed" min="0.25" max="2" value="1" step="0.25">
+                                                <span class="slider-value">1x</span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="control-item">
-                                        <label>Playback Speed</label>
-                                        <div class="slider-container">
-                                            <input type="range" id="media-speed" min="0.25" max="2" value="1" step="0.25">
-                                            <span class="slider-value">1x</span>
-                                        </div>
+                                    <div class="checkbox-group">
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" id="video-loop" checked>
+                                            <span class="checkmark"></span>
+                                            Loop video
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" id="video-muted" checked>
+                                            <span class="checkmark"></span>
+                                            Mute audio
+                                        </label>
+                                        <label class="checkbox-item">
+                                            <input type="checkbox" id="video-blur">
+                                            <span class="checkmark"></span>
+                                            Blur effect
+                                        </label>
                                     </div>
-                                </div>
-                                <div class="checkbox-group">
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" id="media-loop" checked>
-                                        <span class="checkmark"></span>
-                                        Loop media
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" id="media-muted" checked>
-                                        <span class="checkmark"></span>
-                                        Mute audio
-                                    </label>
-                                    <label class="checkbox-item">
-                                        <input type="checkbox" id="media-blur">
-                                        <span class="checkmark"></span>
-                                        Blur effect
-                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -872,6 +835,664 @@ class Settings {
                 </div>
 
                 ${Settings.getStyles()}
+
+// FPS Counter
+class FPSCounter {
+    constructor() {
+        this.fps = 0;
+        this.frameCount = 0;
+        this.lastTime = performance.now();
+        this.element = null;
+
+        this.init();
+    }
+
+    init() {
+        this.element = document.createElement('div');
+        this.element.style.cssText = `
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            z-index: 10000;
+        `;
+        document.body.appendChild(this.element);
+
+        this.update();
+    }
+
+    update() {
+        this.frameCount++;
+        const now = performance.now();
+
+        if (now - this.lastTime >= 1000) {
+            this.fps = Math.round((this.frameCount * 1000) / (now - this.lastTime));
+            this.element.textContent = `FPS: ${this.fps}`;
+            this.frameCount = 0;
+            this.lastTime = now;
+        }
+
+        requestAnimationFrame(() => this.update());
+    }
+
+    destroy() {
+        if (this.element && this.element.parentNode) {
+            this.element.parentNode.removeChild(this.element);
+        }
+    }
+}
+
+// Make Settings available globally
+window.Settings = Settings;
+
+// Simple particle system for immediate testing
+window.createTestParticles = function() {
+    console.log('🧪 Creating test particles directly...');
+
+    // Remove any existing particle canvas
+    const existing = document.getElementById('test-particles-canvas');
+    if (existing) existing.remove();
+
+    // Create test canvas
+    const canvas = document.createElement('canvas');
+    canvas.id = 'test-particles-canvas';
+    canvas.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: -5;
+        background: rgba(255, 0, 0, 0.1);
+    `;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+    document.body.appendChild(canvas);
+
+    // Create simple particles
+    const particles = [];
+    for (let i = 0; i < 50; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            vx: (Math.random() - 0.5) * 2,
+            vy: (Math.random() - 0.5) * 2
+        });
+    }
+
+    // Simple animation
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Update and draw particles
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+
+            // Wrap around edges
+            if (p.x < 0) p.x = canvas.width;
+            if (p.x > canvas.width) p.x = 0;
+            if (p.y < 0) p.y = canvas.height;
+            if (p.y > canvas.height) p.y = 0;
+
+            // Draw particle
+            ctx.fillStyle = '#00d4ff';
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+    console.log('✅ Test particles should now be visible!');
+};
+
+// Global function to test advanced particles
+window.testAdvancedParticles = function() {
+    console.log('🚀 Testing advanced particle system...');
+    if (window.Settings) {
+        Settings.destroyParticleSystem();
+        setTimeout(() => {
+            Settings.initializeParticleSystem();
+        }, 200);
+    } else {
+        console.error('❌ Settings not available');
+    }
+};
+
+// Auto-apply startup settings when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 DOM loaded, starting initialization...');
+
+    // Create test particles immediately for testing
+    window.createTestParticles();
+
+    // Apply settings after a short delay
+    setTimeout(() => {
+        try {
+            Settings.applyStartupSettings();
+        } catch (error) {
+            console.error('❌ Error applying startup settings:', error);
+        }
+    }, 500);
+});
+
+// Also apply when scripts load (for hot reloading)
+if (document.readyState === 'loading') {
+    console.log('🚀 Script loaded, DOM not ready yet...');
+} else {
+    console.log('🚀 Script loaded, DOM already ready...');
+    window.createTestParticles();
+    setTimeout(() => {
+        Settings.applyStartupSettings();
+    }, 500);
+}
+
+// Animated Background System
+class BackgroundSystem {
+    constructor(settings) {
+        this.settings = settings;
+        this.canvas = null;
+        this.ctx = null;
+        this.animationId = null;
+        this.time = 0;
+        this.currentAnimation = settings.backgroundAnimation || 'matrix';
+
+        this.init();
+    }
+
+    init() {
+        this.createCanvas();
+        this.animate();
+    }
+
+    setAnimation(animation) {
+        this.currentAnimation = animation;
+        console.log(`🎬 Background animation changed to: ${animation}`);
+    }
+
+    createCanvas() {
+        this.canvas = document.createElement('canvas');
+        this.canvas.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: -9;
+        `;
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.ctx = this.canvas.getContext('2d');
+        document.body.appendChild(this.canvas);
+
+        window.addEventListener('resize', () => {
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+        });
+    }
+
+    animate() {
+        const speed = this.settings['animation-speed'] || 1;
+        const intensity = this.settings['animation-intensity'] || 1;
+        this.time += 0.02 * speed;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        const animation = this.currentAnimation;
+
+        switch (animation) {
+            case 'matrix':
+                this.drawMatrixRain(intensity);
+                break;
+            case 'waves':
+                this.drawWaves(intensity);
+                break;
+            case 'neural':
+                this.drawNeuralNetwork(intensity);
+                break;
+            case 'plasma':
+                this.drawPlasmaField(intensity);
+                break;
+            case 'geometry':
+                this.drawGeometricLines(intensity);
+                break;
+            case 'stars':
+                this.drawStarfield(intensity);
+                break;
+            case 'particles':
+                this.drawParticleFlow(intensity);
+                break;
+            case 'fractals':
+                this.drawFractalTree(intensity);
+                break;
+            case 'cellular':
+                this.drawCellularAutomata(intensity);
+                break;
+            case 'lightning':
+                this.drawLightning(intensity);
+                break;
+            case 'ripples':
+                this.drawWaterRipples(intensity);
+                break;
+            case 'crystals':
+                this.drawGrowingCrystals(intensity);
+                break;
+            case 'dna':
+                this.drawDNAStrands(intensity);
+                break;
+            case 'galaxy':
+                this.drawGalaxySpiral(intensity);
+                break;
+            case 'fire':
+                this.drawFireEffect(intensity);
+                break;
+            case 'code':
+                this.drawDigitalRain(intensity);
+                break;
+        }
+
+        this.animationId = requestAnimationFrame(() => this.animate());
+    }
+
+    drawMatrixRain() {
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.fillStyle = '#00ff00';
+        this.ctx.font = '15px monospace';
+
+        const columns = this.canvas.width / 20;
+        for (let i = 0; i < columns; i++) {
+            const text = String.fromCharCode(Math.random() * 128);
+            const x = i * 20;
+            const y = (this.time * 100 + i * 50) % this.canvas.height;
+            this.ctx.fillText(text, x, y);
+        }
+    }
+
+    drawWaves() {
+        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+        gradient.addColorStop(0, 'rgba(0, 212, 255, 0.1)');
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0.3)');
+        this.ctx.fillStyle = gradient;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.5)';
+        this.ctx.lineWidth = 2;
+
+        for (let i = 0; i < 5; i++) {
+            this.ctx.beginPath();
+            for (let x = 0; x <= this.canvas.width; x += 10) {
+                const y = this.canvas.height / 2 + Math.sin((x + this.time * 100) * 0.01 + i) * 50;
+                if (x === 0) {
+                    this.ctx.moveTo(x, y);
+                } else {
+                    this.ctx.lineTo(x, y);
+                }
+            }
+            this.ctx.stroke();
+        }
+    }
+
+    drawNeuralNetwork() {
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.02)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        const nodes = 20;
+        const nodePositions = [];
+
+        for (let i = 0; i < nodes; i++) {
+            const x = (Math.sin(this.time + i) + 1) * this.canvas.width / 2;
+            const y = (Math.cos(this.time * 0.7 + i) + 1) * this.canvas.height / 2;
+            nodePositions.push({ x, y });
+
+            // Draw node
+            this.ctx.fillStyle = 'rgba(0, 212, 255, 0.8)';
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, 3, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+
+        // Draw connections
+        this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.2)';
+        this.ctx.lineWidth = 1;
+        for (let i = 0; i < nodePositions.length; i++) {
+            for (let j = i + 1; j < nodePositions.length; j++) {
+                const dist = Math.sqrt(
+                    Math.pow(nodePositions[i].x - nodePositions[j].x, 2) +
+                    Math.pow(nodePositions[i].y - nodePositions[j].y, 2)
+                );
+                if (dist < 150) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(nodePositions[i].x, nodePositions[i].y);
+                    this.ctx.lineTo(nodePositions[j].x, nodePositions[j].y);
+                    this.ctx.stroke();
+                }
+            }
+        }
+    }
+
+    drawPlasmaField() {
+        const imageData = this.ctx.createImageData(this.canvas.width, this.canvas.height);
+        const data = imageData.data;
+
+        for (let x = 0; x < this.canvas.width; x += 2) {
+            for (let y = 0; y < this.canvas.height; y += 2) {
+                const value = Math.sin(x * 0.01 + this.time) +
+                             Math.sin(y * 0.01 + this.time) +
+                             Math.sin((x + y) * 0.01 + this.time);
+
+                const color = Math.floor((value + 3) * 42.5);
+                const index = (y * this.canvas.width + x) * 4;
+
+                data[index] = color; // R
+                data[index + 1] = color * 0.5; // G
+                data[index + 2] = 255 - color; // B
+                data[index + 3] = 100; // A
+            }
+        }
+
+        this.ctx.putImageData(imageData, 0, 0);
+    }
+
+    drawGeometricLines() {
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.strokeStyle = 'rgba(0, 212, 255, 0.3)';
+        this.ctx.lineWidth = 1;
+
+        const step = 50;
+        for (let x = 0; x < this.canvas.width; x += step) {
+            for (let y = 0; y < this.canvas.height; y += step) {
+                const offset = Math.sin(this.time + x * 0.01 + y * 0.01) * 20;
+                this.ctx.beginPath();
+                this.ctx.moveTo(x, y);
+                this.ctx.lineTo(x + step + offset, y + step + offset);
+                this.ctx.stroke();
+            }
+        }
+    }
+
+    drawStarfield() {
+        this.ctx.fillStyle = 'rgba(0, 0, 20, 0.1)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.fillStyle = 'white';
+        for (let i = 0; i < 200; i++) {
+            const x = (Math.sin(this.time * 0.1 + i) + 1) * this.canvas.width / 2;
+            const y = (Math.cos(this.time * 0.1 + i * 0.7) + 1) * this.canvas.height / 2;
+            const size = Math.sin(this.time + i) * 2 + 2;
+
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, size, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+    }
+
+    drawParticleFlow(intensity) {
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.03)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.fillStyle = `rgba(0, 212, 255, ${0.6 * intensity})`;
+        for (let i = 0; i < 100 * intensity; i++) {
+            const x = (Math.sin(this.time + i * 0.1) + 1) * this.canvas.width / 2;
+            const y = (Math.cos(this.time * 0.7 + i * 0.05) + 1) * this.canvas.height / 2;
+            const size = Math.sin(this.time + i) * 3 + 3;
+
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, size, 0, Math.PI * 2);
+            this.ctx.fill();
+        }
+    }
+
+    drawFractalTree(intensity) {
+        this.ctx.fillStyle = 'rgba(0, 0, 20, 0.1)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.strokeStyle = `rgba(0, 255, 0, ${0.7 * intensity})`;
+        this.ctx.lineWidth = 2;
+
+        const drawBranch = (x, y, angle, length, depth) => {
+            if (depth === 0 || length < 2) return;
+
+            const endX = x + Math.cos(angle) * length;
+            const endY = y + Math.sin(angle) * length;
+
+            this.ctx.beginPath();
+            this.ctx.moveTo(x, y);
+            this.ctx.lineTo(endX, endY);
+            this.ctx.stroke();
+
+            const newLength = length * 0.7;
+            const angleVariation = Math.sin(this.time + depth) * 0.5;
+
+            drawBranch(endX, endY, angle - 0.5 + angleVariation, newLength, depth - 1);
+            drawBranch(endX, endY, angle + 0.5 + angleVariation, newLength, depth - 1);
+        };
+
+        drawBranch(this.canvas.width / 2, this.canvas.height - 50, -Math.PI / 2, 60 * intensity, 8);
+    }
+
+    drawCellularAutomata(intensity) {
+        const cellSize = 5;
+        const cols = Math.floor(this.canvas.width / cellSize);
+        const rows = Math.floor(this.canvas.height / cellSize);
+
+        this.ctx.fillStyle = `rgba(0, 255, 255, ${0.8 * intensity})`;
+
+        for (let x = 0; x < cols; x++) {
+            for (let y = 0; y < rows; y++) {
+                const noise = Math.sin(x * 0.1 + this.time) * Math.cos(y * 0.1 + this.time);
+                if (noise > 0.3) {
+                    this.ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                }
+            }
+        }
+    }
+
+    drawLightning(intensity) {
+        this.ctx.fillStyle = 'rgba(0, 0, 30, 0.1)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.strokeStyle = `rgba(255, 255, 255, ${0.9 * intensity})`;
+        this.ctx.lineWidth = 3;
+        this.ctx.shadowColor = 'rgba(0, 200, 255, 0.8)';
+        this.ctx.shadowBlur = 10;
+
+        const drawLightningBolt = (startX, startY, endX, endY, generations) => {
+            if (generations === 0) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(startX, startY);
+                this.ctx.lineTo(endX, endY);
+                this.ctx.stroke();
+                return;
+            }
+
+            const midX = (startX + endX) / 2 + (Math.random() - 0.5) * 50;
+            const midY = (startY + endY) / 2 + (Math.random() - 0.5) * 50;
+
+            drawLightningBolt(startX, startY, midX, midY, generations - 1);
+            drawLightningBolt(midX, midY, endX, endY, generations - 1);
+        };
+
+        if (Math.random() < 0.1 * intensity) {
+            const startX = Math.random() * this.canvas.width;
+            const endX = Math.random() * this.canvas.width;
+            drawLightningBolt(startX, 0, endX, this.canvas.height, 4);
+        }
+
+        this.ctx.shadowBlur = 0;
+    }
+
+    drawWaterRipples(intensity) {
+        this.ctx.fillStyle = 'rgba(0, 50, 100, 0.05)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.strokeStyle = `rgba(0, 150, 255, ${0.5 * intensity})`;
+        this.ctx.lineWidth = 2;
+
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+
+        for (let i = 0; i < 5; i++) {
+            const radius = (this.time * 50 + i * 30) % 300;
+            const alpha = 1 - radius / 300;
+
+            this.ctx.globalAlpha = alpha * intensity;
+            this.ctx.beginPath();
+            this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            this.ctx.stroke();
+        }
+        this.ctx.globalAlpha = 1;
+    }
+
+    drawGrowingCrystals(intensity) {
+        this.ctx.fillStyle = 'rgba(0, 0, 50, 0.02)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.strokeStyle = `rgba(255, 0, 255, ${0.7 * intensity})`;
+        this.ctx.lineWidth = 1;
+
+        const crystalCount = 20 * intensity;
+        for (let i = 0; i < crystalCount; i++) {
+            const centerX = (Math.sin(i + this.time * 0.5) + 1) * this.canvas.width / 2;
+            const centerY = (Math.cos(i + this.time * 0.3) + 1) * this.canvas.height / 2;
+            const size = Math.sin(this.time + i) * 20 + 30;
+
+            this.ctx.beginPath();
+            for (let j = 0; j < 6; j++) {
+                const angle = (j * Math.PI * 2) / 6;
+                const x = centerX + Math.cos(angle) * size;
+                const y = centerY + Math.sin(angle) * size;
+
+                if (j === 0) {
+                    this.ctx.moveTo(x, y);
+                } else {
+                    this.ctx.lineTo(x, y);
+                }
+            }
+            this.ctx.closePath();
+            this.ctx.stroke();
+        }
+    }
+
+    drawDNAStrands(intensity) {
+        this.ctx.fillStyle = 'rgba(0, 20, 0, 0.05)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.strokeStyle = `rgba(0, 255, 100, ${0.8 * intensity})`;
+        this.ctx.lineWidth = 3;
+
+        const centerX = this.canvas.width / 2;
+        const radius = 50;
+
+        for (let y = 0; y < this.canvas.height + 100; y += 10) {
+            const t = (y + this.time * 100) * 0.02;
+            const x1 = centerX + Math.cos(t) * radius;
+            const x2 = centerX + Math.cos(t + Math.PI) * radius;
+
+            this.ctx.beginPath();
+            this.ctx.moveTo(x1, y);
+            this.ctx.lineTo(x2, y);
+            this.ctx.stroke();
+
+            // Draw helix strands
+            this.ctx.beginPath();
+            this.ctx.arc(x1, y, 3, 0, Math.PI * 2);
+            this.ctx.stroke();
+
+            this.ctx.beginPath();
+            this.ctx.arc(x2, y, 3, 0, Math.PI * 2);
+            this.ctx.stroke();
+        }
+    }
+
+    drawGalaxySpiral(intensity) {
+        this.ctx.fillStyle = 'rgba(0, 0, 20, 0.03)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${0.8 * intensity})`;
+
+        for (let i = 0; i < 1000 * intensity; i++) {
+            const angle = i * 0.1 + this.time;
+            const radius = i * 0.2;
+            const spiralAngle = angle + radius * 0.01;
+
+            const x = centerX + Math.cos(spiralAngle) * radius;
+            const y = centerY + Math.sin(spiralAngle) * radius;
+
+            if (x > 0 && x < this.canvas.width && y > 0 && y < this.canvas.height) {
+                const size = Math.random() * 2 + 1;
+                this.ctx.beginPath();
+                this.ctx.arc(x, y, size, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+        }
+    }
+
+    drawFireEffect(intensity) {
+        this.ctx.fillStyle = 'rgba(20, 0, 0, 0.1)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        for (let x = 0; x < this.canvas.width; x += 5) {
+            const height = Math.sin(x * 0.01 + this.time * 2) * 100 + 200;
+            const baseY = this.canvas.height - height;
+
+            for (let y = baseY; y < this.canvas.height; y += 3) {
+                const flicker = Math.random() * intensity;
+                const heat = (this.canvas.height - y) / height;
+
+                let r = Math.floor(255 * heat * flicker);
+                let g = Math.floor(100 * heat * flicker);
+                let b = 0;
+
+                this.ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                this.ctx.fillRect(x, y, 5, 3);
+            }
+        }
+    }
+
+    drawDigitalRain(intensity) {
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.fillStyle = `rgba(0, 255, 0, ${0.8 * intensity})`;
+        this.ctx.font = '12px monospace';
+
+        const chars = '01';
+        const columns = this.canvas.width / 15;
+
+        for (let i = 0; i < columns * intensity; i++) {
+            const char = chars[Math.floor(Math.random() * chars.length)];
+            const x = i * 15;
+            const y = (this.time * 200 + i * 20) % this.canvas.height;
+
+            this.ctx.fillText(char, x, y);
+        }
+    }
+
+    destroy() {
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+        }
+        if (this.canvas && this.canvas.parentNode) {
+            this.canvas.parentNode.removeChild(this.canvas);
+        }
+    }
             `,
             onInit: (windowElement) => {
                 Settings.init(windowElement);
@@ -955,13 +1576,6 @@ class Settings {
             });
         });
 
-        // Media types
-        this.windowElement.querySelectorAll('.media-type').forEach(type => {
-            type.addEventListener('click', () => {
-                this.setMediaType(type.dataset.media);
-            });
-        });
-
         // Animated backgrounds
         this.windowElement.querySelectorAll('.animated-option').forEach(option => {
             option.addEventListener('click', () => {
@@ -1010,90 +1624,43 @@ class Settings {
         });
 
         // Media background controls
-        const gifBrowse = this.windowElement.querySelector('#gif-browse');
-        if (gifBrowse) {
-            gifBrowse.addEventListener('click', () => {
-                this.windowElement.querySelector('#gif-file').click();
-            });
-        }
+        this.windowElement.querySelector('#gif-browse').addEventListener('click', () => {
+            this.windowElement.querySelector('#gif-file').click();
+        });
 
-        const gifFile = this.windowElement.querySelector('#gif-file');
-        if (gifFile) {
-            gifFile.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const url = URL.createObjectURL(file);
-                    this.windowElement.querySelector('#gif-url').value = url;
-                    this.applySetting('gif-url', url);
-                }
-            });
-        }
+        this.windowElement.querySelector('#gif-file').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                this.windowElement.querySelector('#gif-url').value = url;
+                this.applySetting('gif-url', url);
+            }
+        });
 
-        const videoBrowse = this.windowElement.querySelector('#video-browse');
-        if (videoBrowse) {
-            videoBrowse.addEventListener('click', () => {
-                this.windowElement.querySelector('#video-file').click();
-            });
-        }
+        this.windowElement.querySelector('#gif-url').addEventListener('input', (e) => {
+            this.applySetting('gif-url', e.target.value);
+        });
 
-        const videoFile = this.windowElement.querySelector('#video-file');
-        if (videoFile) {
-            videoFile.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const url = URL.createObjectURL(file);
-                    this.windowElement.querySelector('#video-url').value = url;
-                    this.applySetting('video-url', url);
-                }
-            });
-        }
-
-        const gifUrl = this.windowElement.querySelector('#gif-url');
-        if (gifUrl) {
-            gifUrl.addEventListener('input', (e) => {
-                this.applySetting('gif-url', e.target.value);
-            });
-        }
-
-        const videoUrl = this.windowElement.querySelector('#video-url');
-        if (videoUrl) {
-            videoUrl.addEventListener('input', (e) => {
-                this.applySetting('video-url', e.target.value);
-            });
-        }
-
-        const youtubeUrl = this.windowElement.querySelector('#youtube-url');
-        if (youtubeUrl) {
-            youtubeUrl.addEventListener('input', (e) => {
-                this.applySetting('youtube-url', e.target.value);
-            });
-        }
+        this.windowElement.querySelector('#youtube-url').addEventListener('input', (e) => {
+            this.applySetting('youtube-url', e.target.value);
+        });
 
         // Text particle controls
-        const particleText = this.windowElement.querySelector('#particle-text');
-        if (particleText) {
-            particleText.addEventListener('input', (e) => {
-                this.applySetting('particle-text', e.target.value);
-            });
-        }
+        this.windowElement.querySelector('#particle-text').addEventListener('input', (e) => {
+            this.applySetting('particle-text', e.target.value);
+        });
 
         // Test particles button
-        const testParticles = this.windowElement.querySelector('#test-particles');
-        if (testParticles) {
-            testParticles.addEventListener('click', () => {
-                console.log('🧪 Testing simple particles...');
-                window.createTestParticles();
-            });
-        }
+        this.windowElement.querySelector('#test-particles').addEventListener('click', () => {
+            console.log('🧪 Testing simple particles...');
+            window.createTestParticles();
+        });
 
         // Test advanced particles button
-        const testAdvanced = this.windowElement.querySelector('#test-advanced');
-        if (testAdvanced) {
-            testAdvanced.addEventListener('click', () => {
-                console.log('🚀 Testing advanced particles...');
-                window.testAdvancedParticles();
-            });
-        }
+        this.windowElement.querySelector('#test-advanced').addEventListener('click', () => {
+            console.log('🚀 Testing advanced particles...');
+            window.testAdvancedParticles();
+        });
     }
 
     static setupAutoSave() {
@@ -1151,8 +1718,7 @@ class Settings {
                 colors: {
                     '--bg-primary': '#1a1a1a',
                     '--bg-secondary': '#0f0f0f',
-                    '--text-primary': '#ffffff',
-                    '--accent-color': '#00d4ff'
+                    '--text-primary': '#ffffff'
                 }
             },
             'light': {
@@ -1160,8 +1726,7 @@ class Settings {
                 colors: {
                     '--bg-primary': '#ffffff',
                     '--bg-secondary': '#f8f9fa',
-                    '--text-primary': '#333333',
-                    '--accent-color': '#007bff'
+                    '--text-primary': '#333333'
                 }
             },
             'cyber': {
@@ -1169,8 +1734,7 @@ class Settings {
                 colors: {
                     '--bg-primary': '#0a0a0f',
                     '--bg-secondary': '#050508',
-                    '--text-primary': '#00d4ff',
-                    '--accent-color': '#ff00ff'
+                    '--text-primary': '#00d4ff'
                 }
             },
             'neon': {
@@ -1178,8 +1742,7 @@ class Settings {
                 colors: {
                     '--bg-primary': '#0d0d0d',
                     '--bg-secondary': '#1a1a1a',
-                    '--text-primary': '#00ffff',
-                    '--accent-color': '#ff0080'
+                    '--text-primary': '#00ffff'
                 }
             },
             'matrix': {
@@ -1187,8 +1750,7 @@ class Settings {
                 colors: {
                     '--bg-primary': '#000000',
                     '--bg-secondary': '#001100',
-                    '--text-primary': '#00ff00',
-                    '--accent-color': '#00aa00'
+                    '--text-primary': '#00ff00'
                 }
             },
             'synthwave': {
@@ -1196,8 +1758,7 @@ class Settings {
                 colors: {
                     '--bg-primary': '#2d1b69',
                     '--bg-secondary': '#1a0f3d',
-                    '--text-primary': '#ff6b6b',
-                    '--accent-color': '#feca57'
+                    '--text-primary': '#ff6b6b'
                 }
             },
             'ocean': {
@@ -1205,8 +1766,7 @@ class Settings {
                 colors: {
                     '--bg-primary': '#0f3460',
                     '--bg-secondary': '#16537e',
-                    '--text-primary': '#87ceeb',
-                    '--accent-color': '#00bfff'
+                    '--text-primary': '#87ceeb'
                 }
             },
             'sunset': {
@@ -1214,8 +1774,7 @@ class Settings {
                 colors: {
                     '--bg-primary': '#2c1810',
                     '--bg-secondary': '#3d2418',
-                    '--text-primary': '#ffd700',
-                    '--accent-color': '#ff6347'
+                    '--text-primary': '#ffd700'
                 }
             },
             'forest': {
@@ -1223,8 +1782,7 @@ class Settings {
                 colors: {
                     '--bg-primary': '#1a2e1a',
                     '--bg-secondary': '#0f1f0f',
-                    '--text-primary': '#90ee90',
-                    '--accent-color': '#32cd32'
+                    '--text-primary': '#90ee90'
                 }
             },
             'royal': {
@@ -1232,8 +1790,7 @@ class Settings {
                 colors: {
                     '--bg-primary': '#1a0d33',
                     '--bg-secondary': '#2d1b4e',
-                    '--text-primary': '#daa520',
-                    '--accent-color': '#9932cc'
+                    '--text-primary': '#daa520'
                 }
             },
             'fire': {
@@ -1241,8 +1798,7 @@ class Settings {
                 colors: {
                     '--bg-primary': '#2d0a0a',
                     '--bg-secondary': '#1a0000',
-                    '--text-primary': '#ff4500',
-                    '--accent-color': '#dc143c'
+                    '--text-primary': '#ff4500'
                 }
             },
             'ice': {
@@ -1250,8 +1806,7 @@ class Settings {
                 colors: {
                     '--bg-primary': '#0a1a2d',
                     '--bg-secondary': '#041426',
-                    '--text-primary': '#b0e0e6',
-                    '--accent-color': '#00ffff'
+                    '--text-primary': '#b0e0e6'
                 }
             },
             'space': {
@@ -1259,8 +1814,7 @@ class Settings {
                 colors: {
                     '--bg-primary': '#0c0c1e',
                     '--bg-secondary': '#1a1a3a',
-                    '--text-primary': '#e6e6fa',
-                    '--accent-color': '#9370db'
+                    '--text-primary': '#e6e6fa'
                 }
             },
             'toxic': {
@@ -1268,8 +1822,7 @@ class Settings {
                 colors: {
                     '--bg-primary': '#1a2d0a',
                     '--bg-secondary': '#0f1f00',
-                    '--text-primary': '#adff2f',
-                    '--accent-color': '#7fff00'
+                    '--text-primary': '#adff2f'
                 }
             },
             'pastel': {
@@ -1277,8 +1830,7 @@ class Settings {
                 colors: {
                     '--bg-primary': '#f5f5f5',
                     '--bg-secondary': '#e8e8e8',
-                    '--text-primary': '#333333',
-                    '--accent-color': '#ff91a4'
+                    '--text-primary': '#333333'
                 }
             }
         };
@@ -1296,10 +1848,45 @@ class Settings {
         if (schemeData) {
             body.classList.add(schemeData.class);
 
-            // Apply CSS custom properties
+            // Apply only color-related CSS custom properties (not accent color)
             Object.keys(schemeData.colors).forEach(property => {
                 document.documentElement.style.setProperty(property, schemeData.colors[property]);
             });
+        }
+
+        // Preserve current accent color and other settings
+        if (this.settings.accentColor) {
+            document.documentElement.style.setProperty('--accent-color', this.settings.accentColor);
+        }
+
+        // Re-apply other visual settings that might have been affected
+        this.reapplyVisualSettings();
+    }
+
+    static reapplyVisualSettings() {
+        // Re-apply transparency
+        if (this.settings['window-transparency']) {
+            const opacity = 1 - (this.settings['window-transparency'] / 100);
+            document.documentElement.style.setProperty('--window-opacity', opacity);
+            document.querySelectorAll('.window').forEach(window => {
+                window.style.backgroundColor = `rgba(26, 26, 26, ${opacity})`;
+                window.style.backdropFilter = this.settings['window-transparency'] > 0 ? `blur(${this.settings['window-transparency']/10}px)` : 'none';
+            });
+        }
+
+        // Re-apply blur effects
+        if (this.settings['blur-effects'] === false) {
+            document.body.classList.add('no-blur');
+        }
+
+        // Re-apply window shadows
+        if (this.settings['window-shadows']) {
+            document.documentElement.style.setProperty('--window-shadow', '0 10px 30px rgba(0,0,0,0.3)');
+        }
+
+        // Re-apply animations
+        if (this.settings['smooth-animations'] === false) {
+            document.body.classList.add('no-animations');
         }
     }
 
@@ -1331,22 +1918,72 @@ class Settings {
         // Show/hide relevant settings
         this.windowElement.querySelector('#gradient-settings').style.display = type === 'gradient' ? 'block' : 'none';
         this.windowElement.querySelector('#animated-settings').style.display = type === 'animated' ? 'block' : 'none';
-        this.windowElement.querySelector('#pattern-settings').style.display = type === 'pattern' ? 'block' : 'none';
         this.windowElement.querySelector('#media-settings').style.display = type === 'media' ? 'block' : 'none';
+        this.windowElement.querySelector('#pattern-settings').style.display = type === 'pattern' ? 'block' : 'none';
 
-        this.updateBackground();
+        // Handle background system
+        if (type === 'animated') {
+            // Start animated background system if not already running
+            if (!this.backgroundSystem) {
+                this.initializeBackgroundSystem();
+            }
+        } else {
+            // Stop animated background system
+            this.destroyBackgroundSystem();
+            // Update static background
+            this.updateBackground();
+        }
+
         this.saveSettings();
+    }
+
+    static setAnimatedBackground(animation) {
+        this.settings.backgroundAnimation = animation;
+        console.log(`🎬 Animated background changed to: ${animation}`);
+
+        // If we're not in animated mode, switch to it
+        if (this.settings.backgroundType !== 'animated') {
+            this.setBackgroundType('animated');
+            return;
+        }
+
+        // Initialize or update background system
+        if (this.backgroundSystem) {
+            this.backgroundSystem.setAnimation(animation);
+        } else {
+            this.initializeBackgroundSystem();
+        }
+
+        this.saveSettings();
+    }
+
+    static initializeBackgroundSystem() {
+        console.log('🎬 Initializing animated background system');
+
+        if (this.backgroundSystem) {
+            this.destroyBackgroundSystem();
+        }
+
+        try {
+            this.backgroundSystem = new BackgroundSystem(this.settings);
+            console.log('✅ Background system initialized');
+        } catch (error) {
+            console.error('❌ Failed to create background system:', error);
+        }
+    }
+
+    static destroyBackgroundSystem() {
+        if (this.backgroundSystem) {
+            this.backgroundSystem.destroy();
+            this.backgroundSystem = null;
+            console.log('🚫 Background system destroyed');
+        }
     }
 
     static setMediaType(mediaType) {
         this.settings.mediaType = mediaType;
 
-        // Update UI
-        this.windowElement.querySelectorAll('.media-type').forEach(t => t.classList.remove('active'));
-        this.windowElement.querySelector(`[data-media="${mediaType}"]`).classList.add('active');
-
         // Show/hide controls
-        this.windowElement.querySelector('#video-controls').style.display = mediaType === 'video' ? 'block' : 'none';
         this.windowElement.querySelector('#gif-controls').style.display = mediaType === 'gif' ? 'block' : 'none';
         this.windowElement.querySelector('#youtube-controls').style.display = mediaType === 'youtube' ? 'block' : 'none';
 
@@ -1354,30 +1991,8 @@ class Settings {
         this.saveSettings();
     }
 
-    static setAnimatedBackground(animation) {
-        this.settings.backgroundAnimation = animation;
-        if (this.backgroundSystem) {
-            this.backgroundSystem.settings.backgroundAnimation = animation;
-        }
-        this.updateBackground();
-        this.saveSettings();
-    }
-
-    static setPattern(pattern) {
-        this.settings.backgroundPattern = pattern;
-        this.updateBackground();
-        this.saveSettings();
-    }
-
     static setParticleBehavior(behavior) {
         this.settings.particleBehavior = behavior;
-
-        // Show/hide text particle settings
-        const textSettings = this.windowElement.querySelector('#text-particle-settings');
-        if (textSettings) {
-            textSettings.style.display = behavior === 'text' ? 'block' : 'none';
-        }
-
         if (this.particleSystem) {
             this.particleSystem.setBehavior(behavior);
         }
@@ -1429,8 +2044,6 @@ class Settings {
             case 'gradient-start':
             case 'gradient-end':
             case 'gradient-angle':
-            case 'animation-speed':
-            case 'animation-intensity':
             case 'pattern-visibility':
             case 'pattern-size':
             case 'pattern-color':
@@ -1440,10 +2053,18 @@ class Settings {
             case 'pattern-animate':
             case 'pattern-glow':
             case 'pattern-3d':
-                this.updateBackground();
+                if (this.settings.backgroundType !== 'animated') {
+                    this.updateBackground();
+                }
+                break;
+            case 'animation-speed':
+            case 'animation-intensity':
+                if (this.backgroundSystem) {
+                    // Background system will pick up the new settings automatically
+                    console.log(`🎬 Animation settings updated: ${settingId} = ${value}`);
+                }
                 break;
             case 'gif-url':
-            case 'video-url':
             case 'youtube-url':
             case 'media-opacity':
             case 'media-speed':
@@ -1502,17 +2123,17 @@ class Settings {
             let value = slider.value;
             let suffix = '';
 
-            if (slider.id.includes('opacity') || slider.id.includes('transparency') || slider.id.includes('visibility')) {
+            if (slider.id.includes('opacity') || slider.id.includes('transparency')) {
                 suffix = '%';
-            } else if (slider.id.includes('angle') || slider.id.includes('rotation')) {
+            } else if (slider.id.includes('angle')) {
                 suffix = '°';
-            } else if (slider.id.includes('size') && !slider.id.includes('font-size')) {
+            } else if (slider.id.includes('size') && slider.id !== 'font-size') {
                 suffix = 'px';
-            } else if (slider.id === 'font-size' || slider.id.includes('font-size') || slider.id.includes('spacing')) {
+            } else if (slider.id === 'font-size') {
                 suffix = 'px';
-            } else if (slider.id.includes('speed') || slider.id.includes('force') || slider.id.includes('intensity')) {
+            } else if (slider.id.includes('speed')) {
                 suffix = 'x';
-            } else if (slider.id.includes('range')) {
+            } else if (slider.id.includes('spacing')) {
                 suffix = 'px';
             }
 
@@ -1532,20 +2153,12 @@ class Settings {
         this.wallpaperLayer.style.backgroundImage = '';
         this.wallpaperLayer.innerHTML = '';
 
-        // Destroy existing background system
-        if (this.backgroundSystem) {
-            this.backgroundSystem.destroy();
-            this.backgroundSystem = null;
-        }
-
         if (type === 'gradient') {
             const start = this.settings['gradient-start'] || '#667eea';
             const end = this.settings['gradient-end'] || '#764ba2';
             const angle = this.settings['gradient-angle'] || 135;
 
             this.wallpaperLayer.style.background = `linear-gradient(${angle}deg, ${start}, ${end})`;
-        } else if (type === 'animated') {
-            this.backgroundSystem = new BackgroundSystem(this.settings);
         } else if (type === 'pattern') {
             this.generatePattern();
         } else if (type === 'media') {
@@ -1554,36 +2167,14 @@ class Settings {
     }
 
     static setupMediaBackground() {
-        const mediaType = this.settings.mediaType || 'video';
+        const mediaType = this.settings.mediaType || 'gif';
         const opacity = (this.settings['media-opacity'] || 50) / 100;
         const speed = this.settings['media-speed'] || 1;
         const loop = this.settings['media-loop'] !== false;
         const muted = this.settings['media-muted'] !== false;
         const blur = this.settings['media-blur'] || false;
 
-        if (mediaType === 'video') {
-            const videoUrl = this.settings['video-url'];
-            if (videoUrl) {
-                const video = document.createElement('video');
-                video.style.cssText = `
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    opacity: ${opacity};
-                    filter: ${blur ? 'blur(5px)' : 'none'};
-                `;
-                video.src = videoUrl;
-                video.loop = loop;
-                video.muted = muted;
-                video.playbackRate = speed;
-                video.autoplay = true;
-                video.onerror = () => {
-                    console.error('Failed to load video:', videoUrl);
-                    this.wallpaperLayer.innerHTML = '<div style="color: #ff4444; text-align: center; padding: 50px;">Failed to load video</div>';
-                };
-                this.wallpaperLayer.appendChild(video);
-            }
-        } else if (mediaType === 'gif') {
+        if (mediaType === 'gif') {
             const gifUrl = this.settings['gif-url'];
             if (gifUrl) {
                 const img = document.createElement('img');
@@ -1634,42 +2225,34 @@ class Settings {
         }
 
         const pattern = this.settings.backgroundPattern || 'dots';
-        const opacity = (this.settings['pattern-visibility'] || 30) / 100;
+        const opacity = (this.settings['pattern-opacity'] || 20) / 100;
         const size = this.settings['pattern-size'] || 20;
         const color = this.settings['pattern-color'] || this.settings.accentColor || '#00d4ff';
-        const color2 = this.settings['pattern-color2'] || '#ff00ff';
-        const rotation = this.settings['pattern-rotation'] || 0;
-        const complexity = this.settings['pattern-complexity'] || 3;
         const animate = this.settings['pattern-animate'];
-        const glow = this.settings['pattern-glow'];
-        const effect3d = this.settings['pattern-3d'];
 
         let backgroundImage = '';
         let backgroundSize = `${size}px ${size}px`;
 
-        // Apply rotation transform if needed
-        this.wallpaperLayer.style.transform = rotation ? `rotate(${rotation}deg)` : 'none';
-
         switch (pattern) {
             case 'dots':
-                backgroundImage = `radial-gradient(circle, ${color} ${complexity}px, transparent ${complexity}px)`;
+                backgroundImage = `radial-gradient(circle, ${color} 1px, transparent 1px)`;
                 break;
 
             case 'grid':
                 backgroundImage = `
-                    linear-gradient(${color} ${complexity}px, transparent ${complexity}px), 
-                    linear-gradient(90deg, ${color} ${complexity}px, transparent ${complexity}px)
+                    linear-gradient(${color} 1px, transparent 1px), 
+                    linear-gradient(90deg, ${color} 1px, transparent 1px)
                 `;
                 break;
 
             case 'lines':
-                backgroundImage = `repeating-linear-gradient(45deg, ${color} 0px, ${color} ${complexity}px, transparent ${complexity}px, transparent ${size/4}px)`;
+                backgroundImage = `repeating-linear-gradient(45deg, ${color} 0px, ${color} 1px, transparent 1px, transparent ${size/4}px)`;
                 break;
 
             case 'hexagon':
                 backgroundImage = `
-                    radial-gradient(circle at 25% 25%, ${color} ${complexity}px, transparent ${complexity}px),
-                    radial-gradient(circle at 75% 75%, ${color} ${complexity}px, transparent ${complexity}px)
+                    radial-gradient(circle at 25% 25%, ${color} 2px, transparent 2px),
+                    radial-gradient(circle at 75% 75%, ${color} 2px, transparent 2px)
                 `;
                 backgroundSize = `${size}px ${size * 0.866}px`;
                 break;
@@ -1687,42 +2270,42 @@ class Settings {
                 backgroundImage = `
                     repeating-linear-gradient(0deg,
                         transparent 0px,
-                        transparent ${size/(4*complexity)}px,
-                        ${color} ${size/(4*complexity)}px,
-                        ${color} ${size/(2*complexity)}px
+                        transparent ${size/4}px,
+                        ${color} ${size/4}px,
+                        ${color} ${size/2}px
                     )
                 `;
                 break;
 
             case 'circuit':
                 backgroundImage = `
-                    linear-gradient(90deg, ${color} ${complexity}px, transparent ${complexity}px),
-                    linear-gradient(${color} ${complexity}px, transparent ${complexity}px),
-                    linear-gradient(90deg, ${color2} ${complexity*2}px, transparent ${complexity*2}px),
-                    linear-gradient(${color2} ${complexity*2}px, transparent ${complexity*2}px)
+                    linear-gradient(90deg, ${color} 1px, transparent 1px),
+                    linear-gradient(${color} 1px, transparent 1px),
+                    linear-gradient(90deg, ${color} 2px, transparent 2px),
+                    linear-gradient(${color} 2px, transparent 2px)
                 `;
                 backgroundSize = `${size}px ${size}px, ${size}px ${size}px, ${size*2}px ${size*2}px, ${size*2}px ${size*2}px`;
                 break;
 
             case 'maze':
                 backgroundImage = `
-                    linear-gradient(90deg, ${color} ${complexity}px, transparent ${complexity}px),
-                    linear-gradient(${color} ${complexity}px, transparent ${complexity}px),
-                    linear-gradient(90deg, transparent ${size/2}px, ${color2} ${size/2}px, ${color2} ${size/2+complexity}px, transparent ${size/2+complexity}px)
+                    linear-gradient(90deg, ${color} 2px, transparent 2px),
+                    linear-gradient(${color} 2px, transparent 2px),
+                    linear-gradient(90deg, transparent ${size/2}px, ${color} ${size/2}px, ${color} ${size/2+2}px, transparent ${size/2+2}px)
                 `;
                 break;
 
             case 'crosshatch':
                 backgroundImage = `
-                    repeating-linear-gradient(45deg, ${color} 0px, ${color} ${complexity}px, transparent ${complexity}px, transparent ${size/3}px),
-                    repeating-linear-gradient(-45deg, ${color} 0px, ${color} ${complexity}px, transparent ${complexity}px, transparent ${size/3}px)
+                    repeating-linear-gradient(45deg, ${color} 0px, ${color} 1px, transparent 1px, transparent ${size/3}px),
+                    repeating-linear-gradient(-45deg, ${color} 0px, ${color} 1px, transparent 1px, transparent ${size/3}px)
                 `;
                 break;
 
             case 'chevron':
                 backgroundImage = `
-                    repeating-linear-gradient(60deg, ${color} 0px, ${color} ${complexity}px, transparent ${complexity}px, transparent ${size/2}px),
-                    repeating-linear-gradient(120deg, ${color} 0px, ${color} ${complexity}px, transparent ${complexity}px, transparent ${size/2}px)
+                    repeating-linear-gradient(60deg, ${color} 0px, ${color} 1px, transparent 1px, transparent ${size/2}px),
+                    repeating-linear-gradient(120deg, ${color} 0px, ${color} 1px, transparent 1px, transparent ${size/2}px)
                 `;
                 break;
 
@@ -1739,87 +2322,10 @@ class Settings {
 
             case 'scales':
                 backgroundImage = `
-                    radial-gradient(circle at 100% 50%, transparent ${size/(3*complexity)}px, ${color} ${size/(3*complexity)}px, ${color} ${size/(2*complexity)}px, transparent ${size/(2*complexity)}px),
-                    radial-gradient(circle at 0% 50%, transparent ${size/(3*complexity)}px, ${color} ${size/(3*complexity)}px, ${color} ${size/(2*complexity)}px, transparent ${size/(2*complexity)}px)
+                    radial-gradient(circle at 100% 50%, transparent ${size/3}px, ${color} ${size/3}px, ${color} ${size/2}px, transparent ${size/2}px),
+                    radial-gradient(circle at 0% 50%, transparent ${size/3}px, ${color} ${size/3}px, ${color} ${size/2}px, transparent ${size/2}px)
                 `;
                 backgroundSize = `${size}px ${size/2}px`;
-                break;
-
-            case 'honeycomb':
-                backgroundImage = `
-                    conic-gradient(from 0deg at 50% 50%, 
-                        ${color} 0deg 60deg, 
-                        transparent 60deg 120deg, 
-                        ${color} 120deg 180deg, 
-                        transparent 180deg 240deg, 
-                        ${color} 240deg 300deg, 
-                        transparent 300deg 360deg
-                    )
-                `;
-                break;
-
-            case 'weave':
-                backgroundImage = `
-                    linear-gradient(45deg, ${color} 0%, ${color} 25%, transparent 25%, transparent 75%, ${color} 75%),
-                    linear-gradient(-45deg, ${color2} 0%, ${color2} 25%, transparent 25%, transparent 75%, ${color2} 75%)
-                `;
-                break;
-
-            case 'spiral':
-                backgroundImage = `
-                    conic-gradient(from 0deg at 50% 50%, 
-                        ${color} 0deg, transparent 90deg, 
-                        ${color2} 180deg, transparent 270deg
-                    )
-                `;
-                break;
-
-            case 'mandala':
-                backgroundImage = `
-                    conic-gradient(from 0deg at 50% 50%, 
-                        ${color} 0deg 10deg, transparent 10deg 20deg,
-                        ${color} 20deg 30deg, transparent 30deg 40deg,
-                        ${color} 40deg 50deg, transparent 50deg 60deg,
-                        ${color} 60deg 70deg, transparent 70deg 80deg,
-                        ${color} 80deg 90deg, transparent 90deg 100deg,
-                        ${color} 100deg 110deg, transparent 110deg 120deg,
-                        ${color} 120deg 130deg, transparent 130deg 140deg,
-                        ${color} 140deg 150deg, transparent 150deg 160deg,
-                        ${color} 160deg 170deg, transparent 170deg 180deg,
-                        ${color} 180deg 190deg, transparent 190deg 200deg,
-                        ${color} 200deg 210deg, transparent 210deg 220deg,
-                        ${color} 220deg 230deg, transparent 230deg 240deg,
-                        ${color} 240deg 250deg, transparent 250deg 260deg,
-                        ${color} 260deg 270deg, transparent 270deg 280deg,
-                        ${color} 280deg 290deg, transparent 290deg 300deg,
-                        ${color} 300deg 310deg, transparent 310deg 320deg,
-                        ${color} 320deg 330deg, transparent 330deg 340deg,
-                        ${color} 340deg 350deg, transparent 350deg 360deg
-                    )
-                `;
-                break;
-
-            case 'fractal':
-                // Simple fractal-like pattern using multiple radial gradients
-                backgroundImage = `
-                    radial-gradient(circle at 25% 25%, ${color} ${complexity}px, transparent ${complexity*2}px),
-                    radial-gradient(circle at 75% 25%, ${color2} ${complexity}px, transparent ${complexity*2}px),
-                    radial-gradient(circle at 25% 75%, ${color} ${complexity}px, transparent ${complexity*2}px),
-                    radial-gradient(circle at 75% 75%, ${color2} ${complexity}px, transparent ${complexity*2}px),
-                    radial-gradient(circle at 50% 50%, ${color} ${complexity*0.5}px, transparent ${complexity}px)
-                `;
-                break;
-
-            case 'noise':
-                // Simulated Perlin noise using multiple overlapping gradients
-                backgroundImage = `
-                    radial-gradient(ellipse at 20% 30%, ${color} 0%, transparent 50%),
-                    radial-gradient(ellipse at 80% 20%, ${color2} 0%, transparent 50%),
-                    radial-gradient(ellipse at 40% 70%, ${color} 0%, transparent 50%),
-                    radial-gradient(ellipse at 90% 80%, ${color2} 0%, transparent 50%),
-                    radial-gradient(ellipse at 10% 90%, ${color} 0%, transparent 50%)
-                `;
-                backgroundSize = `${size*complexity}px ${size*complexity}px`;
                 break;
         }
 
@@ -1827,16 +2333,6 @@ class Settings {
         this.wallpaperLayer.style.background = `rgba(0, 0, 0, ${1 - opacity})`;
         this.wallpaperLayer.style.backgroundImage = backgroundImage;
         this.wallpaperLayer.style.backgroundSize = backgroundSize;
-
-        // Apply glow effect
-        if (glow) {
-            this.wallpaperLayer.style.filter = `drop-shadow(0 0 ${complexity*5}px ${color})`;
-        }
-
-        // Apply 3D effect
-        if (effect3d) {
-            this.wallpaperLayer.style.transform += ` perspective(1000px) rotateX(${complexity*5}deg)`;
-        }
 
         // Add animation if enabled
         if (animate) {
@@ -1868,12 +2364,19 @@ class Settings {
             this.initializeParticleSystem();
         }
 
+        // Initialize animated background system if background type is animated
+        if (this.settings.backgroundType === 'animated') {
+            this.initializeBackgroundSystem();
+        }
+
         if (this.settings['show-fps']) {
             this.initializeFPSCounter();
         }
 
-        // Apply background after systems are ready
-        this.updateBackground();
+        // Apply background after systems are ready (for non-animated backgrounds)
+        if (this.settings.backgroundType !== 'animated') {
+            this.updateBackground();
+        }
     }
 
     static createWallpaperLayer() {
@@ -1967,8 +2470,6 @@ class Settings {
                     element.value = this.settings[key];
                 } else if (element.type === 'color') {
                     element.value = this.settings[key];
-                } else if (element.type === 'text') {
-                    element.value = this.settings[key] || '';
                 }
             }
         });
@@ -1982,9 +2483,6 @@ class Settings {
         this.setColorScheme(this.settings.colorScheme);
         this.setAccentColor(this.settings.accentColor);
         this.setBackgroundType(this.settings.backgroundType);
-        if (this.settings.mediaType) {
-            this.setMediaType(this.settings.mediaType);
-        }
     }
 
     static resetSettings() {
@@ -2065,14 +2563,13 @@ class Settings {
 
             // Background
             backgroundType: 'gradient',
-            'gradient-start': '#667eea',
-            'gradient-end': '#764ba2',
-            'gradient-angle': 135,
             backgroundAnimation: 'matrix',
             'animation-speed': 1,
             'animation-intensity': 1,
-            mediaType: 'video',
-            'video-url': '',
+            'gradient-start': '#667eea',
+            'gradient-end': '#764ba2',
+            'gradient-angle': 135,
+            mediaType: 'gif',
             'gif-url': '',
             'youtube-url': '',
             'media-opacity': 50,
@@ -2566,40 +3063,6 @@ class Settings {
                     background: rgba(0, 212, 255, 0.2);
                 }
 
-                /* Media Type Selector */
-                .media-type-selector {
-                    display: flex;
-                    gap: 10px;
-                    margin-bottom: 20px;
-                }
-
-                .media-type {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 5px;
-                    padding: 15px 20px;
-                    border: 2px solid rgba(255, 255, 255, 0.2);
-                    border-radius: 8px;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    flex: 1;
-                }
-
-                .media-type:hover {
-                    border-color: var(--accent-color, #00d4ff);
-                }
-
-                .media-type.active {
-                    border-color: var(--accent-color, #00d4ff);
-                    background: rgba(0, 212, 255, 0.2);
-                }
-
-                .media-type i {
-                    font-size: 24px;
-                    color: var(--accent-color, #00d4ff);
-                }
-
                 /* Gradient Controls */
                 .gradient-controls {
                     display: flex;
@@ -2637,29 +3100,21 @@ class Settings {
                 }
 
                 /* Scrollbar styling */
-                .particle-behaviors::-webkit-scrollbar,
-                .animated-options::-webkit-scrollbar,
-                .pattern-options::-webkit-scrollbar {
+                .particle-behaviors::-webkit-scrollbar {
                     width: 6px;
                 }
 
-                .particle-behaviors::-webkit-scrollbar-track,
-                .animated-options::-webkit-scrollbar-track,
-                .pattern-options::-webkit-scrollbar-track {
+                .particle-behaviors::-webkit-scrollbar-track {
                     background: rgba(255, 255, 255, 0.1);
                     border-radius: 3px;
                 }
 
-                .particle-behaviors::-webkit-scrollbar-thumb,
-                .animated-options::-webkit-scrollbar-thumb,
-                .pattern-options::-webkit-scrollbar-thumb {
+                .particle-behaviors::-webkit-scrollbar-thumb {
                     background: var(--accent-color, #00d4ff);
                     border-radius: 3px;
                 }
 
-                .particle-behaviors::-webkit-scrollbar-thumb:hover,
-                .animated-options::-webkit-scrollbar-thumb:hover,
-                .pattern-options::-webkit-scrollbar-thumb:hover {
+                .particle-behaviors::-webkit-scrollbar-thumb:hover {
                     background: rgba(0, 212, 255, 0.8);
                 }
 
@@ -2704,15 +3159,15 @@ class Settings {
                     color: var(--accent-color, #00d4ff);
                 }
 
-                /* Media Controls */
-                .media-controls,
-                .particle-controls,
-                .font-controls {
+                /* Video Controls */
+                .video-controls,
+                .media-controls {
                     display: flex;
                     flex-direction: column;
                     gap: 15px;
                 }
 
+                .video-input,
                 .media-input,
                 .text-input {
                     width: 100%;
@@ -2747,6 +3202,40 @@ class Settings {
                     box-shadow: 0 4px 12px rgba(0, 212, 255, 0.4);
                 }
 
+                /* Media Type Selector */
+                .media-type-selector {
+                    display: flex;
+                    gap: 10px;
+                    margin-bottom: 20px;
+                }
+
+                .media-type {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 5px;
+                    padding: 15px 20px;
+                    border: 2px solid rgba(255, 255, 255, 0.2);
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    flex: 1;
+                }
+
+                .media-type:hover {
+                    border-color: var(--accent-color, #00d4ff);
+                }
+
+                .media-type.active {
+                    border-color: var(--accent-color, #00d4ff);
+                    background: rgba(0, 212, 255, 0.2);
+                }
+
+                .media-type i {
+                    font-size: 24px;
+                    color: var(--accent-color, #00d4ff);
+                }
+
                 .help-text {
                     font-size: 12px;
                     color: rgba(255, 255, 255, 0.6);
@@ -2755,6 +3244,13 @@ class Settings {
                 }
 
                 /* Controls */
+                .particle-controls,
+                .font-controls {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
                 .control-row {
                     display: grid;
                     grid-template-columns: 1fr 1fr;
@@ -3084,3 +3580,832 @@ class ParticleSystem {
                 speed: Math.random() * 2 + 0.5,
                 life: Math.random() * 100,
                 maxLife: Math.random() * 100 + 50,
+                originalX: 0,
+                originalY: 0,
+                phase: Math.random() * Math.PI * 2,
+                radius: Math.random() * 100 + 50,
+                orbitalAngle: Math.random() * Math.PI * 2,
+                trail: []
+            };
+
+            // Set original position for some behaviors
+            particle.originalX = particle.x;
+            particle.originalY = particle.y;
+
+            this.particles.push(particle);
+        }
+
+        console.log(`✅ Created ${this.particles.length} particles`);
+    }
+
+    setBehavior(behavior) {
+        this.settings.particleBehavior = behavior;
+        console.log(`🎯 Particle behavior changed to: ${behavior}`);
+
+        if (behavior === 'sphere' || behavior === 'cube') {
+            this.arrangeIn3D();
+        } else if (behavior === 'text') {
+            this.arrangeAsText();
+        }
+
+        // Log mouse settings for debugging
+        if (behavior.includes('mouse')) {
+            console.log(`🖱️ Mouse settings - Force: ${this.settings['mouse-force']}, Range: ${this.settings['mouse-range']}`);
+        }
+    }
+
+    arrangeAsText() {
+        const text = this.settings['particle-text'] || 'EMBERFRAME';
+        const fontSize = parseInt(this.settings['text-font-size']) || 80;
+        const fontWeight = this.settings['text-font-weight'] || 'bold';
+        const letterSpacing = parseInt(this.settings['text-letter-spacing']) || 10;
+
+        // Create a temporary canvas to get text metrics
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCtx.font = `${fontWeight} ${fontSize}px Arial`;
+
+        // Calculate text dimensions
+        const textMetrics = tempCtx.measureText(text);
+        const textWidth = textMetrics.width + (letterSpacing * (text.length - 1));
+        const textHeight = fontSize;
+
+        // Position text in center of screen
+        const startX = (this.canvas.width - textWidth) / 2;
+        const startY = (this.canvas.height + textHeight) / 2;
+
+        // Create image data from text
+        tempCanvas.width = textWidth + 100;
+        tempCanvas.height = textHeight + 100;
+        tempCtx.font = `${fontWeight} ${fontSize}px Arial`;
+        tempCtx.fillStyle = 'white';
+        tempCtx.textBaseline = 'top';
+
+        let currentX = 50;
+        for (let i = 0; i < text.length; i++) {
+            tempCtx.fillText(text[i], currentX, 50);
+            currentX += tempCtx.measureText(text[i]).width + letterSpacing;
+        }
+
+        // Get pixel data
+        const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+        const data = imageData.data;
+
+        // Find text pixels and assign particles to them
+        const textPixels = [];
+        for (let y = 0; y < tempCanvas.height; y += 3) {
+            for (let x = 0; x < tempCanvas.width; x += 3) {
+                const index = (y * tempCanvas.width + x) * 4;
+                const alpha = data[index + 3];
+                if (alpha > 128) {
+                    textPixels.push({
+                        x: startX + x - 50,
+                        y: startY + y - 50
+                    });
+                }
+            }
+        }
+
+        // Assign particles to text positions
+        this.particles.forEach((particle, index) => {
+            if (index < textPixels.length) {
+                particle.targetX = textPixels[index].x;
+                particle.targetY = textPixels[index].y;
+            } else {
+                // Extra particles float around randomly
+                particle.targetX = Math.random() * this.canvas.width;
+                particle.targetY = Math.random() * this.canvas.height;
+            }
+        });
+
+        console.log(`📝 Arranged ${textPixels.length} particles for text: "${text}"`);
+    }
+
+    arrangeIn3D() {
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+        const radius = Math.min(this.canvas.width, this.canvas.height) / 4;
+
+        this.particles.forEach((particle, i) => {
+            if (this.settings.particleBehavior === 'sphere') {
+                const phi = Math.acos(-1 + (2 * i) / this.particles.length);
+                const theta = Math.sqrt(this.particles.length * Math.PI) * phi;
+
+                particle.x = centerX + radius * Math.cos(theta) * Math.sin(phi);
+                particle.y = centerY + radius * Math.sin(theta) * Math.sin(phi);
+                particle.z = radius * Math.cos(phi);
+            } else if (this.settings.particleBehavior === 'cube') {
+                const side = Math.cbrt(this.particles.length);
+                const x = (i % side) - side / 2;
+                const y = Math.floor((i / side) % side) - side / 2;
+                const z = Math.floor(i / (side * side)) - side / 2;
+
+                particle.x = centerX + x * 20;
+                particle.y = centerY + y * 20;
+                particle.z = z * 20;
+            }
+        });
+    }
+
+    updateParticles() {
+        const behavior = this.settings.particleBehavior || 'float';
+        const speed = parseFloat(this.settings['particle-speed']) || 1;
+        const trails = this.settings['particle-trails'];
+
+        this.particles.forEach((particle, index) => {
+            // Update trail
+            if (trails) {
+                particle.trail.push({ x: particle.x, y: particle.y });
+                if (particle.trail.length > 10) {
+                    particle.trail.shift();
+                }
+            }
+
+            switch (behavior) {
+                case 'float':
+                    particle.x += particle.vx * speed;
+                    particle.y += particle.vy * speed;
+                    break;
+
+                case 'follow':
+                    const fdx = this.mouse.x - particle.x;
+                    const fdy = this.mouse.y - particle.y;
+                    particle.vx += fdx * 0.0002 * speed;
+                    particle.vy += fdy * 0.0002 * speed;
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.vx *= 0.95;
+                    particle.vy *= 0.95;
+                    break;
+
+                case 'dodge':
+                    const ddx = this.mouse.x - particle.x;
+                    const ddy = this.mouse.y - particle.y;
+                    const dist = Math.sqrt(ddx * ddx + ddy * ddy);
+                    if (dist < 100) {
+                        particle.vx -= ddx * 0.002 * speed;
+                        particle.vy -= ddy * 0.002 * speed;
+                    }
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.vx *= 0.98;
+                    particle.vy *= 0.98;
+                    break;
+
+                case 'orbit':
+                    const centerX = this.canvas.width / 2;
+                    const centerY = this.canvas.height / 2;
+                    particle.orbitalAngle += 0.02 * speed;
+                    particle.x = centerX + Math.cos(particle.orbitalAngle) * particle.radius;
+                    particle.y = centerY + Math.sin(particle.orbitalAngle) * particle.radius;
+                    break;
+
+                case 'magnetic':
+                    this.particles.forEach((other, oi) => {
+                        if (index !== oi) {
+                            const dx = other.x - particle.x;
+                            const dy = other.y - particle.y;
+                            const d = Math.sqrt(dx * dx + dy * dy);
+                            if (d < 100 && d > 0) {
+                                particle.vx += dx * 0.00005 * speed;
+                                particle.vy += dy * 0.00005 * speed;
+                            }
+                        }
+                    });
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.vx *= 0.99;
+                    particle.vy *= 0.99;
+                    break;
+
+                case 'spiral':
+                    const scx = this.canvas.width / 2;
+                    const scy = this.canvas.height / 2;
+                    particle.angle += 0.03 * speed;
+                    const spiralRadius = (particle.angle * 3) % 200;
+                    particle.x = scx + Math.cos(particle.angle) * spiralRadius;
+                    particle.y = scy + Math.sin(particle.angle) * spiralRadius;
+                    break;
+
+                case 'wave':
+                    particle.phase += 0.05 * speed;
+                    particle.x += particle.vx * speed;
+                    particle.y = particle.originalY + Math.sin(particle.phase + particle.x * 0.01) * 50;
+                    if (!particle.originalY) particle.originalY = particle.y;
+                    break;
+
+                case 'fireworks':
+                    particle.life += speed;
+                    if (particle.life > particle.maxLife) {
+                        particle.x = Math.random() * this.canvas.width;
+                        particle.y = this.canvas.height;
+                        particle.vx = (Math.random() - 0.5) * 10;
+                        particle.vy = -Math.random() * 10 - 5;
+                        particle.life = 0;
+                    }
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.vy += 0.2; // gravity
+                    break;
+
+                case 'constellation':
+                    particle.x += particle.vx * 0.5 * speed;
+                    particle.y += particle.vy * 0.5 * speed;
+                    break;
+
+                case 'tornado':
+                    const tcx = this.canvas.width / 2;
+                    const tcy = this.canvas.height / 2;
+                    particle.angle += 0.05 * speed;
+                    const tornadoRadius = Math.abs(Math.sin(particle.angle * 0.5)) * 150;
+                    particle.x = tcx + Math.cos(particle.angle) * tornadoRadius;
+                    particle.y = tcy + Math.sin(particle.angle * 2) * 100 + particle.angle * 2;
+                    if (particle.y > this.canvas.height) {
+                        particle.angle = 0;
+                    }
+                    break;
+
+                case 'bounce':
+                    particle.x += particle.vx * speed;
+                    particle.y += particle.vy * speed;
+                    if (particle.x <= 0 || particle.x >= this.canvas.width) particle.vx *= -1;
+                    if (particle.y <= 0 || particle.y >= this.canvas.height) particle.vy *= -1;
+                    break;
+
+                case 'gravity':
+                    particle.x += particle.vx * speed;
+                    particle.y += particle.vy * speed;
+                    particle.vy += 0.1 * speed; // gravity
+                    if (particle.y > this.canvas.height) {
+                        particle.y = 0;
+                        particle.x = Math.random() * this.canvas.width;
+                        particle.vy = Math.random() * 2;
+                    }
+                    break;
+
+                case 'explosion':
+                    particle.life += speed;
+                    if (particle.life > particle.maxLife) {
+                        particle.x = this.canvas.width / 2;
+                        particle.y = this.canvas.height / 2;
+                        const angle = Math.random() * Math.PI * 2;
+                        particle.vx = Math.cos(angle) * (Math.random() * 5 + 2);
+                        particle.vy = Math.sin(angle) * (Math.random() * 5 + 2);
+                        particle.life = 0;
+                    }
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.vx *= 0.98;
+                    particle.vy *= 0.98;
+                    break;
+
+                case 'vortex':
+                    const vx = this.canvas.width / 2;
+                    const vy = this.canvas.height / 2;
+                    const vdx = vx - particle.x;
+                    const vdy = vy - particle.y;
+                    const vdist = Math.sqrt(vdx * vdx + vdy * vdy);
+                    const vangle = Math.atan2(vdy, vdx);
+                    particle.x += Math.cos(vangle + Math.PI/2) * speed * 2;
+                    particle.y += Math.sin(vangle + Math.PI/2) * speed * 2;
+                    if (vdist > 5) {
+                        particle.x += vdx * 0.01 * speed;
+                        particle.y += vdy * 0.01 * speed;
+                    }
+                    break;
+
+                case 'pendulum':
+                    const px = this.canvas.width / 2;
+                    const py = 50;
+                    particle.angle += particle.speed * 0.02 * speed;
+                    particle.x = px + Math.sin(particle.angle) * particle.radius;
+                    particle.y = py + Math.cos(particle.angle) * particle.radius;
+                    break;
+
+                case 'swarm':
+                    // Boid-like behavior
+                    let avgX = 0, avgY = 0, count = 0;
+                    let sepX = 0, sepY = 0;
+                    this.particles.forEach((other, oi) => {
+                        if (index !== oi) {
+                            const dx = other.x - particle.x;
+                            const dy = other.y - particle.y;
+                            const d = Math.sqrt(dx * dx + dy * dy);
+                            if (d < 50) {
+                                avgX += other.x; avgY += other.y; count++;
+                                if (d < 25) {
+                                    sepX -= dx; sepY -= dy;
+                                }
+                            }
+                        }
+                    });
+                    if (count > 0) {
+                        avgX /= count; avgY /= count;
+                        particle.vx += (avgX - particle.x) * 0.0001 * speed;
+                        particle.vy += (avgY - particle.y) * 0.0001 * speed;
+                    }
+                    particle.vx += sepX * 0.01 * speed;
+                    particle.vy += sepY * 0.01 * speed;
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.vx *= 0.99;
+                    particle.vy *= 0.99;
+                    break;
+
+                case 'rain':
+                    particle.y += particle.speed * 5 * speed;
+                    particle.x += Math.sin(particle.phase) * 0.5;
+                    particle.phase += 0.1;
+                    if (particle.y > this.canvas.height) {
+                        particle.y = -10;
+                        particle.x = Math.random() * this.canvas.width;
+                    }
+                    break;
+
+                case 'snow':
+                    particle.y += particle.speed * 2 * speed;
+                    particle.x += Math.sin(particle.phase) * 1;
+                    particle.phase += 0.05;
+                    if (particle.y > this.canvas.height) {
+                        particle.y = -10;
+                        particle.x = Math.random() * this.canvas.width;
+                    }
+                    break;
+
+                case 'plasma':
+                    particle.x += Math.sin(particle.phase) * 2 * speed;
+                    particle.y += Math.cos(particle.phase * 1.3) * 2 * speed;
+                    particle.phase += 0.05 * speed;
+                    break;
+
+                case 'dna':
+                    const dnaCenter = this.canvas.width / 2;
+                    particle.angle += 0.02 * speed;
+                    const helixRadius = 100;
+                    particle.x = dnaCenter + Math.cos(particle.angle + index * 0.5) * helixRadius;
+                    particle.y = (particle.angle * 50) % this.canvas.height;
+                    if (particle.y > this.canvas.height) particle.angle = 0;
+                    break;
+
+                case 'matrix':
+                    particle.y += particle.speed * 3 * speed;
+                    if (particle.y > this.canvas.height) {
+                        particle.y = -10;
+                        particle.x = Math.floor(Math.random() * (this.canvas.width / 20)) * 20;
+                    }
+                    break;
+
+                case 'galaxy':
+                    const gx = this.canvas.width / 2;
+                    const gy = this.canvas.height / 2;
+                    particle.angle += 0.01 * speed * (1 + particle.radius / 200);
+                    particle.x = gx + Math.cos(particle.angle) * particle.radius;
+                    particle.y = gy + Math.sin(particle.angle) * particle.radius * 0.3;
+                    break;
+
+                case 'heart':
+                    const hx = this.canvas.width / 2;
+                    const hy = this.canvas.height / 2;
+                    particle.angle += 0.02 * speed;
+                    const t = particle.angle;
+                    const heartScale = 5;
+                    particle.x = hx + heartScale * (16 * Math.pow(Math.sin(t), 3));
+                    particle.y = hy - heartScale * (13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+                    break;
+
+                case 'flower':
+                    const fx = this.canvas.width / 2;
+                    const fy = this.canvas.height / 2;
+                    particle.angle += 0.02 * speed;
+                    const petalCount = 8;
+                    const flowerRadius = 100 * (1 + 0.5 * Math.sin(petalCount * particle.angle));
+                    particle.x = fx + Math.cos(particle.angle) * flowerRadius;
+                    particle.y = fy + Math.sin(particle.angle) * flowerRadius;
+                    break;
+
+                case 'pulse':
+                    const pulseCenter = { x: this.canvas.width / 2, y: this.canvas.height / 2 };
+                    const pulseDist = Math.sqrt((particle.x - pulseCenter.x) ** 2 + (particle.y - pulseCenter.y) ** 2);
+                    const pulseForce = Math.sin(Date.now() * 0.005) * 0.5;
+                    const pulseAngle = Math.atan2(particle.y - pulseCenter.y, particle.x - pulseCenter.x);
+                    particle.x += Math.cos(pulseAngle) * pulseForce * speed;
+                    particle.y += Math.sin(pulseAngle) * pulseForce * speed;
+                    break;
+
+                case 'web':
+                    // Create web-like structure
+                    const webCenter = { x: this.canvas.width / 2, y: this.canvas.height / 2 };
+                    const webAngle = Math.atan2(particle.y - webCenter.y, particle.x - webCenter.x);
+                    const webDist = Math.sqrt((particle.x - webCenter.x) ** 2 + (particle.y - webCenter.y) ** 2);
+
+                    // Snap to web lines
+                    const webLines = 8;
+                    const snapAngle = Math.round(webAngle / (Math.PI * 2 / webLines)) * (Math.PI * 2 / webLines);
+                    const targetX = webCenter.x + Math.cos(snapAngle) * webDist;
+                    const targetY = webCenter.y + Math.sin(snapAngle) * webDist;
+
+                    particle.x += (targetX - particle.x) * 0.1 * speed;
+                    particle.y += (targetY - particle.y) * 0.1 * speed;
+                    break;
+
+                case 'mouse-trail':
+                    // Follow mouse with trail delay
+                    const trailDelay = index * 0.02;
+                    const targetMouseX = this.mouse.x + Math.sin(Date.now() * 0.001 + index) * 20;
+                    const targetMouseY = this.mouse.y + Math.cos(Date.now() * 0.001 + index) * 20;
+                    particle.x += (targetMouseX - particle.x) * (0.1 - trailDelay) * speed;
+                    particle.y += (targetMouseY - particle.y) * (0.1 - trailDelay) * speed;
+                    break;
+
+                case 'mouse-repel':
+                    const repelRange = this.settings['mouse-range'] || 100;
+                    const repelForce = this.settings['mouse-force'] || 1;
+                    const rdx = this.mouse.x - particle.x;
+                    const rdy = this.mouse.y - particle.y;
+                    const rdist = Math.sqrt(rdx * rdx + rdy * rdy);
+                    if (rdist < repelRange) {
+                        const force = (repelRange - rdist) / repelRange * repelForce * 2;
+                        particle.vx -= (rdx / rdist) * force;
+                        particle.vy -= (rdy / rdist) * force;
+                    }
+                    particle.x += particle.vx * speed;
+                    particle.y += particle.vy * speed;
+                    particle.vx *= 0.95;
+                    particle.vy *= 0.95;
+                    break;
+
+                case 'mouse-attract':
+                    const attractRange = this.settings['mouse-range'] || 100;
+                    const attractForce = this.settings['mouse-force'] || 1;
+                    const adx = this.mouse.x - particle.x;
+                    const ady = this.mouse.y - particle.y;
+                    const adist = Math.sqrt(adx * adx + ady * ady);
+                    if (adist < attractRange && adist > 5) {
+                        const force = (attractRange - adist) / attractRange * attractForce * 0.5;
+                        particle.vx += (adx / adist) * force;
+                        particle.vy += (ady / adist) * force;
+                    }
+                    particle.x += particle.vx * speed;
+                    particle.y += particle.vy * speed;
+                    particle.vx *= 0.98;
+                    particle.vy *= 0.98;
+                    break;
+
+                case 'mouse-orbit':
+                    const orbitRange = this.settings['mouse-range'] || 100;
+                    const odx = this.mouse.x - particle.x;
+                    const ody = this.mouse.y - particle.y;
+                    const odist = Math.sqrt(odx * odx + ody * ody);
+                    if (odist < orbitRange * 2) {
+                        const angle = Math.atan2(ody, odx);
+                        const orbitalSpeed = 0.05 * speed;
+                        particle.x += Math.cos(angle + Math.PI/2) * orbitalSpeed * 20;
+                        particle.y += Math.sin(angle + Math.PI/2) * orbitalSpeed * 20;
+                        // Also pull towards mouse
+                        if (odist > orbitRange) {
+                            particle.x += odx * 0.01;
+                            particle.y += ody * 0.01;
+                        }
+                    } else {
+                        particle.x += particle.vx * speed;
+                        particle.y += particle.vy * speed;
+                    }
+                    break;
+
+                case 'mouse-click':
+                    if (this.mouse.clicked) {
+                        const cdx = this.mouse.clickX - particle.x;
+                        const cdy = this.mouse.clickY - particle.y;
+                        const cdist = Math.sqrt(cdx * cdx + cdy * cdy);
+                        if (cdist < 200) {
+                            const force = (200 - cdist) / 200 * 5;
+                            particle.vx += (cdx / cdist) * force;
+                            particle.vy += (cdy / cdist) * force;
+                        }
+                    }
+                    particle.x += particle.vx * speed;
+                    particle.y += particle.vy * speed;
+                    particle.vx *= 0.9;
+                    particle.vy *= 0.9;
+                    break;
+
+                case 'mouse-gravity':
+                    const gdx = this.mouse.x - particle.x;
+                    const gdy = this.mouse.y - particle.y;
+                    const gdist = Math.sqrt(gdx * gdx + gdy * gdy);
+                    if (gdist > 0) {
+                        const gravity = (this.settings['mouse-force'] || 1) * 100 / (gdist * gdist);
+                        particle.vx += (gdx / gdist) * gravity;
+                        particle.vy += (gdy / gdist) * gravity;
+                    }
+                    particle.x += particle.vx * speed;
+                    particle.y += particle.vy * speed;
+                    particle.vx *= 0.999;
+                    particle.vy *= 0.999;
+                    break;
+
+                case 'mouse-wind':
+                    const windForce = this.settings['mouse-force'] || 1;
+                    const mouseVel = Math.sqrt(this.mouse.vx * this.mouse.vx + this.mouse.vy * this.mouse.vy);
+                    if (mouseVel > 1) {
+                        particle.vx += this.mouse.vx * 0.01 * windForce;
+                        particle.vy += this.mouse.vy * 0.01 * windForce;
+                    }
+                    particle.x += particle.vx * speed;
+                    particle.y += particle.vy * speed;
+                    particle.vx *= 0.98;
+                    particle.vy *= 0.98;
+                    break;
+
+                case 'laser':
+                    // Create laser line from particle to mouse
+                    const ldx = this.mouse.x - particle.x;
+                    const ldy = this.mouse.y - particle.y;
+                    const ldist = Math.sqrt(ldx * ldx + ldy * ldy);
+                    if (ldist > 10) {
+                        particle.x += (ldx / ldist) * speed * 5;
+                        particle.y += (ldy / ldist) * speed * 5;
+                    }
+                    break;
+
+                case 'text':
+                    // Move particles towards their text positions
+                    if (particle.targetX !== undefined && particle.targetY !== undefined) {
+                        const textAnimation = this.settings['text-animation'] || 'static';
+                        let targetX = particle.targetX;
+                        let targetY = particle.targetY;
+
+                        // Apply text animations
+                        switch (textAnimation) {
+                            case 'wave':
+                                targetY += Math.sin(Date.now() * 0.003 + particle.targetX * 0.01) * 20;
+                                break;
+                            case 'bounce':
+                                targetY += Math.abs(Math.sin(Date.now() * 0.005 + index * 0.1)) * 30;
+                                break;
+                            case 'typewriter':
+                                // Reveal particles progressively
+                                const revealProgress = (Date.now() * 0.001) % 10;
+                                const particleRevealTime = index * 0.02;
+                                if (revealProgress < particleRevealTime) {
+                                    targetX = Math.random() * this.canvas.width;
+                                    targetY = Math.random() * this.canvas.height;
+                                }
+                                break;
+                            case 'explode':
+                                const explodeTime = Math.sin(Date.now() * 0.002) * 50;
+                                const dx = particle.targetX - this.canvas.width / 2;
+                                const dy = particle.targetY - this.canvas.height / 2;
+                                targetX = particle.targetX + dx * explodeTime * 0.01;
+                                targetY = particle.targetY + dy * explodeTime * 0.01;
+                                break;
+                        }
+
+                        // Move towards target position
+                        const dtx = targetX - particle.x;
+                        const dty = targetY - particle.y;
+                        const attractionForce = 0.05 * speed;
+
+                        particle.vx += dtx * attractionForce;
+                        particle.vy += dty * attractionForce;
+                        particle.x += particle.vx;
+                        particle.y += particle.vy;
+                        particle.vx *= 0.8; // Damping
+                        particle.vy *= 0.8;
+                    } else {
+                        // No target position, float randomly
+                        particle.x += particle.vx * speed;
+                        particle.y += particle.vy * speed;
+                    }
+                    break;
+            }
+
+            // Boundary wrapping
+            if (particle.x < 0) particle.x = this.canvas.width;
+            if (particle.x > this.canvas.width) particle.x = 0;
+            if (particle.y < 0) particle.y = this.canvas.height;
+            if (particle.y > this.canvas.height) particle.y = 0;
+        });
+    }
+
+    drawParticles() {
+        const size = parseInt(this.settings['particle-size']) || 3;
+        const color = this.settings['particle-color'] || '#00d4ff';
+        const shape = this.settings['particle-shape'] || 'circle';
+        const glow = this.settings['particle-glow'];
+        const connect = this.settings['particle-connect'];
+        const trails = this.settings['particle-trails'];
+
+        // Clear canvas
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Draw connections first (behind particles)
+        if (connect) {
+            this.ctx.strokeStyle = color + '30';
+            this.ctx.lineWidth = 1;
+            this.particles.forEach((particle, i) => {
+                this.particles.slice(i + 1).forEach(other => {
+                    const dist = Math.sqrt(
+                        Math.pow(particle.x - other.x, 2) +
+                        Math.pow(particle.y - other.y, 2)
+                    );
+                    if (dist < 100) {
+                        this.ctx.beginPath();
+                        this.ctx.moveTo(particle.x, particle.y);
+                        this.ctx.lineTo(other.x, other.y);
+                        this.ctx.stroke();
+                    }
+                });
+            });
+        }
+
+        // Draw laser effects for laser behavior
+        if (this.settings.particleBehavior === 'laser') {
+            this.ctx.strokeStyle = color + '80';
+            this.ctx.lineWidth = 2;
+            this.particles.forEach(particle => {
+                this.ctx.beginPath();
+                this.ctx.moveTo(particle.x, particle.y);
+                this.ctx.lineTo(this.mouse.x, this.mouse.y);
+                this.ctx.stroke();
+            });
+        }
+
+        // Draw particles
+        this.particles.forEach((particle, index) => {
+            // Draw trail first
+            if (trails && particle.trail && particle.trail.length > 1) {
+                this.ctx.strokeStyle = color + '60';
+                this.ctx.lineWidth = Math.max(1, size / 2);
+                this.ctx.beginPath();
+                this.ctx.moveTo(particle.trail[0].x, particle.trail[0].y);
+                for (let i = 1; i < particle.trail.length; i++) {
+                    this.ctx.lineTo(particle.trail[i].x, particle.trail[i].y);
+                }
+                this.ctx.stroke();
+            }
+
+            // Set up glow
+            if (glow) {
+                this.ctx.shadowColor = color;
+                this.ctx.shadowBlur = size * 3;
+            } else {
+                this.ctx.shadowBlur = 0;
+            }
+
+            this.ctx.fillStyle = color;
+            this.ctx.beginPath();
+
+            switch (shape) {
+                case 'circle':
+                    this.ctx.arc(particle.x, particle.y, size, 0, Math.PI * 2);
+                    break;
+                case 'square':
+                    this.ctx.rect(particle.x - size, particle.y - size, size * 2, size * 2);
+                    break;
+                case 'triangle':
+                    this.ctx.moveTo(particle.x, particle.y - size);
+                    this.ctx.lineTo(particle.x - size, particle.y + size);
+                    this.ctx.lineTo(particle.x + size, particle.y + size);
+                    this.ctx.closePath();
+                    break;
+                case 'star':
+                    this.drawStar(particle.x, particle.y, size);
+                    break;
+                case 'diamond':
+                    this.ctx.moveTo(particle.x, particle.y - size);
+                    this.ctx.lineTo(particle.x + size, particle.y);
+                    this.ctx.lineTo(particle.x, particle.y + size);
+                    this.ctx.lineTo(particle.x - size, particle.y);
+                    this.ctx.closePath();
+                    break;
+            }
+
+            this.ctx.fill();
+        });
+
+        // Reset shadow
+        this.ctx.shadowBlur = 0;
+    }
+
+    drawStar(x, y, size) {
+        const spikes = 5;
+        const outerRadius = size;
+        const innerRadius = size * 0.5;
+
+        let rot = Math.PI / 2 * 3;
+        let cx = x;
+        let cy = y;
+        const step = Math.PI / spikes;
+
+        this.ctx.moveTo(cx, cy - outerRadius);
+
+        for (let i = 0; i < spikes; i++) {
+            cx = x + Math.cos(rot) * outerRadius;
+            cy = y + Math.sin(rot) * outerRadius;
+            this.ctx.lineTo(cx, cy);
+            rot += step;
+
+            cx = x + Math.cos(rot) * innerRadius;
+            cy = y + Math.sin(rot) * innerRadius;
+            this.ctx.lineTo(cx, cy);
+            rot += step;
+        }
+
+        this.ctx.lineTo(x, y - outerRadius);
+        this.ctx.closePath();
+    }
+
+    createClickBurst(x, y) {
+        for (let i = 0; i < 10; i++) {
+            this.clickParticles.push({
+                x: x,
+                y: y,
+                vx: (Math.random() - 0.5) * 10,
+                vy: (Math.random() - 0.5) * 10,
+                life: 0,
+                maxLife: 30,
+                size: Math.random() * 3 + 1
+            });
+        }
+    }
+
+    updateClickParticles() {
+        this.clickParticles = this.clickParticles.filter(particle => {
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.vx *= 0.95;
+            particle.vy *= 0.95;
+            particle.life++;
+            return particle.life < particle.maxLife;
+        });
+    }
+
+    drawClickParticles() {
+        this.clickParticles.forEach(particle => {
+            const alpha = 1 - (particle.life / particle.maxLife);
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+            this.ctx.beginPath();
+            this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+    }
+
+    animate() {
+        if (!this.isRunning) {
+            console.log('🛑 Animation stopped');
+            return;
+        }
+
+        if (!this.canvas || !this.ctx) {
+            console.error('❌ Cannot animate - canvas or context missing');
+            this.isRunning = false;
+            return;
+        }
+
+        try {
+            this.updateParticles();
+            this.updateClickParticles();
+            this.drawParticles();
+            this.drawClickParticles();
+        } catch (error) {
+            console.error('❌ Animation error:', error);
+        }
+
+        // Continue animation loop
+        if (this.isRunning) {
+            this.animationId = requestAnimationFrame(() => this.animate());
+        }
+    }
+
+    updateSettings(newSettings) {
+        this.settings = newSettings;
+        console.log('🔄 Updating particle system settings:', newSettings);
+
+        // Recreate particles if count changed
+        const newCount = parseInt(newSettings['particle-count']) || 100;
+        if (newCount !== this.particles.length) {
+            console.log(`🔢 Particle count changed from ${this.particles.length} to ${newCount}`);
+            this.createParticles();
+        }
+    }
+
+    destroy() {
+        console.log('🗑️ Destroying particle system...');
+
+        this.stopAnimation();
+
+        if (this.canvas && this.canvas.parentNode) {
+            this.canvas.parentNode.removeChild(this.canvas);
+            console.log('🗑️ Particle canvas removed');
+        }
+
+        // Clear particles
+        this.particles = [];
+        this.clickParticles = [];
+        this.canvas = null;
+        this.ctx = null;
+
+        console.log('✅ Particle system destroyed completely');
+    }
+}

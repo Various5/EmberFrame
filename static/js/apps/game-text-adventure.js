@@ -12,78 +12,83 @@
 class TextAdventure {
     static createWindow() {
         return {
-            title: 'Text Adventure Game',
+            title: 'Text Adventure - The Digital Realm',
             width: '800px',
             height: '600px',
             content: `
                 <div class="text-adventure">
                     <div class="game-header">
-                        <h2>🏰 The Lost Castle Adventure</h2>
-                        <div class="game-controls">
-                            <button onclick="TextAdventure.newGame()" class="btn btn-primary">
-                                <i class="fas fa-play"></i> New Game
-                            </button>
-                            <button onclick="TextAdventure.saveGame()" class="btn btn-secondary">
-                                <i class="fas fa-save"></i> Save
-                            </button>
-                            <button onclick="TextAdventure.loadGame()" class="btn btn-secondary">
-                                <i class="fas fa-folder-open"></i> Load
-                            </button>
-                            <button onclick="TextAdventure.showHelp()" class="btn btn-info">
-                                <i class="fas fa-question"></i> Help
-                            </button>
+                        <h2>🏰 The Digital Realm</h2>
+                        <div class="game-stats">
+                            <div class="stat">
+                                <span class="stat-label">Health:</span>
+                                <div class="health-bar">
+                                    <div class="health-fill" id="health-bar" style="width: 100%"></div>
+                                </div>
+                                <span id="health-text">100/100</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Score:</span>
+                                <span id="score-text">0</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Location:</span>
+                                <span id="location-text">Forest Entrance</span>
+                            </div>
                         </div>
                     </div>
 
                     <div class="game-main">
-                        <div class="game-display">
-                            <div class="story-text" id="story-output">
-                                <div class="intro-text">
-                                    <h3>Welcome to The Lost Castle Adventure!</h3>
-                                    <p>You are a brave adventurer standing before a mysterious ancient castle. 
-                                    Dark clouds gather overhead, and you can hear strange sounds echoing from within.</p>
-                                    <p>Your quest is to find the legendary Crystal of Power hidden somewhere in the castle's depths.</p>
-                                    <p class="command-prompt">What would you like to do?</p>
+                        <div class="story-panel">
+                            <div class="story-content" id="story-content">
+                                <div class="story-text">
+                                    <p><strong>Welcome to The Digital Realm!</strong></p>
+                                    <p>You find yourself standing at the edge of a mysterious digital forest. The air hums with electricity, and glowing data streams flow between the trees like ethereal rivers.</p>
+                                    <p>Before you lie three paths:</p>
+                                    <ul>
+                                        <li><strong>North</strong> - A bright path leading to a Data Crystal Cave</li>
+                                        <li><strong>East</strong> - A winding trail toward the Cyber Meadows</li>
+                                        <li><strong>West</strong> - A dark passage into the Code Ruins</li>
+                                    </ul>
+                                    <p>What do you choose?</p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="game-sidebar">
-                            <div class="player-stats">
-                                <h4>📊 Player Status</h4>
-                                <div class="stat-item">
-                                    <span class="stat-label">Health:</span>
-                                    <div class="stat-bar">
-                                        <div class="stat-fill health" id="health-bar"></div>
+                            <div class="inventory-panel">
+                                <h3>📦 Inventory</h3>
+                                <div class="inventory-grid" id="inventory-grid">
+                                    <div class="inventory-item">
+                                        <div class="item-icon">🔦</div>
+                                        <div class="item-name">Digital Flashlight</div>
                                     </div>
-                                    <span class="stat-value" id="health-value">100</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label">Magic:</span>
-                                    <div class="stat-bar">
-                                        <div class="stat-fill magic" id="magic-bar"></div>
+                                    <div class="inventory-item">
+                                        <div class="item-icon">🗝️</div>
+                                        <div class="item-name">Encryption Key</div>
                                     </div>
-                                    <span class="stat-value" id="magic-value">50</span>
-                                </div>
-                                <div class="stat-item">
-                                    <span class="stat-label">Score:</span>
-                                    <span class="stat-value" id="score-value">0</span>
                                 </div>
                             </div>
 
-                            <div class="inventory">
-                                <h4>🎒 Inventory</h4>
-                                <div class="inventory-items" id="inventory-list">
-                                    <div class="inventory-item">🗡️ Rusty Sword</div>
-                                    <div class="inventory-item">🍞 Bread</div>
+                            <div class="commands-panel">
+                                <h3>📜 Quick Commands</h3>
+                                <div class="command-buttons">
+                                    <button onclick="TextAdventure.handleCommand('north')" class="cmd-btn">Go North</button>
+                                    <button onclick="TextAdventure.handleCommand('east')" class="cmd-btn">Go East</button>
+                                    <button onclick="TextAdventure.handleCommand('west')" class="cmd-btn">Go West</button>
+                                    <button onclick="TextAdventure.handleCommand('look')" class="cmd-btn">Look Around</button>
+                                    <button onclick="TextAdventure.handleCommand('inventory')" class="cmd-btn">Check Inventory</button>
+                                    <button onclick="TextAdventure.handleCommand('help')" class="cmd-btn">Help</button>
                                 </div>
                             </div>
 
-                            <div class="location-info">
-                                <h4>📍 Current Location</h4>
-                                <div class="location-name" id="current-location">Castle Entrance</div>
-                                <div class="location-description" id="location-desc">
-                                    You stand before the towering castle gates. Ancient stone walls rise high above you.
+                            <div class="map-panel">
+                                <h3>🗺️ Map</h3>
+                                <div class="mini-map" id="mini-map">
+                                    <div class="map-room current" style="grid-area: 2/2">🏠</div>
+                                    <div class="map-room" style="grid-area: 1/2">🔮</div>
+                                    <div class="map-room" style="grid-area: 2/3">🌸</div>
+                                    <div class="map-room" style="grid-area: 2/1">🏚️</div>
                                 </div>
                             </div>
                         </div>
@@ -91,21 +96,16 @@ class TextAdventure {
 
                     <div class="game-input">
                         <div class="input-container">
-                            <span class="input-prompt">&gt;</span>
-                            <input type="text" id="command-input" placeholder="Enter your command..." 
-                                   onkeypress="TextAdventure.handleKeyPress(event)" autocomplete="off">
-                            <button onclick="TextAdventure.executeCommand()" class="btn btn-primary">
-                                <i class="fas fa-arrow-right"></i>
+                            <span class="prompt">></span>
+                            <input type="text" id="command-input" placeholder="Type your command here (e.g., 'go north', 'take item', 'examine door')" autofocus>
+                            <button onclick="TextAdventure.processInput()" class="send-btn">
+                                <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
-                        <div class="quick-commands">
-                            <button onclick="TextAdventure.quickCommand('look')" class="quick-btn">👀 Look</button>
-                            <button onclick="TextAdventure.quickCommand('inventory')" class="quick-btn">🎒 Inventory</button>
-                            <button onclick="TextAdventure.quickCommand('help')" class="quick-btn">❓ Help</button>
-                            <button onclick="TextAdventure.quickCommand('north')" class="quick-btn">⬆️ North</button>
-                            <button onclick="TextAdventure.quickCommand('south')" class="quick-btn">⬇️ South</button>
-                            <button onclick="TextAdventure.quickCommand('east')" class="quick-btn">➡️ East</button>
-                            <button onclick="TextAdventure.quickCommand('west')" class="quick-btn">⬅️ West</button>
+                        <div class="input-suggestions" id="input-suggestions">
+                            Try: <span onclick="TextAdventure.setCommand('go north')">go north</span>, 
+                            <span onclick="TextAdventure.setCommand('examine trees')">examine trees</span>, 
+                            <span onclick="TextAdventure.setCommand('use flashlight')">use flashlight</span>
                         </div>
                     </div>
                 </div>
@@ -115,62 +115,57 @@ class TextAdventure {
                         height: 100%;
                         display: flex;
                         flex-direction: column;
-                        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-                        color: #ecf0f1;
+                        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+                        color: #e0e0e0;
                         font-family: 'Courier New', monospace;
+                        overflow: hidden;
                     }
 
                     .game-header {
-                        padding: 20px;
-                        background: rgba(52, 73, 94, 0.8);
-                        border-bottom: 2px solid #3498db;
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
+                        background: linear-gradient(135deg, #2d1b69, #11998e);
+                        padding: 15px 20px;
+                        border-bottom: 2px solid #00d4ff;
                     }
 
                     .game-header h2 {
-                        margin: 0;
-                        color: #f39c12;
-                        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+                        margin: 0 0 10px 0;
+                        color: #ffffff;
+                        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
                         font-size: 24px;
                     }
 
-                    .game-controls {
+                    .game-stats {
                         display: flex;
-                        gap: 10px;
+                        gap: 30px;
+                        align-items: center;
+                        flex-wrap: wrap;
                     }
 
-                    .btn {
-                        padding: 8px 16px;
-                        border: none;
-                        border-radius: 5px;
-                        cursor: pointer;
-                        font-size: 14px;
-                        transition: all 0.3s ease;
+                    .stat {
                         display: flex;
                         align-items: center;
-                        gap: 5px;
+                        gap: 8px;
+                        font-size: 14px;
                     }
 
-                    .btn-primary {
-                        background: #3498db;
-                        color: white;
+                    .stat-label {
+                        color: #00d4ff;
+                        font-weight: bold;
                     }
 
-                    .btn-secondary {
-                        background: #95a5a6;
-                        color: white;
+                    .health-bar {
+                        width: 100px;
+                        height: 12px;
+                        background: rgba(255, 255, 255, 0.2);
+                        border-radius: 6px;
+                        overflow: hidden;
+                        border: 1px solid #00d4ff;
                     }
 
-                    .btn-info {
-                        background: #17a2b8;
-                        color: white;
-                    }
-
-                    .btn:hover {
-                        transform: translateY(-2px);
-                        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                    .health-fill {
+                        height: 100%;
+                        background: linear-gradient(90deg, #ff4757, #ffa502, #2ed573);
+                        transition: width 0.3s ease;
                     }
 
                     .game-main {
@@ -179,250 +174,244 @@ class TextAdventure {
                         overflow: hidden;
                     }
 
-                    .game-display {
+                    .story-panel {
+                        flex: 2;
+                        display: flex;
+                        flex-direction: column;
+                        border-right: 2px solid #00d4ff;
+                    }
+
+                    .story-content {
                         flex: 1;
                         padding: 20px;
                         overflow-y: auto;
-                        background: rgba(44, 62, 80, 0.3);
+                        line-height: 1.6;
+                        background: rgba(0, 0, 0, 0.3);
                     }
 
                     .story-text {
-                        line-height: 1.6;
-                        font-size: 16px;
-                    }
-
-                    .intro-text {
-                        background: rgba(52, 152, 219, 0.1);
-                        padding: 20px;
-                        border-radius: 10px;
-                        border-left: 4px solid #3498db;
                         margin-bottom: 20px;
+                        animation: fadeIn 0.5s ease-in;
                     }
 
-                    .intro-text h3 {
-                        color: #f39c12;
-                        margin-top: 0;
+                    .story-text p {
+                        margin-bottom: 15px;
+                        text-align: justify;
                     }
 
-                    .command-prompt {
-                        color: #e74c3c;
-                        font-weight: bold;
-                        margin-top: 15px;
+                    .story-text ul {
+                        padding-left: 20px;
+                        margin: 15px 0;
                     }
 
-                    .game-output {
-                        margin: 10px 0;
-                        padding: 10px;
-                        background: rgba(236, 240, 241, 0.1);
-                        border-radius: 5px;
-                        border-left: 3px solid #2ecc71;
+                    .story-text li {
+                        margin-bottom: 8px;
+                        color: #a0e7e5;
                     }
 
-                    .error-output {
-                        border-left-color: #e74c3c;
-                        background: rgba(231, 76, 60, 0.1);
+                    .story-text strong {
+                        color: #00d4ff;
+                        text-shadow: 0 0 5px rgba(0, 212, 255, 0.3);
                     }
 
                     .game-sidebar {
-                        width: 300px;
-                        padding: 20px;
-                        background: rgba(52, 73, 94, 0.7);
-                        border-left: 2px solid #3498db;
-                        overflow-y: auto;
-                    }
-
-                    .player-stats,
-                    .inventory,
-                    .location-info {
-                        margin-bottom: 25px;
-                        background: rgba(44, 62, 80, 0.5);
-                        padding: 15px;
-                        border-radius: 10px;
-                        border: 1px solid rgba(52, 152, 219, 0.3);
-                    }
-
-                    .player-stats h4,
-                    .inventory h4,
-                    .location-info h4 {
-                        margin: 0 0 15px 0;
-                        color: #f39c12;
-                        font-size: 16px;
-                        border-bottom: 1px solid rgba(243, 156, 18, 0.3);
-                        padding-bottom: 5px;
-                    }
-
-                    .stat-item {
-                        display: flex;
-                        align-items: center;
-                        margin-bottom: 10px;
-                        gap: 10px;
-                    }
-
-                    .stat-label {
-                        min-width: 60px;
-                        font-size: 14px;
-                    }
-
-                    .stat-bar {
                         flex: 1;
-                        height: 20px;
-                        background: rgba(52, 73, 94, 0.8);
-                        border-radius: 10px;
-                        overflow: hidden;
-                        border: 1px solid rgba(236, 240, 241, 0.2);
-                    }
-
-                    .stat-fill {
-                        height: 100%;
-                        transition: width 0.3s ease;
-                        border-radius: 10px;
-                    }
-
-                    .stat-fill.health {
-                        background: linear-gradient(90deg, #e74c3c, #c0392b);
-                        width: 100%;
-                    }
-
-                    .stat-fill.magic {
-                        background: linear-gradient(90deg, #9b59b6, #8e44ad);
-                        width: 50%;
-                    }
-
-                    .stat-value {
-                        min-width: 40px;
-                        text-align: right;
-                        font-weight: bold;
-                    }
-
-                    .inventory-items {
                         display: flex;
                         flex-direction: column;
+                        background: rgba(0, 0, 0, 0.4);
+                        min-width: 250px;
+                    }
+
+                    .inventory-panel,
+                    .commands-panel,
+                    .map-panel {
+                        padding: 15px;
+                        border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+                    }
+
+                    .inventory-panel h3,
+                    .commands-panel h3,
+                    .map-panel h3 {
+                        margin: 0 0 15px 0;
+                        color: #00d4ff;
+                        font-size: 14px;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                    }
+
+                    .inventory-grid {
+                        display: grid;
+                        grid-template-columns: 1fr;
                         gap: 8px;
                     }
 
                     .inventory-item {
+                        display: flex;
+                        align-items: center;
+                        gap: 10px;
+                        padding: 8px;
+                        background: rgba(0, 212, 255, 0.1);
+                        border: 1px solid rgba(0, 212, 255, 0.3);
+                        border-radius: 6px;
+                        font-size: 12px;
+                    }
+
+                    .item-icon {
+                        font-size: 16px;
+                    }
+
+                    .item-name {
+                        flex: 1;
+                    }
+
+                    .command-buttons {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 8px;
+                    }
+
+                    .cmd-btn {
                         padding: 8px 12px;
-                        background: rgba(52, 152, 219, 0.2);
-                        border-radius: 5px;
-                        border: 1px solid rgba(52, 152, 219, 0.3);
-                        font-size: 14px;
+                        background: rgba(0, 212, 255, 0.2);
+                        border: 1px solid rgba(0, 212, 255, 0.5);
+                        color: #e0e0e0;
+                        border-radius: 6px;
                         cursor: pointer;
-                        transition: all 0.2s ease;
+                        font-size: 11px;
+                        transition: all 0.3s ease;
+                        font-family: inherit;
                     }
 
-                    .inventory-item:hover {
-                        background: rgba(52, 152, 219, 0.3);
-                        transform: translateX(5px);
+                    .cmd-btn:hover {
+                        background: rgba(0, 212, 255, 0.4);
+                        transform: translateY(-1px);
                     }
 
-                    .location-name {
+                    .mini-map {
+                        display: grid;
+                        grid-template-columns: repeat(3, 1fr);
+                        grid-template-rows: repeat(3, 1fr);
+                        gap: 4px;
+                        width: 120px;
+                        height: 120px;
+                        margin: 0 auto;
+                    }
+
+                    .map-room {
+                        background: rgba(0, 0, 0, 0.5);
+                        border: 1px solid rgba(0, 212, 255, 0.3);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
                         font-size: 18px;
-                        font-weight: bold;
-                        color: #2ecc71;
-                        margin-bottom: 10px;
+                        border-radius: 4px;
                     }
 
-                    .location-description {
-                        font-size: 14px;
-                        line-height: 1.4;
-                        opacity: 0.9;
+                    .map-room.current {
+                        background: rgba(0, 212, 255, 0.4);
+                        border-color: #00d4ff;
+                        box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
                     }
 
                     .game-input {
-                        padding: 20px;
-                        background: rgba(52, 73, 94, 0.8);
-                        border-top: 2px solid #3498db;
+                        background: rgba(0, 0, 0, 0.6);
+                        padding: 15px 20px;
+                        border-top: 2px solid #00d4ff;
                     }
 
                     .input-container {
                         display: flex;
                         align-items: center;
                         gap: 10px;
-                        margin-bottom: 15px;
+                        margin-bottom: 8px;
                     }
 
-                    .input-prompt {
-                        color: #f39c12;
-                        font-size: 18px;
+                    .prompt {
+                        color: #00d4ff;
                         font-weight: bold;
+                        font-size: 18px;
+                        text-shadow: 0 0 5px rgba(0, 212, 255, 0.5);
                     }
 
                     #command-input {
                         flex: 1;
+                        background: rgba(0, 0, 0, 0.7);
+                        border: 1px solid rgba(0, 212, 255, 0.5);
+                        color: #e0e0e0;
                         padding: 12px 15px;
-                        background: rgba(44, 62, 80, 0.8);
-                        border: 2px solid rgba(52, 152, 219, 0.3);
-                        border-radius: 5px;
-                        color: #ecf0f1;
-                        font-family: 'Courier New', monospace;
-                        font-size: 16px;
+                        border-radius: 8px;
+                        font-family: inherit;
+                        font-size: 14px;
+                        transition: border-color 0.3s ease;
                     }
 
                     #command-input:focus {
                         outline: none;
-                        border-color: #3498db;
-                        box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+                        border-color: #00d4ff;
+                        box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
                     }
 
-                    .quick-commands {
-                        display: flex;
-                        gap: 8px;
-                        flex-wrap: wrap;
-                    }
-
-                    .quick-btn {
-                        padding: 6px 12px;
-                        background: rgba(52, 152, 219, 0.3);
-                        border: 1px solid rgba(52, 152, 219, 0.5);
-                        border-radius: 5px;
-                        color: #ecf0f1;
+                    .send-btn {
+                        background: linear-gradient(135deg, #00d4ff, #0099cc);
+                        border: none;
+                        color: white;
+                        padding: 12px 16px;
+                        border-radius: 8px;
                         cursor: pointer;
+                        transition: all 0.3s ease;
+                    }
+
+                    .send-btn:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+                    }
+
+                    .input-suggestions {
                         font-size: 12px;
-                        transition: all 0.2s ease;
+                        color: #a0a0a0;
                     }
 
-                    .quick-btn:hover {
-                        background: rgba(52, 152, 219, 0.5);
-                        transform: translateY(-1px);
+                    .input-suggestions span {
+                        color: #00d4ff;
+                        cursor: pointer;
+                        text-decoration: underline;
                     }
 
-                    /* Responsive Design */
+                    .input-suggestions span:hover {
+                        color: #ffffff;
+                    }
+
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+
+                    /* Mobile Responsive */
                     @media (max-width: 768px) {
                         .game-main {
                             flex-direction: column;
                         }
 
+                        .story-panel {
+                            border-right: none;
+                            border-bottom: 2px solid #00d4ff;
+                        }
+
                         .game-sidebar {
-                            width: 100%;
+                            min-width: unset;
                             max-height: 200px;
+                            overflow-y: auto;
                         }
 
-                        .game-header {
+                        .command-buttons {
+                            grid-template-columns: 1fr;
+                        }
+
+                        .game-stats {
                             flex-direction: column;
-                            gap: 15px;
+                            gap: 10px;
+                            align-items: flex-start;
                         }
-
-                        .quick-commands {
-                            justify-content: center;
-                        }
-                    }
-
-                    /* Scrollbar Styling */
-                    ::-webkit-scrollbar {
-                        width: 8px;
-                    }
-
-                    ::-webkit-scrollbar-track {
-                        background: rgba(52, 73, 94, 0.3);
-                    }
-
-                    ::-webkit-scrollbar-thumb {
-                        background: rgba(52, 152, 219, 0.5);
-                        border-radius: 4px;
-                    }
-
-                    ::-webkit-scrollbar-thumb:hover {
-                        background: rgba(52, 152, 219, 0.7);
                     }
                 </style>
             `,
@@ -434,487 +423,275 @@ class TextAdventure {
 
     static init(windowElement) {
         this.currentWindow = windowElement;
-        this.gameState = this.getInitialGameState();
-        this.commandHistory = [];
-        this.historyIndex = -1;
+        this.gameState = {
+            health: 100,
+            maxHealth: 100,
+            score: 0,
+            location: 'forest_entrance',
+            inventory: ['flashlight', 'encryption_key'],
+            visitedRooms: ['forest_entrance'],
+            flags: {}
+        };
 
-        // Focus the input
-        setTimeout(() => {
-            const input = this.currentWindow.querySelector('#command-input');
-            if (input) input.focus();
-        }, 100);
+        this.locations = {
+            forest_entrance: {
+                name: 'Forest Entrance',
+                description: 'You stand at the edge of a mysterious digital forest. Data streams flow between the glowing trees.',
+                exits: { north: 'crystal_cave', east: 'cyber_meadows', west: 'code_ruins' },
+                items: [],
+                examined: false
+            },
+            crystal_cave: {
+                name: 'Data Crystal Cave',
+                description: 'A luminous cave filled with floating data crystals that hum with processing power.',
+                exits: { south: 'forest_entrance', deep: 'deep_cave' },
+                items: ['data_crystal'],
+                examined: false
+            },
+            cyber_meadows: {
+                name: 'Cyber Meadows',
+                description: 'Rolling digital hills covered in pixelated flowers that bloom in beautiful patterns.',
+                exits: { west: 'forest_entrance', north: 'server_tower' },
+                items: ['healing_potion'],
+                examined: false
+            },
+            code_ruins: {
+                name: 'Code Ruins',
+                description: 'Ancient ruins made of broken code fragments and corrupted data structures.',
+                exits: { east: 'forest_entrance', down: 'bug_cavern' },
+                items: ['debug_sword'],
+                examined: false
+            }
+        };
 
-        // Load saved game if exists
-        this.loadGameFromStorage();
+        this.items = {
+            flashlight: { name: 'Digital Flashlight', description: 'A bright light that reveals hidden data.', icon: '🔦' },
+            encryption_key: { name: 'Encryption Key', description: 'A mystical key that unlocks secured areas.', icon: '🗝️' },
+            data_crystal: { name: 'Data Crystal', description: 'A valuable crystal containing pure information.', icon: '💎' },
+            healing_potion: { name: 'Healing Potion', description: 'Restores health when consumed.', icon: '🧪' },
+            debug_sword: { name: 'Debug Sword', description: 'A powerful weapon against code bugs.', icon: '⚔️' }
+        };
+
+        this.setupEventListeners();
         this.updateDisplay();
     }
 
-    static getInitialGameState() {
-        return {
-            location: 'castle_entrance',
-            health: 100,
-            magic: 50,
-            score: 0,
-            inventory: ['sword', 'bread'],
-            flags: {
-                hasKey: false,
-                doorUnlocked: false,
-                crystalFound: false
-            },
-            locations: {
-                castle_entrance: {
-                    name: 'Castle Entrance',
-                    description: 'You stand before the towering castle gates. Ancient stone walls rise high above you.',
-                    exits: { north: 'great_hall', east: 'garden' },
-                    items: ['key'],
-                    firstVisit: true
-                },
-                great_hall: {
-                    name: 'Great Hall',
-                    description: 'A vast hall with high vaulted ceilings. Dusty banners hang from the walls.',
-                    exits: { south: 'castle_entrance', west: 'library', east: 'armory' },
-                    items: ['torch'],
-                    firstVisit: true
-                },
-                library: {
-                    name: 'Ancient Library',
-                    description: 'Countless books line the walls. A magical aura fills the air.',
-                    exits: { east: 'great_hall' },
-                    items: ['spell_book', 'potion'],
-                    firstVisit: true
-                },
-                armory: {
-                    name: 'Castle Armory',
-                    description: 'Weapons and armor are scattered about. You sense danger nearby.',
-                    exits: { west: 'great_hall', north: 'treasure_room' },
-                    items: ['shield'],
-                    monster: 'skeleton_guard',
-                    firstVisit: true
-                },
-                garden: {
-                    name: 'Enchanted Garden',
-                    description: 'A peaceful garden with magical flowers. A fountain bubbles in the center.',
-                    exits: { west: 'castle_entrance' },
-                    items: ['healing_herb'],
-                    firstVisit: true
-                },
-                treasure_room: {
-                    name: 'Treasure Chamber',
-                    description: 'The legendary treasure chamber! Gold and gems glitter in the torchlight.',
-                    exits: { south: 'armory' },
-                    items: ['crystal_of_power'],
-                    firstVisit: true
-                }
-            }
-        };
-    }
-
-    static handleKeyPress(event) {
-        if (event.key === 'Enter') {
-            this.executeCommand();
-        } else if (event.key === 'ArrowUp') {
-            event.preventDefault();
-            this.navigateHistory(-1);
-        } else if (event.key === 'ArrowDown') {
-            event.preventDefault();
-            this.navigateHistory(1);
-        }
-    }
-
-    static navigateHistory(direction) {
-        if (this.commandHistory.length === 0) return;
-
-        this.historyIndex += direction;
-
-        if (this.historyIndex < 0) {
-            this.historyIndex = 0;
-        } else if (this.historyIndex >= this.commandHistory.length) {
-            this.historyIndex = this.commandHistory.length - 1;
-        }
-
+    static setupEventListeners() {
         const input = this.currentWindow.querySelector('#command-input');
-        input.value = this.commandHistory[this.historyIndex] || '';
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.processInput();
+            }
+        });
+
+        input.focus();
     }
 
-    static executeCommand() {
+    static processInput() {
         const input = this.currentWindow.querySelector('#command-input');
         const command = input.value.trim().toLowerCase();
-
-        if (!command) return;
-
-        // Add to history
-        this.commandHistory.unshift(command);
-        if (this.commandHistory.length > 50) {
-            this.commandHistory.pop();
-        }
-        this.historyIndex = -1;
-
-        // Add command to output
-        this.addToOutput(`> ${command}`, 'command');
-
-        // Process command
-        this.processCommand(command);
-
-        // Clear input and focus
         input.value = '';
-        input.focus();
 
-        // Save game state
-        this.saveGameToStorage();
+        if (command) {
+            this.handleCommand(command);
+        }
     }
 
-    static quickCommand(command) {
+    static setCommand(command) {
         const input = this.currentWindow.querySelector('#command-input');
         input.value = command;
-        this.executeCommand();
+        input.focus();
     }
 
-    static processCommand(command) {
-        const words = command.split(' ').filter(word => word.length > 0);
-        const verb = words[0];
-        const noun = words.slice(1).join(' ');
+    static handleCommand(command) {
+        const parts = command.split(' ');
+        const action = parts[0];
+        const target = parts.slice(1).join(' ');
 
-        switch (verb) {
-            case 'look':
-            case 'l':
-                this.lookCommand(noun);
-                break;
+        let response = '';
+
+        switch (action) {
             case 'go':
             case 'move':
-            case 'walk':
             case 'north':
             case 'south':
             case 'east':
             case 'west':
-            case 'n':
-            case 's':
-            case 'e':
-            case 'w':
-                const direction = verb.length === 1 ? this.expandDirection(verb) : (words.length > 1 ? noun : verb);
-                this.moveCommand(direction);
+                const direction = action === 'go' || action === 'move' ? target : action;
+                response = this.movePlayer(direction);
                 break;
+
+            case 'look':
+            case 'examine':
+                response = this.examineRoom(target);
+                break;
+
             case 'take':
             case 'get':
-            case 'pick':
-                this.takeCommand(noun);
+                response = this.takeItem(target);
                 break;
-            case 'drop':
-                this.dropCommand(noun);
-                break;
+
             case 'use':
-                this.useCommand(noun);
+                response = this.useItem(target);
                 break;
+
             case 'inventory':
             case 'inv':
-            case 'i':
-                this.inventoryCommand();
+                response = this.showInventory();
                 break;
+
+            case 'health':
+                response = `Your health is ${this.gameState.health}/${this.gameState.maxHealth}.`;
+                break;
+
+            case 'score':
+                response = `Your current score is ${this.gameState.score} points.`;
+                break;
+
             case 'help':
-            case 'h':
-                this.helpCommand();
+                response = this.showHelp();
                 break;
-            case 'attack':
-            case 'fight':
-            case 'kill':
-                this.attackCommand(noun);
+
+            case 'save':
+                response = this.saveGame();
                 break;
-            case 'cast':
-            case 'spell':
-                this.castCommand(noun);
+
+            case 'load':
+                response = this.loadGame();
                 break;
-            case 'examine':
-            case 'x':
-                this.examineCommand(noun);
-                break;
+
             default:
-                this.addToOutput("I don't understand that command. Type 'help' for available commands.", 'error');
+                response = `I don't understand "${command}". Try typing "help" for available commands.`;
         }
 
+        this.addStoryText(response);
         this.updateDisplay();
     }
 
-    static expandDirection(shortDir) {
-        const directions = { n: 'north', s: 'south', e: 'east', w: 'west' };
-        return directions[shortDir] || shortDir;
-    }
+    static movePlayer(direction) {
+        const currentLocation = this.locations[this.gameState.location];
+        const exitDirection = direction.toLowerCase();
 
-    static lookCommand(target) {
-        const location = this.gameState.locations[this.gameState.location];
+        if (currentLocation.exits[exitDirection]) {
+            const newLocation = currentLocation.exits[exitDirection];
+            this.gameState.location = newLocation;
 
-        if (!target || target === 'around') {
-            this.addToOutput(`**${location.name}**`, 'location');
-            this.addToOutput(location.description);
-
-            if (location.items && location.items.length > 0) {
-                this.addToOutput(`You can see: ${location.items.map(item => this.getItemName(item)).join(', ')}`);
+            if (!this.gameState.visitedRooms.includes(newLocation)) {
+                this.gameState.visitedRooms.push(newLocation);
+                this.gameState.score += 10;
             }
 
-            if (location.exits) {
-                const exits = Object.keys(location.exits).join(', ');
-                this.addToOutput(`Exits: ${exits}`);
-            }
-
-            if (location.monster) {
-                this.addToOutput(`⚔️ A ${this.getMonsterName(location.monster)} blocks your path!`, 'error');
-            }
+            const location = this.locations[newLocation];
+            return `You move ${direction}.\n\n${location.description}`;
         } else {
-            this.examineCommand(target);
+            return `You can't go ${direction} from here.`;
         }
     }
 
-    static moveCommand(direction) {
-        const location = this.gameState.locations[this.gameState.location];
+    static examineRoom(target) {
+        const location = this.locations[this.gameState.location];
 
-        if (!location.exits || !location.exits[direction]) {
-            this.addToOutput("You can't go that way.");
-            return;
-        }
+        if (!target || target === 'room' || target === 'area') {
+            let description = location.description;
 
-        // Check for monster blocking the path
-        if (location.monster && direction === 'north' && this.gameState.location === 'armory') {
-            this.addToOutput("The skeleton guard blocks your path! You must defeat it first.", 'error');
-            return;
-        }
+            if (location.items.length > 0) {
+                const visibleItems = location.items.map(item => this.items[item]?.name || item);
+                description += `\n\nYou see: ${visibleItems.join(', ')}`;
+            }
 
-        const newLocation = location.exits[direction];
-        this.gameState.location = newLocation;
-        this.gameState.score += 5;
+            const exits = Object.keys(location.exits);
+            description += `\n\nExits: ${exits.join(', ')}`;
 
-        const newLoc = this.gameState.locations[newLocation];
-        if (newLoc.firstVisit) {
-            this.gameState.score += 10;
-            newLoc.firstVisit = false;
-        }
+            if (!location.examined) {
+                location.examined = true;
+                this.gameState.score += 5;
+            }
 
-        this.addToOutput(`You move ${direction}.`);
-        this.lookCommand();
-    }
-
-    static takeCommand(item) {
-        if (!item) {
-            this.addToOutput("Take what?");
-            return;
-        }
-
-        const location = this.gameState.locations[this.gameState.location];
-        const itemKey = this.findItemKey(item);
-
-        if (!itemKey || !location.items || !location.items.includes(itemKey)) {
-            this.addToOutput(`There is no ${item} here.`);
-            return;
-        }
-
-        // Remove from location, add to inventory
-        location.items = location.items.filter(i => i !== itemKey);
-        this.gameState.inventory.push(itemKey);
-        this.gameState.score += 5;
-
-        this.addToOutput(`You take the ${this.getItemName(itemKey)}.`);
-
-        // Special item effects
-        if (itemKey === 'key') {
-            this.gameState.flags.hasKey = true;
-            this.addToOutput("This might unlock something important!");
-        } else if (itemKey === 'crystal_of_power') {
-            this.gameState.flags.crystalFound = true;
-            this.gameState.score += 100;
-            this.addToOutput("🎉 Congratulations! You have found the legendary Crystal of Power!");
-            this.addToOutput("You have completed your quest! Your final score: " + this.gameState.score, 'success');
+            return description;
+        } else {
+            return `You examine the ${target}, but find nothing special about it.`;
         }
     }
 
-    static dropCommand(item) {
-        if (!item) {
-            this.addToOutput("Drop what?");
-            return;
-        }
+    static takeItem(itemName) {
+        const location = this.locations[this.gameState.location];
+        const itemKey = Object.keys(this.items).find(key =>
+            this.items[key].name.toLowerCase().includes(itemName) || key === itemName
+        );
 
-        const itemKey = this.findItemKey(item);
+        if (itemKey && location.items.includes(itemKey)) {
+            location.items = location.items.filter(item => item !== itemKey);
+            this.gameState.inventory.push(itemKey);
+            this.gameState.score += 15;
+            return `You take the ${this.items[itemKey].name}.`;
+        } else {
+            return `There's no ${itemName} here to take.`;
+        }
+    }
+
+    static useItem(itemName) {
+        const itemKey = Object.keys(this.items).find(key =>
+            this.items[key].name.toLowerCase().includes(itemName) || key === itemName
+        );
 
         if (!itemKey || !this.gameState.inventory.includes(itemKey)) {
-            this.addToOutput(`You don't have a ${item}.`);
-            return;
-        }
-
-        // Remove from inventory, add to location
-        this.gameState.inventory = this.gameState.inventory.filter(i => i !== itemKey);
-        const location = this.gameState.locations[this.gameState.location];
-        if (!location.items) location.items = [];
-        location.items.push(itemKey);
-
-        this.addToOutput(`You drop the ${this.getItemName(itemKey)}.`);
-    }
-
-    static useCommand(item) {
-        if (!item) {
-            this.addToOutput("Use what?");
-            return;
-        }
-
-        const itemKey = this.findItemKey(item);
-
-        if (!itemKey || !this.gameState.inventory.includes(itemKey)) {
-            this.addToOutput(`You don't have a ${item}.`);
-            return;
+            return `You don't have a ${itemName}.`;
         }
 
         switch (itemKey) {
-            case 'healing_herb':
-                this.gameState.health = Math.min(100, this.gameState.health + 30);
-                this.gameState.inventory = this.gameState.inventory.filter(i => i !== itemKey);
-                this.addToOutput("You eat the healing herb and feel much better! (+30 health)");
-                break;
-            case 'potion':
-                this.gameState.magic = Math.min(100, this.gameState.magic + 25);
-                this.gameState.inventory = this.gameState.inventory.filter(i => i !== itemKey);
-                this.addToOutput("You drink the magic potion and feel energized! (+25 magic)");
-                break;
-            case 'bread':
-                this.gameState.health = Math.min(100, this.gameState.health + 10);
-                this.gameState.inventory = this.gameState.inventory.filter(i => i !== itemKey);
-                this.addToOutput("You eat the bread and feel a bit better. (+10 health)");
-                break;
-            case 'torch':
-                this.addToOutput("The torch provides light in the dark areas of the castle.");
-                break;
+            case 'flashlight':
+                return `You shine the digital flashlight around. The light reveals hidden data patterns in the environment.`;
+
+            case 'healing_potion':
+                const healAmount = Math.min(50, this.gameState.maxHealth - this.gameState.health);
+                this.gameState.health += healAmount;
+                this.gameState.inventory = this.gameState.inventory.filter(item => item !== itemKey);
+                return `You drink the healing potion and restore ${healAmount} health points.`;
+
+            case 'encryption_key':
+                return `You hold up the encryption key. It glows softly, ready to unlock encrypted barriers.`;
+
             default:
-                this.addToOutput(`You can't use the ${this.getItemName(itemKey)} right now.`);
+                return `You can't use the ${this.items[itemKey].name} right now.`;
         }
     }
 
-    static attackCommand(target) {
-        const location = this.gameState.locations[this.gameState.location];
-
-        if (!location.monster) {
-            this.addToOutput("There's nothing here to attack.");
-            return;
-        }
-
-        if (location.monster === 'skeleton_guard') {
-            const hasWeapon = this.gameState.inventory.includes('sword') || this.gameState.inventory.includes('shield');
-
-            if (hasWeapon) {
-                this.addToOutput("⚔️ You battle the skeleton guard fiercely!");
-                this.addToOutput("💀 The skeleton crumbles to dust! You are victorious!");
-                delete location.monster;
-                this.gameState.score += 50;
-                this.gameState.health -= 20;
-                this.addToOutput("You take some damage in the fight. (-20 health)");
-            } else {
-                this.addToOutput("You attack with your bare hands but it's not very effective!");
-                this.gameState.health -= 30;
-                this.addToOutput("The skeleton guard strikes back! (-30 health)", 'error');
-
-                if (this.gameState.health <= 0) {
-                    this.gameState.health = 0;
-                    this.addToOutput("💀 You have died! Game Over.", 'error');
-                    this.addToOutput("Type 'new game' to start over.");
-                }
-            }
-        }
-    }
-
-    static castCommand(spell) {
-        if (this.gameState.magic < 10) {
-            this.addToOutput("You don't have enough magic energy to cast a spell!");
-            return;
-        }
-
-        if (!this.gameState.inventory.includes('spell_book')) {
-            this.addToOutput("You need a spell book to cast spells!");
-            return;
-        }
-
-        switch (spell) {
-            case 'heal':
-            case 'healing':
-                this.gameState.magic -= 10;
-                this.gameState.health = Math.min(100, this.gameState.health + 25);
-                this.addToOutput("✨ You cast a healing spell! (+25 health, -10 magic)");
-                break;
-            case 'light':
-                this.gameState.magic -= 5;
-                this.addToOutput("🔮 You cast a light spell! The area around you glows brightly.");
-                break;
-            default:
-                this.addToOutput("You don't know that spell. Try 'heal' or 'light'.");
-        }
-    }
-
-    static examineCommand(target) {
-        const descriptions = {
-            sword: "A rusty but serviceable sword. It looks like it could still be useful in combat.",
-            bread: "A simple loaf of bread. It looks filling and nutritious.",
-            key: "An ornate golden key with mysterious runes carved into it.",
-            torch: "A wooden torch that burns with a steady flame.",
-            shield: "A sturdy wooden shield with metal reinforcements.",
-            spell_book: "An ancient tome filled with magical incantations and mystical symbols.",
-            potion: "A small blue bottle containing a swirling magical liquid.",
-            healing_herb: "A green herb that radiates a soothing aura.",
-            crystal_of_power: "A magnificent crystal that pulses with inner light and magical energy!"
-        };
-
-        const itemKey = this.findItemKey(target);
-
-        if (itemKey && descriptions[itemKey]) {
-            this.addToOutput(descriptions[itemKey]);
-        } else {
-            this.addToOutput(`You don't see anything special about the ${target}.`);
-        }
-    }
-
-    static inventoryCommand() {
+    static showInventory() {
         if (this.gameState.inventory.length === 0) {
-            this.addToOutput("Your inventory is empty.");
-        } else {
-            const items = this.gameState.inventory.map(item => this.getItemName(item)).join(', ');
-            this.addToOutput(`You are carrying: ${items}`);
+            return `Your inventory is empty.`;
         }
+
+        const items = this.gameState.inventory.map(itemKey => {
+            const item = this.items[itemKey];
+            return `${item.icon} ${item.name}`;
+        }).join('\n');
+
+        return `Inventory:\n${items}`;
     }
 
-    static helpCommand() {
-        const helpText = `
-**Available Commands:**
-• **Movement:** north, south, east, west (or n, s, e, w)
-• **Look:** look, look around, examine [item]
-• **Items:** take [item], drop [item], use [item]
-• **Inventory:** inventory (or inv, i)
-• **Combat:** attack [target]
-• **Magic:** cast [spell] (requires spell book)
-• **Game:** help, new game, save, load
+    static showHelp() {
+        return `Available Commands:
+        
+Movement: go [direction], north, south, east, west
+Interaction: take [item], use [item], examine [object]
+Information: inventory, health, score, look
+System: help, save, load
 
-**Tips:**
-• Explore all areas to find items and increase your score
-• Use items like healing herbs and potions to restore health and magic
-• Some areas may have monsters that need to be defeated
-• Your goal is to find the Crystal of Power hidden in the castle
-        `;
-        this.addToOutput(helpText);
-    }
+Examples:
+• go north (move north)
+• take crystal (pick up an item)
+• use flashlight (use an item)
+• examine room (look around)
 
-    static newGame() {
-        if (confirm('Start a new game? This will reset all progress.')) {
-            this.gameState = this.getInitialGameState();
-            this.commandHistory = [];
-            this.clearOutput();
-            this.addToOutput("🏰 **New Adventure Begins!**", 'success');
-            this.addToOutput("You stand before the mysterious castle once again...");
-            this.lookCommand();
-            this.updateDisplay();
-            this.saveGameToStorage();
-        }
+Use the quick command buttons or type commands directly!`;
     }
 
     static saveGame() {
         try {
-            const saveData = {
-                gameState: this.gameState,
-                timestamp: new Date().toISOString()
-            };
-            localStorage.setItem('textadventure_save', JSON.stringify(saveData));
-            this.addToOutput("Game saved successfully!", 'success');
+            localStorage.setItem('textadventure_save', JSON.stringify(this.gameState));
+            return `Game saved successfully!`;
         } catch (error) {
-            this.addToOutput("Failed to save game.", 'error');
+            return `Failed to save game.`;
         }
     }
 
@@ -922,175 +699,64 @@ class TextAdventure {
         try {
             const saveData = localStorage.getItem('textadventure_save');
             if (saveData) {
-                const parsed = JSON.parse(saveData);
-                this.gameState = parsed.gameState;
-                this.clearOutput();
-                this.addToOutput("Game loaded successfully!", 'success');
-                this.lookCommand();
-                this.updateDisplay();
+                this.gameState = JSON.parse(saveData);
+                return `Game loaded successfully!`;
             } else {
-                this.addToOutput("No saved game found.");
+                return `No saved game found.`;
             }
         } catch (error) {
-            this.addToOutput("Failed to load game.", 'error');
+            return `Failed to load game.`;
         }
     }
 
-    static showHelp() {
-        this.helpCommand();
-    }
+    static addStoryText(text) {
+        const storyContent = this.currentWindow.querySelector('#story-content');
 
-    // Helper methods
-    static findItemKey(itemName) {
-        const items = {
-            sword: 'sword',
-            bread: 'bread',
-            key: 'key',
-            torch: 'torch',
-            shield: 'shield',
-            'spell book': 'spell_book',
-            book: 'spell_book',
-            potion: 'potion',
-            'healing herb': 'healing_herb',
-            herb: 'healing_herb',
-            'crystal of power': 'crystal_of_power',
-            crystal: 'crystal_of_power'
-        };
+        const newText = document.createElement('div');
+        newText.className = 'story-text';
+        newText.innerHTML = `<p>${text.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>')}</p>`;
 
-        return items[itemName.toLowerCase()];
-    }
-
-    static getItemName(itemKey) {
-        const names = {
-            sword: 'Rusty Sword',
-            bread: 'Bread',
-            key: 'Golden Key',
-            torch: 'Torch',
-            shield: 'Shield',
-            spell_book: 'Spell Book',
-            potion: 'Magic Potion',
-            healing_herb: 'Healing Herb',
-            crystal_of_power: 'Crystal of Power'
-        };
-
-        return names[itemKey] || itemKey;
-    }
-
-    static getMonsterName(monsterKey) {
-        const names = {
-            skeleton_guard: 'Skeleton Guard'
-        };
-
-        return names[monsterKey] || monsterKey;
-    }
-
-    static addToOutput(text, type = 'normal') {
-        const output = this.currentWindow.querySelector('#story-output');
-        const div = document.createElement('div');
-        div.className = `game-output ${type}`;
-
-        // Convert **text** to bold
-        const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        div.innerHTML = formattedText;
-
-        output.appendChild(div);
-        output.scrollTop = output.scrollHeight;
-    }
-
-    static clearOutput() {
-        const output = this.currentWindow.querySelector('#story-output');
-        output.innerHTML = `
-            <div class="intro-text">
-                <h3>Welcome to The Lost Castle Adventure!</h3>
-                <p>You are a brave adventurer standing before a mysterious ancient castle. 
-                Dark clouds gather overhead, and you can hear strange sounds echoing from within.</p>
-                <p>Your quest is to find the legendary Crystal of Power hidden somewhere in the castle's depths.</p>
-                <p class="command-prompt">What would you like to do?</p>
-            </div>
-        `;
+        storyContent.appendChild(newText);
+        storyContent.scrollTop = storyContent.scrollHeight;
     }
 
     static updateDisplay() {
         // Update health bar
         const healthBar = this.currentWindow.querySelector('#health-bar');
-        const healthValue = this.currentWindow.querySelector('#health-value');
-        if (healthBar && healthValue) {
-            healthBar.style.width = this.gameState.health + '%';
-            healthValue.textContent = this.gameState.health;
-        }
+        const healthText = this.currentWindow.querySelector('#health-text');
+        const healthPercent = (this.gameState.health / this.gameState.maxHealth) * 100;
 
-        // Update magic bar
-        const magicBar = this.currentWindow.querySelector('#magic-bar');
-        const magicValue = this.currentWindow.querySelector('#magic-value');
-        if (magicBar && magicValue) {
-            magicBar.style.width = this.gameState.magic + '%';
-            magicValue.textContent = this.gameState.magic;
-        }
+        healthBar.style.width = healthPercent + '%';
+        healthText.textContent = `${this.gameState.health}/${this.gameState.maxHealth}`;
 
         // Update score
-        const scoreValue = this.currentWindow.querySelector('#score-value');
-        if (scoreValue) {
-            scoreValue.textContent = this.gameState.score;
-        }
+        const scoreText = this.currentWindow.querySelector('#score-text');
+        scoreText.textContent = this.gameState.score;
 
         // Update location
-        const locationName = this.currentWindow.querySelector('#current-location');
-        const locationDesc = this.currentWindow.querySelector('#location-desc');
-        const currentLoc = this.gameState.locations[this.gameState.location];
+        const locationText = this.currentWindow.querySelector('#location-text');
+        const currentLocation = this.locations[this.gameState.location];
+        locationText.textContent = currentLocation.name;
 
-        if (locationName && locationDesc && currentLoc) {
-            locationName.textContent = currentLoc.name;
-            locationDesc.textContent = currentLoc.description;
-        }
-
-        // Update inventory
-        const inventoryList = this.currentWindow.querySelector('#inventory-list');
-        if (inventoryList) {
-            inventoryList.innerHTML = this.gameState.inventory.length > 0
-                ? this.gameState.inventory.map(item =>
-                    `<div class="inventory-item">${this.getItemEmoji(item)} ${this.getItemName(item)}</div>`
-                  ).join('')
-                : '<div class="inventory-item" style="opacity: 0.5;">Empty</div>';
-        }
+        // Update inventory display
+        this.updateInventoryDisplay();
     }
 
-    static getItemEmoji(itemKey) {
-        const emojis = {
-            sword: '🗡️',
-            bread: '🍞',
-            key: '🗝️',
-            torch: '🔦',
-            shield: '🛡️',
-            spell_book: '📚',
-            potion: '🧪',
-            healing_herb: '🌿',
-            crystal_of_power: '💎'
-        };
+    static updateInventoryDisplay() {
+        const inventoryGrid = this.currentWindow.querySelector('#inventory-grid');
 
-        return emojis[itemKey] || '📦';
-    }
-
-    static saveGameToStorage() {
-        try {
-            localStorage.setItem('textadventure_autosave', JSON.stringify(this.gameState));
-        } catch (error) {
-            console.log('Auto-save failed');
-        }
-    }
-
-    static loadGameFromStorage() {
-        try {
-            const saved = localStorage.getItem('textadventure_autosave');
-            if (saved) {
-                this.gameState = JSON.parse(saved);
-            }
-        } catch (error) {
-            console.log('Auto-load failed, using default state');
-        }
+        inventoryGrid.innerHTML = this.gameState.inventory.map(itemKey => {
+            const item = this.items[itemKey];
+            return `
+                <div class="inventory-item">
+                    <div class="item-icon">${item.icon}</div>
+                    <div class="item-name">${item.name}</div>
+                </div>
+            `;
+        }).join('');
     }
 
     static onClose(windowElement) {
-        this.saveGameToStorage();
         return true;
     }
 }
